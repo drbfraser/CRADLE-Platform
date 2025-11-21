@@ -437,7 +437,7 @@ export const ViewWorkflowTemplate = () => {
             return {
               ...step,
               branches:
-                cleanedBranches.length > 0 ? cleanedBranches : undefined,
+                cleanedBranches.length > 0 ? cleanedBranches : [],
             };
           }
           return step;
