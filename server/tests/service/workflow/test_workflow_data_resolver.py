@@ -7,11 +7,14 @@ from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataRes
 class TestWorkflowDataResolverUnit:
     """Unit tests for WorkflowDataResolver"""
 
-    @patch("service.workflow.datasourcing.data_sourcing.resolve_variables")
+    @patch("service.workflow.datasourcing.workflow_data_resolver.resolve_variables")
     def test_resolve_data_for_branches_calls_resolve_variables(
         self, mock_resolve_variables
     ):
-        mock_catalogue = Mock()
+        mock_catalogue = {
+            "patient": {"query": Mock(), "custom": {}},
+            "reading": {"query": Mock(), "custom": {}},
+        }
         mock_resolve_variables.return_value = {"patient.age": 25}
 
         resolver = WorkflowDataResolver(catalogue=mock_catalogue)
@@ -33,11 +36,14 @@ class TestWorkflowDataResolverUnit:
 
         assert result == {"patient.age": 25}
 
-    @patch("service.workflow.datasourcing.data_sourcing.resolve_variables")
+    @patch("service.workflow.datasourcing.workflow_data_resolver.resolve_variables")
     def test_resolve_data_for_branches_with_multiple_variables(
         self, mock_resolve_variables
     ):
-        mock_catalogue = Mock()
+        mock_catalogue = {
+            "patient": {"query": Mock(), "custom": {}},
+            "reading": {"query": Mock(), "custom": {}},
+        }
         mock_resolve_variables.return_value = {
             "patient.age": 30,
             "patient.sex": "FEMALE",
@@ -61,12 +67,15 @@ class TestWorkflowDataResolverUnit:
             "reading.systolic": 120,
         }
 
-    @patch("service.workflow.evaluate.rules_engine.evaluate_branches")
-    @patch("service.workflow.datasourcing.data_sourcing.resolve_variables")
+    @patch("service.workflow.datasourcing.workflow_data_resolver.evaluate_branches")
+    @patch("service.workflow.datasourcing.workflow_data_resolver.resolve_variables")
     def test_evaluate_workflow_branches_passes_resolved_data(
         self, mock_resolve_variables, mock_evaluate_branches
     ):
-        mock_catalogue = Mock()
+        mock_catalogue = {
+            "patient": {"query": Mock(), "custom": {}},
+            "reading": {"query": Mock(), "custom": {}},
+        }
         mock_resolve_variables.return_value = {"patient.age": 25}
         mock_evaluate_branches.return_value = {
             "status": "TRUE",
@@ -97,7 +106,8 @@ class TestIntegrationWithRealCatalogue:
             "id": "patient_456",
             "name": "Senior Patient",
             "sex": "MALE",
-            "age": 75,
+            "date_of_birth": "1950-01-01",  
+            "is_exact_date_of_birth": True,
             "is_pregnant": False,
         }
 
@@ -153,11 +163,19 @@ class TestIntegrationWithMultipleDataSources:
                     "id": "patient_123",
                     "name": "Test Patient",
                     "sex": "FEMALE",
-                    "age": 30,
+                    "date_of_birth": "1995-01-01",  
+                    "is_exact_date_of_birth": True,
                     "is_pregnant": True,
                 }
             if model_class == ReadingOrm:
-                return {"patient_id": "patient_123", "systolic": 150, "diastolic": 95}
+                return {
+                    "id": "reading_123",
+                    "patient_id": "patient_123",
+                    "systolic_blood_pressure": 150,
+                    "diastolic_blood_pressure": 95,
+                    "heart_rate": 70,
+                    "date_taken": 1234567890,
+                }
             return {}
 
         mock_read.side_effect = mock_read_side_effect
@@ -167,7 +185,7 @@ class TestIntegrationWithMultipleDataSources:
 
         branches = [
             {
-                "rule": '{"and": [{"==": [{"var": "patient.sex"}, "FEMALE"]}, {">=": [{"var": "reading.systolic"}, 140]}]}',
+                "rule": '{"and": [{"==": [{"var": "patient.sex"}, "FEMALE"]}, {">=": [{"var": "reading.systolic_blood_pressure"}, 140]}]}',
                 "target_step_id": "high_bp_female",
             }
         ]
