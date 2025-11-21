@@ -233,7 +233,7 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
     :param d: Workflow template payload dictionary.
     :return: ``WorkflowTemplateOrm`` with steps/classification set.
     """
-    with db_session.no_autoflush():
+    with db_session.no_autoflush:
         steps = []
         classification = None
 
