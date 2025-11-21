@@ -40,6 +40,7 @@ from .common_crud import (
     merge,
     read,
     read_all,
+    read_by_filter,
     update,
 )
 from .form_queries import (
@@ -108,6 +109,7 @@ __all__ = [
     "find",
     "read",
     "read_all",
+    "read_by_filter",
     "update",
     "merge",
     # form_queries

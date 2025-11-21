@@ -59,7 +59,7 @@ class Config:
         },
         "formatters": {
             "json_formatter": {
-                "()": "pythonjsonlogger.json.JsonFormatter",
+                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
                 "fmt": "%(asctime) %(name)-12s %(levelname)-8s %(request_id)s - %(message)s",
             },
         },
