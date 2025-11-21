@@ -1,7 +1,11 @@
 import { ID, ISODate, Nullable } from '../../constants';
 import { FormTemplate } from '../form/formTemplateTypes';
 import { CForm } from '../form/formTypes';
-import { InstanceStatus, StepStatus } from './workflowEnums';
+import {
+  InstanceStatus,
+  InstanceStepAction,
+  StepStatus,
+} from './workflowEnums';
 export interface RuleGroup {
   id: ID;
   rule: string; // JSON object representing a structured rule
@@ -113,6 +117,18 @@ export interface WorkflowInstance {
   lastEdited: number;
   lastEditedBy?: ID;
   completionDate?: number;
+}
+
+export interface WorkflowInstanceAction {
+  stepId: ID;
+  type: InstanceStepAction;
+}
+
+export interface ApplyInstanceStepAction {
+  action: {
+    type: InstanceStepAction;
+    step_id: ID;
+  };
 }
 
 // Payload for POST /workflow/instances

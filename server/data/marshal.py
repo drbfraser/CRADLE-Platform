@@ -732,7 +732,7 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     __pre_process(d)
 
     if wis.form is not None:
-        d["formId"] = wis.form.id
+        d["form_id"] = wis.form.id
         d["form"] = __marshal_form(wis.form, shallow=True)
     else:
         d["form"] = None

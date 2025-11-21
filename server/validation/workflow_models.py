@@ -8,8 +8,6 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
-from validation.forms import FormModel
-from validation.formTemplates import FormTemplateUpload
 from validation.rule_groups import RuleGroupModel
 
 
@@ -50,7 +48,9 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     form_id: Optional[str] = None
     workflow_template_id: str
     # TODO: Account for different types of form template validators?
-    form: Optional[FormTemplateUpload] = None
+    form: Optional[dict] = (
+        None  # TODO: Was initially FormTemplateUpload, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
+    )
     branches: list[WorkflowTemplateStepBranchModel]
 
 
@@ -89,7 +89,9 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     data: Optional[str] = None
     triggered_by: Optional[str] = None
     form_id: Optional[str] = None
-    form: Optional[FormModel] = None
+    form: Optional[dict] = (
+        None  # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
+    )
 
     @field_validator("data", mode="after")
     @classmethod
