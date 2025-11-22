@@ -106,7 +106,7 @@ class TestWorkflowDataResolverIntegration:
         assert result["status"] == "TRUE"
         assert result["branch"]["target_step_id"] == "high_bp_female"
 
-    def test_evaluate_with_real_patient_database(self, _database):
+    def test_evaluate_with_real_patient_database(self, database):
         patient = PatientOrm(
             id="real_patient_123",
             name="Real Patient",
@@ -134,7 +134,7 @@ class TestWorkflowDataResolverIntegration:
         finally:
             crud.delete(patient)
 
-    def test_patient_and_reading_real_database(self, _database):
+    def test_patient_and_reading_real_database(self, database):
         patient = PatientOrm(
             id="patient_reading_789",
             name="BP Test Patient",
@@ -176,7 +176,7 @@ class TestWorkflowDataResolverIntegration:
             crud.delete(reading)
             crud.delete(patient)
 
-    def test_missing_data_real_database(self, _database):
+    def test_missing_data_real_database(self, database):
         patient = PatientOrm(
             id="patient_no_reading_999",
             name="No Reading Patient",
