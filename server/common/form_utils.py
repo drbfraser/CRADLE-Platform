@@ -1,30 +1,10 @@
 from __future__ import annotations
 
-import csv
 import json
 from typing import TYPE_CHECKING, Any, Dict, Type
 
 import data.db_operations as crud
 from common import commonUtil
-from common.constants import (
-    FORM_TEMPLATE_LANGUAGES_COL,
-    FORM_TEMPLATE_LANGUAGES_ROW,
-    FORM_TEMPLATE_NAME_COL,
-    FORM_TEMPLATE_NAME_ROW,
-    FORM_TEMPLATE_QUESTION_ID_COL,
-    FORM_TEMPLATE_QUESTION_LINE_COUNT_COL,
-    FORM_TEMPLATE_QUESTION_MAX_VALUE_COL,
-    FORM_TEMPLATE_QUESTION_MIN_VALUE_COL,
-    FORM_TEMPLATE_QUESTION_OPTIONS_COL,
-    FORM_TEMPLATE_QUESTION_REQUIRED_COL,
-    FORM_TEMPLATE_QUESTION_TEXT_COL,
-    FORM_TEMPLATE_QUESTION_TYPE_COL,
-    FORM_TEMPLATE_QUESTION_UNITS_COL,
-    FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL,
-    FORM_TEMPLATE_ROW_LENGTH,
-    FORM_TEMPLATE_VERSION_COL,
-    FORM_TEMPLATE_VERSION_ROW,
-)
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
@@ -36,8 +16,6 @@ from models import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from data.crud import M
 
 
@@ -134,181 +112,6 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
         if mc_opts:
             for opt in mc_opts:
                 _assign_id(opt, "string_id")
-
-
-# TODO: Update this function once a form template csv format has been finalized
-def getFormTemplateDictFromCSV(csvData: str):
-    """
-    Returns a dictionary of form templates from a CSV file.
-    """
-
-    # Helper functions
-    def isRowEmpty(row: Iterable) -> bool:
-        return all(map(lambda val: val == "", row))
-
-    def isQuestionRequired(required: str) -> bool:
-        return len(required) > 0 and required.upper()[0] == "Y"
-
-    def toNumberOrNone(strVal: str) -> int | float | None:
-        if strVal == "":
-            return None
-
-        return float(strVal) if "." in strVal else int(strVal)
-
-    def toMcOptions(strVal: str) -> list[dict[str, int | str]]:
-        return [
-            {"mc_id": index, "opt": opt.strip()}
-            for index, opt in enumerate(strVal.split(","))
-            if len(opt.strip()) > 0
-        ]
-
-    def getQuestionLanguageVersionFromRow(row: list) -> dict:
-        return {
-            "question_text": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
-            "mc_options": toMcOptions(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
-            "lang": row[FORM_TEMPLATE_LANGUAGES_COL].strip(),
-        }
-
-    def findCategoryIndex(
-        categoryList: list[dict[str, Any]],
-        categoryText: str,
-    ) -> int | None:
-        for category in categoryList:
-            for languageVersion in category["lang_versions"]:
-                if languageVersion["question_text"] == categoryText:
-                    return category["question_index"]
-
-        return None
-
-    result: dict = dict()
-
-    csv_reader = csv.reader(csvData.splitlines())
-    rows = []
-
-    for index, row in enumerate(csv_reader):
-        if len(row) != FORM_TEMPLATE_ROW_LENGTH:
-            raise RuntimeError(
-                f"All Rows must have {FORM_TEMPLATE_ROW_LENGTH} columns. Row {index} has {len(row)} columns.",
-            )
-
-        rows.append(row)
-
-    languages = [
-        language.strip()
-        for language in rows[FORM_TEMPLATE_LANGUAGES_ROW][
-            FORM_TEMPLATE_LANGUAGES_COL
-        ].split(",")
-    ]
-
-    result["classification"] = {
-        "name": rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL],
-    }
-    result["version"] = rows[FORM_TEMPLATE_VERSION_ROW][FORM_TEMPLATE_VERSION_COL]
-    result["questions"] = []
-
-    categoryIndex = None
-    categoryList: list[dict[str, Any]] = []
-
-    questionRows = iter(rows[4:])
-    question_index = 0
-
-    for row in questionRows:
-        if isRowEmpty(row):
-            categoryIndex = None
-            continue
-
-        type = str(row[FORM_TEMPLATE_QUESTION_TYPE_COL]).upper()
-
-        if type not in QuestionTypeEnum.listNames():
-            raise RuntimeError("Invalid Question Type Encountered")
-
-        visibilityConditionsText = str.strip(
-            row[FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL],
-        )
-
-        visibilityConditions: list = []
-
-        if len(visibilityConditionsText) > 0:
-            if question_index == 0:
-                raise RuntimeError(
-                    "First questions cannot have a visibility condition.",
-                )
-
-            previousQuestion = result["questions"][question_index - 1]
-
-            visibilityConditions.append(
-                commonUtil.parseCondition(previousQuestion, visibilityConditionsText),
-            )
-
-        question = {
-            "question_id": row[FORM_TEMPLATE_QUESTION_ID_COL],
-            "question_index": question_index,
-            "question_type": QuestionTypeEnum[type].value,
-            "lang_versions": [],
-            "required": isQuestionRequired(row[FORM_TEMPLATE_QUESTION_REQUIRED_COL]),
-            "num_max": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
-            "num_min": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
-            "string_max_length": toNumberOrNone(
-                row[FORM_TEMPLATE_QUESTION_LINE_COUNT_COL],
-            ),
-            "units": row[FORM_TEMPLATE_QUESTION_UNITS_COL],
-            "visible_condition": visibilityConditions,
-            "category_index": categoryIndex,
-        }
-
-        questionLangVersion = getQuestionLanguageVersionFromRow(row)
-
-        if type == "CATEGORY":
-            existingCategoryIndex = findCategoryIndex(
-                categoryList=categoryList,
-                categoryText=questionLangVersion["question_text"],
-            )
-
-            if existingCategoryIndex is not None:
-                categoryIndex = existingCategoryIndex
-                continue
-
-        question_lang_versions = dict(
-            [(questionLangVersion["lang"], questionLangVersion)],
-        )
-
-        for _ in range(len(languages) - 1):
-            row = next(questionRows, None)
-
-            if row is None or isRowEmpty(row):
-                raise RuntimeError(
-                    "All Questions must be provided in all the languages supported by the form",
-                )
-
-            questionLangVersion = getQuestionLanguageVersionFromRow(row)
-            language: str = questionLangVersion["lang"]
-
-            if language not in languages:
-                raise RuntimeError(
-                    "Language {} for question #{} not listed in Form Languages [{}].".format(
-                        language,
-                        question_index + 1,
-                        str.join(", ", languages),
-                    ),
-                )
-
-            if language in question_lang_versions:
-                raise RuntimeError(
-                    f"Language {language} defined multiple times for question #{question_index + 1}",
-                )
-
-            question_lang_versions[language] = getQuestionLanguageVersionFromRow(row)
-
-        question["lang_versions"] = list(question_lang_versions.values())
-
-        if type == "CATEGORY":
-            categoryList.append(question)
-            categoryIndex = question_index
-
-        result["questions"].append(question)
-        question_index += 1
-
-    return result
 
 
 def getCsvFromFormTemplate(form_template: FormTemplateOrm):
