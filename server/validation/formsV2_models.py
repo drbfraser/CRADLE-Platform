@@ -11,7 +11,7 @@ from validation import CradleBaseModel
 
 
 class FormTemplateV2Response(CradleBaseModel):
-    """Response model for a single form template V2"""
+    """Response model for a single shallow form template V2, without any questions"""
 
     id: str
     form_classification_id: str
@@ -100,53 +100,6 @@ class VisibleCondition(CradleBaseModel, use_enum_values=True):
     relation: QRelationalEnum
 
 
-class QuestionResponse(CradleBaseModel):
-    id: str
-    form_template_id: str
-    question_type: QuestionTypeEnum
-    order: int
-
-    # can be either {"english": "..."} or "Basic Info"
-    question_text: Union[MultiLangText, str]
-    question_string_id: Optional[str]
-
-    category_index: Optional[int] = None
-    required: bool
-    has_comment_attached: bool
-    allow_future_dates: bool
-    allow_past_dates: bool
-    visible_condition: Optional[list[VisibleCondition]] = []
-
-    # can be ["Male", "Female"] or [{"english": "Male"}, {...}]
-    mc_options: Optional[List[Union[MultiLangText, str]]] = None
-
-
-class FormClassification(CradleBaseModel):
-    id: Optional[str] = None
-    name: MultiLangText
-    name_string_id: Optional[str] = None
-
-
-class FormTemplateResponse(CradleBaseModel):
-    id: str
-    archived: bool
-    classification: FormClassification
-    date_created: int
-    version: str
-    questions: List[QuestionResponse]
-
-
-class FormTemplateVersionPath(FormTemplateIdPath):
-    version: str = Field(..., description="Form Template version.")
-
-
-class ArchiveFormTemplateQuery(CradleBaseModel):
-    archived: bool = Field(
-        True,
-        description="If true, the Form Template will be archived. If false, the Form Template will be unarchived.",
-    )
-
-
 class MCOption(CradleBaseModel):
     string_id: Optional[str] = None
     translations: MultiLangText
@@ -155,22 +108,22 @@ class MCOption(CradleBaseModel):
         extra = "forbid"
 
 
-class FormTemplateUploadQuestion(CradleBaseModel):
-    id: Optional[str] = None
-    form_template_id: Optional[str] = None
+class FormTemplateQuestion(CradleBaseModel):
+    id: str
+    form_template_id: str
     question_type: QuestionTypeEnum
     order: int
 
     question_text: MultiLangText
     question_string_id: Optional[str] = None
+
+    category_index: Optional[int] = None
     required: bool
     has_comment_attached: Optional[bool] = False
     allow_future_dates: Optional[bool] = None
     allow_past_dates: Optional[bool] = None
 
     visible_condition: Optional[list[VisibleCondition]] = []
-
-    category_index: Optional[int] = None
 
     string_max_length: Optional[int] = None
     string_max_lines: Optional[int] = None
@@ -184,10 +137,38 @@ class FormTemplateUploadQuestion(CradleBaseModel):
     mc_options: Optional[List[MCOption]] = None
 
 
-class FormTemplateUploadRequest(CradleBaseModel):
+class FormClassification(CradleBaseModel):
     id: Optional[str] = None
-    version: Optional[int]
-    archived: bool = False
+    name: MultiLangText
+    name_string_id: Optional[str] = None
+
+
+class FormTemplate(CradleBaseModel):
+    id: str
+    version: int
+    archived: bool
     classification: FormClassification
-    date_created: int = get_current_time()
+    date_created: int = Field(default_factory=get_current_time)
+    questions: List[FormTemplateQuestion]
+
+
+class FormTemplateVersionPath(FormTemplateIdPath):
+    version: str = Field(..., description="Form Template version.")
+
+
+class ArchiveFormTemplateQuery(CradleBaseModel):
+    archived: bool = Field(
+        True,
+        description="If true, the Form Template will be archived. If false, the Form Template will be unarchived.",
+    )
+
+
+class FormTemplateUploadQuestion(FormTemplateQuestion):
+    id: Optional[str] = None
+    form_template_id: Optional[str] = None
+
+
+class FormTemplateUploadRequest(FormTemplate):
+    id: Optional[str] = None
+    version: Optional[int] = 1
     questions: List[FormTemplateUploadQuestion]

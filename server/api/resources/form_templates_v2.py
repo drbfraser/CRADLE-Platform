@@ -21,8 +21,8 @@ from models import (
 from validation.file_upload import FileUploadForm
 from validation.formsV2_models import (
     ArchiveFormTemplateQuery,
+    FormTemplate,
     FormTemplateListV2Response,
-    FormTemplateResponse,
     FormTemplateUploadRequest,
     FormTemplateV2Response,
     FormTemplateVersionPath,
@@ -133,9 +133,7 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
 
 
 # /api/forms/templates/<string:form_template_id> [GET]
-@api_form_templates_v2.get(
-    "/<string:form_template_id>", responses={200: FormTemplateResponse}
-)
+@api_form_templates_v2.get("/<string:form_template_id>", responses={200: FormTemplate})
 def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query):
     """Get a single-language or full form template (V2)"""
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
@@ -156,9 +154,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
             form_template,
             shallow=False,
         )
-        full_template = form_utils.format_template_multilang(
-            full_template, available_langs
-        )
+        full_template = form_utils.format_template(full_template, available_langs)
         return full_template, 200
 
     if lang not in available_langs:
@@ -168,7 +164,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
         )
 
     single_lang_template = marshal.marshal(form_template, shallow=False)
-    single_lang_template = form_utils.format_template(single_lang_template, lang)
+    single_lang_template = form_utils.format_template(single_lang_template, [lang])
     single_lang_template["questions"].sort(key=lambda q: q["order"])
 
     return single_lang_template, 200
