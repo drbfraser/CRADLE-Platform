@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, TypeAlias, Union
 
 from json_logic import jsonLogic
 
@@ -16,6 +16,9 @@ class RuleStatus(str, Enum):
     FALSE = "FALSE"
     NOT_ENOUGH_DATA = "NOT_ENOUGH_DATA"
     NO_MATCH = "NO_MATCH"
+
+
+ResolvedVars: TypeAlias = Dict[str, Union[int, float, str, bool]]
 
 
 def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:

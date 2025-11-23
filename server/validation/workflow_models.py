@@ -7,6 +7,7 @@ from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
+from service.workflow.evaluate.rules_engine import ResolvedVars, RuleStatus
 from validation import CradleBaseModel
 from validation.forms import FormModel
 from validation.formTemplates import FormTemplateUpload
@@ -171,3 +172,15 @@ WorkflowActionModel = Union[
     StartStepActionModel,
     CompleteStepActionModel,
 ]
+
+
+class WorkflowBranchEvaluation(CradleBaseModel):
+    branch_id: str
+    rule: Optional[str]
+    resolved_vars: ResolvedVars
+    rule_status: RuleStatus
+
+
+class WorkflowStepEvaluation(CradleBaseModel):
+    branch_evaluations: list[WorkflowBranchEvaluation]
+    selected_branch_id: Optional[str]
