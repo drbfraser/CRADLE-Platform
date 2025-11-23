@@ -1,21 +1,14 @@
-import { HistoryManager, HistoryState} from 'src/shared/types/workflow/workflowTempalateEditorType';
+import { HistoryManager } from 'src/shared/types/workflow/workflowTempalateEditorType';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 export const initHistory = (
     manager: HistoryManager,
     initialWorkflow: WorkflowTemplate,
-    selectedStepId?: string,
 ): HistoryManager => {
-
-    const state: HistoryState = {
-        workflow: deepClone(initialWorkflow),
-        selectedStepId: selectedStepId,
-        action: 'INITIAL_STATE',
-    };
 
     return {
         ...manager,
-        history: [state],
+        history: [deepClone(initialWorkflow)],
         currentIndex: 0,
     }
 }
@@ -27,19 +20,11 @@ export const deepClone = <T>(obj: T): T => {
 export const captureState = (
     manager: HistoryManager,
     workflow: WorkflowTemplate,
-    selectedStepId?: string,
-    action?: string,
 ) => {
-
-    const state: HistoryState = {
-        workflow: deepClone(workflow),
-        selectedStepId: selectedStepId,
-        action: action,
-    };
 
     const newHistory = manager.history.slice(0, manager.currentIndex + 1);
 
-    newHistory.push(state);
+    newHistory.push(deepClone(workflow));
 
     let updatedHistory = newHistory;
     let newIndex = newHistory.length - 1;
@@ -58,7 +43,7 @@ export const captureState = (
 
 export const performUndo = (
     manager: HistoryManager
-  ): { manager: HistoryManager; stateToRestore: HistoryState | null } => {
+  ): { manager: HistoryManager; stateToRestore: WorkflowTemplate | null } => {
     if (manager.currentIndex <= 0) {
       return { manager, stateToRestore: null };
     }
@@ -76,7 +61,7 @@ export const performUndo = (
 
   export const performRedo = (
     manager: HistoryManager
-  ): { manager: HistoryManager; stateToRestore: HistoryState | null } => {
+  ): { manager: HistoryManager; stateToRestore: WorkflowTemplate | null } => {
     if (manager.currentIndex >= manager.history.length - 1){
         return { manager, stateToRestore: null };
     }

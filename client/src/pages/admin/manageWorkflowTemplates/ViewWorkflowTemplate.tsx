@@ -57,12 +57,7 @@ export const ViewWorkflowTemplate = () => {
     redo,
     clearHistory,
     historyManager,
-  } = useUndoRedo(
-    editedWorkflow,
-    setEditedWorkflow,
-    selectedStepId,
-    setSelectedStepId
-  );
+  } = useUndoRedo(editedWorkflow, setEditedWorkflow);
 
   // Debug log for undo redo history
   useEffect(() => {
@@ -113,7 +108,7 @@ export const ViewWorkflowTemplate = () => {
     const initialWorkflow = { ...workflowTemplateQuery.data };
     setEditedWorkflow(initialWorkflow);
     setHasChanges(false);
-    
+
     initHistory(initialWorkflow);
   };
 
@@ -232,6 +227,9 @@ export const ViewWorkflowTemplate = () => {
           : [{ stepId: currentStep.id, targetStepId: newStepId }], // If no branches existed, create one pointing to new step
     };
 
+    // Capture the new workflow state
+    let newWorkflow: WorkflowTemplate | null = null;
+
     // Update the workflow with the modifications
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
@@ -242,17 +240,23 @@ export const ViewWorkflowTemplate = () => {
       );
 
       // Add the new step to the array
-      return {
+      newWorkflow = {
         ...prev,
         steps: [...updatedSteps, newStep],
       };
+
+      return newWorkflow;
     });
 
     setHasChanges(true);
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
-    captureCurrentState('insertNode');
+
+    // Capture state with the new workflow
+    if (newWorkflow) {
+      captureCurrentState(newWorkflow);
+    }
   };
 
   const handleAddBranch = (stepId: string) => {
@@ -295,6 +299,9 @@ export const ViewWorkflowTemplate = () => {
         : [newBranch],
     };
 
+    // Capture the new workflow state
+    let newWorkflow: WorkflowTemplate | null = null;
+
     // Update the workflow
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
@@ -305,10 +312,12 @@ export const ViewWorkflowTemplate = () => {
       );
 
       // Add the new step to the array
-      return {
+      newWorkflow = {
         ...prev,
         steps: [...updatedSteps, newStep],
       };
+
+      return newWorkflow;
     });
 
     setHasChanges(true);
@@ -316,7 +325,10 @@ export const ViewWorkflowTemplate = () => {
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
 
-    captureCurrentState('addBranch');
+    // Capture state with the new workflow
+    if (newWorkflow) {
+      captureCurrentState(newWorkflow);
+    }
   };
 
   const handleConnectionCreate = (
@@ -346,6 +358,9 @@ export const ViewWorkflowTemplate = () => {
         : [newBranch],
     };
 
+    // Capture the new workflow state
+    let newWorkflow: WorkflowTemplate | null = null;
+
     // Update the workflow
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
@@ -354,15 +369,20 @@ export const ViewWorkflowTemplate = () => {
         step.id === sourceStepId ? updatedSourceStep : step
       );
 
-      return {
+      newWorkflow = {
         ...prev,
         steps: updatedSteps,
       };
+
+      return newWorkflow;
     });
 
     setHasChanges(true);
 
-    captureCurrentState('createConnection');
+    // Capture state with the new workflow
+    if (newWorkflow) {
+      captureCurrentState(newWorkflow);
+    }
   };
 
   const handleDeleteNode = (stepId: string) => {
@@ -423,6 +443,9 @@ export const ViewWorkflowTemplate = () => {
 
     dfsToDelete(stepId);
 
+    // Capture the new workflow state
+    let newWorkflow: WorkflowTemplate | null = null;
+
     // Remove all nodes to delete from the workflow
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
@@ -436,17 +459,18 @@ export const ViewWorkflowTemplate = () => {
             );
             return {
               ...step,
-              branches:
-                cleanedBranches.length > 0 ? cleanedBranches : [],
+              branches: cleanedBranches.length > 0 ? cleanedBranches : [],
             };
           }
           return step;
         });
 
-      return {
+      newWorkflow = {
         ...prev,
         steps: updatedSteps,
       };
+
+      return newWorkflow;
     });
 
     setHasChanges(true);
@@ -456,7 +480,10 @@ export const ViewWorkflowTemplate = () => {
       setSelectedStepId(undefined);
     }
 
-    captureCurrentState('deleteNode');
+    // Capture state with the new workflow
+    if (newWorkflow) {
+      captureCurrentState(newWorkflow);
+    }
   };
 
   const currentWorkflow = isEditMode

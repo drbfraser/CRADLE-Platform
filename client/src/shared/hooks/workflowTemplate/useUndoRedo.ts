@@ -1,4 +1,4 @@
-import { useState,useCallback } from "react";
+import { useState } from "react";
 import { WorkflowTemplate } from "src/shared/types/workflow/workflowApiTypes";
 import { HistoryManager, createNewHistoryManager } from "src/shared/types/workflow/workflowTempalateEditorType";
 import { initHistory, captureState, performUndo, performRedo, canUndo, canRedo, deepClone } from "src/shared/components/workflow/workflowTemplate/workflowTemplateUtils";
@@ -6,50 +6,54 @@ import { initHistory, captureState, performUndo, performRedo, canUndo, canRedo, 
 export const useUndoRedo = (
     editedWorkflow: WorkflowTemplate | null,
     setEditedWorkflow: (workflow: WorkflowTemplate | null) => void,
-    selectedStepId: string | undefined,
-    setSelectedStepId: (stepId: string | undefined) => void,
 ) => {
     const [historyManager, setHistoryManager] = useState<HistoryManager>(createNewHistoryManager());
 
-    const init = useCallback((initialWorkflow: WorkflowTemplate) => {
+    const init = (initialWorkflow: WorkflowTemplate) => {
         
-        const initHistoryManager = initHistory(createNewHistoryManager(), initialWorkflow, selectedStepId);
+        const initHistoryManager = initHistory(createNewHistoryManager(), initialWorkflow);
         setHistoryManager(initHistoryManager);
 
-    }, [selectedStepId]);
+    };
 
-    const captureCurrentState = useCallback( (action?: string) => {
-        if (!editedWorkflow) return;
-
-        setHistoryManager(captureState(historyManager, editedWorkflow, selectedStepId, action));
-
-    }, [editedWorkflow, selectedStepId, historyManager]);
-
-    const undo = useCallback(() => {
-        
-        const { manager, stateToRestore } = performUndo(historyManager);
-
-        if (stateToRestore){
-            setEditedWorkflow(deepClone(stateToRestore.workflow));
-            setSelectedStepId(stateToRestore.selectedStepId);
-            setHistoryManager(manager);
-        }
-        
-    }, [historyManager, setEditedWorkflow, setSelectedStepId]);
+    const captureCurrentState = (workflowToCapture?: WorkflowTemplate) => {
+        const workflow = workflowToCapture || editedWorkflow;
     
-    const redo = useCallback(() => {
-        const { manager, stateToRestore } = performRedo(historyManager);
+        if (!workflow) return;
 
-        if (stateToRestore){
-            setEditedWorkflow(deepClone(stateToRestore.workflow));
-            setSelectedStepId(stateToRestore.selectedStepId);
-            setHistoryManager(manager);
-        }
-    }, [historyManager, setEditedWorkflow, setSelectedStepId]);
+        setHistoryManager((prev) => captureState(prev, workflow));
 
-    const clearHistory = useCallback(() => {
+    };
+
+    const undo = () => {
+        
+        setHistoryManager((prev) => {
+            const { manager, stateToRestore } = performUndo(prev);
+
+            if (stateToRestore){
+                setEditedWorkflow(deepClone(stateToRestore));
+            }
+
+            return manager;
+        })
+
+    };
+    
+    const redo = () => {
+        setHistoryManager((prev) => {
+            const { manager, stateToRestore } = performRedo(prev);
+
+            if (stateToRestore){
+                setEditedWorkflow(deepClone(stateToRestore));
+            }
+
+            return manager;
+        })
+    };
+
+    const clearHistory = () => {
         setHistoryManager(createNewHistoryManager());
-    }, []);
+    };
 
     return {
         init,

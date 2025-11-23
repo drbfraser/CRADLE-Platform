@@ -1,13 +1,7 @@
 import { WorkflowTemplate } from "./workflowApiTypes";
 
-export interface HistoryState {
-    workflow: WorkflowTemplate;
-    selectedStepId?: string;
-    action?: string;
-}
-
 export interface HistoryManager {
-    history: HistoryState[];
+    history: WorkflowTemplate[];
     currentIndex: number;
     maxHistorySize: number;
 }
