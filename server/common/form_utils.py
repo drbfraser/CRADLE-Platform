@@ -445,45 +445,7 @@ def _get_mc_list(q: dict) -> list[str]:
     return []
 
 
-def format_template(template: dict, lang: str = "English") -> dict:
-    """Format a marshalled form template into a single-language version."""
-    if not template:
-        return {}
-    questions = template.get("questions", [])
-    formatted_questions = []
-
-    # Resolve classification name
-    classification = template.get("classification")
-    if classification and classification.get("name_string_id"):
-        classification["name"] = resolve_string_text(
-            classification["name_string_id"], lang
-        )
-
-    if template.get("form_classification_id"):
-        template.pop("form_classification_id", None)
-
-    for q in questions:
-        string_id = _get_and_remove_string_id(q)
-        if string_id:
-            q["question_text"] = resolve_string_text(string_id, lang)
-
-        if q["question_type"] in (
-            QuestionTypeEnum.MULTIPLE_CHOICE.value,
-            QuestionTypeEnum.MULTIPLE_SELECT.value,
-        ):
-            options = _get_mc_list(q)
-            q["mc_options"] = [
-                {"string_id": opt, "translations": resolve_string_text(opt, lang)}
-                for opt in options
-            ]
-
-        formatted_questions.append(q)
-
-    template["questions"] = formatted_questions
-    return template
-
-
-def format_template_multilang(template: dict, available_langs: list[str]) -> dict:
+def format_template(template: dict, available_langs: list[str]) -> dict:
     """
     Format a marshalled template into a multi-language version.
     Every string field becomes a dict of {lang: text}.
