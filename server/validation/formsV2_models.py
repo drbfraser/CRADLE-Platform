@@ -1,10 +1,8 @@
 from typing import List, Optional, Union
 
-from pydantic import Field, RootModel
+from pydantic import Field, RootModel, model_validator
+from typing_extensions import Self
 
-from common.api_utils import (
-    FormTemplateIdPath,
-)
 from common.commonUtil import get_current_time
 from enums import QRelationalEnum, QuestionTypeEnum
 from validation import CradleBaseModel
@@ -59,27 +57,27 @@ class MultiLangText(RootModel[dict[str, str]]):
     """
 
 
-class NumberAnswer(CradleBaseModel):
+class Number(CradleBaseModel):
     number: float
 
 
-class TextAnswer(CradleBaseModel):
+class Text(CradleBaseModel):
     text: str
 
 
-class OptionAnswer(CradleBaseModel):
-    options: List[str]
+class MCId(CradleBaseModel):
+    mc_id_array: List[int]
 
 
-class DateAnswer(CradleBaseModel):
+class Date(CradleBaseModel):
     date: str
 
 
 AnswerType = Union[
-    NumberAnswer,
-    TextAnswer,
-    OptionAnswer,
-    DateAnswer,
+    Number,
+    Text,
+    MCId,
+    Date,
 ]
 
 
@@ -143,16 +141,27 @@ class FormClassification(CradleBaseModel):
     name_string_id: Optional[str] = None
 
 
+class FormClassificationList(CradleBaseModel):
+    classifications: List[FormClassification]
+
+
 class FormTemplate(CradleBaseModel):
     id: str
     version: int
     archived: bool
     classification: FormClassification
     date_created: int = Field(default_factory=get_current_time)
-    questions: List[FormTemplateQuestion]
+    questions: Optional[List[FormTemplateQuestion]] = []
 
 
-class FormTemplateVersionPath(FormTemplateIdPath):
+class FormTemplateList(RootModel[list[FormTemplate]]):
+    """
+    List response for getting all form templates under a form classification
+    """
+
+
+class FormTemplateVersionPath(CradleBaseModel):
+    form_template_id: str
     version: str = Field(..., description="Form Template version.")
 
 
@@ -172,3 +181,76 @@ class FormTemplateUploadRequest(FormTemplate):
     id: Optional[str] = None
     version: Optional[int] = 1
     questions: List[FormTemplateUploadQuestion]
+
+
+class NumberAnswer(Number):
+    comment: Optional[str] = None
+
+
+class TextAnswer(Text):
+    comment: Optional[str] = None
+
+
+class MCAnswer(MCId):
+    comment: Optional[str] = None
+
+
+class DateAnswer(Date):
+    comment: Optional[str] = None
+
+
+AnswerValue = Union[
+    NumberAnswer,
+    TextAnswer,
+    MCAnswer,
+    DateAnswer,
+]
+
+
+class FormAnswer(CradleBaseModel, extra="forbid"):
+    """Model representing a submitted answer in a FormSubmission"""
+
+    id: Optional[str] = None
+    question_id: str
+    form_submission_id: Optional[str] = None
+    answer: AnswerValue
+
+
+class FormSubmissionResponse(CradleBaseModel, extra="forbid"):
+    """Model representing a submitted Form"""
+
+    id: str
+    form_template_id: str
+    patient_id: str
+    user_id: Optional[str] = None
+    date_submitted: int
+    last_edited: int
+    lang: str
+
+    @model_validator(mode="after")
+    def validate_date_sequence(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_submitted:
+            raise ValueError(
+                "last_edited cannot be before date_submitted.",
+            )
+        return self
+
+
+class FormSubmission(FormSubmissionResponse):
+    id: Optional[str] = None
+    form_template_id: Optional[str] = None
+    date_submitted: Optional[int] = Field(default_factory=get_current_time)
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    answers: List[FormAnswer]
+
+
+class FormIdPath(CradleBaseModel):
+    form_submission_id: str
+
+
+class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
+    """
+    Request body for updating a submitted Form
+    """
+
+    answers: list[FormAnswer]

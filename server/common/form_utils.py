@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Dict, Type
+from typing import TYPE_CHECKING, Any, Dict, Literal, NamedTuple, Type
 
 import data.db_operations as crud
 from common import commonUtil
@@ -9,6 +9,7 @@ from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
     FormOrm,
+    FormQuestionTemplateOrmV2,
     FormTemplateOrm,
     FormTemplateOrmV2,
     LangVersionOrmV2,
@@ -17,6 +18,7 @@ from models import (
 
 if TYPE_CHECKING:
     from data.crud import M
+    from validation.formsV2_models import FormAnswer
 
 
 def filter_template_questions_dict(form_template: dict):
@@ -73,7 +75,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
                 version["question_id"] = question["id"]
 
 
-def _assign_id(obj: dict, field: str):
+def _assign_id(obj: dict, field: str) -> None:
     if obj.get(field) is None:
         obj[field] = commonUtil.get_uuid()
 
@@ -112,6 +114,21 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
         if mc_opts:
             for opt in mc_opts:
                 _assign_id(opt, "string_id")
+
+
+def assign_form_ids_v2(req: Dict[str, Any]) -> None:
+    """
+    Mutates the request dict to assign ALL required UUIDs:
+    - submission.id
+    - answer.id
+    """
+    _assign_id(req, "id")
+    submission_id = req["id"]
+
+    # Questions
+    for answer in req.get("answers", []):
+        _assign_id(answer, "id")
+        answer["form_submission_id"] = submission_id
 
 
 def getCsvFromFormTemplate(form_template: FormTemplateOrm):
@@ -280,6 +297,11 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
     return list_to_csv(rows)
 
 
+def read_all_translations(string_id: str) -> list[LangVersionOrmV2]:
+    """Return all LangVersionOrmV2 entries for a given string_id as a list."""
+    return crud.read_all(LangVersionOrmV2, string_id=string_id) or []
+
+
 def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
     """
     Returns a CSV string for a FormTemplateOrmV2, including all language versions,
@@ -291,10 +313,6 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
 
     def list_to_csv(rows: list[list[str]]):
         return "\n".join([",".join(map(fmt, row)) for row in rows]) + "\n"
-
-    def read_all_translations(string_id: str):
-        """Return all LangVersionOrmV2 entries for a given string_id as a list."""
-        return crud.read_all(LangVersionOrmV2, string_id=string_id) or []
 
     def get_mc_options_text(mc_options_json: str):
         """Return mapping of {lang: 'option1, option2, ...'} for all option translations."""
@@ -431,13 +449,6 @@ def resolve_string_text(string_id: str, lang: str = "English") -> str | None:
     return translation.text if translation else None
 
 
-def _get_and_remove_string_id(q: dict) -> str | None:
-    """Extract and remove the question string ID, if present."""
-    if "question_string_id" in q:
-        return q.pop("question_string_id")
-    return None
-
-
 def _get_mc_list(q: dict) -> list[str]:
     """Get the multiple-choice options list (if present)."""
     if "mc_options" in q:
@@ -503,3 +514,127 @@ def format_template(template: dict, available_langs: list[str]) -> dict:
 
 def lang_version_exists(string_id: str, lang: str):
     return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
+
+
+error_codes = Literal[422, 404, None]
+
+
+class ValidationResult(NamedTuple):
+    ok: bool
+    msg: str
+    code: error_codes
+
+
+def validate_form_answers(
+    answers: list[FormAnswer], form_template_id: str
+) -> ValidationResult:
+    """
+    Utility to validate the answers of a form submission for
+    the following:
+    - `question_id` must be valid and must belong to the correct form_template
+    - each answer must meet the constraints of it's corresponding question
+    (e.g. `num_min`, `num_max`, `string_max_length`, etc.)
+    - if `question_type` is multiple choise or multiple select, the selected options must exist
+    """
+    for answer in answers:
+        question_id = answer.question_id
+        if question_id is None:
+            return ValidationResult(False, "Answers must have a question_id", code=422)
+
+        filter = {"form_template_id": form_template_id, "id": question_id}
+        question: FormQuestionTemplateOrmV2 = crud.read(
+            FormQuestionTemplateOrmV2, **filter
+        )
+
+        if question is None:
+            return ValidationResult(
+                False, "One or more questions do not exist", code=404
+            )
+
+        if question.required and answer.answer is None:
+            return ValidationResult(
+                False, "One or more required questions are empty", code=422
+            )
+
+        # If question not required, skip validation if answer is empty
+        if answer.answer is None:
+            continue
+
+        ques_type = question.question_type
+        match ques_type:
+            case QuestionTypeEnum.INTEGER | QuestionTypeEnum.DECIMAL:
+                val = answer.answer.number
+
+                if question.num_min is not None and val < question.num_min:
+                    return ValidationResult(
+                        False,
+                        f"Answer {answer.answer.number} is below the minimum required: {question.num_min}",
+                        code=422,
+                    )
+
+                if question.num_max is not None and val > question.num_max:
+                    return ValidationResult(
+                        False,
+                        f"Answer {answer.answer.number} is above the maximum required: {question.num_max}",
+                        code=422,
+                    )
+
+            case QuestionTypeEnum.STRING:
+                val = answer.answer.text
+
+                if (
+                    question.string_max_length is not None
+                    and len(val) > question.string_max_length
+                ):
+                    return ValidationResult(
+                        False,
+                        f"Answer text exceeds the max length of {question.string_max_length} characters",
+                        code=422,
+                    )
+
+            case QuestionTypeEnum.MULTIPLE_CHOICE | QuestionTypeEnum.MULTIPLE_SELECT:
+                selected_indices = answer.answer.mc_id_array
+
+                if not selected_indices:
+                    continue  # nothing to validate
+
+                question_mc_options = json.loads(
+                    question.mc_options
+                )  # list of string_ids
+                total_options = len(question_mc_options)
+
+                # validate indices are in range
+                for idx in selected_indices:
+                    if idx < 0 or idx >= total_options:
+                        return ValidationResult(
+                            False,
+                            f"Selected option {idx} is invalid. MC options only have indices 0 to {total_options - 1}.",
+                            code=422,
+                        )
+
+            case QuestionTypeEnum.DATE | QuestionTypeEnum.DATETIME:
+                val = answer.answer.date
+
+                now = commonUtil.get_current_time()
+                if (
+                    question.allow_past_dates is not None
+                    and question.allow_past_dates == False
+                    and val < now
+                ):
+                    return ValidationResult(
+                        False, "Past dates are not allowed", code=422
+                    )
+
+                if (
+                    question.allow_future_dates is not None
+                    and question.allow_future_dates == False
+                    and val > now
+                ):
+                    return ValidationResult(
+                        False, "Future dates are not allowed", code=422
+                    )
+
+            case _:
+                return ValidationResult(True, "Validated", code=None)
+
+    return ValidationResult(True, "Answers are all valid", code=None)
