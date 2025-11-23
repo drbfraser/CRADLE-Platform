@@ -8,9 +8,6 @@ from pydantic import ValidationError
 import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils
-from common.api_utils import (
-    FormTemplateIdPath,
-)
 from data import marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import (
@@ -22,6 +19,8 @@ from validation.file_upload import FileUploadForm
 from validation.formsV2_models import (
     ArchiveFormTemplateQuery,
     FormTemplate,
+    FormTemplateIdPath,
+    FormTemplateLangList,
     FormTemplateListV2Response,
     FormTemplateUploadRequest,
     FormTemplateV2Response,
@@ -71,14 +70,16 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
 
         templates_list.append(template_dict)
 
-    return templates_list
+    response = {"templates": templates_list}
+
+    return FormTemplateListV2Response(**response).model_dump(), 200
 
 
 # /api/forms/v2/templates/<string:form_template_id>/languages [GET]
 @api_form_templates_v2.get(
-    "<string:form_template_id>/languages", responses={200: FormTemplateListV2Response}
+    "<string:form_template_id>/languages", responses={200: FormTemplateLangList}
 )
-def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
+def get_languages_for_form_template_v2(path: FormTemplateIdPath):
     """
     Returns all available languages for a given FormTemplateV2,
     based on the classification's name_string_id translations.
@@ -98,8 +99,11 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
 
     translations = crud.read_all(LangVersionOrmV2, **filters)
     translations = [marshal.marshal(lang) for lang in translations]
+    response = {
+        "langVersions": [lang.get("lang") for lang in translations],
+    }
 
-    return {"langVersions": [lang.get("lang") for lang in translations]}
+    return FormTemplateLangList(**response).model_dump(), 200
 
 
 # /api/forms/v2/templates/<string:form_template_id>/versions/<string:version>/csv [GET]
@@ -167,12 +171,12 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
     single_lang_template = form_utils.format_template(single_lang_template, [lang])
     single_lang_template["questions"].sort(key=lambda q: q["order"])
 
-    return single_lang_template, 200
+    return FormTemplate(**single_lang_template).model_dump(), 200
 
 
 # /api/forms/v2/templates/<string:form_template_id> [PUT]
 @api_form_templates_v2.put(
-    "/<string:form_template_id>", responses={200: FormTemplateV2Response}
+    "/<string:form_template_id>", responses={201: FormTemplateV2Response}
 )
 def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplateQuery):
     """Archive or unarchive a Form Template"""
@@ -197,7 +201,7 @@ def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplat
     if result.get("classification"):
         result.pop("classification", None)
 
-    return result, 201
+    return FormTemplateV2Response(**result).model_dump(), 201
 
 
 QUESTION_FIELDS = {
@@ -221,7 +225,9 @@ QUESTION_FIELDS = {
 }
 
 
-def handle_form_template_upload(form_template: FormTemplateUploadRequest):
+def handle_form_template_upload(
+    form_template: FormTemplateUploadRequest,
+) -> FormTemplateV2Response:
     """
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
@@ -367,7 +373,9 @@ def upload_form_template_body(body: FormTemplateUploadRequest):
     Accepts Form Template through the request body, rather than as a file.
     """
     try:
-        return handle_form_template_upload(body), 201
+        return FormTemplateV2Response(
+            **(handle_form_template_upload(body))
+        ).model_dump(), 201
 
     except ValueError as err:
         return abort(409, description=str(err))
@@ -396,7 +404,9 @@ def upload_form_template_file(form: FileUploadForm):
 
     try:
         form_template = FormTemplateUploadRequest(**file_contents)
-        return handle_form_template_upload(form_template), 201
+        return FormTemplateV2Response(
+            **(handle_form_template_upload(form_template))
+        ).model_dump(), 201
 
     except ValidationError as e:
         return abort(422, description=e.errors())

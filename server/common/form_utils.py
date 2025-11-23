@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Dict, Type
+from typing import TYPE_CHECKING
 
 import data.db_operations as crud
 from common import commonUtil
@@ -16,7 +16,7 @@ from models import (
 )
 
 if TYPE_CHECKING:
-    from data.crud import M
+    from validation.formsV2_models import FormTemplateUploadRequest
 
 
 def filter_template_questions_dict(form_template: dict):
@@ -36,7 +36,7 @@ def filter_template_questions_orm(form_template_orm: FormTemplateOrm):
     return form_template_orm
 
 
-def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
+def assign_form_or_template_ids(model, req: dict) -> None:
     """
     Assign form id if not provided.
     Assign question id and form_id or form_template_id.
@@ -78,7 +78,7 @@ def _assign_id(obj: dict, field: str):
         obj[field] = commonUtil.get_uuid()
 
 
-def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
+def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
     """
     Mutates the request dict to assign ALL required UUIDs:
     - template.id
@@ -104,11 +104,11 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
         question["form_template_id"] = template_id
 
         # Question text (string_id)
-        if "question_text" in question or "questionText" in question:
+        if "question_text" in question:
             _assign_id(question, "question_string_id")
 
         # MC option string_ids
-        mc_opts = question.get("mc_options") or question.get("mcOptions")
+        mc_opts = question.get("mc_options")
         if mc_opts:
             for opt in mc_opts:
                 _assign_id(opt, "string_id")
