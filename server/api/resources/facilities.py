@@ -7,7 +7,7 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from api.decorator import roles_required
 from common.api_utils import FacilityNamePath
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import HealthFacilityOrm
 from validation.facilities import (
@@ -32,7 +32,7 @@ api_facilities = APIBlueprint(
 def get_all_facilities():
     """Get All Health Facilities"""
     facilities = crud.read_all(HealthFacilityOrm)
-    return [marshal.marshal(f) for f in facilities]
+    return [orm_serializer.marshal(f) for f in facilities]
 
 
 # /api/facilities/names [GET]
@@ -53,13 +53,13 @@ def create_facility(body: HealthFacilityModel):
     """Create Health Facility"""
     new_facility = body.model_dump()
     # Create a DB Model instance for the new facility and load into DB
-    facility = marshal.unmarshal(HealthFacilityOrm, new_facility)
+    facility = orm_serializer.unmarshal(HealthFacilityOrm, new_facility)
     facility.new_referrals = str(round(time.time() * 1000))
 
     crud.create(facility)
 
     # Get back a dict for return
-    facility_dict = marshal.marshal(
+    facility_dict = orm_serializer.marshal(
         crud.read(
             HealthFacilityOrm,
             name=new_facility["name"],
@@ -79,7 +79,7 @@ def get_facility(path: FacilityNamePath):
         return abort(
             404, description=f"Facility ({path.health_facility_name}) not found."
         )
-    return marshal.marshal(facility)
+    return orm_serializer.marshal(facility)
 
 
 # /api/facilities/<string:health_facility_name>/new_referrals [GET]

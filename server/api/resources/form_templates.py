@@ -13,7 +13,7 @@ from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
-from data import marshal
+from data import orm_serializer
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
@@ -53,7 +53,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
 
     form_templates = crud.read_all(FormTemplateOrm, **filters)
 
-    return [marshal.marshal(f, shallow=True) for f in form_templates]
+    return [orm_serializer.marshal(f, shallow=True) for f in form_templates]
 
 
 def handle_form_template_upload(form_template: FormTemplateUpload):
@@ -73,7 +73,7 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
     )
     # If form classification (template name) doesn't exist yet, create it
     if form_classification_orm is None:
-        form_classification_orm = marshal.unmarshal(
+        form_classification_orm = orm_serializer.unmarshal(
             FormClassificationOrm, form_classification_dict
         )
         crud.create(form_classification_orm, refresh=True)
@@ -100,10 +100,10 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
     # Insert the new form template
     form_template_dict["form_classification_id"] = form_classification_orm.id
 
-    form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
+    form_template_orm = orm_serializer.unmarshal(FormTemplateOrm, form_template_dict)
     form_template_orm.classification = form_classification_orm
     crud.create(form_template_orm, refresh=True)
-    return marshal.marshal(form_template_orm, shallow=True)
+    return orm_serializer.marshal(form_template_orm, shallow=True)
 
 
 # /api/forms/templates [POST]
@@ -231,7 +231,7 @@ def get_form_template_language_version(
     version = query.lang
     if version is None:
         # admin user get template of full versions
-        blank_template = marshal.marshal(
+        blank_template = orm_serializer.marshal(
             form_template,
             shallow=False,
             if_include_versions=True,
@@ -250,7 +250,7 @@ def get_form_template_language_version(
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
-    blank_template = marshal.marshal_template_to_single_version(form_template, version)
+    blank_template = orm_serializer.marshal_template_to_single_version(form_template, version)
     return blank_template, 200
 
 
@@ -279,7 +279,7 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
     crud.db_session.commit()
     crud.db_session.refresh(form_template)
 
-    return marshal.marshal(form_template, shallow=True), 201
+    return orm_serializer.marshal(form_template, shallow=True), 201
 
 
 # /api/forms/templates/blank/<string:form_template_id> [GET]
@@ -296,7 +296,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
     version = query.lang
     if version is None:
         # admin user get template of full versions
-        blank_template = marshal.marshal(
+        blank_template = orm_serializer.marshal(
             form_template,
             shallow=False,
             if_include_versions=True,
@@ -316,7 +316,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         )
         return None
 
-    blank_template = marshal.marshal_template_to_single_version(
+    blank_template = orm_serializer.marshal_template_to_single_version(
         form_template,
         version,
     )

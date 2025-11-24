@@ -7,7 +7,7 @@ from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
-from data import marshal
+from data import orm_serializer
 from models import (
     FormTemplateOrmV2,
     LangVersionOrmV2,
@@ -48,7 +48,7 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
     templates_list = []
 
     for ft in form_templates:
-        template_dict = marshal.marshal(ft, shallow=True)
+        template_dict = orm_serializer.marshal(ft, shallow=True)
         template_dict["name"] = (
             form_utils.resolve_string_text(ft.classification.name_string_id, query.lang)
             if ft.classification
@@ -81,7 +81,7 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     filters["string_id"] = classification.name_string_id
 
     translations = crud.read_all(LangVersionOrmV2, **filters)
-    translations = [marshal.marshal(lang) for lang in translations]
+    translations = [orm_serializer.marshal(lang) for lang in translations]
 
     return {"langVersions": [lang.get("lang") for lang in translations]}
 
@@ -127,7 +127,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
     lang = query.lang
 
     if lang is None:
-        full_template = marshal.marshal(
+        full_template = orm_serializer.marshal(
             form_template,
             shallow=False,
         )
@@ -145,7 +145,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {lang}",
         )
 
-    single_lang_template = marshal.marshal(form_template, shallow=False)
+    single_lang_template = orm_serializer.marshal(form_template, shallow=False)
     single_lang_template = form_utils.format_template(single_lang_template, lang)
     single_lang_template["questions"].sort(key=lambda q: q["order"])
 

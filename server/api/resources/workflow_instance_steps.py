@@ -13,7 +13,7 @@ from common.api_utils import (
     get_user_id,
 )
 from common.commonUtil import get_current_time
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import (
     FormOrm,
@@ -90,11 +90,11 @@ def create_workflow_instance_step(body: WorkflowInstanceStepUploadModel):
         except ValueError:
             return abort(code=404, description="Assigned user not found.")
 
-    instance_step_orm = marshal.unmarshal(WorkflowInstanceStepOrm, instance_step)
+    instance_step_orm = orm_serializer.unmarshal(WorkflowInstanceStepOrm, instance_step)
 
     crud.create(instance_step_orm, refresh=True)
 
-    return marshal.marshal(instance_step_orm, shallow=True), 201
+    return orm_serializer.marshal(instance_step_orm, shallow=True), 201
 
 
 # /api/workflow/instance/steps?workflow_instance_id=<str> [GET]
@@ -111,7 +111,7 @@ def get_workflow_instance_steps():
     )
 
     response_data = [
-        marshal.marshal(instance_step, shallow=True) for instance_step in instance_steps
+        orm_serializer.marshal(instance_step, shallow=True) for instance_step in instance_steps
     ]
 
     return {"items": response_data}, 200
@@ -138,7 +138,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
             ),
         )
 
-    response_data = marshal.marshal(workflow_instance_step, shallow=False)
+    response_data = orm_serializer.marshal(workflow_instance_step, shallow=False)
 
     if not with_form:
         del response_data["form"]
@@ -221,7 +221,7 @@ def update_workflow_instance_step(
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
     )
 
-    updated_instance_step = marshal.marshal(updated_instance_step_orm, shallow=True)
+    updated_instance_step = orm_serializer.marshal(updated_instance_step_orm, shallow=True)
 
     return updated_instance_step, 200
 
@@ -262,7 +262,7 @@ def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
     )
 
-    updated_instance_step = marshal.marshal(updated_instance_step, shallow=True)
+    updated_instance_step = orm_serializer.marshal(updated_instance_step, shallow=True)
 
     return updated_instance_step, 200
 
@@ -310,7 +310,7 @@ def archive_form(path: WorkflowInstanceStepIdPath):
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
     )
 
-    updated_instance_step = marshal.marshal(updated_instance_step, shallow=True)
+    updated_instance_step = orm_serializer.marshal(updated_instance_step, shallow=True)
 
     return updated_instance_step, 200
 
