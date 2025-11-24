@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Optional
-from flask import abort
+from typing import TYPE_CHECKING
+
 import data.db_operations as crud
 from common import commonUtil
 from enums import QuestionTypeEnum
@@ -15,9 +15,14 @@ from models import (
     LangVersionOrmV2,
     QuestionOrm,
 )
-from validation.formsV2_models import FormClassification
+
 if TYPE_CHECKING:
-    from validation.formsV2_models import FormTemplateUploadRequest
+    from validation.formsV2_models import (
+        FormClassification,
+        FormTemplateUploadQuestion,
+        FormTemplateUploadRequest,
+        MultiLangText,
+    )
 
 
 def filter_template_questions_dict(form_template: dict):
@@ -506,8 +511,121 @@ def lang_version_exists(string_id: str, lang: str):
     return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
 
 
-def check_classification_exists(english_name: str):
-    lang_versions = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
-    
-    for version in lang_versions:
-        
+def check_name_conflict(english_name: str) -> bool:
+    """
+    Check if a FormClassification with the same English name exists.
+    :param english_name: English text to check
+    :raises: abort(409) if conflict exists
+    """
+    existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
+
+    for existing_lang in existing_langs:
+        fc = crud.read(FormClassificationOrmV2, name_string_id=existing_lang.string_id)
+        if fc:
+            return True
+
+    return False
+
+
+def handle_model_existence(
+    new_template: bool,
+    classification_dict: FormClassification,
+    version: int,
+    english_name: str,
+) -> tuple[bool, FormClassificationOrmV2]:
+    # Boolean to check whether to archive an existing form template version
+    archive_previous_template: bool = False
+    existing_classification = None
+
+    # Case where user is creating a new form template
+    if new_template:
+        # Check whether an existing classification with the english_name exists
+        if not english_name:
+            raise ValueError("Form template must have an english lanuage version.")
+
+        exists = check_name_conflict(english_name)
+        if exists:
+            raise ValueError(
+                f"Form Classification with name {english_name} already exists."
+            )
+    else:
+        existing_classification = crud.read(
+            FormClassificationOrmV2, id=classification_dict.get("id")
+        )
+        existing_template = crud.read(
+            FormTemplateOrmV2,
+            form_classification_id=classification_dict.get("id"),
+            version=version,
+        )
+        if existing_template:
+            raise ValueError(
+                f"Form Template with version V{version} already exists - change the version to upload."
+            )
+        archive_previous_template = True
+
+    return archive_previous_template, existing_classification
+
+
+def _extend_lang_version(
+    translations: MultiLangText, string_id: str
+) -> list[LangVersionOrmV2]:
+    new_lang_versions = []
+
+    for lang, text in translations.items():
+        lang = lang.capitalize()
+        if not lang_version_exists(string_id, lang):
+            new_lang_versions.append(
+                LangVersionOrmV2(
+                    string_id=string_id,
+                    lang=lang,
+                    text=text,
+                ),
+            )
+
+    return new_lang_versions
+
+
+def get_new_lang_versions_and_questions(
+    classification_dict: FormClassification,
+    new_template: bool,
+    questions: list[FormTemplateUploadQuestion],
+):
+    new_lang_versions = []
+    new_questions = []
+
+    for lang_key, text in classification_dict.get("name").items():
+        existing = None
+        if not new_template:
+            existing = crud.read(
+                LangVersionOrmV2,
+                string_id=classification_dict.get("name_string_id"),
+                lang=lang_key.capitalize(),
+            )
+
+        if not existing:
+            lang_version = LangVersionOrmV2(
+                string_id=classification_dict.get("name_string_id"),
+                lang=lang_key.capitalize(),
+                text=text,
+            )
+            new_lang_versions.append(lang_version)
+
+    for question in questions:
+        question_text = question.get("question_text")
+        question.pop("question_text")
+
+        mc_opts = question.get("mc_options", [])
+        question["mc_options"] = json.dumps([opt.get("string_id") for opt in mc_opts])
+
+        new_questions.append(question)
+
+        q_string_id = question.get("question_string_id")
+        new_lang_versions.extend(_extend_lang_version(question_text, q_string_id))
+
+        for opt in mc_opts:
+            opt_string_id = opt.get("string_id")
+            new_lang_versions.extend(
+                _extend_lang_version(opt.get("translations"), opt_string_id)
+            )
+
+    return new_questions, new_lang_versions
