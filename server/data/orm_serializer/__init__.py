@@ -11,7 +11,7 @@ from .patients import (
     marshal_patient_pregnancy_summary,
 )
 from .questions import marshal_question_to_single_version
-
+from .utils import model_to_dict, models_to_list
 
 __all__ = [
     "db_session",
@@ -24,6 +24,8 @@ __all__ = [
     "marshal_patient_pregnancy_summary",
     "marshal_question_to_single_version",
     "marshal_with_type",
+    "model_to_dict",
+    "models_to_list",
     "unmarshal",
     "unmarshal_question_list",
 ]
