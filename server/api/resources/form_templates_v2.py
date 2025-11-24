@@ -233,7 +233,17 @@ def handle_form_template_upload(
     as a file, or in the request body.
     """
     form_template_dict = form_template.model_dump(by_alias=False)
+    
+    # Boolean to check whether user is creating a new template or editing an existing one
+    new_template: bool = True
+    if form_template_dict.get("id") is not None and crud.read(FormTemplateOrmV2, id=form_classification_dict.get("id")):
+        new_template = False
+        
     form_utils.assign_form_template_ids_v2(form_template_dict)
+
+    if new_template:
+        # check whether an existing classification exists
+        return ''
 
     form_classification_dict = form_template_dict["classification"]
     form_template_dict.pop("classification", None)

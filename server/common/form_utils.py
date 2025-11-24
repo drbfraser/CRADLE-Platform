@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Optional
+from flask import abort
 import data.db_operations as crud
 from common import commonUtil
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
     FormTemplateOrm,
     FormTemplateOrmV2,
     LangVersionOrmV2,
     QuestionOrm,
 )
-
+from validation.formsV2_models import FormClassification
 if TYPE_CHECKING:
     from validation.formsV2_models import FormTemplateUploadRequest
 
@@ -503,3 +504,10 @@ def format_template(template: dict, available_langs: list[str]) -> dict:
 
 def lang_version_exists(string_id: str, lang: str):
     return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
+
+
+def check_classification_exists(english_name: str):
+    lang_versions = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
+    
+    for version in lang_versions:
+        
