@@ -191,7 +191,9 @@ def patch_workflow_classification(
 
     # If no changes provided, return the current resource
     if not workflow_classification_changes:
-        response_data = orm_serializer.marshal(obj=workflow_classification, shallow=True)
+        response_data = orm_serializer.marshal(
+            obj=workflow_classification, shallow=True
+        )
         return response_data, 200
 
     # Rules here to check for duplicate names/ids?

@@ -233,7 +233,8 @@ def get_workflow_templates():
     )
 
     response_data = [
-        orm_serializer.marshal(template, shallow=True) for template in workflow_templates
+        orm_serializer.marshal(template, shallow=True)
+        for template in workflow_templates
     ]
 
     return {"items": response_data}, 200

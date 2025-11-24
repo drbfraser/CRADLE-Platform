@@ -250,7 +250,9 @@ def get_form_template_language_version(
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
-    blank_template = orm_serializer.marshal_template_to_single_version(form_template, version)
+    blank_template = orm_serializer.marshal_template_to_single_version(
+        form_template, version
+    )
     return blank_template, 200
 
 

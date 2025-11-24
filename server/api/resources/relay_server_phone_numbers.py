@@ -46,7 +46,9 @@ def get_all_relay_phone_numbers():
 @roles_required([RoleEnum.ADMIN])
 def add_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Add SMS Relay Server Phone Number"""
-    server_details = orm_serializer.unmarshal(RelayServerPhoneNumberOrm, body.model_dump())
+    server_details = orm_serializer.unmarshal(
+        RelayServerPhoneNumberOrm, body.model_dump()
+    )
     phone_number = server_details.phone_number
     if crud.read(RelayServerPhoneNumberOrm, phone_number=phone_number):
         return abort(

@@ -52,7 +52,9 @@ def create_form_classification(body: FormClassificationOptionalId):
             description=f"Form Classification with name=({body.name}) already exists.",
         )
 
-    form_classification = orm_serializer.unmarshal(FormClassificationOrm, body.model_dump())
+    form_classification = orm_serializer.unmarshal(
+        FormClassificationOrm, body.model_dump()
+    )
     crud.create(form_classification, refresh=True)
     return orm_serializer.marshal(form_classification, shallow=True), 201
 

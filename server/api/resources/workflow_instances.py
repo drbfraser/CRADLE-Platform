@@ -105,7 +105,8 @@ def get_workflow_instances():
     )
 
     response_data = [
-        orm_serializer.marshal(instance, shallow=True) for instance in workflow_instances
+        orm_serializer.marshal(instance, shallow=True)
+        for instance in workflow_instances
     ]
 
     return {"items": response_data}, 200

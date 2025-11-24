@@ -111,7 +111,8 @@ def get_workflow_instance_steps():
     )
 
     response_data = [
-        orm_serializer.marshal(instance_step, shallow=True) for instance_step in instance_steps
+        orm_serializer.marshal(instance_step, shallow=True)
+        for instance_step in instance_steps
     ]
 
     return {"items": response_data}, 200
@@ -221,7 +222,9 @@ def update_workflow_instance_step(
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
     )
 
-    updated_instance_step = orm_serializer.marshal(updated_instance_step_orm, shallow=True)
+    updated_instance_step = orm_serializer.marshal(
+        updated_instance_step_orm, shallow=True
+    )
 
     return updated_instance_step, 200
 
