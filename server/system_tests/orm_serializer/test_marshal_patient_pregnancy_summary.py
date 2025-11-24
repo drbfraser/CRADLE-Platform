@@ -146,7 +146,7 @@ def test_current_then_multiple_past_preserves_order_and_fields():
     ]
 
 
-def test_function_mutates_input_list_when_current_present(marshal_mod):
+def test_function_mutates_input_list_when_current_present():
     """
     Verify that marshal_patient_pregnancy_summary mutates the input list when a current pregnancy is present.
 
