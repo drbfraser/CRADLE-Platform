@@ -14,6 +14,7 @@ import {
   WorkflowTemplateStepWithFormAndIndex,
   WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
+import { BranchConditionEditor } from './BranchConditionEditor';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -161,29 +162,21 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           <Typography variant="subtitle1" gutterBottom>
             Branches
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={2}>
             {selectedStep.branches.map(
               (branch: WorkflowTemplateStepBranch, index: number) => {
                 const targetStep = steps.find(
                   (s) => s.id === branch.targetStepId
                 );
                 return (
-                  <Box
+                  <BranchConditionEditor
                     key={index}
-                    sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Branch {index + 1}
-                    </Typography>
-                    <Typography variant="body1">
-                      → {targetStep?.name || 'Unknown Step'}
-                    </Typography>
-                    {branch.condition && (
-                      <Typography variant="caption" color="text.secondary">
-                        {/*TODO: parse the raw condition string into a readable format*/}
-                        Condition: {JSON.stringify(branch.condition)}
-                      </Typography>
-                    )}
-                  </Box>
+                    branch={branch}
+                    branchIndex={index}
+                    stepId={selectedStep.id}
+                    targetStepName={targetStep?.name}
+                    isEditMode={isEditMode}
+                  />
                 );
               }
             )}

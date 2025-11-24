@@ -113,10 +113,10 @@ export const WorkflowEditor = ({
         name={workflow.name}
         description={workflow.description}
         collectionName={collectionName}
-        version={Number(workflow.version)}
-        lastEdited={workflow.lastEdited.toString()}
+        version={workflow.version}
+        lastEdited={workflow.lastEdited}
         archived={workflow.archived}
-        dateCreated={workflow.dateCreated.toString()}
+        dateCreated={workflow.dateCreated}
         isEditMode={true}
         onFieldChange={onFieldChange}
       />
