@@ -2,7 +2,7 @@ from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
 import data.db_operations as crud
-from data import marshal
+from data import orm_serializer
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,
@@ -43,7 +43,7 @@ def __query_object(
     if data is None:
         return None
 
-    return marshal.marshal(data)
+    return orm_serializer.marshal(data)
 
 
 def get_catalogue() -> Dict[str, ObjectCatalogue]:
