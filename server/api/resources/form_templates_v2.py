@@ -211,18 +211,19 @@ def handle_form_template_upload(
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
     """
-    form_template_dict = form_template.model_dump(by_alias=False)
-    form_classification_dict = form_template_dict.get("classification")
-
     # Boolean to check whether user is creating a new template or editing an existing one
     new_template: bool = True
 
-    if form_template_dict.get("id") is not None and crud.read(
-        FormTemplateOrmV2, id=form_template_dict.get("id")
+    if form_template.id is not None and crud.read(
+        FormTemplateOrmV2, id=form_template.id
     ):
         new_template = False
 
-    form_utils.assign_form_template_ids_v2(form_template_dict)
+    form_utils.assign_form_template_ids_v2(form_template)
+
+    form_template_dict = form_template.model_dump(by_alias=False)
+
+    form_classification_dict = form_template_dict.get("classification")
     form_template_dict.pop("classification", None)
 
     name_dict = form_classification_dict.get("name")
