@@ -79,9 +79,9 @@ def assign_form_or_template_ids(model, req: dict) -> None:
                 version["question_id"] = question["id"]
 
 
-def _assign_id(obj: dict, field: str):
-    if obj.get(field) is None:
-        obj[field] = commonUtil.get_uuid()
+def _assign_id(obj, field: str):
+    if getattr(obj, field, None) is None:
+        setattr(obj, field, commonUtil.get_uuid())
 
 
 def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
@@ -92,7 +92,7 @@ def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
     - question.id + question_string_id
     - mc option string_ids
     """
-    classification = req.get("classification")
+    classification = req.classification
     if not classification:
         raise ValueError("Classification is required for form template upload")
 
@@ -101,20 +101,20 @@ def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
     _assign_id(classification, "name_string_id")
 
     # Template ID
-    req["id"] = commonUtil.get_uuid()
-    template_id = req["id"]
+    req.id = commonUtil.get_uuid()
+    template_id = req.id
 
     # Questions
-    for question in req.get("questions", []):
-        question["id"] = commonUtil.get_uuid()
-        question["form_template_id"] = template_id
+    for question in req.questions:
+        question.id = commonUtil.get_uuid()
+        question.form_template_id = template_id
 
         # Question text (string_id)
-        if "question_text" in question:
+        if question.question_text:
             _assign_id(question, "question_string_id")
 
         # MC option string_ids
-        mc_opts = question.get("mc_options")
+        mc_opts = question.mc_options
         if mc_opts:
             for opt in mc_opts:
                 _assign_id(opt, "string_id")
