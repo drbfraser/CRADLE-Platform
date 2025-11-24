@@ -204,27 +204,6 @@ def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplat
     return FormTemplateV2Response(**result).model_dump(), 201
 
 
-QUESTION_FIELDS = {
-    "id",
-    "form_template_id",
-    "order",
-    "question_type",
-    "question_string_id",
-    "user_question_id",
-    "has_comment_attached",
-    "category_index",
-    "required",
-    "visible_condition",
-    "units",
-    "num_min",
-    "num_max",
-    "string_max_length",
-    "string_max_lines",
-    "allow_future_dates",
-    "allow_past_dates",
-}
-
-
 def handle_form_template_upload(
     form_template: FormTemplateUploadRequest,
 ) -> FormTemplateV2Response:
@@ -233,144 +212,63 @@ def handle_form_template_upload(
     as a file, or in the request body.
     """
     form_template_dict = form_template.model_dump(by_alias=False)
-    
+    form_classification_dict = form_template_dict.get("classification")
+
     # Boolean to check whether user is creating a new template or editing an existing one
     new_template: bool = True
-    if form_template_dict.get("id") is not None and crud.read(FormTemplateOrmV2, id=form_classification_dict.get("id")):
+
+    if form_template_dict.get("id") is not None and crud.read(
+        FormTemplateOrmV2, id=form_template_dict.get("id")
+    ):
         new_template = False
-        
+
     form_utils.assign_form_template_ids_v2(form_template_dict)
-
-    if new_template:
-        # check whether an existing classification exists
-        return ''
-
-    form_classification_dict = form_template_dict["classification"]
     form_template_dict.pop("classification", None)
-    name_dict = form_classification_dict["name"]
 
+    name_dict = form_classification_dict.get("name")
     english_name = name_dict.get("english") or name_dict.get("English")
-    if not english_name:
-        raise ValueError("Form template must have an english lanuage version.")
 
-    if form_classification_dict.get("name_string_id") is not None:
-        existing_lang_row = crud.read(
-            LangVersionOrmV2,
-            string_id=form_classification_dict["name_string_id"],
-            lang="English",
-            text=english_name,
+    archive_previous_template, form_classification_orm = (
+        form_utils.handle_model_existence(
+            new_template=new_template,
+            classification_dict=form_classification_dict,
+            version=form_template_dict.get("version"),
+            english_name=english_name,
         )
+    )
 
-    form_classification_orm = None
-    if existing_lang_row:
-        form_classification_orm = crud.read(
-            FormClassificationOrmV2, name_string_id=existing_lang_row.string_id
-        )
+    new_questions, new_lang_versions = form_utils.get_new_lang_versions_and_questions(
+        form_classification_dict, new_template, form_template_dict.get("questions")
+    )
 
-    # If form classification (template name) doesn't exist yet, create it
-    if form_classification_orm is None:
-        classification_for_orm = {
-            "id": form_classification_dict.get("id"),
-            "name_string_id": form_classification_dict.get("name_string_id"),
-        }
-        form_classification_orm = marshal.unmarshal(
-            FormClassificationOrmV2, classification_for_orm
+    form_template_dict["questions"] = new_questions
+    form_template_dict["form_classification_id"] = form_classification_dict.get("id")
+    form_template_orm = marshal.unmarshal(FormTemplateOrmV2, form_template_dict)
+
+    crud.create_all(new_lang_versions, autocommit=False)
+
+    if not form_classification_orm:
+        form_classification_orm = FormClassificationOrmV2(
+            id=form_classification_dict.get("id"),
+            name_string_id=form_classification_dict.get("name_string_id"),
         )
         crud.create(form_classification_orm, refresh=True)
 
-    else:
-        existing_template = crud.read(
-            FormTemplateOrmV2,
-            form_classification_id=form_classification_orm.id,
-            version=form_template.version,
-        )
-        if existing_template:
-            raise ValueError(
-                f"Form Template with version V{form_template.version} already exists for class {english_name} - change the version to upload."
-            )
-        # Archive the previous active template (if any)
+    if archive_previous_template:
         previous_template = crud.read(
             FormTemplateOrmV2,
-            form_classification_id=form_classification_orm.id,
+            form_classification_id=form_classification_dict.get("id"),
             archived=False,
         )
         if previous_template is not None:
             previous_template.archived = True
-            crud.db_session.commit()
 
-    # Create (or reuse) LangVersion rows for each translation
-    for lang_key, text in form_classification_dict["name"].items():
-        lang = lang_key.capitalize()
-
-        existing = crud.read(
-            LangVersionOrmV2,
-            string_id=form_classification_dict["name_string_id"],
-            lang=lang,
-        )
-
-        if not existing:
-            lang_version = LangVersionOrmV2(
-                string_id=form_classification_dict["name_string_id"],
-                lang=lang,
-                text=text,
-            )
-            crud.create(lang_version)
-
-    # Insert the new form template
-    form_template_dict["form_classification_id"] = form_classification_orm.id
-
-    new_questions = []
-    new_lang_versions = []  # new LangVersion rows to create
-
-    for question in form_template_dict.get("questions", []):
-        q = {k: question.get(k) for k in QUESTION_FIELDS if k in question}
-        mc_opts = question.get("mc_options") or []
-        q["mc_options"] = json.dumps([opt["string_id"] for opt in mc_opts])
-        q["form_template_id"] = form_template_dict["id"]
-
-        new_questions.append(q)
-
-        q_string_id = question["question_string_id"]
-
-        for lang, text in question["question_text"].items():
-            if not form_utils.lang_version_exists(q_string_id, lang.capitalize()):
-                new_lang_versions.append(
-                    marshal.unmarshal(
-                        LangVersionOrmV2,
-                        {
-                            "string_id": q_string_id,
-                            "lang": lang.capitalize(),
-                            "text": text,
-                        },
-                    )
-                )
-
-        for opt in mc_opts:
-            opt_string_id = opt["string_id"]
-            for lang, text in opt["translations"].items():
-                if not form_utils.lang_version_exists(opt_string_id, lang.capitalize()):
-                    new_lang_versions.append(
-                        marshal.unmarshal(
-                            LangVersionOrmV2,
-                            {
-                                "string_id": opt_string_id,
-                                "lang": lang.capitalize(),
-                                "text": text,
-                            },
-                        )
-                    )
-
-    crud.create_all(new_lang_versions)
-
-    form_template_dict["questions"] = new_questions
-
-    form_template_orm = marshal.unmarshal(FormTemplateOrmV2, form_template_dict)
     form_template_orm.classification = form_classification_orm
     crud.create(form_template_orm, refresh=True)
+
     created_form_template = marshal.marshal(form_template_orm, shallow=True)
     created_form_template["name"] = english_name
-    if created_form_template.get("classification"):
-        created_form_template.pop("classification", None)
+
     return created_form_template
 
 
