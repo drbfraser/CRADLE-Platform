@@ -40,9 +40,8 @@ interface IProps {
   handleArchiveForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
   showSnackbar: (message: string, severity: SnackbarSeverity) => void;
-  handleOpenRecommendation: () => void;
-  stepActions: WorkflowInstanceAction[];
   handleCompleteStep: () => void;
+  handleOpenNextStepModal: () => void;
 }
 
 export default function WorkflowStepHistory({
@@ -60,9 +59,8 @@ export default function WorkflowStepHistory({
   handleArchiveForm,
   currentStep,
   showSnackbar,
-  handleOpenRecommendation,
-  stepActions,
   handleCompleteStep,
+  handleOpenNextStepModal,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
     handleOpenFormModal(FormRenderStateEnum.VIEW);
@@ -401,7 +399,7 @@ export default function WorkflowStepHistory({
                               variant="contained"
                               color="primary"
                               // disabled
-                              onClick={handleCompleteStep}>
+                              onClick={handleOpenNextStepModal}>
                               Complete Step
                             </Button>
                           )}

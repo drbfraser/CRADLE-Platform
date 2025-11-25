@@ -169,6 +169,14 @@ export function getWorkflowCurrentStep(instance: InstanceDetails) {
   return currentStep;
 }
 
+export function getWorkflowStepWithId(
+  stepId: string,
+  instanceDetails: InstanceDetails
+): InstanceStep | null {
+  const step = instanceDetails.steps.find((step) => step.id === stepId);
+  return step ?? null;
+}
+
 export const buildWorkflowInstanceRowList = async (
   instances: WorkflowInstance[]
 ) => {

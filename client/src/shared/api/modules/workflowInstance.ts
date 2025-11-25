@@ -9,7 +9,8 @@ import {
   WorkflowInstanceStep,
   InstanceStepUpdate,
   WorkflowInstanceAction,
-  ApplyInstanceStepAction,
+  ApplyInstanceStepActionRequest,
+  WorkflowInstanceActionsResponse,
 } from '../../types/workflow/workflowApiTypes';
 import { AxiosResponse } from 'axios';
 
@@ -190,16 +191,16 @@ export const deleteInstance = (instanceId: ID) =>
 export const getInstanceActions = async (
   instanceId: ID
 ): Promise<WorkflowInstanceAction[]> => {
-  const response = await axiosFetch.get<WorkflowInstanceAction[]>(
+  const response = await axiosFetch.get<WorkflowInstanceActionsResponse>(
     `${INSTANCES}/${instanceId}/actions`
   );
-  return response.data;
+  return response.data.actions;
 };
 
 // POST /workflow/instances/<string:workflow_instance_id>/actions
 export const applyInstanceStepAction = async (
   instanceId: ID,
-  payload: ApplyInstanceStepAction
+  payload: ApplyInstanceStepActionRequest
 ): Promise<AxiosResponse<WorkflowInstance>> => {
   const response = await axiosFetch.post<WorkflowInstance>(
     `${INSTANCES}/${instanceId}/actions`,

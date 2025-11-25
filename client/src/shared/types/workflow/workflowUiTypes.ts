@@ -1,5 +1,9 @@
 import { ISODate, Nullable } from 'src/shared/constants';
-import { InstanceStatus, StepStatus } from './workflowEnums';
+import {
+  InstanceStatus,
+  StepStatus,
+  WorkflowBranchEvaluationStatus,
+} from './workflowEnums';
 import { CForm } from '../form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 
@@ -78,3 +82,17 @@ export type WorkflowInfoRow = {
   stepsCount: number;
   currentStepLabel: string;
 };
+
+export interface BranchEvaluation {
+  branchId: string;
+  rule: string;
+  resolved_vars: Record<string, any>;
+  ruleStatus: WorkflowBranchEvaluationStatus;
+}
+
+export interface NextStepOption {
+  id: string;
+  title: string;
+  isRecommended: boolean;
+  ruleDetails: string[];
+}
