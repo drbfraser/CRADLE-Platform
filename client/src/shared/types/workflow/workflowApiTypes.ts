@@ -119,12 +119,16 @@ export interface WorkflowInstance {
   completionDate?: number;
 }
 
+export interface WorkflowInstanceActionsResponse {
+  actions: WorkflowInstanceAction[];
+}
+
 export interface WorkflowInstanceAction {
   stepId: ID;
   type: InstanceStepAction;
 }
 
-export interface ApplyInstanceStepAction {
+export interface ApplyInstanceStepActionRequest {
   action: {
     type: InstanceStepAction;
     step_id: ID;
