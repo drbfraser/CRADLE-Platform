@@ -32,12 +32,16 @@ import axios from 'axios';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
 import { useWorkflowFormModal } from 'src/shared/hooks/patient/useWorkflowFormModal';
 import { SnackbarSeverity } from 'src/shared/enums';
-import WorkflowRecommendationBanner from './components/WorkflowRecommendationBanner';
+import WorkflowRecommendationBanner, {
+  RecommendationBannerData,
+} from './components/WorkflowRecommendationBanner';
 import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
 import {
-  ApplyInstanceStepAction,
+  ApplyInstanceStepActionRequest,
   WorkflowInstanceAction,
 } from 'src/shared/types/workflow/workflowApiTypes';
+import { getWorkflowStepWithId } from './WorkflowUtils';
+import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -56,8 +60,16 @@ export default function WorkflowInstanceDetailsPage() {
     message: '',
     severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
   });
-  const [openRecommendation, setOpenRecommendation] = useState(false);
+  const [recommendation, setRecommendation] =
+    useState<RecommendationBannerData>({
+      open: false,
+      hasNextStep: false,
+      message: '',
+    });
   const [stepActions, setStepActions] = useState<WorkflowInstanceAction[]>([]);
+  const [nextStep, setNextStep] = useState<string | null>(null);
+  const [openNextStepModal, setOpenNextStepModal] = useState<boolean>(false);
+
   const { instanceDetails, currentStep, progressInfo, reload } =
     useWorkflowInstanceDetails(instanceId!);
   const {
@@ -122,14 +134,24 @@ export default function WorkflowInstanceDetailsPage() {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const handleOpenRecommendation = () => {
+  const handleOpenRecommendation = (newActions: WorkflowInstanceAction[]) => {
     // TODO: Pass next action to recommendation banner
-    console.log('Recommendation Actions', stepActions);
-    setOpenRecommendation(true);
+    const recommendedStep = getWorkflowStepWithId(
+      newActions[0].stepId,
+      instanceDetails!
+    );
+
+    setRecommendation({
+      open: true,
+      hasNextStep: recommendedStep ? true : false,
+      message: recommendedStep
+        ? `Continue to ${recommendedStep.title}.`
+        : 'No recommended next step.',
+    });
   };
 
   const handleCloseRecommendation = () => {
-    setOpenRecommendation(false);
+    setRecommendation({ open: false, message: '' });
   };
 
   const handleGoToStep = () => {
@@ -137,11 +159,14 @@ export default function WorkflowInstanceDetailsPage() {
     handleCloseRecommendation();
   };
 
-  const handleApplyStepAction = async (actionType: InstanceStepAction) => {
-    const payload: ApplyInstanceStepAction = {
+  const handleApplyStepAction = async (
+    actionType: InstanceStepAction,
+    stepId: string
+  ) => {
+    const payload: ApplyInstanceStepActionRequest = {
       action: {
         type: actionType,
-        step_id: currentStep!.id,
+        step_id: stepId,
       },
     };
     const response = await applyInstanceStepAction(
@@ -154,18 +179,32 @@ export default function WorkflowInstanceDetailsPage() {
 
   const handleCompleteStep = async () => {
     try {
-      await handleApplyStepAction(InstanceStepAction.COMPLETE);
+      await handleApplyStepAction(InstanceStepAction.COMPLETE, currentStep!.id);
       await reload();
       const newActions = await getInstanceActions(instanceDetails!.id);
       setStepActions(newActions);
 
       showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      handleOpenRecommendation();
+      handleOpenRecommendation(newActions);
       setExpandedStep(null);
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
     }
+  };
+
+  const handleOpenNextStepModal = () => {
+    setOpenNextStepModal(true);
+  };
+
+  const handleCloseNextStepModal = () => {
+    setOpenNextStepModal(false);
+  };
+
+  const handleSelectNextStep = async (stepId: string) => {
+    // TO COMPLETE
+    // await handleApplyStepAction(InstanceStepAction.START, "test-workflow-inst"); // TODO: To put in actual step id
+    // await reload();
   };
 
   return (
@@ -274,9 +313,8 @@ export default function WorkflowInstanceDetailsPage() {
               handleArchiveForm={handleArchiveForm}
               currentStep={currentStep}
               showSnackbar={showSnackbar}
-              handleOpenRecommendation={handleOpenRecommendation}
-              stepActions={stepActions}
               handleCompleteStep={handleCompleteStep}
+              handleOpenNextStepModal={handleOpenNextStepModal}
             />
 
             {/* Section 4: Possible Other Steps */}
@@ -314,9 +352,14 @@ export default function WorkflowInstanceDetailsPage() {
 
       {/* Banner for Next Step Recommendation */}
       <WorkflowRecommendationBanner
-        open={openRecommendation}
+        recommendation={recommendation}
         handleClose={handleCloseRecommendation}
         handleGoToStep={handleGoToStep}
+      />
+
+      <WorkflowSelectStepModal
+        open={openNextStepModal}
+        handleCloseNextStepModal={handleCloseNextStepModal}
       />
     </>
   );

@@ -20,3 +20,9 @@ export enum InstanceStepAction {
   START = 'start_step',
   COMPLETE = 'complete_step',
 }
+
+export enum WorkflowBranchEvaluationStatus {
+  TRUE = 'TRUE',
+  FALSE = 'FALSE',
+  NOT_ENOUGH_DATA = 'NOT_ENOUGH_DATA',
+}

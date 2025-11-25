@@ -1,18 +1,24 @@
 import { Alert, Typography, Button, Box, Slide } from '@mui/material';
 
-interface IProps {
+export interface RecommendationBannerData {
   open: boolean;
+  hasNextStep?: boolean;
+  message: string;
+}
+
+interface IProps {
+  recommendation: RecommendationBannerData;
   handleClose: () => void;
   handleGoToStep: () => void;
 }
 
 export default function RecommendationBanner({
-  open,
+  recommendation,
   handleClose,
   handleGoToStep,
 }: IProps) {
   return (
-    <Slide in={open} direction="up">
+    <Slide in={recommendation.open} direction="up">
       <Box
         sx={{
           position: 'fixed',
@@ -47,19 +53,21 @@ export default function RecommendationBanner({
                 fontSize: 15,
                 pb: 2,
               }}>
-              Recommended next step: Continue to Intake Details.
+              {`Recommended next step: ${recommendation.message}`}
             </Typography>
 
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleGoToStep}
-              sx={{
-                whiteSpace: 'nowrap',
-                mb: 1,
-              }}>
-              Go to Step
-            </Button>
+            {recommendation.hasNextStep && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleGoToStep}
+                sx={{
+                  whiteSpace: 'nowrap',
+                  mb: 1,
+                }}>
+                Go to Step
+              </Button>
+            )}
           </Box>
         </Alert>
       </Box>
