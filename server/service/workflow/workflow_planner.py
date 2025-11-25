@@ -1,7 +1,7 @@
 from typing import Optional
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
-from service.workflow.evaluate.rules_engine import ResolvedVars, RuleStatus
+from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
     UpdateCurrentStepOp,
@@ -18,6 +18,7 @@ from validation.workflow_models import (
     CompleteStepActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
+    VariableResolution,
     WorkflowActionModel,
     WorkflowBranchEvaluation,
     WorkflowInstanceStepModel,
@@ -32,14 +33,15 @@ class RuleEvaluator:
     """
     Evaluates a rule.
 
-    For now, this is a stub that always returns TRUE and an empty dictionary
-    for resolved variables.
+    For now, this is a stub that always returns TRUE and an empty list for variable resolutions.
     TODO: Implement evaluate_rule by integrating the variable resolver and rule engine.
     """
 
     @staticmethod
-    def evaluate_rule(rule: Optional[str]) -> tuple[RuleStatus, ResolvedVars]: # noqa: ARG004
-        return (RuleStatus.TRUE, {})
+    def evaluate_rule(
+        rule: Optional[str],  # noqa: ARG004
+    ) -> tuple[RuleStatus, list[VariableResolution]]:
+        return (RuleStatus.TRUE, [])
 
 
 class WorkflowPlanner:
@@ -56,12 +58,12 @@ class WorkflowPlanner:
         Evaluates the rule of a workflow step's branch.
         """
         rule = branch.condition.rule if branch.condition else None
-        rule_status, resolved_vars = RuleEvaluator.evaluate_rule(rule)
+        rule_status, var_resolutions = RuleEvaluator.evaluate_rule(rule)
 
         branch_evaluation = WorkflowBranchEvaluation(
             branch_id=branch.id,
             rule=rule,
-            resolved_vars=resolved_vars,
+            var_resolutions=var_resolutions,
             rule_status=rule_status,
         )
 

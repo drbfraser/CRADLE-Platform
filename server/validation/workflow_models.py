@@ -7,11 +7,11 @@ from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
-from service.workflow.evaluate.rules_engine import ResolvedVars, RuleStatus
+from service.workflow.evaluate.rules_engine import RuleStatus
 from validation import CradleBaseModel
 from validation.forms import FormModel
 from validation.formTemplates import FormTemplateUpload
-from validation.rule_groups import RuleGroupModel
+from validation.rule_groups import RuleGroupModel, VariableResolution
 
 
 class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
@@ -177,7 +177,7 @@ WorkflowActionModel = Union[
 class WorkflowBranchEvaluation(CradleBaseModel):
     branch_id: str
     rule: Optional[str]
-    resolved_vars: ResolvedVars
+    var_resolutions: list[VariableResolution]
     rule_status: RuleStatus
 
 

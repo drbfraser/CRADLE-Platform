@@ -122,7 +122,7 @@ def test_evaluate_step(sequential_workflow_view):
                 branch_id="b-1",
                 rule=None,
                 rule_status=RuleStatus.TRUE,
-                resolved_vars={},
+                var_resolutions=[],
             ),
         ],
         selected_branch_id="b-1",
