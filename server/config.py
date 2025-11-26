@@ -1,8 +1,6 @@
 import datetime
 import json
 import logging.config
-import os
-from functools import lru_cache
 from typing import ClassVar
 
 import environs
@@ -87,6 +85,8 @@ class Config:
             "werkzeug": {"level": "INFO"},
         },
     }
+    logging.config.dictConfig(LOGGING)
+    logger = logging.getLogger(__name__)
 
 
 class TestConfig(Config):
@@ -118,30 +118,6 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, datetime.datetime):
             return str(o)
         return json.JSONEncoder.default(self, o)
-
-
-def setup_logging():
-    is_testing = os.environ.get("TESTING", "False").lower() == "true"
-
-    if is_testing:
-        logging_config = Config.LOGGING.copy()
-        logging_config["handlers"] = {"console": logging_config["handlers"]["console"]}
-        logging_config["loggers"] = {
-            "": {"handlers": ["console"], "level": "DEBUG"},
-            "flask": {"level": "INFO"},
-            "sqlalchemy": {"level": "INFO"},
-            "werkzeug": {"level": "INFO"},
-        }
-        logging.config.dictConfig(logging_config)
-    else:
-        logging.config.dictConfig(Config.LOGGING)
-
-    return logging.getLogger(__name__)
-
-
-@lru_cache(maxsize=1)
-def get_logger():
-    return setup_logging()
 
 
 API_DOCS_TITLE = "Cradle-Platform REST API"
