@@ -4,13 +4,15 @@ import pytest
 from humps import decamelize
 
 import data.db_operations as crud
+from common.api_utils import (
+    WorkflowInstanceAndStepIdPath,
+)
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from models import WorkflowInstanceOrm, WorkflowTemplateOrm
 from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
     ApplyActionRequest,
-    EvaluateWorkflowStepRequest,
     GetAvailableActionsResponse,
 )
 from validation.workflow_models import (
@@ -384,16 +386,18 @@ def test_sequential_workflow_progression__happy_path(
 
 
 def evaluate_step(
-    api_get, instance_id: str, request: EvaluateWorkflowStepRequest, expected_code: int
+    api_get, path: WorkflowInstanceAndStepIdPath, expected_code: int
 ) -> Optional[WorkflowStepEvaluation]:
     """
     Helper function to send API request for evaluating a workflow step
     and validating the response.
     """
-    response = api_get(
-        endpoint=f"/api/workflow/instances/{instance_id}/evaluate_step",
-        json=request.model_dump(),
+    url = (
+        f"/api/workflow/instances/{path.workflow_instance_id}"
+        + f"/steps/{path.workflow_instance_step_id}/evaluate"
     )
+
+    response = api_get(endpoint=url)
     assert response.status_code == expected_code
 
     if response.status_code == 200:
@@ -412,14 +416,18 @@ def test_evaluate_step(api_get, sequential_workflow_view, patient_id):
 
         step_1_evaluation = evaluate_step(
             api_get,
-            workflow_view.instance.id,
-            EvaluateWorkflowStepRequest(instance_step_id="si-1"),
+            WorkflowInstanceAndStepIdPath(
+                workflow_instance_id=workflow_view.instance.id,
+                workflow_instance_step_id="si-1",
+            ),
             expected_code=200,
         )
         step_2_evaluation = evaluate_step(
             api_get,
-            workflow_view.instance.id,
-            EvaluateWorkflowStepRequest(instance_step_id="si-2"),
+            WorkflowInstanceAndStepIdPath(
+                workflow_instance_id=workflow_view.instance.id,
+                workflow_instance_step_id="si-2",
+            ),
             expected_code=200,
         )
         # sanity checks, workflow planner unit tests already have more thorough checks
@@ -428,8 +436,10 @@ def test_evaluate_step(api_get, sequential_workflow_view, patient_id):
 
         evaluate_step(
             api_get,
-            workflow_view.instance.id,
-            EvaluateWorkflowStepRequest(instance_step_id="this-step-shouldnt-exist"),
+            WorkflowInstanceAndStepIdPath(
+                workflow_instance_id=workflow_view.instance.id,
+                workflow_instance_step_id="this-step-shouldnt-exist",
+            ),
             expected_code=404,
         )
 

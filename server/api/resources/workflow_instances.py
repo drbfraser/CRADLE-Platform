@@ -6,6 +6,7 @@ from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
 from common.api_utils import (
+    WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
 )
@@ -21,7 +22,6 @@ from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
     ApplyActionRequest,
-    EvaluateWorkflowStepRequest,
     GetAvailableActionsResponse,
     WorkflowInstancePatchModel,
 )
@@ -343,25 +343,25 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     return workflow_view.instance.model_dump(), 200
 
 
-# /api/workflow/instances/<string:workflow_instance_id>/evaluate_step [GET]
+# /api/workflow/instances/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate [GET]
 @api_workflow_instances.get(
-    "/<string:workflow_instance_id>/evaluate_step",
+    "/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate",
     responses={200: WorkflowStepEvaluation},
 )
-def evaluate_step(path: WorkflowInstanceIdPath, body: EvaluateWorkflowStepRequest):
+def evaluate_step(path: WorkflowInstanceAndStepIdPath):
     """Evaluate a Workflow Instance Step"""
     workflow_view = get_workflow_view(path.workflow_instance_id)
 
-    if not workflow_view.has_instance_step(body.instance_step_id):
+    if not workflow_view.has_instance_step(path.workflow_instance_step_id):
         abort(
             code=404,
             description=WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
-                body.instance_step_id
+                path.workflow_instance_step_id
             ),
         )
 
     step_evaluation = WorkflowService.evaluate_workflow_step(
-        workflow_view, body.instance_step_id
+        workflow_view, path.workflow_instance_step_id
     )
 
     return step_evaluation.model_dump(), 200
