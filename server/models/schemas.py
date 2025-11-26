@@ -168,6 +168,7 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
         model = ReadingOrm
         load_instance = True
         include_relationships = True
+        exclude = ["patient"]
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
@@ -186,6 +187,7 @@ class AssessmentSchema(ma.SQLAlchemyAutoSchema):
         model = AssessmentOrm
         load_instance = True
         include_relationships = True
+        exclude = ["patient"]
 
 
 class UrineTestSchema(ma.SQLAlchemyAutoSchema):
@@ -224,6 +226,7 @@ class PregnancySchema(ma.SQLAlchemyAutoSchema):
         model = PregnancyOrm
         load_instance = True
         include_relationships = True
+        exclude = ["patient"]
 
 
 class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):

@@ -1,26 +1,18 @@
-from unittest.mock import Mock, patch
-
-import data.db_operations as crud
-from models import PatientOrm, ReadingOrm
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
 
 
 class TestWorkflowDataResolverIntegration:
-    """Integration tests for WorkflowDataResolver"""
+    """Integration tests for WorkflowDataResolver with real database"""
 
-    @patch("data.db_operations.read_by_filter")
-    @patch("data.marshal.marshal")
-    def test_evaluate_workflow_with_real_catalogue(self, mock_marshal, mock_read):
-        mock_read.return_value = Mock()
-        mock_marshal.return_value = {
-            "id": "patient_456",
-            "name": "Senior Patient",
-            "sex": "MALE",
-            "date_of_birth": "1950-01-01",
-            "is_exact_date_of_birth": True,
-            "is_pregnant": False,
-        }
+    def test_evaluate_workflow_with_patient_age(self, patient_factory):
+        patient_factory.create(
+            id="patient_senior",
+            name="Senior Patient",
+            sex="MALE",
+            date_of_birth="1950-01-01",
+            is_exact_date_of_birth=True,
+        )
 
         resolver = WorkflowDataResolver(get_catalogue())
 
@@ -35,17 +27,12 @@ class TestWorkflowDataResolverIntegration:
             },
         ]
 
-        result = resolver.evaluate_workflow_branches("patient_456", branches)
+        result = resolver.evaluate_workflow_branches("patient_senior", branches)
 
         assert result["status"] == "TRUE"
         assert result["branch"]["target_step_id"] == "senior_care"
 
-    @patch("data.db_operations.read_by_filter")
-    @patch("data.marshal.marshal")
-    def test_missing_patient_with_real_catalogue(self, mock_marshal, mock_read):
-        mock_read.return_value = None
-        mock_marshal.return_value = None
-
+    def test_missing_patient_returns_not_enough_data(self):
         resolver = WorkflowDataResolver(get_catalogue())
 
         branches = [
@@ -57,38 +44,23 @@ class TestWorkflowDataResolverIntegration:
         assert result["status"] == "NOT_ENOUGH_DATA"
         assert "patient.age" in result["missing_variables"]
 
-    @patch("data.db_operations.read_by_filter")
-    @patch("data.marshal.marshal")
-    def test_patient_and_reading_data(self, mock_marshal, mock_read_by_filter):
-        def mock_marshal_side_effect(orm_obj):
-            model_class = getattr(orm_obj, "model_class", None)
-            if model_class == PatientOrm:
-                return {
-                    "id": "patient_123",
-                    "name": "Test Patient",
-                    "sex": "FEMALE",
-                    "date_of_birth": "1995-01-01",
-                    "is_exact_date_of_birth": True,
-                    "is_pregnant": True,
-                }
-            if model_class == ReadingOrm:
-                return {
-                    "id": "reading_123",
-                    "patient_id": "patient_123",
-                    "systolic_blood_pressure": 150,
-                    "diastolic_blood_pressure": 95,
-                    "heart_rate": 70,
-                    "date_taken": 1234567890,
-                }
-            return {}
-
-        def mock_read_by_filter_side_effect(model, filter_condition):
-            mock_orm = Mock()
-            mock_orm.model_class = model
-            return mock_orm
-
-        mock_read_by_filter.side_effect = mock_read_by_filter_side_effect
-        mock_marshal.side_effect = mock_marshal_side_effect
+    def test_patient_and_reading_evaluation(self, patient_factory, reading_factory):
+        patient_factory.create(
+            id="patient_bp",
+            name="BP Test Patient",
+            sex="FEMALE",
+            date_of_birth="1990-01-01",
+            is_exact_date_of_birth=True,
+            is_pregnant=True,
+        )
+        reading_factory.create(
+            id="reading_bp",
+            patient_id="patient_bp",
+            systolic_blood_pressure=150,
+            diastolic_blood_pressure=95,
+            heart_rate=70,
+            date_taken=1234567890,
+        )
 
         resolver = WorkflowDataResolver(get_catalogue())
 
@@ -99,109 +71,58 @@ class TestWorkflowDataResolverIntegration:
             }
         ]
 
-        result = resolver.evaluate_workflow_branches("patient_123", branches)
+        result = resolver.evaluate_workflow_branches("patient_bp", branches)
 
-        assert mock_read_by_filter.call_count == 2
-        assert mock_marshal.call_count == 2
         assert result["status"] == "TRUE"
         assert result["branch"]["target_step_id"] == "high_bp_female"
 
-    def test_evaluate_with_real_patient_database(self, database):
-        patient = PatientOrm(
-            id="real_patient_123",
-            name="Real Patient",
+    def test_pregnancy_and_bp_evaluation(self, patient_factory, reading_factory):
+        patient_factory.create(
+            id="patient_preg_bp",
+            name="Pregnant BP Patient",
             sex="FEMALE",
             date_of_birth="1990-01-01",
             is_exact_date_of_birth=True,
             is_pregnant=True,
         )
-        crud.create(patient, refresh=True)
-
-        try:
-            resolver = WorkflowDataResolver(get_catalogue())
-
-            branches = [
-                {
-                    "rule": '{"==": [{"var": "patient.sex"}, "FEMALE"]}',
-                    "target_step_id": "female_care",
-                }
-            ]
-
-            result = resolver.evaluate_workflow_branches("real_patient_123", branches)
-
-            assert result["status"] == "TRUE"
-            assert result["branch"]["target_step_id"] == "female_care"
-        finally:
-            crud.delete(patient)
-
-    def test_patient_and_reading_real_database(self, database):
-        patient = PatientOrm(
-            id="patient_reading_789",
-            name="BP Test Patient",
-            sex="FEMALE",
-            date_of_birth="1985-06-15",
-            is_exact_date_of_birth=True,
-            is_pregnant=True,
-        )
-        crud.create(patient, refresh=True)
-
-        reading = ReadingOrm(
-            id="reading_789",
-            patient_id="patient_reading_789",
+        reading_factory.create(
+            id="reading_preg_bp",
+            patient_id="patient_preg_bp",
             systolic_blood_pressure=145,
             diastolic_blood_pressure=92,
             heart_rate=78,
             date_taken=1234567890,
-            is_flagged_for_follow_up=False,
         )
-        crud.create(reading, refresh=True)
 
-        try:
-            resolver = WorkflowDataResolver(get_catalogue())
+        resolver = WorkflowDataResolver(get_catalogue())
 
-            branches = [
-                {
-                    "rule": '{"and": [{"==": [{"var": "patient.is_pregnant"}, true]}, {">=": [{"var": "reading.systolic_blood_pressure"}, 140]}]}',
-                    "target_step_id": "high_bp_pregnancy",
-                }
-            ]
+        branches = [
+            {
+                "rule": '{"and": [{"==": [{"var": "patient.is_pregnant"}, true]}, {">=": [{"var": "reading.systolic_blood_pressure"}, 140]}]}',
+                "target_step_id": "high_bp_pregnancy",
+            }
+        ]
 
-            result = resolver.evaluate_workflow_branches(
-                "patient_reading_789", branches
-            )
+        result = resolver.evaluate_workflow_branches("patient_preg_bp", branches)
 
-            assert result["status"] == "TRUE"
-            assert result["branch"]["target_step_id"] == "high_bp_pregnancy"
-        finally:
-            crud.delete(reading)
-            crud.delete(patient)
+        assert result["status"] == "TRUE"
+        assert result["branch"]["target_step_id"] == "high_bp_pregnancy"
 
-    def test_missing_data_real_database(self, database):
-        patient = PatientOrm(
-            id="patient_no_reading_999",
-            name="No Reading Patient",
-            sex="MALE",
-            date_of_birth="1980-03-20",
-            is_exact_date_of_birth=True,
-            is_pregnant=False,
+    def test_missing_reading_data(self, patient_factory):
+        patient_factory.create(
+            id="patient_no_reading", name="No Reading Patient", sex="MALE"
         )
-        crud.create(patient, refresh=True)
 
-        try:
-            resolver = WorkflowDataResolver(get_catalogue())
+        resolver = WorkflowDataResolver(get_catalogue())
 
-            branches = [
-                {
-                    "rule": '{">=": [{"var": "reading.systolic_blood_pressure"}, 120]}',
-                    "target_step_id": "normal_bp",
-                }
-            ]
+        branches = [
+            {
+                "rule": '{">=": [{"var": "reading.systolic_blood_pressure"}, 120]}',
+                "target_step_id": "normal_bp",
+            }
+        ]
 
-            result = resolver.evaluate_workflow_branches(
-                "patient_no_reading_999", branches
-            )
+        result = resolver.evaluate_workflow_branches("patient_no_reading", branches)
 
-            assert result["status"] == "NOT_ENOUGH_DATA"
-            assert "reading.systolic_blood_pressure" in result["missing_variables"]
-        finally:
-            crud.delete(patient)
+        assert result["status"] == "NOT_ENOUGH_DATA"
+        assert "reading.systolic_blood_pressure" in result["missing_variables"]
