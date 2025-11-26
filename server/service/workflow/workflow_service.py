@@ -11,6 +11,7 @@ from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
+    WorkflowStepEvaluation,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
 )
@@ -127,29 +128,29 @@ class WorkflowService:
 
     @staticmethod
     def get_available_workflow_actions(
-        workflow_instance: WorkflowInstanceModel,
-        workflow_template: WorkflowTemplateModel,
+        workflow_view: WorkflowView,
     ) -> list[WorkflowActionModel]:
-        assert workflow_instance.workflow_template_id == workflow_template.id
-
-        workflow_view = WorkflowView(workflow_template, workflow_instance)
-
         available_actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
         return available_actions
 
     @staticmethod
     def apply_workflow_action(
-        action: WorkflowActionModel,
-        workflow_instance: WorkflowInstanceModel,
-        workflow_template: WorkflowTemplateModel,
+        action: WorkflowActionModel, workflow_view: WorkflowView
     ) -> None:
-        assert workflow_instance.workflow_template_id == workflow_template.id
-
-        workflow_view = WorkflowView(workflow_template, workflow_instance)
-
         ops = WorkflowPlanner.get_operations(ctx=workflow_view, action=action)
         for op in ops:
             op.apply(workflow_view)
+
+    @staticmethod
+    def evaluate_workflow_step(
+        workflow_view: WorkflowView, instance_step_id: str
+    ) -> WorkflowStepEvaluation:
+        assert workflow_view.has_instance_step(instance_step_id)
+
+        step_evaluation = WorkflowPlanner.evaluate_step(
+            ctx=workflow_view, step=workflow_view.get_instance_step(instance_step_id)
+        )
+        return step_evaluation
 
     @staticmethod
     def _check_last_edited_and_start_date(

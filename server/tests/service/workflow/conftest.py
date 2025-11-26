@@ -17,7 +17,7 @@ def sequential_workflow_template() -> WorkflowTemplateModel:
         workflow_template_id=workflow_template_id,
         branches=[
             helpers.make_workflow_template_branch(
-                step_id=step_template_1_id, target_step_id=step_template_2_id
+                id="b-1", step_id=step_template_1_id, target_step_id=step_template_2_id
             )
         ],
     )
