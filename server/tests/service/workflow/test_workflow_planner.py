@@ -12,12 +12,15 @@ from service.workflow.workflow_operations import (
 )
 from service.workflow.workflow_planner import (
     InvalidWorkflowActionError,
+    RuleStatus,
     WorkflowPlanner,
 )
 from validation.workflow_models import (
     CompleteStepActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
+    WorkflowBranchEvaluation,
+    WorkflowStepEvaluation,
 )
 
 EXPECTED_AVAILABLE_ACTIONS_FOR_SEQUENTIAL_WORKFLOW = [
@@ -108,3 +111,31 @@ def test_get_operations_is_stateless(sequential_workflow_view):
         action=StartWorkflowActionModel(),
     )
     assert ops == EXPECTED_OPS_FOR_SEQUENTIAL_WORKFLOW[0:5]
+
+
+def test_evaluate_step(sequential_workflow_view):
+    view = sequential_workflow_view
+
+    expected_step_1_evaluation = WorkflowStepEvaluation(
+        branch_evaluations=[
+            WorkflowBranchEvaluation(
+                branch_id="b-1",
+                rule=None,
+                rule_status=RuleStatus.TRUE,
+                var_resolutions=[],
+            ),
+        ],
+        selected_branch_id="b-1",
+    )
+    expected_step_2_evaluation = WorkflowStepEvaluation(
+        branch_evaluations=[], selected_branch_id=None
+    )
+    actual_step_1_evaluation = WorkflowPlanner.evaluate_step(
+        view, view.get_instance_step("si-1")
+    )
+    actual_step_2_evaluation = WorkflowPlanner.evaluate_step(
+        view, view.get_instance_step("si-2")
+    )
+
+    assert expected_step_1_evaluation == actual_step_1_evaluation
+    assert expected_step_2_evaluation == actual_step_2_evaluation

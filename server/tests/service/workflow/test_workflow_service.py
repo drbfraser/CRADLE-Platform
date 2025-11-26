@@ -94,17 +94,12 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert workflow_view.get_instance_step("si-1").completion_date is None
     assert workflow_view.get_instance_step("si-2").completion_date is None
 
-    actions = WorkflowService.get_available_workflow_actions(
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
-    )
+    actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     assert actions == [StartWorkflowActionModel()]
 
     WorkflowService.apply_workflow_action(
-        action=StartWorkflowActionModel(),
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
+        action=StartWorkflowActionModel(), workflow_view=workflow_view
     )
 
     assert workflow_view.instance.status == "Active"
@@ -115,17 +110,12 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert_is_recent_timestamp(workflow_view.instance.start_date)
     assert_is_recent_timestamp(workflow_view.get_instance_step("si-1").start_date)
 
-    actions = WorkflowService.get_available_workflow_actions(
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
-    )
+    actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     assert actions == [CompleteStepActionModel(step_id="si-1")]
 
     WorkflowService.apply_workflow_action(
-        action=CompleteStepActionModel(step_id="si-1"),
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
+        action=CompleteStepActionModel(step_id="si-1"), workflow_view=workflow_view
     )
 
     assert workflow_view.instance.status == "Active"
@@ -135,17 +125,12 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
 
     assert_is_recent_timestamp(workflow_view.get_instance_step("si-1").completion_date)
 
-    actions = WorkflowService.get_available_workflow_actions(
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
-    )
+    actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     assert actions == [StartStepActionModel(step_id="si-2")]
 
     WorkflowService.apply_workflow_action(
-        action=StartStepActionModel(step_id="si-2"),
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
+        action=StartStepActionModel(step_id="si-2"), workflow_view=workflow_view
     )
 
     assert workflow_view.instance.status == "Active"
@@ -155,17 +140,12 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
 
     assert_is_recent_timestamp(workflow_view.get_instance_step("si-2").start_date)
 
-    actions = WorkflowService.get_available_workflow_actions(
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
-    )
+    actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     assert actions == [CompleteStepActionModel(step_id="si-2")]
 
     WorkflowService.apply_workflow_action(
-        action=CompleteStepActionModel(step_id="si-2"),
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
+        action=CompleteStepActionModel(step_id="si-2"), workflow_view=workflow_view
     )
 
     assert workflow_view.instance.status == "Completed"
@@ -176,10 +156,7 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert_is_recent_timestamp(workflow_view.get_instance_step("si-2").completion_date)
     assert_is_recent_timestamp(workflow_view.instance.completion_date)
 
-    actions = WorkflowService.get_available_workflow_actions(
-        workflow_instance=workflow_view.instance,
-        workflow_template=workflow_view.template,
-    )
+    actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     assert actions == []
 
@@ -189,9 +166,7 @@ def test_workflow_service__apply_invalid_workflow_action(sequential_workflow_vie
 
     with pytest.raises(InvalidWorkflowActionError) as e:
         WorkflowService.apply_workflow_action(
-            action=CompleteStepActionModel(step_id="si-1"),
-            workflow_instance=workflow_view.instance,
-            workflow_template=workflow_view.template,
+            action=CompleteStepActionModel(step_id="si-1"), workflow_view=workflow_view
         )
 
     assert e.value.action == CompleteStepActionModel(step_id="si-1")

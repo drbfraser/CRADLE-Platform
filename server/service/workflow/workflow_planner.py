@@ -1,6 +1,7 @@
 from typing import Optional
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
+from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
     UpdateCurrentStepOp,
@@ -17,9 +18,30 @@ from validation.workflow_models import (
     CompleteStepActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
+    VariableResolution,
     WorkflowActionModel,
+    WorkflowBranchEvaluation,
     WorkflowInstanceStepModel,
+    WorkflowStepEvaluation,
+    WorkflowTemplateStepBranchModel,
 )
+
+
+# NOTE: This class may not belong here since it's not inherently workflow-specific.
+# Once implemented, it could be moved to service/evaluate or a more relevant location.
+class RuleEvaluator:
+    """
+    Evaluates a rule.
+
+    For now, this is a stub that always returns TRUE and an empty list for variable resolutions.
+    TODO: Implement evaluate_rule by integrating the variable resolver and rule engine.
+    """
+
+    @staticmethod
+    def evaluate_rule(
+        rule: Optional[str],  # noqa: ARG004
+    ) -> tuple[RuleStatus, list[VariableResolution]]:
+        return (RuleStatus.TRUE, [])
 
 
 class WorkflowPlanner:
@@ -29,21 +51,67 @@ class WorkflowPlanner:
     """
 
     @staticmethod
+    def _evaluate_branch(
+        branch: WorkflowTemplateStepBranchModel,
+    ) -> WorkflowBranchEvaluation:
+        """
+        Evaluates the rule of a workflow step's branch.
+        """
+        rule = branch.condition.rule if branch.condition else None
+        rule_status, var_resolutions = RuleEvaluator.evaluate_rule(rule)
+
+        branch_evaluation = WorkflowBranchEvaluation(
+            branch_id=branch.id,
+            rule=rule,
+            var_resolutions=var_resolutions,
+            rule_status=rule_status,
+        )
+
+        return branch_evaluation
+
+    @staticmethod
+    def evaluate_step(
+        ctx: WorkflowView, step: WorkflowInstanceStepModel
+    ) -> WorkflowStepEvaluation:
+        """
+        Evaluates all branches of a workflow step and determines the selected branch
+        based on rule evaluations.
+        """
+        branch_evaluations = []
+        selected_branch_id = None
+
+        branches = ctx.get_template_step(step.workflow_template_step_id).branches
+
+        for branch in branches:
+            branch_evaluation = WorkflowPlanner._evaluate_branch(branch)
+            branch_evaluations.append(branch_evaluation)
+
+            if (
+                not selected_branch_id
+                and branch_evaluation.rule_status == RuleStatus.TRUE
+            ):
+                selected_branch_id = branch.id
+
+        step_evaluation = WorkflowStepEvaluation(
+            branch_evaluations=branch_evaluations, selected_branch_id=selected_branch_id
+        )
+        return step_evaluation
+
+    @staticmethod
     def _eval_next_step_from_this_step(
         ctx: WorkflowView, step: WorkflowInstanceStepModel
     ) -> Optional[WorkflowInstanceStepModel]:
         """
         Evaluate the next step to go to from this step.
-
-        For now, simply pick the target step from the first branch.
-        This may be extended in the future to involve the Rule Engine.
         """
-        template_step = ctx.get_template_step(step.workflow_template_step_id)
+        step_evaluation = WorkflowPlanner.evaluate_step(ctx, step)
 
-        if template_step.branches and template_step.branches[0].target_step_id:
-            next_step = ctx.get_instance_step_for_template_step(
-                template_step.branches[0].target_step_id
+        if step_evaluation.selected_branch_id is not None:
+            branch = ctx.get_template_step_branch(
+                ctx.get_template_step(step.workflow_template_step_id),
+                step_evaluation.selected_branch_id,
             )
+            next_step = ctx.get_instance_step_for_template_step(branch.target_step_id)
         else:
             next_step = None
 

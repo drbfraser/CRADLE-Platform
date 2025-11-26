@@ -4,6 +4,7 @@ from validation.workflow_models import (
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
+    WorkflowTemplateStepBranchModel,
     WorkflowTemplateStepModel,
 )
 
@@ -22,6 +23,8 @@ class WorkflowView:
     def __init__(
         self, template: WorkflowTemplateModel, instance: WorkflowInstanceModel
     ):
+        assert template.id == instance.workflow_template_id
+
         self.template = template
         self.instance = instance
 
@@ -34,8 +37,19 @@ class WorkflowView:
     def get_instance_step(self, step_id: str) -> WorkflowInstanceStepModel:
         return self._instance_steps_by_id[step_id]
 
+    def has_instance_step(self, step_id: str) -> bool:
+        return step_id in self._instance_steps_by_id
+
     def get_template_step(self, step_id: str) -> WorkflowTemplateStepModel:
         return self._template_steps_by_id[step_id]
+
+    def get_template_step_branch(
+        self, step: WorkflowTemplateStepModel, branch_id: str
+    ) -> WorkflowTemplateStepBranchModel:
+        for branch in step.branches:
+            if branch.id == branch_id:
+                return branch
+        raise ValueError(f"Template step has no branch with ID '{branch_id}'")
 
     def get_instance_step_for_template_step(
         self, template_step_id: str
