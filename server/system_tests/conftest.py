@@ -349,7 +349,7 @@ def form_template_factory(database) -> factory.FormTemplateFactory:
 def __make_factory(database, factory_type) -> factory.ModelFactory:
     f = factory_type(database)
     yield f
-    # f.cleanup()
+    f.cleanup()
 
 
 def __make_http_request_closure(url, headers, func):
