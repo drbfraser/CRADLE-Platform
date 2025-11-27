@@ -8,15 +8,22 @@ import {
   Tooltip,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { useState } from 'react';
+import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
-export default function NextStepSelector() {
-  const [selectedId, setSelectedId] = useState('branch-1');
+interface IProps {
+  selectedId: string;
+  setSelectedId: React.Dispatch<React.SetStateAction<string>>;
+}
 
-  const mockOptions: NextStepOption[] = [
+export default function NextStepSelector({
+  selectedId,
+  setSelectedId,
+}: IProps) {
+  const mockOptions: WorkflowNextStepOption[] = [
     {
-      id: 'branch-1',
-      title: 'Check Patient Age',
+      branchId: 'branch-1',
+      stepId: 'test-workflow-instance-1-step2',
+      title: 'Name Assessment',
       isRecommended: true,
       ruleDetails: [
         'Rule: patient.age < 32',
@@ -25,7 +32,8 @@ export default function NextStepSelector() {
       ],
     },
     {
-      id: 'branch-2',
+      branchId: 'branch-2',
+      stepId: 'test-workflow-instance-1-step3',
       title: 'Schedule Follow-up',
       isRecommended: false,
       ruleDetails: [
@@ -34,26 +42,19 @@ export default function NextStepSelector() {
         'Status: FALSE',
       ],
     },
-    {
-      id: 'branch-3',
-      title: 'Refer to Specialist',
-      isRecommended: false,
-      ruleDetails: [
-        'Rule: measurement > 7',
-        'Resolved: measurement = 4',
-        'Status: FALSE',
-      ],
-    },
   ];
+
+  const test = (e: any) => {
+    setSelectedId(e.target.value);
+    console.log(e.target.value);
+  };
 
   return (
     <Box sx={{ width: 400 }}>
-      <RadioGroup
-        value={selectedId}
-        onChange={(e) => setSelectedId(e.target.value)}>
+      <RadioGroup value={selectedId} onChange={test}>
         {mockOptions.map((opt) => (
           <Box
-            key={opt.id}
+            key={opt.stepId}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -65,7 +66,7 @@ export default function NextStepSelector() {
             }}>
             <Box>
               <FormControlLabel
-                value={opt.id}
+                value={opt.stepId}
                 control={<Radio />}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
