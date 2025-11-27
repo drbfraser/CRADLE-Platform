@@ -1,5 +1,6 @@
 import { Box, Typography, Modal, Paper, Button } from '@mui/material';
 import NextStepSelector from './NextStepSelector';
+import { useState } from 'react';
 
 export interface NextStepModalState {
   open: boolean;
@@ -10,13 +11,31 @@ export interface NextStepModalState {
 
 interface IProps {
   open: boolean;
+  nextStep: string | null;
+  setNextStep: React.Dispatch<React.SetStateAction<string | null>>;
   handleCloseNextStepModal: () => void;
+  handleSelectNextStep: (stepId: string) => Promise<void>;
+  handleCompleteStep: () => void;
+  handleCompleteAndStartNext: (stepId: string) => Promise<void>;
 }
 
 export default function WorkflowSelectStepModal({
   open,
   handleCloseNextStepModal,
+  handleSelectNextStep,
+  handleCompleteStep,
+  handleCompleteAndStartNext,
 }: IProps) {
+  const [selectedId, setSelectedId] = useState('');
+
+  const handleOnConfirm = async () => {
+    try {
+      await handleCompleteAndStartNext(selectedId);
+    } catch (e) {
+      console.error('Error completing/starting next step', e);
+    }
+  };
+
   return (
     <>
       <Modal open={open}>
@@ -31,7 +50,7 @@ export default function WorkflowSelectStepModal({
             sx={{
               minHeight: '15vw',
               maxHeight: '50vw',
-              minWidth: '60vw',
+              minWidth: '50vw',
               maxWidth: '90vw',
               p: 8,
               pt: 6,
@@ -49,7 +68,11 @@ export default function WorkflowSelectStepModal({
                 Select next step
               </Typography>
 
-              <NextStepSelector />
+              <NextStepSelector
+                selectedId={selectedId}
+                setSelectedId={setSelectedId}
+                // setNextStep={setNextStep}
+              />
 
               <Box
                 sx={{
@@ -62,7 +85,7 @@ export default function WorkflowSelectStepModal({
                 }}>
                 <Button onClick={handleCloseNextStepModal}>Cancel</Button>
 
-                <Button variant="contained" onClick={handleCloseNextStepModal}>
+                <Button variant="contained" onClick={handleOnConfirm}>
                   Confirm
                 </Button>
               </Box>

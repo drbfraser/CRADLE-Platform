@@ -5,6 +5,7 @@ import {
   InstanceStatus,
   InstanceStepAction,
   StepStatus,
+  WorkflowBranchEvaluationStatus,
 } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
@@ -14,9 +15,9 @@ export interface RuleGroup {
 
 //   Template side
 export interface WorkflowTemplateStepBranch {
-  // ⇒ workflow_template_step.id
-  stepId?: ID;
-  // Condition that must evaluate true for the branch to activate
+  id: ID;
+  stepId: ID;
+  conditionId?: ID;
   condition?: RuleGroup;
   targetStepId: ID;
 }
@@ -133,6 +134,24 @@ export interface ApplyInstanceStepActionRequest {
     type: InstanceStepAction;
     step_id: ID;
   };
+}
+
+export interface WorkflowBranchVarResolution {
+  var: string;
+  value: number | null;
+  status: string;
+}
+
+export interface WorkflowBranchEvaluation {
+  branchId: ID;
+  rule: string;
+  resolved_vars: WorkflowBranchVarResolution[];
+  ruleStatus: WorkflowBranchEvaluationStatus;
+}
+
+export interface WorkflowInstanceStepEvaluation {
+  branch_evaluations: WorkflowBranchEvaluation[];
+  selected_branch_id: ID;
 }
 
 // Payload for POST /workflow/instances
