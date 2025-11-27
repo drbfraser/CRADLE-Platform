@@ -1,5 +1,3 @@
-import pytest
-
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
     DatasourceVariable,
@@ -24,7 +22,9 @@ class TestPatientResolution:
         zone_var = DatasourceVariable.from_string("patient.zone")
 
         result = resolve_variables(
-            context=context, variables=[name_var, sex_var, zone_var], catalogue=catalogue
+            context=context,
+            variables=[name_var, sex_var, zone_var],
+            catalogue=catalogue,
         )
 
         assert result["patient.name"] == "Mary Grace"
@@ -40,7 +40,9 @@ class TestPatientResolution:
         catalogue = get_catalogue()
         age_var = DatasourceVariable.from_string("patient.age")
 
-        result = resolve_variable(context=context, variable=age_var, catalogue=catalogue)
+        result = resolve_variable(
+            context=context, variable=age_var, catalogue=catalogue
+        )
 
         assert result is not None
         assert isinstance(result, int)
@@ -52,7 +54,9 @@ class TestPatientResolution:
 
         name_var = DatasourceVariable.from_string("patient.name")
 
-        result = resolve_variable(context=context, variable=name_var, catalogue=catalogue)
+        result = resolve_variable(
+            context=context, variable=name_var, catalogue=catalogue
+        )
 
         assert result is None
 
@@ -125,7 +129,9 @@ class TestAssessmentResolution:
         followup_var = DatasourceVariable.from_string("assessment.follow_up_needed")
 
         result = resolve_variables(
-            context=context, variables=[diagnosis_var, followup_var], catalogue=catalogue
+            context=context,
+            variables=[diagnosis_var, followup_var],
+            catalogue=catalogue,
         )
 
         assert result["assessment.diagnosis"] == "Hypertension"
@@ -140,7 +146,9 @@ class TestPregnancyResolution:
             id="patient_006", name="Pregnant Patient", is_pregnant=True
         )
         pregnancy_factory.create(
-            id=1, patient_id="patient_006", start_date=1609459200  # 2021-01-01
+            id=1,
+            patient_id="patient_006",
+            start_date=1609459200,  # 2021-01-01
         )
 
         context = {"patient_id": "patient_006", "pregnancy_id": 1}
@@ -158,7 +166,9 @@ class TestPregnancyResolution:
 class TestMultiObjectResolution:
     """System tests for resolving multiple object types together"""
 
-    def test_resolve_patient_and_reading_together(self, patient_factory, reading_factory):
+    def test_resolve_patient_and_reading_together(
+        self, patient_factory, reading_factory
+    ):
         patient_factory.create(
             id="patient_007", name="Multi Test", sex="FEMALE", is_pregnant=True
         )

@@ -6,7 +6,6 @@ from validation.assessments import AssessmentModel
 from validation.patients import PatientModel
 from validation.readings import ReadingModel
 
-
 REAL_MODEL_REGISTRY = {
     "patient": PatientModel,
     "assessment": AssessmentModel,
