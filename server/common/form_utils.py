@@ -1,24 +1,32 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Dict, Literal, NamedTuple, Type
+from typing import Literal, NamedTuple
 
 import data.db_operations as crud
 from common import commonUtil
+from data import marshal
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
     FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
     FormTemplateOrm,
     FormTemplateOrmV2,
     LangVersionOrmV2,
     QuestionOrm,
 )
-
-if TYPE_CHECKING:
-    from data.crud import M
-    from validation.formsV2_models import FormAnswer
+from validation.formsV2_models import (
+    AnswerWithQuestion,
+    FormAnswer,
+    FormClassification,
+    FormSubmission,
+    FormTemplateUploadQuestion,
+    FormTemplateUploadRequest,
+    MultiLangText,
+)
 
 
 def filter_template_questions_dict(form_template: dict):
@@ -38,7 +46,7 @@ def filter_template_questions_orm(form_template_orm: FormTemplateOrm):
     return form_template_orm
 
 
-def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
+def assign_form_or_template_ids(model, req: dict) -> None:
     """
     Assign form id if not provided.
     Assign question id and form_id or form_template_id.
@@ -75,12 +83,12 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
                 version["question_id"] = question["id"]
 
 
-def _assign_id(obj: dict, field: str) -> None:
-    if obj.get(field) is None:
-        obj[field] = commonUtil.get_uuid()
+def _assign_id(obj, field: str):
+    if getattr(obj, field, None) is None:
+        setattr(obj, field, commonUtil.get_uuid())
 
 
-def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
+def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
     """
     Mutates the request dict to assign ALL required UUIDs:
     - template.id
@@ -88,7 +96,7 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
     - question.id + question_string_id
     - mc option string_ids
     """
-    classification = req.get("classification")
+    classification = req.classification
     if not classification:
         raise ValueError("Classification is required for form template upload")
 
@@ -97,38 +105,38 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
     _assign_id(classification, "name_string_id")
 
     # Template ID
-    req["id"] = commonUtil.get_uuid()
-    template_id = req["id"]
+    req.id = commonUtil.get_uuid()
+    template_id = req.id
 
     # Questions
-    for question in req.get("questions", []):
-        question["id"] = commonUtil.get_uuid()
-        question["form_template_id"] = template_id
+    for question in req.questions:
+        question.id = commonUtil.get_uuid()
+        question.form_template_id = template_id
 
         # Question text (string_id)
-        if "question_text" in question or "questionText" in question:
+        if question.question_text:
             _assign_id(question, "question_string_id")
 
         # MC option string_ids
-        mc_opts = question.get("mc_options") or question.get("mcOptions")
+        mc_opts = question.mc_options
         if mc_opts:
             for opt in mc_opts:
                 _assign_id(opt, "string_id")
 
 
-def assign_form_ids_v2(req: Dict[str, Any]) -> None:
+def assign_form_ids_v2(req: FormSubmission) -> None:
     """
     Mutates the request dict to assign ALL required UUIDs:
     - submission.id
     - answer.id
     """
     _assign_id(req, "id")
-    submission_id = req["id"]
+    submission_id = req.id
 
     # Questions
-    for answer in req.get("answers", []):
+    for answer in req.answers:
         _assign_id(answer, "id")
-        answer["form_submission_id"] = submission_id
+        answer.form_submission_id = submission_id
 
 
 def getCsvFromFormTemplate(form_template: FormTemplateOrm):
@@ -638,3 +646,155 @@ def validate_form_answers(
                 return ValidationResult(True, "Validated", code=None)
 
     return ValidationResult(True, "Answers are all valid", code=None)
+
+
+def check_name_conflict(english_name: str) -> bool:
+    """
+    Check if a FormClassification with the same English name exists.
+    :param english_name: English text to check
+    :raises: abort(409) if conflict exists
+    """
+    existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
+
+    for existing_lang in existing_langs:
+        fc = crud.read(FormClassificationOrmV2, name_string_id=existing_lang.string_id)
+        if fc:
+            return True
+
+    return False
+
+
+def handle_model_existence(
+    new_template: bool,
+    classification_dict: FormClassification,
+    version: int,
+    english_name: str,
+) -> tuple[bool, FormClassificationOrmV2]:
+    # Boolean to check whether to archive an existing form template version
+    archive_previous_template: bool = False
+    existing_classification = None
+
+    # Case where user is creating a new form template
+    if new_template:
+        # Check whether an existing classification with the english_name exists
+        if not english_name:
+            raise ValueError("Form template must have an english lanuage version.")
+
+        exists = check_name_conflict(english_name)
+        if exists:
+            raise ValueError(
+                f"Form Classification with name {english_name} already exists."
+            )
+    else:
+        existing_classification = crud.read(
+            FormClassificationOrmV2, id=classification_dict.get("id")
+        )
+        existing_template = crud.read(
+            FormTemplateOrmV2,
+            form_classification_id=classification_dict.get("id"),
+            version=version,
+        )
+        if existing_template:
+            raise ValueError(
+                f"Form Template with version V{version} already exists - change the version to upload."
+            )
+        archive_previous_template = True
+
+    return archive_previous_template, existing_classification
+
+
+def _extend_lang_version(
+    translations: MultiLangText, string_id: str
+) -> list[LangVersionOrmV2]:
+    new_lang_versions = []
+
+    for lang, text in translations.items():
+        lang = lang.capitalize()
+        if not lang_version_exists(string_id, lang):
+            new_lang_versions.append(
+                LangVersionOrmV2(
+                    string_id=string_id,
+                    lang=lang,
+                    text=text,
+                ),
+            )
+
+    return new_lang_versions
+
+
+def get_new_lang_versions_and_questions(
+    classification_dict: FormClassification,
+    new_template: bool,
+    questions: list[FormTemplateUploadQuestion],
+):
+    new_lang_versions = []
+    new_questions = []
+
+    for lang_key, text in classification_dict.get("name").items():
+        existing = None
+        if not new_template:
+            existing = crud.read(
+                LangVersionOrmV2,
+                string_id=classification_dict.get("name_string_id"),
+                lang=lang_key.capitalize(),
+            )
+
+        if not existing:
+            lang_version = LangVersionOrmV2(
+                string_id=classification_dict.get("name_string_id"),
+                lang=lang_key.capitalize(),
+                text=text,
+            )
+            new_lang_versions.append(lang_version)
+
+    for question in questions:
+        question_text = question.get("question_text")
+        question.pop("question_text")
+
+        mc_opts = question.get("mc_options", [])
+        question["mc_options"] = json.dumps([opt.get("string_id") for opt in mc_opts])
+
+        new_questions.append(question)
+
+        q_string_id = question.get("question_string_id")
+        new_lang_versions.extend(_extend_lang_version(question_text, q_string_id))
+
+        for opt in mc_opts:
+            opt_string_id = opt.get("string_id")
+            new_lang_versions.extend(
+                _extend_lang_version(opt.get("translations"), opt_string_id)
+            )
+
+    return new_questions, new_lang_versions
+
+
+def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
+    answers = [FormAnswer(**(marshal.marshal(answer))) for answer in submission.answers]
+    answers_list: list[AnswerWithQuestion] = []
+    for answer in answers:
+        question = crud.read(FormQuestionTemplateOrmV2, id=answer.question_id)
+
+        raw_mc = question.mc_options or "[]"
+        mc_ids = json.loads(raw_mc)
+
+        answer_w_ques = AnswerWithQuestion(
+            id=answer.id,
+            form_submission_id=answer.form_submission_id,
+            question_id=answer.question_id,
+            answer=answer.answer,
+            question_type=question.question_type,
+            order=question.order,
+            question_text=resolve_string_text(
+                question.question_string_id, submission.lang or "English"
+            ),
+            mc_options=[
+                resolved
+                for mc in mc_ids
+                if (resolved := resolve_string_text(mc, submission.lang or "English"))
+                is not None
+            ],
+        )
+
+        answers_list.append(answer_w_ques)
+
+    return answers_list

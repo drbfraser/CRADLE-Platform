@@ -8,6 +8,10 @@ from enums import QRelationalEnum, QuestionTypeEnum
 from validation import CradleBaseModel
 
 
+class FormTemplateIdPath(CradleBaseModel):
+    form_template_id: str
+
+
 class FormTemplateV2Response(CradleBaseModel):
     """Response model for a single shallow form template V2, without any questions"""
 
@@ -15,6 +19,7 @@ class FormTemplateV2Response(CradleBaseModel):
     form_classification_id: str
     version: int
     archived: bool
+    name: str
     date_created: int = Field(default_factory=get_current_time)
 
     model_config = dict(
@@ -28,6 +33,12 @@ class FormTemplateListV2Response(CradleBaseModel):
     """Response model for list of form templates V2"""
 
     templates: list[FormTemplateV2Response]
+
+
+class FormTemplateLangList(CradleBaseModel):
+    """Response model for list of available form templates languages"""
+
+    langVersions: list[str]
 
 
 class GetAllFormTemplatesV2Query(CradleBaseModel):
@@ -148,7 +159,7 @@ class FormClassificationList(CradleBaseModel):
 class FormTemplate(CradleBaseModel):
     id: str
     version: int
-    archived: bool
+    archived: Optional[bool] = False
     classification: FormClassification
     date_created: int = Field(default_factory=get_current_time)
     questions: Optional[List[FormTemplateQuestion]] = []
@@ -236,12 +247,19 @@ class FormSubmissionResponse(CradleBaseModel, extra="forbid"):
         return self
 
 
+class AnswerWithQuestion(FormAnswer):
+    question_type: QuestionTypeEnum
+    question_text: str
+    mc_options: List[str]
+    order: int
+
+
 class FormSubmission(FormSubmissionResponse):
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     date_submitted: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    answers: List[FormAnswer]
+    answers: List[AnswerWithQuestion]
 
 
 class FormIdPath(CradleBaseModel):

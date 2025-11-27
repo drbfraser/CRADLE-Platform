@@ -26,7 +26,12 @@ api_form_submissions_v2 = APIBlueprint(
     name="forms_v2",
     import_name=__name__,
     url_prefix="/forms/v2/responses",
-    abp_tags=[Tag(name="Forms", description="Endpoints for form submissions.")],
+    abp_tags=[
+        Tag(
+            name="Forms submissions V2 API",
+            description="Endpoints for form submissions.",
+        )
+    ],
     abp_security=[{"jwt": []}],
 )
 
@@ -82,10 +87,9 @@ def submit_form(body: FormSubmission):
     if not validation.ok:
         return abort(validation.code, description=validation.msg)
 
-    new_form_dict = submission.model_dump()
-    form_utils.assign_form_ids_v2(new_form_dict)
+    form_utils.assign_form_ids_v2(submission)
 
-    form = marshal.unmarshal(FormSubmissionOrmV2, new_form_dict)
+    form = marshal.unmarshal(FormSubmissionOrmV2, submission.model_dump())
 
     form.date_submitted = get_current_time()
     form.last_edited = form.date_submitted
@@ -102,10 +106,24 @@ def submit_form(body: FormSubmission):
 def get_form(path: FormIdPath):
     """Get Form"""
     form = crud.read(FormSubmissionOrmV2, id=path.form_submission_id)
+
     if form is None:
         return abort(404, description=f"No form with ID: {path.form_submission_id}.")
 
-    return marshal.marshal(form, shallow=False)
+    form_answers = form_utils.attach_questions(form)
+    form = marshal.marshal(form, shallow=False)
+
+    if form.get("answers", None):
+        form.pop("answers", None)
+    if form.get("user_id") is not None:
+        form["user_id"] = str(form["user_id"])
+
+    result = FormSubmission(
+        **form,
+        answers=form_answers,
+    )
+
+    return result.model_dump()
 
 
 # /api/forms/v2/responses/<string:form_submission_id> [PUT]
