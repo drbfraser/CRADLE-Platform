@@ -4,6 +4,7 @@ import { Patient } from 'src/shared/types/patientTypes';
 import {
   WorkflowInstance,
   WorkflowInstanceStep,
+  WorkflowInstanceStepEvaluation,
   WorkflowTemplate,
   WorkflowTemplateStep,
 } from 'src/shared/types/workflow/workflowApiTypes';
@@ -12,6 +13,7 @@ import {
   InstanceDetails,
   InstanceStep,
   WorkflowInfoRow,
+  WorkflowNextStepOption,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatISODateNumber } from 'src/shared/utils';
 
@@ -201,4 +203,70 @@ export const buildWorkflowInstanceRowList = async (
     })
   );
   return workflowInfoRows;
+};
+
+export const getTargetTemplateStepFromBranchId = (
+  instance: WorkflowInstance,
+  template: WorkflowTemplate,
+  currentStepId: string,
+  branchId: string
+): WorkflowTemplateStep | undefined => {
+  const templateStepId = instance.steps.find(
+    (step) => step.id === currentStepId
+  )?.workflowTemplateStepId;
+
+  if (!templateStepId) return undefined;
+
+  const templateStep = template.steps.find(
+    (step) => step.id === templateStepId
+  );
+
+  const targetStepId = templateStep?.branches?.find(
+    (branch) => branch.id === branchId
+  )?.targetStepId;
+
+  return template.steps.find((step) => step.id === targetStepId);
+};
+
+export const WorkflowNextStepOptions = (
+  instance: WorkflowInstance,
+  template: WorkflowTemplate,
+  stepEval: WorkflowInstanceStepEvaluation,
+  currentStepId: string
+) => {
+  const branchEvals = stepEval['branch_evaluations'];
+  const selectedBranchId = stepEval['selected_branch_id'];
+  const nextOptions: WorkflowNextStepOption[] = [];
+
+  branchEvals.forEach((branchEval) => {
+    const targetTemplateStep = getTargetTemplateStepFromBranchId(
+      instance,
+      template,
+      currentStepId,
+      branchEval.branchId
+    );
+    if (!targetTemplateStep) {
+      console.error(`No target step for branch ${branchEval.branchId}`);
+      return;
+    }
+
+    const nextOption: WorkflowNextStepOption = {
+      branchId: branchEval.branchId,
+      stepId: targetTemplateStep.id,
+      title: targetTemplateStep.name,
+      isRecommended: selectedBranchId === branchEval.branchId,
+      ruleDetails: [
+        `Rule: ${branchEval.rule}`,
+        ...branchEval.resolved_vars.map((rv) => {
+          const displayValue = rv.value ?? 'N/A';
+          return `Resolved: ${rv.var} = ${displayValue}, status: ${rv.status}`;
+        }),
+        `Status: ${branchEval.ruleStatus}`,
+      ],
+    };
+
+    nextOptions.push(nextOption);
+  });
+
+  return nextOptions;
 };

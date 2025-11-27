@@ -11,6 +11,7 @@ import {
   WorkflowInstanceAction,
   ApplyInstanceStepActionRequest,
   WorkflowInstanceActionsResponse,
+  WorkflowBranchEvaluation,
 } from '../../types/workflow/workflowApiTypes';
 import { AxiosResponse } from 'axios';
 
@@ -205,6 +206,17 @@ export const applyInstanceStepAction = async (
   const response = await axiosFetch.post<WorkflowInstance>(
     `${INSTANCES}/${instanceId}/actions`,
     payload
+  );
+  return response;
+};
+
+// GET /workflow/instances/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate
+export const evaluateInstanceStep = async (
+  instanceId: ID,
+  stepId: ID
+): Promise<AxiosResponse<WorkflowBranchEvaluation>> => {
+  const response = await axiosFetch.get<WorkflowBranchEvaluation>(
+    `${INSTANCES}/${instanceId}/steps/${stepId}/evaluate`
   );
   return response;
 };

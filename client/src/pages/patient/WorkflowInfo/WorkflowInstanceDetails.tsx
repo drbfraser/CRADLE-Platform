@@ -177,12 +177,25 @@ export default function WorkflowInstanceDetailsPage() {
     return response;
   };
 
-  const handleCompleteStep = async () => {
+  const completeStep = async () => {
+    return await handleApplyStepAction(
+      InstanceStepAction.COMPLETE,
+      currentStep!.id
+    );
+  };
+
+  const startStep = async (stepId: string) => {
+    return await handleApplyStepAction(InstanceStepAction.START, stepId);
+  };
+
+  const handleCompleteStep = async (): Promise<void> => {
     try {
-      await handleApplyStepAction(InstanceStepAction.COMPLETE, currentStep!.id);
+      await completeStep();
       await reload();
+
       const newActions = await getInstanceActions(instanceDetails!.id);
       setStepActions(newActions);
+      console.log('CompleteStep NewActions', newActions);
 
       showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
       handleOpenRecommendation(newActions);
@@ -194,6 +207,7 @@ export default function WorkflowInstanceDetailsPage() {
   };
 
   const handleOpenNextStepModal = () => {
+    // TODO: Get Branch evaluations for current step
     setOpenNextStepModal(true);
   };
 
@@ -201,10 +215,37 @@ export default function WorkflowInstanceDetailsPage() {
     setOpenNextStepModal(false);
   };
 
-  const handleSelectNextStep = async (stepId: string) => {
-    // TO COMPLETE
-    // await handleApplyStepAction(InstanceStepAction.START, "test-workflow-inst"); // TODO: To put in actual step id
-    // await reload();
+  const handleSelectNextStep = async (stepId: string): Promise<void> => {
+    try {
+      await startStep(stepId); // Currently only recommended step is valid
+      await reload();
+      handleCloseNextStepModal();
+      setExpandedStep(stepId);
+    } catch (e) {
+      console.error('Unable to select step', e);
+      showSnackbar('Unable to select step', SnackbarSeverity.ERROR);
+    }
+  };
+
+  const handleCompleteAndStartNext = async (stepId: string) => {
+    try {
+      await completeStep();
+      await reload();
+
+      const newActions = await getInstanceActions(instanceDetails!.id);
+      console.log('CompleteStep NewActions', newActions);
+
+      await startStep(stepId);
+      await reload();
+
+      handleCloseNextStepModal();
+      setExpandedStep(stepId);
+      showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
+      // setExpandedStep(null);
+    } catch (e) {
+      console.error('Unable to complete step', e);
+      showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
+    }
   };
 
   return (
@@ -359,7 +400,12 @@ export default function WorkflowInstanceDetailsPage() {
 
       <WorkflowSelectStepModal
         open={openNextStepModal}
+        nextStep={nextStep}
+        setNextStep={setNextStep}
         handleCloseNextStepModal={handleCloseNextStepModal}
+        handleSelectNextStep={handleSelectNextStep}
+        handleCompleteStep={handleCompleteStep}
+        handleCompleteAndStartNext={handleCompleteAndStartNext}
       />
     </>
   );

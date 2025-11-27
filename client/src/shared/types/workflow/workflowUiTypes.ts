@@ -83,16 +83,10 @@ export type WorkflowInfoRow = {
   currentStepLabel: string;
 };
 
-export interface BranchEvaluation {
+export type WorkflowNextStepOption = {
   branchId: string;
-  rule: string;
-  resolved_vars: Record<string, any>;
-  ruleStatus: WorkflowBranchEvaluationStatus;
-}
-
-export interface NextStepOption {
-  id: string;
+  stepId: string;
   title: string;
   isRecommended: boolean;
   ruleDetails: string[];
-}
+};
