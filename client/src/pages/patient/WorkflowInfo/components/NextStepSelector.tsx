@@ -13,11 +13,13 @@ import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiType
 interface IProps {
   selectedId: string;
   setSelectedId: React.Dispatch<React.SetStateAction<string>>;
+  options: WorkflowNextStepOption[];
 }
 
 export default function NextStepSelector({
   selectedId,
   setSelectedId,
+  options,
 }: IProps) {
   const mockOptions: WorkflowNextStepOption[] = [
     {
@@ -45,6 +47,7 @@ export default function NextStepSelector({
   ];
 
   const test = (e: any) => {
+    // TODO: TO REMOVE AFTER DEBUG
     setSelectedId(e.target.value);
     console.log(e.target.value);
   };
@@ -52,7 +55,7 @@ export default function NextStepSelector({
   return (
     <Box sx={{ width: 400 }}>
       <RadioGroup value={selectedId} onChange={test}>
-        {mockOptions.map((opt) => (
+        {options.map((opt) => (
           <Box
             key={opt.stepId}
             sx={{

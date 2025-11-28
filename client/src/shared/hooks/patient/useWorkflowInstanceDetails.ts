@@ -1,3 +1,4 @@
+import { set } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import {
   buildInstanceDetails,
@@ -9,6 +10,7 @@ import {
   getPatientInfoAsync,
   getTemplateWithStepsAndClassification,
 } from 'src/shared/api';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import {
   InstanceDetails,
   InstanceStep,
@@ -18,6 +20,7 @@ import {
 export function useWorkflowInstanceDetails(instanceId: string) {
   const [instanceDetails, setInstanceDetails] =
     useState<InstanceDetails | null>(null);
+  const [template, setTemplate] = useState<WorkflowTemplate | null>(null);
   const [currentStep, setCurrentStep] = useState<InstanceStep | null>(null);
   const [progressInfo, setProgressInfo] = useState<WorkflowInstanceProgress>({
     total: 0,
@@ -34,6 +37,7 @@ export function useWorkflowInstanceDetails(instanceId: string) {
       const template = await getTemplateWithStepsAndClassification(
         instance.workflowTemplateId
       );
+      setTemplate(template);
 
       const details = buildInstanceDetails(instance, template, patient);
       setInstanceDetails(details);
@@ -52,5 +56,11 @@ export function useWorkflowInstanceDetails(instanceId: string) {
     fetchAll();
   }, [fetchAll]);
 
-  return { instanceDetails, currentStep, progressInfo, reload: fetchAll };
+  return {
+    instanceDetails,
+    template,
+    currentStep,
+    progressInfo,
+    reload: fetchAll,
+  };
 }

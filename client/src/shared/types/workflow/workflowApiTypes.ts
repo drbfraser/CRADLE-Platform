@@ -145,13 +145,13 @@ export interface WorkflowBranchVarResolution {
 export interface WorkflowBranchEvaluation {
   branchId: ID;
   rule: string;
-  resolved_vars: WorkflowBranchVarResolution[];
+  varResolutions: WorkflowBranchVarResolution[];
   ruleStatus: WorkflowBranchEvaluationStatus;
 }
 
 export interface WorkflowInstanceStepEvaluation {
-  branch_evaluations: WorkflowBranchEvaluation[];
-  selected_branch_id: ID;
+  branchEvaluations: WorkflowBranchEvaluation[];
+  selectedBranchId: ID;
 }
 
 // Payload for POST /workflow/instances

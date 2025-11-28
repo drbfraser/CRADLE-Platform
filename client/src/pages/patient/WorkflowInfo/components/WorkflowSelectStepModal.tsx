@@ -1,6 +1,7 @@
 import { Box, Typography, Modal, Paper, Button } from '@mui/material';
 import NextStepSelector from './NextStepSelector';
 import { useState } from 'react';
+import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
 export interface NextStepModalState {
   open: boolean;
@@ -17,6 +18,7 @@ interface IProps {
   handleSelectNextStep: (stepId: string) => Promise<void>;
   handleCompleteStep: () => void;
   handleCompleteAndStartNext: (stepId: string) => Promise<void>;
+  options: WorkflowNextStepOption[];
 }
 
 export default function WorkflowSelectStepModal({
@@ -25,8 +27,11 @@ export default function WorkflowSelectStepModal({
   handleSelectNextStep,
   handleCompleteStep,
   handleCompleteAndStartNext,
+  options,
 }: IProps) {
   const [selectedId, setSelectedId] = useState('');
+
+  if (!open) return null;
 
   const handleOnConfirm = async () => {
     try {
@@ -56,40 +61,74 @@ export default function WorkflowSelectStepModal({
               pt: 6,
               borderRadius: 3,
             }}>
-            <Box
-              sx={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                Select next step
-              </Typography>
-
-              <NextStepSelector
-                selectedId={selectedId}
-                setSelectedId={setSelectedId}
-                // setNextStep={setNextStep}
-              />
-
+            {options.length > 0 ? (
               <Box
                 sx={{
                   flex: 1,
                   display: 'flex',
-                  flexDirection: 'row',
+                  flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  gap: 2,
                 }}>
-                <Button onClick={handleCloseNextStepModal}>Cancel</Button>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Select next step
+                </Typography>
 
-                <Button variant="contained" onClick={handleOnConfirm}>
-                  Confirm
-                </Button>
+                <NextStepSelector
+                  selectedId={selectedId}
+                  setSelectedId={setSelectedId}
+                  // setNextStep={setNextStep}
+                  options={options}
+                />
+
+                <Box
+                  sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}>
+                  <Button onClick={handleCloseNextStepModal}>Cancel</Button>
+
+                  <Button variant="contained" onClick={handleOnConfirm}>
+                    Confirm
+                  </Button>
+                </Box>
               </Box>
-            </Box>
+            ) : (
+              <Box
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 4,
+                }}>
+                <Typography variant="h6">Complete Workflow?</Typography>
+
+                <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                  This is the final step. Completing this will finish the
+                  workflow. Do you want to proceed?
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}>
+                  <Button onClick={handleCloseNextStepModal}>Cancel</Button>
+                  <Button variant="contained" onClick={handleOnConfirm}>
+                    Complete Workflow
+                  </Button>
+                </Box>
+              </Box>
+            )}
           </Paper>
         </Box>
       </Modal>
