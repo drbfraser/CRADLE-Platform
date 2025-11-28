@@ -11,8 +11,8 @@ import {
   WorkflowInstanceAction,
   ApplyInstanceStepActionRequest,
   WorkflowInstanceActionsResponse,
-  WorkflowBranchEvaluation,
   WorkflowInstanceStepEvaluation,
+  OverrideStepRequest,
 } from '../../types/workflow/workflowApiTypes';
 import { AxiosResponse } from 'axios';
 
@@ -218,6 +218,28 @@ export const evaluateInstanceStep = async (
 ): Promise<WorkflowInstanceStepEvaluation> => {
   const response = await axiosFetch.get<WorkflowInstanceStepEvaluation>(
     `${INSTANCES}/${instanceId}/steps/${stepId}/evaluate`
+  );
+  return response.data;
+};
+
+// POST /workflow/instances/<string:workflow_instance_id>/advance
+export const advanceRecommendedStep = async (
+  instanceId: ID
+): Promise<WorkflowInstance> => {
+  const response = await axiosFetch.post<WorkflowInstance>(
+    `${INSTANCES}/${instanceId}/advance`
+  );
+  return response.data;
+};
+
+// POST /workflow/instances/<string:workflow_instance_id>/override_current_step
+export const advanceOverrideStep = async (
+  instanceId: ID,
+  payload: OverrideStepRequest
+): Promise<WorkflowInstance> => {
+  const response = await axiosFetch.post<WorkflowInstance>(
+    `${INSTANCES}/${instanceId}/override_current_step`,
+    payload
   );
   return response.data;
 };

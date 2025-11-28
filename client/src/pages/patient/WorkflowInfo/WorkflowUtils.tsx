@@ -250,7 +250,6 @@ export const getWorkflowNextStepOptions = (
       branchEval.branchId
     );
     if (!targetInstanceStep) {
-      console.error(`No target step for branch ${branchEval.branchId}`);
       return;
     }
 

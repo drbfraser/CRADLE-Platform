@@ -16,7 +16,7 @@ interface IProps {
   setNextStep: React.Dispatch<React.SetStateAction<string | null>>;
   handleCloseNextStepModal: () => void;
   handleSelectNextStep: (stepId: string) => Promise<void>;
-  handleCompleteStep: () => void;
+  handleCompleteFinalStep: () => void;
   handleCompleteAndStartNext: (stepId: string) => Promise<void>;
   options: WorkflowNextStepOption[];
 }
@@ -25,7 +25,7 @@ export default function WorkflowSelectStepModal({
   open,
   handleCloseNextStepModal,
   handleSelectNextStep,
-  handleCompleteStep,
+  handleCompleteFinalStep,
   handleCompleteAndStartNext,
   options,
 }: IProps) {
@@ -38,6 +38,14 @@ export default function WorkflowSelectStepModal({
       await handleCompleteAndStartNext(selectedId);
     } catch (e) {
       console.error('Error completing/starting next step', e);
+    }
+  };
+
+  const handleOnFinalConfirm = async () => {
+    try {
+      await handleCompleteFinalStep();
+    } catch (e) {
+      console.error('Error completing final step', e);
     }
   };
 
@@ -123,7 +131,7 @@ export default function WorkflowSelectStepModal({
                     gap: 2,
                   }}>
                   <Button onClick={handleCloseNextStepModal}>Cancel</Button>
-                  <Button variant="contained" onClick={handleOnConfirm}>
+                  <Button variant="contained" onClick={handleOnFinalConfirm}>
                     Complete Workflow
                   </Button>
                 </Box>
