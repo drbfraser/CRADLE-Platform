@@ -48,6 +48,8 @@ WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
 class CreateWorkflowInstanceRequest(CradleBaseModel):
     workflow_template_id: str
     patient_id: str
+    name: str
+    description: str
 
 
 # /api/workflow/instances [POST]
@@ -71,6 +73,11 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
 
     workflow_instance.patient_id = body.patient_id
+
+    if body.name is not None:
+        workflow_instance.name = body.name
+    if body.description is not None:
+        workflow_instance.description = body.description
 
     actions = WorkflowService.get_available_workflow_actions(
         workflow_instance, workflow_template
