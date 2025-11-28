@@ -56,7 +56,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     # we will temporarily accept `form` as a raw dict to avoid validation
     # failures when creating workflow templates/instances.
     # This is not intended long-term and should be revisited once Forms V2 is integrated.
-    form: dict = None
+    form: Optional[dict] = None
     branches: list[WorkflowTemplateStepBranchModel]
 
 
