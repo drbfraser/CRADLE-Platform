@@ -58,8 +58,9 @@ class WorkflowView:
             self._template_step_id_to_instance_step_id[template_step_id]
         )
 
-    def get_starting_step(self) -> WorkflowTemplateStepModel:
-        return self._template_steps_by_id[self.template.starting_step_id]
+    def get_starting_step(self) -> WorkflowInstanceStepModel:
+        template_step = self._template_steps_by_id[self.template.starting_step_id]
+        return self.get_instance_step_for_template_step(template_step.id)
 
     def get_current_step(self) -> Optional[WorkflowInstanceStepModel]:
         if self.instance.current_step_id:
