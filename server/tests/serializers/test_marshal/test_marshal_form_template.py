@@ -223,7 +223,9 @@ def test_form_template_propagates_if_include_versions_to_questions():
         questions=[question],
     )
 
-    marshalled = orm_seralizer.marshal(form_template, shallow=False, if_include_versions=True)
+    marshalled = orm_seralizer.marshal(
+        form_template, shallow=False, if_include_versions=True
+    )
 
     [qo] = marshalled["questions"]
     assert "lang_versions" in qo
