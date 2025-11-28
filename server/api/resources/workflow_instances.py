@@ -23,10 +23,10 @@ from validation import CradleBaseModel
 from validation.workflow_api_models import (
     ApplyActionRequest,
     GetAvailableActionsResponse,
+    OverrideCurrentStepRequest,
     WorkflowInstancePatchModel,
 )
 from validation.workflow_models import (
-    StartWorkflowActionModel,
     WorkflowInstanceModel,
     WorkflowStepEvaluation,
 )
@@ -85,6 +85,23 @@ def get_workflow_view(workflow_instance_id: str) -> WorkflowView:
     return WorkflowView(workflow_template, workflow_instance)
 
 
+def check_instance_step(workflow_view: WorkflowView, workflow_instance_step_id: str):
+    """
+    Checks if the workflow instance has an instance step with this step ID.
+    Raises a 404 error (via Flask's `abort`) if either the workflow instance
+    step is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    if not workflow_view.has_instance_step(workflow_instance_step_id):
+        abort(
+            code=404,
+            description=WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
+                workflow_instance_step_id
+            ),
+        )
+
+
 # /api/workflow/instances [POST]
 @api_workflow_instances.post("", responses={201: WorkflowInstanceModel})
 def create_workflow_instance(body: CreateWorkflowInstanceRequest):
@@ -108,10 +125,8 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
 
     workflow_view = WorkflowView(workflow_template, workflow_instance)
 
-    actions = WorkflowService.get_available_workflow_actions(workflow_view)
-    if StartWorkflowActionModel() in actions:
-        # Start workflow immediately to keep things simple
-        WorkflowService.apply_workflow_action(StartWorkflowActionModel(), workflow_view)
+    # Start the workflow immediately to keep things simple
+    WorkflowService.start_workflow(workflow_view)
 
     WorkflowService.upsert_workflow_instance(workflow_instance)
 
@@ -351,17 +366,46 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
 def evaluate_step(path: WorkflowInstanceAndStepIdPath):
     """Evaluate a Workflow Instance Step"""
     workflow_view = get_workflow_view(path.workflow_instance_id)
-
-    if not workflow_view.has_instance_step(path.workflow_instance_step_id):
-        abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
-                path.workflow_instance_step_id
-            ),
-        )
+    check_instance_step(workflow_view, path.workflow_instance_step_id)
 
     step_evaluation = WorkflowService.evaluate_workflow_step(
         workflow_view, path.workflow_instance_step_id
     )
 
     return step_evaluation.model_dump(), 200
+
+
+# /api/workflow/instances/<string:workflow_instance_id>/advance [POST]
+@api_workflow_instances.post(
+    "/<string:workflow_instance_id>/advance",
+    responses={200: WorkflowInstanceModel},
+)
+def advance(path: WorkflowInstanceIdPath):
+    """Advance the workflow to the next step, if possible"""
+    workflow_view = get_workflow_view(path.workflow_instance_id)
+    WorkflowService.advance_workflow(workflow_view)
+
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    updated_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
+
+    return updated_instance.model_dump(), 200
+
+
+# /api/workflow/instances/<string:workflow_instance_id>/override_current_step [POST]
+@api_workflow_instances.post(
+    "/<string:workflow_instance_id>/override_current_step",
+    responses={200: WorkflowInstanceModel},
+)
+def override_current_step(
+    path: WorkflowInstanceIdPath, body: OverrideCurrentStepRequest
+):
+    """Override the current step of a workflow"""
+    workflow_view = get_workflow_view(path.workflow_instance_id)
+    check_instance_step(workflow_view, body.workflow_instance_step_id)
+
+    WorkflowService.override_current_step(workflow_view, body.workflow_instance_step_id)
+
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    updated_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
+
+    return updated_instance.model_dump(), 200

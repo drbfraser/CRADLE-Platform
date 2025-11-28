@@ -16,6 +16,7 @@ from service.workflow.workflow_operations import (
 from service.workflow.workflow_view import WorkflowView
 from validation.workflow_models import (
     CompleteStepActionModel,
+    CompleteWorkflowActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
     VariableResolution,
@@ -98,7 +99,12 @@ class WorkflowPlanner:
         return step_evaluation
 
     @staticmethod
-    def _eval_next_step_from_this_step(
+    def _is_terminal_step(ctx: WorkflowView, step: WorkflowInstanceStepModel):
+        branches = ctx.get_template_step(step.workflow_template_step_id).branches
+        return branches == [] # A terminal step should not have any branches.
+
+    @staticmethod
+    def _get_next_step(
         ctx: WorkflowView, step: WorkflowInstanceStepModel
     ) -> Optional[WorkflowInstanceStepModel]:
         """
@@ -118,11 +124,6 @@ class WorkflowPlanner:
         return next_step
 
     @staticmethod
-    def _is_last_step(ctx: WorkflowView, step: WorkflowInstanceStepModel) -> bool:
-        next_step = WorkflowPlanner._eval_next_step_from_this_step(ctx, step)
-        return next_step is None
-
-    @staticmethod
     def get_available_actions(ctx: WorkflowView) -> list[WorkflowActionModel]:
         """
         Returns the actions available to take as the next action in the workflow.
@@ -139,15 +140,11 @@ class WorkflowPlanner:
             if current_step.status == WorkflowStepStatusEnum.ACTIVE:
                 return [CompleteStepActionModel(step_id=current_step.id)]
 
-            if current_step.status == WorkflowStepStatusEnum.COMPLETED:
-                next_step = WorkflowPlanner._eval_next_step_from_this_step(
-                    ctx=ctx, step=current_step
-                )
-
-                if next_step:
-                    # Currently, step should always be in PENDING state, so the only available
-                    # action is to start it
-                    return [StartStepActionModel(step_id=next_step.id)]
+            if (
+                ctx.instance.status != WorkflowStatusEnum.COMPLETED
+                and WorkflowPlanner._is_terminal_step(ctx, current_step)
+            ):
+                return [CompleteWorkflowActionModel()]
 
         return []
 
@@ -165,42 +162,71 @@ class WorkflowPlanner:
             raise InvalidWorkflowActionError(action, valid_actions)
 
         if isinstance(action, StartWorkflowActionModel):
-            starting_step = ctx.get_instance_step_for_template_step(
-                ctx.get_starting_step().id
-            )
-
             return [
                 UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
-                UpdateCurrentStepOp(starting_step.id),
-                UpdateStepStatusOp(starting_step.id, WorkflowStepStatusEnum.ACTIVE),
                 UpdateWorkflowStartDate(),
-                UpdateWorkflowStepStartDate(starting_step.id),
             ]
 
         if isinstance(action, StartStepActionModel):
             return [
-                UpdateCurrentStepOp(new_current_step_id=action.step_id),
                 UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE),
                 UpdateWorkflowStepStartDate(action.step_id),
             ]
 
         if isinstance(action, CompleteStepActionModel):
-            ops = [
+            return [
                 UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED),
                 UpdateWorkflowStepCompletionDate(action.step_id),
             ]
 
-            step = ctx.get_instance_step(action.step_id)
-
-            if WorkflowPlanner._is_last_step(ctx, step):
-                ops.extend(
-                    [
-                        UpdateCurrentStepOp(new_current_step_id=None),
-                        UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
-                        UpdateWorkflowCompletionDate(),
-                    ]
-                )
-
-            return ops
+        if isinstance(action, CompleteWorkflowActionModel):
+            return [
+                UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
+                UpdateWorkflowCompletionDate(),
+            ]
 
         raise ValueError(f"Action '{action}' is not supported")
+
+    @staticmethod
+    def _find_next_step(
+        ctx: WorkflowView, step: WorkflowInstanceStepModel
+    ) -> WorkflowInstanceStepModel:
+        """
+        Walk forward from `step` until we find an incomplete step, or the next step is None.
+        """
+        assert step.status == WorkflowStepStatusEnum.COMPLETED
+        next_step = WorkflowPlanner._get_next_step(ctx, step)
+
+        if next_step is None:
+            # Reached the end OR no branch was selected
+            return step
+
+        if next_step.status != WorkflowStepStatusEnum.COMPLETED:
+            return next_step
+
+        return WorkflowPlanner._find_next_step(ctx, next_step)
+
+    @staticmethod
+    def advance(ctx: WorkflowView) -> list[WorkflowOp]:
+        if (
+            ctx.instance.current_step_id is None
+            and ctx.instance.status == WorkflowStepStatusEnum.ACTIVE
+        ):
+            starting_step = ctx.get_starting_step()
+            return [UpdateCurrentStepOp(starting_step.id)]
+
+        current_step = ctx.get_current_step()
+        if current_step and current_step.status == WorkflowStepStatusEnum.COMPLETED:
+            next_step = WorkflowPlanner._find_next_step(ctx, current_step)
+            if next_step.id != current_step.id:
+                return [UpdateCurrentStepOp(next_step.id)]
+
+        return []
+
+    @staticmethod
+    def override_current_step(ctx: WorkflowView, step_id: str) -> list[WorkflowOp]:
+        """
+        Override the workflow's current step.
+        """
+        assert ctx.has_instance_step(step_id)
+        return [UpdateCurrentStepOp(step_id)]
