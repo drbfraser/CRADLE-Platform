@@ -130,9 +130,6 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     if body.description is not None:
         workflow_instance.description = body.description
 
-    actions = WorkflowService.get_available_workflow_actions(
-        workflow_instance, workflow_template
-    )
     workflow_view = WorkflowView(workflow_template, workflow_instance)
 
     # Start the workflow immediately to keep things simple
