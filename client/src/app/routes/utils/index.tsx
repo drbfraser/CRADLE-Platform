@@ -17,6 +17,7 @@ import { makeUniqueId } from 'src/shared/utils';
 import SecretKeyPage from 'src/pages/secretKey';
 import PatientRoutes from './PatientRoutes';
 import CustomFormRoutes from './CustomFormRoutes';
+import { NewWorkflowInstancePage } from 'src/pages/newWorkflowInstance';
 import WorkflowInstanceDetailsPage from 'src/pages/patient/WorkflowInfo/WorkflowInstanceDetails';
 
 export type AppRoute = {
@@ -56,6 +57,14 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/readings/new/:patientId`,
+  },
+  {
+    component: NewWorkflowInstancePage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/workflow-instance/new/:patientId`,
   },
   // the following 3 AssessmentFormPage is for 3 different cases
   {

@@ -140,3 +140,7 @@ class GetAvailableActionsResponse(CradleBaseModel):
 
 class ApplyActionRequest(CradleBaseModel):
     action: WorkflowActionModel
+
+
+class OverrideCurrentStepRequest(CradleBaseModel):
+    workflow_instance_step_id: str

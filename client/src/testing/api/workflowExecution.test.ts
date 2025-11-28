@@ -19,7 +19,7 @@ describe('Workflow Execution API', () => {
   describe('startWorkflowInstanceAsync', () => {
     it('should start a new workflow instance', async () => {
       const instanceData = {
-        templateId: 'fracture-treatment',
+        workflowTemplateId: 'fracture-treatment',
         patientId: 'p001',
         startedBy: 'doctor123',
       };
@@ -43,7 +43,7 @@ describe('Workflow Execution API', () => {
 
     it('should handle invalid template ID', async () => {
       const instanceData = {
-        templateId: 'invalid-template',
+        workflowTemplateId: 'invalid-template',
         patientId: 'p001',
         startedBy: 'doctor123',
       };
