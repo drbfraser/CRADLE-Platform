@@ -20,6 +20,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   applyInstanceStepAction,
   archiveInstanceStepForm,
+  evaluateInstanceStep,
   getInstanceActions,
 } from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
@@ -39,9 +40,14 @@ import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
 import {
   ApplyInstanceStepActionRequest,
   WorkflowInstanceAction,
+  WorkflowInstanceStepEvaluation,
 } from 'src/shared/types/workflow/workflowApiTypes';
-import { getWorkflowStepWithId } from './WorkflowUtils';
+import {
+  getWorkflowNextStepOptions,
+  getWorkflowStepWithId,
+} from './WorkflowUtils';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
+import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -69,8 +75,11 @@ export default function WorkflowInstanceDetailsPage() {
   const [stepActions, setStepActions] = useState<WorkflowInstanceAction[]>([]);
   const [nextStep, setNextStep] = useState<string | null>(null);
   const [openNextStepModal, setOpenNextStepModal] = useState<boolean>(false);
+  const [nextOptions, setNextOptions] = useState<WorkflowNextStepOption[]>([]);
+  const [currentStepEvaluation, setCurrentStepEvaluation] =
+    useState<WorkflowInstanceStepEvaluation | null>(null);
 
-  const { instanceDetails, currentStep, progressInfo, reload } =
+  const { instanceDetails, template, currentStep, progressInfo, reload } =
     useWorkflowInstanceDetails(instanceId!);
   const {
     formModalState,
@@ -206,9 +215,36 @@ export default function WorkflowInstanceDetailsPage() {
     }
   };
 
-  const handleOpenNextStepModal = () => {
-    // TODO: Get Branch evaluations for current step
-    setOpenNextStepModal(true);
+  const getNextStepOptions = async () => {
+    if (!instanceDetails || !template || !currentStep) return;
+
+    const currentStepEval = await evaluateInstanceStep(
+      instanceDetails.id,
+      currentStep.id
+    );
+    setCurrentStepEvaluation(currentStepEval);
+    console.log('STEP EVAL', currentStepEval);
+
+    return getWorkflowNextStepOptions(
+      instanceDetails,
+      template,
+      currentStepEval,
+      currentStep.id
+    );
+  };
+
+  const handleOpenNextStepModal = async () => {
+    try {
+      const options = await getNextStepOptions();
+      console.log('OPTIONS', options);
+      if (!options) return;
+
+      setNextOptions(options);
+      setOpenNextStepModal(true);
+    } catch (e) {
+      console.error('Unable to get next steps', e);
+      showSnackbar('Unable to get next steps', SnackbarSeverity.ERROR);
+    }
   };
 
   const handleCloseNextStepModal = () => {
@@ -406,6 +442,7 @@ export default function WorkflowInstanceDetailsPage() {
         handleSelectNextStep={handleSelectNextStep}
         handleCompleteStep={handleCompleteStep}
         handleCompleteAndStartNext={handleCompleteAndStartNext}
+        options={nextOptions}
       />
     </>
   );

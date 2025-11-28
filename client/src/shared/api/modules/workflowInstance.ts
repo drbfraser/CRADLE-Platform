@@ -12,6 +12,7 @@ import {
   ApplyInstanceStepActionRequest,
   WorkflowInstanceActionsResponse,
   WorkflowBranchEvaluation,
+  WorkflowInstanceStepEvaluation,
 } from '../../types/workflow/workflowApiTypes';
 import { AxiosResponse } from 'axios';
 
@@ -214,11 +215,11 @@ export const applyInstanceStepAction = async (
 export const evaluateInstanceStep = async (
   instanceId: ID,
   stepId: ID
-): Promise<AxiosResponse<WorkflowBranchEvaluation>> => {
-  const response = await axiosFetch.get<WorkflowBranchEvaluation>(
+): Promise<WorkflowInstanceStepEvaluation> => {
+  const response = await axiosFetch.get<WorkflowInstanceStepEvaluation>(
     `${INSTANCES}/${instanceId}/steps/${stepId}/evaluate`
   );
-  return response;
+  return response.data;
 };
 
 // Instance Step APIs - align with backend workflow_instance_steps.py
