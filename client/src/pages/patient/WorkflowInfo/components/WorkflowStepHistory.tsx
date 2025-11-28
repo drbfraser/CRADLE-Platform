@@ -40,7 +40,6 @@ interface IProps {
   handleArchiveForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
   showSnackbar: (message: string, severity: SnackbarSeverity) => void;
-  handleCompleteStep: () => void;
   handleOpenNextStepModal: () => void;
 }
 
@@ -59,7 +58,6 @@ export default function WorkflowStepHistory({
   handleArchiveForm,
   currentStep,
   showSnackbar,
-  handleCompleteStep,
   handleOpenNextStepModal,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
@@ -351,11 +349,13 @@ export default function WorkflowStepHistory({
                                   </Button>
                                 </Box>
                               ) : (
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary">
-                                  Form not yet available
-                                </Typography>
+                                step.status != StepStatus.COMPLETED && (
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary">
+                                    Form not yet available
+                                  </Typography>
+                                )
                               )}
                             </Box>
                           </Box>

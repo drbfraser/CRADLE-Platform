@@ -136,6 +136,10 @@ export interface ApplyInstanceStepActionRequest {
   };
 }
 
+export interface OverrideStepRequest {
+  workflowInstanceStepId: ID;
+}
+
 export interface WorkflowBranchVarResolution {
   var: string;
   value: number | null;
