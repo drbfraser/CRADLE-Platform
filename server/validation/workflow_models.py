@@ -159,6 +159,10 @@ class StartWorkflowActionModel(CradleBaseModel):
     type: Literal["start_workflow"] = "start_workflow"
 
 
+class CompleteWorkflowActionModel(CradleBaseModel):
+    type: Literal["complete_workflow"] = "complete_workflow"
+
+
 class StartStepActionModel(CradleBaseModel):
     type: Literal["start_step"] = "start_step"
     step_id: str
@@ -173,6 +177,7 @@ WorkflowActionModel = Union[
     StartWorkflowActionModel,
     StartStepActionModel,
     CompleteStepActionModel,
+    CompleteWorkflowActionModel,
 ]
 
 
