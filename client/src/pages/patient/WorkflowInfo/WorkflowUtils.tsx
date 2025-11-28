@@ -1,3 +1,4 @@
+import { getTemplate } from 'src/shared/api';
 import { Nullable } from 'src/shared/constants';
 import { Patient } from 'src/shared/types/patientTypes';
 import {
@@ -10,6 +11,7 @@ import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
+  WorkflowInfoRow,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatISODateNumber } from 'src/shared/utils';
 
@@ -166,3 +168,29 @@ export function getWorkflowCurrentStep(instance: InstanceDetails) {
   const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
   return currentStep;
 }
+
+export const buildWorkflowInstanceRowList = async (
+  instances: WorkflowInstance[]
+) => {
+  const workflowInfoRows = await Promise.all(
+    instances.map(async (instance) => {
+      const currentStep = instance.steps.find(
+        (step) => step.status === StepStatus.ACTIVE
+      );
+      const template = await getTemplate(instance.workflowTemplateId);
+      const workflowInfoRow: WorkflowInfoRow = {
+        id: instance.id,
+        instanceTitle: instance.name,
+        templateId: instance.workflowTemplateId,
+        templateName: template.name,
+        collection: 'PAPAGAO', // TODO - To do when collections set up
+        status: instance.status,
+        lastEdited: instance.lastEdited,
+        stepsCount: instance.steps.length,
+        currentStepLabel: currentStep ? currentStep.name : 'N/A',
+      };
+      return workflowInfoRow;
+    })
+  );
+  return workflowInfoRows;
+};
