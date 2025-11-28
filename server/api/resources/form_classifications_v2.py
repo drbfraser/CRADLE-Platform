@@ -1,5 +1,3 @@
-from typing import Optional
-
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
@@ -46,46 +44,6 @@ def get_all_form_classifications():
     return FormClassificationList(classifications=out).model_dump(), 200
 
 
-def check_name_conflict(english_name: str, exclude_string_id: Optional[str] = None):
-    """
-    Check if a FormClassification with the same English name exists.
-    :param english_name: English text to check
-    :param exclude_string_id: string_id to ignore (used for PUT)
-    :raises: abort(409) if conflict exists
-    """
-    # Use read_all instead of read
-    existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
-
-    for existing_lang in existing_langs:
-        if exclude_string_id and existing_lang.string_id == exclude_string_id:
-            continue
-
-        fc = crud.read(FormClassificationOrmV2, name_string_id=existing_lang.string_id)
-        if fc:
-            abort(
-                409, f"Form Classification with name=({english_name}) already exists."
-            )
-
-
-def upsert_multilang_versions(name_string_id: str, name_map: dict[str, str]):
-    """
-    Create or update LangVersionOrmV2 rows for all languages in name_map.
-    :param name_string_id: shared string_id for this multilingual bundle
-    :param name_map: dict of language -> text
-    """
-    for lang_key, text in name_map.items():
-        lang = lang_key.strip().title()
-
-        lv: LangVersionOrmV2 = crud.read(
-            LangVersionOrmV2, string_id=name_string_id, lang=lang
-        )
-        if lv:
-            lv.text = text  # update existing
-        else:
-            lv = LangVersionOrmV2(string_id=name_string_id, lang=lang, text=text)
-            crud.create(lv)
-
-
 # /api/forms/v2/classifications [POST]
 @api_form_classifications_v2.post("")
 @roles_required([RoleEnum.ADMIN])
@@ -96,10 +54,12 @@ def create_form_classification(body: FormClassification):
     if not english_name:
         abort(400, "English name is required.")
 
-    check_name_conflict(english_name)  # no exclude_string_id for creation
+    if form_utils.check_name_conflict(english_name):
+        # no exclude_string_id for creation
+        abort(409, f"Form Classification with name=({english_name}) already exists.")
 
     name_string_id = get_uuid()
-    upsert_multilang_versions(name_string_id, name_map)
+    form_utils.upsert_multilang_versions(name_string_id, name_map)
 
     fc_orm = FormClassificationOrmV2(id=get_uuid(), name_string_id=name_string_id)
     crud.create(fc_orm, refresh=True)
@@ -154,8 +114,11 @@ def edit_form_classification_name(
     if not english_name:
         abort(400, "English name is required.")
 
-    check_name_conflict(english_name, exclude_string_id=fc_orm.name_string_id)
-    upsert_multilang_versions(fc_orm.name_string_id, name_map)
+    if form_utils.check_name_conflict(
+        english_name, exclude_string_id=fc_orm.name_string_id
+    ):
+        abort(409, f"Form Classification with name=({english_name}) already exists.")
+    form_utils.upsert_multilang_versions(fc_orm.name_string_id, name_map)
 
     crud.db_session.commit()
     crud.db_session.refresh(fc_orm)
@@ -193,10 +156,19 @@ def get_form_classification_summary():
         if latest_template is not None:
             valid_templates.append(latest_template)
 
-    marshaled_templates = []
+    result = []
     for template in valid_templates:
-        marshaled_templates.append(marshal.marshal(template, shallow=False))
-    return marshaled_templates, 200
+        marshalled = marshal.marshal(template, shallow=False)
+
+        marshalled["classification"]["name"] = {
+            "english": form_utils.resolve_string_text(
+                marshalled["classification"].get("name_string_id")
+            )
+        }
+
+        result.append(marshalled)
+
+    return result, 200
 
 
 # /api/forms/v2/classifications/<string:form_classification_id>/templates [GET]
@@ -205,7 +177,6 @@ def get_form_classification_summary():
 )
 def get_form_classification_templates(path: FormClassificationIdPath):
     """
-    Get Form Classification Templates
     Get a list of all Form Template versions of a particular Form Classification.
     """
     form_templates = crud.read_all(

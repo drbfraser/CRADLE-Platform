@@ -648,15 +648,21 @@ def validate_form_answers(
     return ValidationResult(True, "Answers are all valid", code=None)
 
 
-def check_name_conflict(english_name: str) -> bool:
+def check_name_conflict(
+    english_name: str, exclude_string_id: str | None = None
+) -> bool:
     """
     Check if a FormClassification with the same English name exists.
     :param english_name: English text to check
+    :param exclude_string_id: string_id to ignore (used for PUT)
     :raises: abort(409) if conflict exists
     """
     existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
 
     for existing_lang in existing_langs:
+        if exclude_string_id and existing_lang.string_id == exclude_string_id:
+            continue
+
         fc = crud.read(FormClassificationOrmV2, name_string_id=existing_lang.string_id)
         if fc:
             return True
@@ -798,3 +804,22 @@ def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion
         answers_list.append(answer_w_ques)
 
     return answers_list
+
+
+def upsert_multilang_versions(name_string_id: str, name_map: dict[str, str]):
+    """
+    Create or update LangVersionOrmV2 rows for all languages in name_map.
+    :param name_string_id: shared string_id for this multilingual bundle
+    :param name_map: dict of language -> text
+    """
+    for lang_key, text in name_map.items():
+        lang = lang_key.strip().title()
+
+        lv: LangVersionOrmV2 = crud.read(
+            LangVersionOrmV2, string_id=name_string_id, lang=lang
+        )
+        if lv:
+            lv.text = text  # update existing
+        else:
+            lv = LangVersionOrmV2(string_id=name_string_id, lang=lang, text=text)
+            crud.create(lv)
