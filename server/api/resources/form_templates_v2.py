@@ -99,6 +99,9 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath):
 
     translations = crud.read_all(LangVersionOrmV2, **filters)
     translations = [orm_serializer.marshal(lang) for lang in translations]
+    response = {
+        "langVersions": [lang.get("lang") for lang in translations],
+    }
 
     return FormTemplateLangList(**response).model_dump(), 200
 
@@ -165,7 +168,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
         )
 
     single_lang_template = orm_serializer.marshal(form_template, shallow=False)
-    single_lang_template = form_utils.format_template(single_lang_template, lang)
+    single_lang_template = form_utils.format_template(single_lang_template, [lang])
     single_lang_template["questions"].sort(key=lambda q: q["order"])
 
     return FormTemplate(**single_lang_template).model_dump(), 200
@@ -188,7 +191,7 @@ def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplat
     crud.db_session.commit()
     crud.db_session.refresh(form_template)
 
-    result = marshal.marshal(form_template, shallow=True)
+    result = orm_serializer.marshal(form_template, shallow=True)
     result["name"] = (
         form_utils.resolve_string_text(form_template.classification.name_string_id)
         if form_template.classification
@@ -241,7 +244,7 @@ def handle_form_template_upload(
 
     form_template_dict["questions"] = new_questions
     form_template_dict["form_classification_id"] = form_classification_dict.get("id")
-    form_template_orm = marshal.unmarshal(FormTemplateOrmV2, form_template_dict)
+    form_template_orm = orm_serializer.unmarshal(FormTemplateOrmV2, form_template_dict)
 
     crud.create_all(new_lang_versions, autocommit=False)
 
@@ -264,7 +267,7 @@ def handle_form_template_upload(
     form_template_orm.classification = form_classification_orm
     crud.create(form_template_orm, refresh=True)
 
-    created_form_template = marshal.marshal(form_template_orm, shallow=True)
+    created_form_template = orm_serializer.marshal(form_template_orm, shallow=True)
     created_form_template["name"] = english_name
 
     return created_form_template
@@ -279,9 +282,10 @@ def upload_form_template_body(body: FormTemplateUploadRequest):
     Accepts Form Template through the request body, rather than as a file.
     """
     try:
-        return FormTemplateV2Response(
-            **(handle_form_template_upload(body))
-        ).model_dump(), 201
+        return (
+            FormTemplateV2Response(**(handle_form_template_upload(body))).model_dump(),
+            201,
+        )
 
     except ValueError as err:
         return abort(409, description=str(err))
@@ -310,9 +314,12 @@ def upload_form_template_file(form: FileUploadForm):
 
     try:
         form_template = FormTemplateUploadRequest(**file_contents)
-        return FormTemplateV2Response(
-            **(handle_form_template_upload(form_template))
-        ).model_dump(), 201
+        return (
+            FormTemplateV2Response(
+                **(handle_form_template_upload(form_template))
+            ).model_dump(),
+            201,
+        )
 
     except ValidationError as e:
         return abort(422, description=e.errors())
