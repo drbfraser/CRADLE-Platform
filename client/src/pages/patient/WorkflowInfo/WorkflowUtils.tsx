@@ -206,11 +206,11 @@ export const buildWorkflowInstanceRowList = async (
 };
 
 export const getTargetTemplateStepFromBranchId = (
-  instance: WorkflowInstance,
+  instance: InstanceDetails,
   template: WorkflowTemplate,
   currentStepId: string,
   branchId: string
-): WorkflowTemplateStep | undefined => {
+): InstanceStep | undefined => {
   const templateStepId = instance.steps.find(
     (step) => step.id === currentStepId
   )?.workflowTemplateStepId;
@@ -221,45 +221,49 @@ export const getTargetTemplateStepFromBranchId = (
     (step) => step.id === templateStepId
   );
 
-  const targetStepId = templateStep?.branches?.find(
+  const targetTemplateStepId = templateStep?.branches?.find(
     (branch) => branch.id === branchId
   )?.targetStepId;
 
-  return template.steps.find((step) => step.id === targetStepId);
+  return instance.steps.find(
+    (step) => step.workflowTemplateStepId === targetTemplateStepId
+  );
 };
 
-export const WorkflowNextStepOptions = (
-  instance: WorkflowInstance,
+export const getWorkflowNextStepOptions = (
+  instance: InstanceDetails,
   template: WorkflowTemplate,
   stepEval: WorkflowInstanceStepEvaluation,
   currentStepId: string
 ) => {
-  const branchEvals = stepEval['branch_evaluations'];
-  const selectedBranchId = stepEval['selected_branch_id'];
+  const branchEvals = stepEval.branchEvaluations;
+  const selectedBranchId = stepEval.selectedBranchId;
   const nextOptions: WorkflowNextStepOption[] = [];
+  console.log('step eval', stepEval);
+  console.log('branch eval', branchEvals);
 
   branchEvals.forEach((branchEval) => {
-    const targetTemplateStep = getTargetTemplateStepFromBranchId(
+    const targetInstanceStep = getTargetTemplateStepFromBranchId(
       instance,
       template,
       currentStepId,
       branchEval.branchId
     );
-    if (!targetTemplateStep) {
+    if (!targetInstanceStep) {
       console.error(`No target step for branch ${branchEval.branchId}`);
       return;
     }
 
     const nextOption: WorkflowNextStepOption = {
       branchId: branchEval.branchId,
-      stepId: targetTemplateStep.id,
-      title: targetTemplateStep.name,
+      stepId: targetInstanceStep.id,
+      title: targetInstanceStep.title,
       isRecommended: selectedBranchId === branchEval.branchId,
       ruleDetails: [
         `Rule: ${branchEval.rule}`,
-        ...branchEval.resolved_vars.map((rv) => {
-          const displayValue = rv.value ?? 'N/A';
-          return `Resolved: ${rv.var} = ${displayValue}, status: ${rv.status}`;
+        ...branchEval.varResolutions.map((vr) => {
+          const displayValue = vr.value ?? 'N/A';
+          return `Resolved: ${vr.var} = ${displayValue}, status: ${vr.status}`;
         }),
         `Status: ${branchEval.ruleStatus}`,
       ],
