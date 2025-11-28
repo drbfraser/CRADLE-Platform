@@ -1,7 +1,12 @@
+from typing import Optional
+
 import pytest
 from humps import decamelize
 
 import data.db_operations as crud
+from common.api_utils import (
+    WorkflowInstanceAndStepIdPath,
+)
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from models import WorkflowInstanceOrm, WorkflowTemplateOrm
@@ -15,6 +20,7 @@ from validation.workflow_models import (
     StartStepActionModel,
     StartWorkflowActionModel,
     WorkflowInstanceModel,
+    WorkflowStepEvaluation,
     WorkflowTemplateModel,
 )
 
@@ -267,6 +273,7 @@ def test_patch_workflow_instance(
 def get_actions(api_get, instance_id: str) -> GetAvailableActionsResponse:
     """
     Test helper. Retrieves and returns the available actions for a given workflow instance.
+    Expects 200 OK.
     """
     response = api_get(endpoint=f"/api/workflow/instances/{instance_id}/actions")
     assert (
@@ -282,7 +289,7 @@ def apply_action(
 ) -> WorkflowInstanceModel:
     """
     Test helper. Applies a specified action to a workflow instance and returns the updated
-    instance model.
+    instance model. Expects 200 OK.
     """
     response = api_post(
         endpoint=f"/api/workflow/instances/{instance_id}/actions",
@@ -365,6 +372,76 @@ def test_sequential_workflow_progression__happy_path(
             ApplyActionRequest(action=CompleteStepActionModel(step_id="si-2")),
         )
         assert workflow_instance_resp.status == "Completed"
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_view.template.id,
+        )
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_view.instance.id,
+        )
+
+
+def evaluate_step(
+    api_get, path: WorkflowInstanceAndStepIdPath, expected_code: int
+) -> Optional[WorkflowStepEvaluation]:
+    """
+    Helper function to send API request for evaluating a workflow step
+    and validating the response.
+    """
+    url = (
+        f"/api/workflow/instances/{path.workflow_instance_id}"
+        + f"/steps/{path.workflow_instance_step_id}/evaluate"
+    )
+
+    response = api_get(endpoint=url)
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        step_evaluation_resp = decamelize(response.json())
+        return WorkflowStepEvaluation(**step_evaluation_resp)
+    return None
+
+
+def test_evaluate_step(api_get, sequential_workflow_view, patient_id):
+    workflow_view = sequential_workflow_view
+    workflow_view.instance.patient_id = patient_id
+
+    try:
+        WorkflowService.upsert_workflow_template(workflow_view.template)
+        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+        step_1_evaluation = evaluate_step(
+            api_get,
+            WorkflowInstanceAndStepIdPath(
+                workflow_instance_id=workflow_view.instance.id,
+                workflow_instance_step_id="si-1",
+            ),
+            expected_code=200,
+        )
+        step_2_evaluation = evaluate_step(
+            api_get,
+            WorkflowInstanceAndStepIdPath(
+                workflow_instance_id=workflow_view.instance.id,
+                workflow_instance_step_id="si-2",
+            ),
+            expected_code=200,
+        )
+        # sanity checks, workflow planner unit tests already have more thorough checks
+        assert step_1_evaluation.selected_branch_id == "b-1"
+        assert step_2_evaluation.selected_branch_id == None
+
+        evaluate_step(
+            api_get,
+            WorkflowInstanceAndStepIdPath(
+                workflow_instance_id=workflow_view.instance.id,
+                workflow_instance_step_id="this-step-shouldnt-exist",
+            ),
+            expected_code=404,
+        )
 
     finally:
         crud.delete_workflow(

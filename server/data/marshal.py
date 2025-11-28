@@ -1,5 +1,4 @@
 import json
-import logging
 from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
@@ -39,8 +38,6 @@ from models import (
     get_schema_for_model,
 )
 from service import invariant
-
-logger = logging.getLogger(__name__)
 
 
 def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) -> dict:
