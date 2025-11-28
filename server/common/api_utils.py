@@ -124,6 +124,11 @@ class WorkflowInstanceStepIdPath(CradleBaseModel):
     workflow_instance_step_id: str
 
 
+class WorkflowInstanceAndStepIdPath(CradleBaseModel):
+    workflow_instance_id: str
+    workflow_instance_step_id: str
+
+
 # Create a response model for the list endpoints
 class WorkflowTemplateStepListResponse(CradleBaseModel):
     items: List[WorkflowTemplateStepModel]

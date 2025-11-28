@@ -1,33 +1,14 @@
 from __future__ import annotations
 
-import csv
 import json
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING
 
 import data.db_operations as crud
 from common import commonUtil
-from common.constants import (
-    FORM_TEMPLATE_LANGUAGES_COL,
-    FORM_TEMPLATE_LANGUAGES_ROW,
-    FORM_TEMPLATE_NAME_COL,
-    FORM_TEMPLATE_NAME_ROW,
-    FORM_TEMPLATE_QUESTION_ID_COL,
-    FORM_TEMPLATE_QUESTION_LINE_COUNT_COL,
-    FORM_TEMPLATE_QUESTION_MAX_VALUE_COL,
-    FORM_TEMPLATE_QUESTION_MIN_VALUE_COL,
-    FORM_TEMPLATE_QUESTION_OPTIONS_COL,
-    FORM_TEMPLATE_QUESTION_REQUIRED_COL,
-    FORM_TEMPLATE_QUESTION_TEXT_COL,
-    FORM_TEMPLATE_QUESTION_TYPE_COL,
-    FORM_TEMPLATE_QUESTION_UNITS_COL,
-    FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL,
-    FORM_TEMPLATE_ROW_LENGTH,
-    FORM_TEMPLATE_VERSION_COL,
-    FORM_TEMPLATE_VERSION_ROW,
-)
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
     FormTemplateOrm,
     FormTemplateOrmV2,
@@ -36,9 +17,12 @@ from models import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from data.crud import M
+    from validation.formsV2_models import (
+        FormClassification,
+        FormTemplateUploadQuestion,
+        FormTemplateUploadRequest,
+        MultiLangText,
+    )
 
 
 def filter_template_questions_dict(form_template: dict):
@@ -58,7 +42,7 @@ def filter_template_questions_orm(form_template_orm: FormTemplateOrm):
     return form_template_orm
 
 
-def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
+def assign_form_or_template_ids(model, req: dict) -> None:
     """
     Assign form id if not provided.
     Assign question id and form_id or form_template_id.
@@ -95,178 +79,45 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
                 version["question_id"] = question["id"]
 
 
-def getFormTemplateDictFromCSV(csvData: str):
+def _assign_id(obj, field: str):
+    if getattr(obj, field, None) is None:
+        setattr(obj, field, commonUtil.get_uuid())
+
+
+def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
     """
-    Returns a dictionary of form templates from a CSV file.
+    Mutates the request dict to assign ALL required UUIDs:
+    - template.id
+    - classification.id + name_string_id
+    - question.id + question_string_id
+    - mc option string_ids
     """
+    classification = req.classification
+    if not classification:
+        raise ValueError("Classification is required for form template upload")
 
-    # Helper functions
-    def isRowEmpty(row: Iterable) -> bool:
-        return all(map(lambda val: val == "", row))
+    # Classification core IDs
+    _assign_id(classification, "id")
+    _assign_id(classification, "name_string_id")
 
-    def isQuestionRequired(required: str) -> bool:
-        return len(required) > 0 and required.upper()[0] == "Y"
+    # Template ID
+    req.id = commonUtil.get_uuid()
+    template_id = req.id
 
-    def toNumberOrNone(strVal: str) -> int | float | None:
-        if strVal == "":
-            return None
+    # Questions
+    for question in req.questions:
+        question.id = commonUtil.get_uuid()
+        question.form_template_id = template_id
 
-        return float(strVal) if "." in strVal else int(strVal)
+        # Question text (string_id)
+        if question.question_text:
+            _assign_id(question, "question_string_id")
 
-    def toMcOptions(strVal: str) -> list[dict[str, int | str]]:
-        return [
-            {"mc_id": index, "opt": opt.strip()}
-            for index, opt in enumerate(strVal.split(","))
-            if len(opt.strip()) > 0
-        ]
-
-    def getQuestionLanguageVersionFromRow(row: list) -> dict:
-        return {
-            "question_text": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
-            "mc_options": toMcOptions(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
-            "lang": row[FORM_TEMPLATE_LANGUAGES_COL].strip(),
-        }
-
-    def findCategoryIndex(
-        categoryList: list[dict[str, Any]],
-        categoryText: str,
-    ) -> int | None:
-        for category in categoryList:
-            for languageVersion in category["lang_versions"]:
-                if languageVersion["question_text"] == categoryText:
-                    return category["question_index"]
-
-        return None
-
-    result: dict = dict()
-
-    csv_reader = csv.reader(csvData.splitlines())
-    rows = []
-
-    for index, row in enumerate(csv_reader):
-        if len(row) != FORM_TEMPLATE_ROW_LENGTH:
-            raise RuntimeError(
-                f"All Rows must have {FORM_TEMPLATE_ROW_LENGTH} columns. Row {index} has {len(row)} columns.",
-            )
-
-        rows.append(row)
-
-    languages = [
-        language.strip()
-        for language in rows[FORM_TEMPLATE_LANGUAGES_ROW][
-            FORM_TEMPLATE_LANGUAGES_COL
-        ].split(",")
-    ]
-
-    result["classification"] = {
-        "name": rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL],
-    }
-    result["version"] = rows[FORM_TEMPLATE_VERSION_ROW][FORM_TEMPLATE_VERSION_COL]
-    result["questions"] = []
-
-    categoryIndex = None
-    categoryList: list[dict[str, Any]] = []
-
-    questionRows = iter(rows[4:])
-    question_index = 0
-
-    for row in questionRows:
-        if isRowEmpty(row):
-            categoryIndex = None
-            continue
-
-        type = str(row[FORM_TEMPLATE_QUESTION_TYPE_COL]).upper()
-
-        if type not in QuestionTypeEnum.listNames():
-            raise RuntimeError("Invalid Question Type Encountered")
-
-        visibilityConditionsText = str.strip(
-            row[FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL],
-        )
-
-        visibilityConditions: list = []
-
-        if len(visibilityConditionsText) > 0:
-            if question_index == 0:
-                raise RuntimeError(
-                    "First questions cannot have a visibility condition.",
-                )
-
-            previousQuestion = result["questions"][question_index - 1]
-
-            visibilityConditions.append(
-                commonUtil.parseCondition(previousQuestion, visibilityConditionsText),
-            )
-
-        question = {
-            "question_id": row[FORM_TEMPLATE_QUESTION_ID_COL],
-            "question_index": question_index,
-            "question_type": QuestionTypeEnum[type].value,
-            "lang_versions": [],
-            "required": isQuestionRequired(row[FORM_TEMPLATE_QUESTION_REQUIRED_COL]),
-            "num_max": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
-            "num_min": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
-            "string_max_length": toNumberOrNone(
-                row[FORM_TEMPLATE_QUESTION_LINE_COUNT_COL],
-            ),
-            "units": row[FORM_TEMPLATE_QUESTION_UNITS_COL],
-            "visible_condition": visibilityConditions,
-            "category_index": categoryIndex,
-        }
-
-        questionLangVersion = getQuestionLanguageVersionFromRow(row)
-
-        if type == "CATEGORY":
-            existingCategoryIndex = findCategoryIndex(
-                categoryList=categoryList,
-                categoryText=questionLangVersion["question_text"],
-            )
-
-            if existingCategoryIndex is not None:
-                categoryIndex = existingCategoryIndex
-                continue
-
-        question_lang_versions = dict(
-            [(questionLangVersion["lang"], questionLangVersion)],
-        )
-
-        for _ in range(len(languages) - 1):
-            row = next(questionRows, None)
-
-            if row is None or isRowEmpty(row):
-                raise RuntimeError(
-                    "All Questions must be provided in all the languages supported by the form",
-                )
-
-            questionLangVersion = getQuestionLanguageVersionFromRow(row)
-            language: str = questionLangVersion["lang"]
-
-            if language not in languages:
-                raise RuntimeError(
-                    "Language {} for question #{} not listed in Form Languages [{}].".format(
-                        language,
-                        question_index + 1,
-                        str.join(", ", languages),
-                    ),
-                )
-
-            if language in question_lang_versions:
-                raise RuntimeError(
-                    f"Language {language} defined multiple times for question #{question_index + 1}",
-                )
-
-            question_lang_versions[language] = getQuestionLanguageVersionFromRow(row)
-
-        question["lang_versions"] = list(question_lang_versions.values())
-
-        if type == "CATEGORY":
-            categoryList.append(question)
-            categoryIndex = question_index
-
-        result["questions"].append(question)
-        question_index += 1
-
-    return result
+        # MC option string_ids
+        mc_opts = question.mc_options
+        if mc_opts:
+            for opt in mc_opts:
+                _assign_id(opt, "string_id")
 
 
 def getCsvFromFormTemplate(form_template: FormTemplateOrm):
@@ -600,37 +451,181 @@ def _get_mc_list(q: dict) -> list[str]:
     return []
 
 
-def format_template(template: dict, lang: str = "English") -> dict:
-    """Format a marshalled form template into a single-language version."""
+def format_template(template: dict, available_langs: list[str]) -> dict:
+    """
+    Format a marshalled template into a multi-language version.
+    Every string field becomes a dict of {lang: text}.
+    """
     if not template:
         return {}
+
     questions = template.get("questions", [])
-    formatted_questions = []
+    formatted = template.copy()
 
-    # Resolve classification name
-    classification = template.get("classification")
+    # resolve different classification language versions
+    classification = formatted.get("classification")
     if classification and classification.get("name_string_id"):
-        classification["name"] = resolve_string_text(
-            classification["name_string_id"], lang
-        )
-        classification.pop("name_string_id", None)
+        sid = classification["name_string_id"]
+        classification["name"] = {
+            lang: resolve_string_text(sid, lang) for lang in available_langs
+        }
 
-    if template.get("form_classification_id"):
-        template.pop("form_classification_id", None)
+    # remove unneeded FK
+    formatted.pop("form_classification_id", None)
 
+    # resolve different question language versions
+    new_questions = []
     for q in questions:
-        string_id = _get_and_remove_string_id(q)
-        if string_id:
-            q["question_text"] = resolve_string_text(string_id, lang)
+        q = q.copy()
 
+        # question text
+        sid = q.get("question_string_id", None)
+        if sid:
+            q["question_text"] = {
+                lang: resolve_string_text(sid, lang) for lang in available_langs
+            }
+
+        # MC options
         if q["question_type"] in (
             QuestionTypeEnum.MULTIPLE_CHOICE.value,
             QuestionTypeEnum.MULTIPLE_SELECT.value,
         ):
-            options = _get_mc_list(q)
-            q["mc_options"] = [resolve_string_text(opt, lang) for opt in options]
+            mc_list = _get_mc_list(q)
+            q["mc_options"] = [
+                {
+                    "string_id": opt,
+                    "translations": {
+                        lang: resolve_string_text(opt, lang) for lang in available_langs
+                    },
+                }
+                for opt in mc_list
+            ]
 
-        formatted_questions.append(q)
+        new_questions.append(q)
 
-    template["questions"] = formatted_questions
-    return template
+    formatted["questions"] = new_questions
+    return formatted
+
+
+def lang_version_exists(string_id: str, lang: str):
+    return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
+
+
+def check_name_conflict(english_name: str) -> bool:
+    """
+    Check if a FormClassification with the same English name exists.
+    :param english_name: English text to check
+    :raises: abort(409) if conflict exists
+    """
+    existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
+
+    for existing_lang in existing_langs:
+        fc = crud.read(FormClassificationOrmV2, name_string_id=existing_lang.string_id)
+        if fc:
+            return True
+
+    return False
+
+
+def handle_model_existence(
+    new_template: bool,
+    classification_dict: FormClassification,
+    version: int,
+    english_name: str,
+) -> tuple[bool, FormClassificationOrmV2]:
+    # Boolean to check whether to archive an existing form template version
+    archive_previous_template: bool = False
+    existing_classification = None
+
+    # Case where user is creating a new form template
+    if new_template:
+        # Check whether an existing classification with the english_name exists
+        if not english_name:
+            raise ValueError("Form template must have an english lanuage version.")
+
+        exists = check_name_conflict(english_name)
+        if exists:
+            raise ValueError(
+                f"Form Classification with name {english_name} already exists."
+            )
+    else:
+        existing_classification = crud.read(
+            FormClassificationOrmV2, id=classification_dict.get("id")
+        )
+        existing_template = crud.read(
+            FormTemplateOrmV2,
+            form_classification_id=classification_dict.get("id"),
+            version=version,
+        )
+        if existing_template:
+            raise ValueError(
+                f"Form Template with version V{version} already exists - change the version to upload."
+            )
+        archive_previous_template = True
+
+    return archive_previous_template, existing_classification
+
+
+def _extend_lang_version(
+    translations: MultiLangText, string_id: str
+) -> list[LangVersionOrmV2]:
+    new_lang_versions = []
+
+    for lang, text in translations.items():
+        lang = lang.capitalize()
+        if not lang_version_exists(string_id, lang):
+            new_lang_versions.append(
+                LangVersionOrmV2(
+                    string_id=string_id,
+                    lang=lang,
+                    text=text,
+                ),
+            )
+
+    return new_lang_versions
+
+
+def get_new_lang_versions_and_questions(
+    classification_dict: FormClassification,
+    new_template: bool,
+    questions: list[FormTemplateUploadQuestion],
+):
+    new_lang_versions = []
+    new_questions = []
+
+    for lang_key, text in classification_dict.get("name").items():
+        existing = None
+        if not new_template:
+            existing = crud.read(
+                LangVersionOrmV2,
+                string_id=classification_dict.get("name_string_id"),
+                lang=lang_key.capitalize(),
+            )
+
+        if not existing:
+            lang_version = LangVersionOrmV2(
+                string_id=classification_dict.get("name_string_id"),
+                lang=lang_key.capitalize(),
+                text=text,
+            )
+            new_lang_versions.append(lang_version)
+
+    for question in questions:
+        question_text = question.get("question_text")
+        question.pop("question_text")
+
+        mc_opts = question.get("mc_options", [])
+        question["mc_options"] = json.dumps([opt.get("string_id") for opt in mc_opts])
+
+        new_questions.append(question)
+
+        q_string_id = question.get("question_string_id")
+        new_lang_versions.extend(_extend_lang_version(question_text, q_string_id))
+
+        for opt in mc_opts:
+            opt_string_id = opt.get("string_id")
+            new_lang_versions.extend(
+                _extend_lang_version(opt.get("translations"), opt_string_id)
+            )
+
+    return new_questions, new_lang_versions
