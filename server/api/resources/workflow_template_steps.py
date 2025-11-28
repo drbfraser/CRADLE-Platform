@@ -13,7 +13,7 @@ from common.workflow_utils import (
     check_branch_conditions,
     validate_workflow_template_step,
 )
-from data import marshal
+from data import orm_serializer
 from models import WorkflowTemplateStepOrm
 from validation.workflow_api_models import WorkflowTemplateStepUploadModel
 from validation.workflow_models import WorkflowTemplateStepModel
@@ -38,11 +38,11 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 
     validate_workflow_template_step(template_step)
 
-    template_step_orm = marshal.unmarshal(WorkflowTemplateStepOrm, template_step)
+    template_step_orm = orm_serializer.unmarshal(WorkflowTemplateStepOrm, template_step)
 
     crud.create(template_step_orm, refresh=True)
 
-    return marshal.marshal(template_step_orm, shallow=True), 201
+    return orm_serializer.marshal(template_step_orm, shallow=True), 201
 
 
 # /api/workflow/template/steps [GET]
@@ -51,7 +51,7 @@ def get_workflow_template_steps():
     """Get All Workflow Template Steps"""
     template_steps = crud.read_template_steps()
     template_steps = [
-        marshal.marshal(template_step) for template_step in template_steps
+        orm_serializer.marshal(template_step) for template_step in template_steps
     ]
 
     return {"items": template_steps}, 200
@@ -80,7 +80,7 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
             ),
         )
 
-    workflow_step = marshal.marshal(workflow_step, shallow=False)
+    workflow_step = orm_serializer.marshal(workflow_step, shallow=False)
 
     if not with_branches:
         del workflow_step["branches"]
@@ -128,7 +128,7 @@ def update_workflow_template_step(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
 
-    updated_template_step = marshal.marshal(updated_template_step, shallow=True)
+    updated_template_step = orm_serializer.marshal(updated_template_step, shallow=True)
 
     return updated_template_step, 200
 

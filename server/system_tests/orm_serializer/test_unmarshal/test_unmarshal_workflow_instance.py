@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import WorkflowInstanceOrm
 
 
@@ -151,7 +151,7 @@ def test_unmarshal_workflow_instance_with_steps_mixed_form():
       - One LangVersion load; mc_options stringified
     """
     payload = _create_instance_full(id="wi-1")
-    obj = unmarshal(WorkflowInstanceOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowInstanceOrm, payload)
 
     # Accept either real ORM or the SimpleNamespace stub in tests
     assert isinstance(obj, WorkflowInstanceOrm)
@@ -169,7 +169,7 @@ def test_unmarshal_workflow_instance_with_steps_mixed_form():
     assert isinstance(s1.form.questions, list) and len(s1.form.questions) == 1
 
     q = s1.form.questions[0]
-    # JSON-able fields were stringified by unmarshal(QuestionOrm)
+    # JSON-able fields were stringified by orm_serializer.unmarshal(QuestionOrm)
     assert json.loads(q.visible_condition) == {"op": "eq", "left": "age", "right": 18}
     assert json.loads(q.answers) == {"default": "no"}
     assert json.loads(q.mc_options) == [
@@ -197,7 +197,7 @@ def test_unmarshal_workflow_instance_minimal_no_steps():
     is attached to the returned object.
     """
     payload = _create_instance_minimal(id="wi-2")
-    obj = unmarshal(WorkflowInstanceOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowInstanceOrm, payload)
 
     assert isinstance(obj, WorkflowInstanceOrm)
     assert obj.id == "wi-2"
@@ -213,7 +213,7 @@ def test_unmarshal_workflow_instance_steps_explicit_empty_list():
     loads occur.
     """
     payload = _create_instance_with_empty_steps(id="wi-3")
-    obj = unmarshal(WorkflowInstanceOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowInstanceOrm, payload)
 
     assert isinstance(obj, WorkflowInstanceOrm)
     assert obj.id == "wi-3"

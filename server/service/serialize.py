@@ -8,7 +8,7 @@ from typing import Any, List, Optional, Tuple, Union
 from marshmallow import ValidationError
 
 from common.form_utils import filter_template_questions_dict
-from data import marshal
+from data import orm_serializer
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,
@@ -132,13 +132,15 @@ def serialize_patient(
 
 
 def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
-    reading = marshal.marshal(tup[0], True)
-    reading["urine_tests"] = marshal.marshal(tup[1]) if tup[1] is not None else None
+    reading = orm_serializer.marshal(tup[0], True)
+    reading["urine_tests"] = (
+        orm_serializer.marshal(tup[1]) if tup[1] is not None else None
+    )
     return reading
 
 
 def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -> dict:
-    return marshal.marshal(model)
+    return orm_serializer.marshal(model)
 
 
 def serialize_blank_form_template(form_template: dict) -> dict:

@@ -7,7 +7,7 @@ from pydantic import RootModel
 
 import data.db_operations as crud
 from api.decorator import roles_required
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import RelayServerPhoneNumberOrm
 from validation import CradleBaseModel
@@ -38,7 +38,7 @@ class RelayServerPhoneNumberList(RootModel):
 def get_all_relay_phone_numbers():
     """Get All SMS Relay Server Phone Numbers"""
     phone_numbers = crud.read_all(RelayServerPhoneNumberOrm)
-    return [marshal.marshal(f, shallow=True) for f in phone_numbers]
+    return [orm_serializer.marshal(f, shallow=True) for f in phone_numbers]
 
 
 # /api/relay/server/phone [POST]
@@ -46,7 +46,9 @@ def get_all_relay_phone_numbers():
 @roles_required([RoleEnum.ADMIN])
 def add_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Add SMS Relay Server Phone Number"""
-    server_details = marshal.unmarshal(RelayServerPhoneNumberOrm, body.model_dump())
+    server_details = orm_serializer.unmarshal(
+        RelayServerPhoneNumberOrm, body.model_dump()
+    )
     phone_number = server_details.phone_number
     if crud.read(RelayServerPhoneNumberOrm, phone_number=phone_number):
         return abort(
@@ -54,7 +56,7 @@ def add_relay_phone_number(body: RelayServerPhoneNumberModel):
         )
 
     crud.create(server_details, refresh=True)
-    return marshal.marshal(server_details, shallow=True), 200
+    return orm_serializer.marshal(server_details, shallow=True), 200
 
 
 # /api/relay/server/phone [PUT]
@@ -64,7 +66,7 @@ def update_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Update SMS Relay Server Phone Number"""
     crud.update(RelayServerPhoneNumberOrm, body.model_dump(), id=body.id)
     relay_server_phone_number_orm = crud.read(RelayServerPhoneNumberOrm, id=body.id)
-    return marshal.marshal(relay_server_phone_number_orm, shallow=True), 200
+    return orm_serializer.marshal(relay_server_phone_number_orm, shallow=True), 200
 
 
 # /api/relay/server/phone [DELETE]

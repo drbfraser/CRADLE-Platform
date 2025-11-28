@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import PatientOrm
 
 
@@ -70,7 +70,7 @@ def test_unmarshal_patient_strips_base_and_preserves_scalars():
     """
     payload = __create_patient_payload(base=222)
 
-    patient = unmarshal(PatientOrm, payload)
+    patient = orm_serializer.unmarshal(PatientOrm, payload)
     assert patient.id == "p-001"
     assert patient.name == "Mary Brown"
     assert patient.zone == "1"
@@ -91,7 +91,7 @@ def test_unmarshal_patient_moves_histories_into_records_and_removes_original_fie
         medical_history="Asthma",
         drug_history="Labetalol 300mg",
     )
-    patient = unmarshal(PatientOrm, payload)
+    patient = orm_serializer.unmarshal(PatientOrm, payload)
 
     # Columns still exist; values should be cleared
     assert getattr(patient, "drug_history", None) is None
@@ -113,7 +113,7 @@ def test_unmarshal_patient_derives_pregnancy_and_cleans_flags():
     payload = __create_patient_payload(
         id="p-003", is_pregnant=True, pregnancy_start_date=1725148800
     )
-    patient = unmarshal(PatientOrm, payload)
+    patient = orm_serializer.unmarshal(PatientOrm, payload)
 
     assert hasattr(patient, "pregnancies") and len(patient.pregnancies) == 1
     p = patient.pregnancies[0]
@@ -137,7 +137,7 @@ def test_unmarshal_patient_ignores_empty_relationship_lists():
         assessments=[],
         forms=[],
     )
-    patient = unmarshal(PatientOrm, payload)
+    patient = orm_serializer.unmarshal(PatientOrm, payload)
 
     # Relationships exist on ORM; they should be empty, not missing
     assert not patient.referrals
@@ -181,7 +181,7 @@ def test_unmarshal_patient_relationship_lists_are_unmarshaled():
         ],
     )
 
-    patient = unmarshal(PatientOrm, payload)
+    patient = orm_serializer.unmarshal(PatientOrm, payload)
 
     assert len(getattr(patient, "referrals", [])) == 2
     assert len(getattr(patient, "assessments", [])) == 2

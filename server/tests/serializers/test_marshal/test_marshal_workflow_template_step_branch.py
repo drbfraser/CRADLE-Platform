@@ -1,4 +1,4 @@
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import RuleGroupOrm, WorkflowTemplateStepBranchOrm
 
 
@@ -26,7 +26,7 @@ def test_branch_marshal_with_condition_embeds_rule_group_and_fk_ids():
     workflow_step_branch.condition_id = cond.id
     workflow_step_branch.condition = cond
 
-    marshalled = m.marshal(workflow_step_branch)
+    marshalled = orm_seralizer.marshal(workflow_step_branch)
 
     # Core field presence
     assert set(marshalled.keys()) == {
@@ -71,7 +71,7 @@ def test_branch_marshal_omits_none_fields_when_no_condition():
     workflow_step_branch.condition_id = None
     workflow_step_branch.condition = None
 
-    marshalled = m.marshal(workflow_step_branch)
+    marshalled = orm_seralizer.marshal(workflow_step_branch)
 
     assert set(marshalled.keys()) == {"id", "step_id"}
     assert marshalled["id"] == "br-002"
@@ -99,7 +99,7 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
     workflow_step_branch.condition_id = cond.id
     workflow_step_branch.condition = cond
 
-    marshalled = m.marshal(workflow_step_branch)
+    marshalled = orm_seralizer.marshal(workflow_step_branch)
 
     assert set(marshalled.keys()) == {
         "id",

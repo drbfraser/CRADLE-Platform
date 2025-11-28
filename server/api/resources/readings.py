@@ -7,7 +7,7 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from common import user_utils
 from common.api_utils import ReadingIdPath
-from data import marshal
+from data import orm_serializer
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from validation.readings import ReadingModel
@@ -49,7 +49,7 @@ def create_new_reading(body: ReadingModel):
             name=body.referral.health_facility_name,
         )
 
-        referral = marshal.unmarshal(ReferralOrm, body.referral.model_dump())
+        referral = orm_serializer.unmarshal(ReferralOrm, body.referral.model_dump())
         crud.create(referral, refresh=True)
 
         patient = referral.patient
@@ -58,14 +58,14 @@ def create_new_reading(body: ReadingModel):
             assoc.associate(patient, facility=facility)
         del new_reading_dict["referral"]
 
-    reading = marshal.unmarshal(ReadingOrm, new_reading_dict)
+    reading = orm_serializer.unmarshal(ReadingOrm, new_reading_dict)
 
     if crud.read(ReadingOrm, id=reading.id):
         return abort(409, description=f"A reading already exists with id: {reading.id}")
 
     invariant.resolve_reading_invariants(reading)
     crud.create(reading, refresh=True)
-    return marshal.marshal(reading), 201
+    return orm_serializer.marshal(reading), 201
 
 
 # /api/readings/<string:reading_id> [GET]
@@ -75,4 +75,4 @@ def get_reading(path: ReadingIdPath):
     reading = crud.read(ReadingOrm, id=path.reading_id)
     if reading is None:
         return abort(404, description=f"No reading with ID: {path.reading_id}")
-    return marshal.marshal(reading)
+    return orm_serializer.marshal(reading)
