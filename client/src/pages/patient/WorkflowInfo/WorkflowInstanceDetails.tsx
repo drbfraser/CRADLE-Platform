@@ -18,6 +18,8 @@ import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  advanceOverrideStep,
+  advanceRecommendedStep,
   applyInstanceStepAction,
   archiveInstanceStepForm,
   evaluateInstanceStep,
@@ -197,22 +199,11 @@ export default function WorkflowInstanceDetailsPage() {
     return await handleApplyStepAction(InstanceStepAction.START, stepId);
   };
 
-  const handleCompleteStep = async (): Promise<void> => {
-    try {
-      await completeStep();
-      await reload();
-
-      const newActions = await getInstanceActions(instanceDetails!.id);
-      setStepActions(newActions);
-      console.log('CompleteStep NewActions', newActions);
-
-      showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      handleOpenRecommendation(newActions);
-      setExpandedStep(null);
-    } catch (e) {
-      console.error('Unable to complete step', e);
-      showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-    }
+  const completeWorkflow = async () => {
+    return await handleApplyStepAction(
+      InstanceStepAction.COMPLETE_WORKFLOW,
+      currentStep!.id
+    );
   };
 
   const getNextStepOptions = async () => {
@@ -251,6 +242,22 @@ export default function WorkflowInstanceDetailsPage() {
     setOpenNextStepModal(false);
   };
 
+  const handleCompleteFinalStep = async (): Promise<void> => {
+    try {
+      await completeStep();
+      await reload();
+
+      await completeWorkflow();
+      await reload();
+      handleCloseNextStepModal();
+      showSnackbar('Workflow completed!', SnackbarSeverity.SUCCESS);
+      setExpandedStep(null);
+    } catch (e) {
+      console.error('Unable to complete step', e);
+      showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
+    }
+  };
+
   const handleSelectNextStep = async (stepId: string): Promise<void> => {
     try {
       await startStep(stepId); // Currently only recommended step is valid
@@ -268,8 +275,7 @@ export default function WorkflowInstanceDetailsPage() {
       await completeStep();
       await reload();
 
-      const newActions = await getInstanceActions(instanceDetails!.id);
-      console.log('CompleteStep NewActions', newActions);
+      await advanceInstanceCurrentStep(stepId);
 
       await startStep(stepId);
       await reload();
@@ -277,10 +283,23 @@ export default function WorkflowInstanceDetailsPage() {
       handleCloseNextStepModal();
       setExpandedStep(stepId);
       showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      // setExpandedStep(null);
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
+    }
+  };
+
+  const isRecommendedStep = (stepId: string) => {
+    return currentStepEvaluation!.selectedBranchId === stepId;
+  };
+
+  const advanceInstanceCurrentStep = async (stepId: string) => {
+    if (isRecommendedStep(stepId)) {
+      await advanceRecommendedStep(instanceDetails!.id);
+    } else {
+      await advanceOverrideStep(instanceDetails!.id, {
+        workflowInstanceStepId: stepId,
+      });
     }
   };
 
@@ -390,7 +409,6 @@ export default function WorkflowInstanceDetailsPage() {
               handleArchiveForm={handleArchiveForm}
               currentStep={currentStep}
               showSnackbar={showSnackbar}
-              handleCompleteStep={handleCompleteStep}
               handleOpenNextStepModal={handleOpenNextStepModal}
             />
 
@@ -440,7 +458,7 @@ export default function WorkflowInstanceDetailsPage() {
         setNextStep={setNextStep}
         handleCloseNextStepModal={handleCloseNextStepModal}
         handleSelectNextStep={handleSelectNextStep}
-        handleCompleteStep={handleCompleteStep}
+        handleCompleteFinalStep={handleCompleteFinalStep}
         handleCompleteAndStartNext={handleCompleteAndStartNext}
         options={nextOptions}
       />

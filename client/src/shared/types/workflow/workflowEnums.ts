@@ -19,6 +19,7 @@ export enum WorkflowViewMode {
 export enum InstanceStepAction {
   START = 'start_step',
   COMPLETE = 'complete_step',
+  COMPLETE_WORKFLOW = 'complete_workflow',
 }
 
 export enum WorkflowBranchEvaluationStatus {
