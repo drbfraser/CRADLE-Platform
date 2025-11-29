@@ -23,6 +23,7 @@ import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 import { useCustomizedFormWQuestions } from 'src/shared/hooks/forms/useCustomizedFormWQuestions';
+import { capitalize } from 'src/shared/utils';
 interface IProps {
   fm: FormTemplateWithQuestions;
   languages: string[];
@@ -52,10 +53,10 @@ export const CustomizedFormWQuestions = ({
         onClose={() => hook.setSubmitError(false)}
         errorMessage={hook.errorMessage}
       />
-      <EditCategory
+      {/* <EditCategory
         open={hook.categoryPopupOpen}
         onClose={() => {
-          hook.setSelectedQuestionIndex(null);
+          hook.setSelectedOrder(null);
           hook.setCategoryPopupOpen(false);
         }}
         visibilityDisabled={
@@ -63,47 +64,46 @@ export const CustomizedFormWQuestions = ({
           fm.questions[hook.categoryIndex].visibleCondition.length > 0
         }
         inputLanguages={
-          hook.selectedQuestionIndex !== null
-            ? hook.getInputLanguages(hook.questions[hook.selectedQuestionIndex])
+          hook.selectedOrder !== null
+            ? hook.getInputLanguages(hook.questions[hook.selectedOrder])
             : languages
         }
         setForm={setForm}
         question={
-          hook.selectedQuestionIndex !== null
-            ? hook.questions[hook.selectedQuestionIndex]
+          hook.selectedOrder !== null
+            ? hook.questions[hook.selectedOrder]
             : undefined
         }
         questionsArr={fm.questions}
         visibilityToggle={
-          hook.selectedQuestionIndex !== null &&
-          fm.questions[hook.selectedQuestionIndex]?.visibleCondition.length > 0
+          hook.selectedOrder !== null &&
+          fm.questions[hook.selectedOrder]?.visibleCondition.length > 0
         }
         categoryIndex={hook.categoryIndex}
-      />
-      <EditField
+      /> */}
+      {/* <EditField
         open={hook.editPopupOpen}
         onClose={() => {
-          hook.setSelectedQuestionIndex(null);
+          hook.setSelectedOrder(null);
           hook.setEditPopupOpen(false);
         }}
         inputLanguages={
-          hook.selectedQuestionIndex !== null
-            ? hook.getInputLanguages(hook.questions[hook.selectedQuestionIndex])
+          hook.selectedOrder !== null
+            ? hook.getInputLanguages(hook.questions[hook.selectedOrder])
             : languages
         }
         setForm={setForm}
         question={
-          hook.selectedQuestionIndex !== null
-            ? hook.questions[hook.selectedQuestionIndex]
+          hook.selectedOrder !== null
+            ? hook.questions[hook.selectedOrder]
             : undefined
         }
         questionsArr={fm.questions}
         visibilityDisabled={
-          hook.selectedQuestionIndex !== null
-            ? hook.questions[hook.selectedQuestionIndex].categoryIndex !==
-                null &&
+          hook.selectedOrder !== null
+            ? hook.questions[hook.selectedOrder].categoryIndex !== null &&
               fm.questions[
-                hook.questions[hook.selectedQuestionIndex].categoryIndex ?? 0
+                hook.questions[hook.selectedOrder].categoryIndex ?? 0
               ].visibleCondition.length > 0 // add "?? 0" to suppress null index error
             : hook.categoryIndex != null &&
               fm.questions[hook.categoryIndex].visibleCondition.length > 0
@@ -111,16 +111,15 @@ export const CustomizedFormWQuestions = ({
         visibilityToggle={hook.visibilityToggle}
         setVisibilityToggle={hook.setVisibilityToggle}
         categoryIndex={hook.categoryIndex}
-      />
-      <DeleteCategoryDialog
+      /> */}
+      {/* <DeleteCategoryDialog
         open={hook.isDeletePopupOpen}
         onClose={hook.handleDeleteOnClose}
         numQuestionsProp={
-          hook.questions.filter(
-            (q) => q.categoryIndex === hook.selectedQuestionIndex
-          ).length
+          hook.questions.filter((q) => q.categoryIndex === hook.selectedOrder)
+            .length
         }
-      />
+      /> */}
       <Formik
         initialValues={initialState as any}
         validationSchema={validationSchema}
@@ -167,7 +166,7 @@ export const CustomizedFormWQuestions = ({
                       component={Autocomplete}
                       fullWidth
                       name={languages[0]}
-                      options={languages}
+                      options={languages.map((lang) => capitalize(lang))}
                       disableClearable={true}
                       onChange={(event: any, value: string) => {
                         hook.setSelectedLanguage(value);
@@ -207,6 +206,7 @@ export const CustomizedFormWQuestions = ({
                     />
                   </Grid>
                 </Grid>
+                {/* BHAI IDHAR SE */}
                 <Grid id={'form-container'} item container spacing={3}>
                   {FormQuestions({
                     questions: hook.questions,
@@ -219,7 +219,7 @@ export const CustomizedFormWQuestions = ({
                   }).map((q, index) => {
                     const question = hook.questions[index];
                     return (
-                      <Fragment key={`rendered-${question.questionIndex}`}>
+                      <Fragment key={`rendered-${question.order}`}>
                         {q}
                         {question.questionType == QuestionTypeEnum.CATEGORY && (
                           <Grid
@@ -242,7 +242,7 @@ export const CustomizedFormWQuestions = ({
                               }}
                               onClick={() => {
                                 if (languages.length != 0) {
-                                  hook.setCategoryIndex(question.questionIndex);
+                                  hook.setCategoryIndex(question.order);
                                   hook.setVisibilityToggle(
                                     question.visibleCondition.length > 0
                                   );
@@ -270,7 +270,7 @@ export const CustomizedFormWQuestions = ({
                           }}>
                           <Grid item xs={6}>
                             <IconButton
-                              key={`field-up-${question.questionIndex}`}
+                              key={`field-up-${question.order}`}
                               size="small"
                               onClick={(e) => {
                                 if (
@@ -290,7 +290,7 @@ export const CustomizedFormWQuestions = ({
                               sx={{
                                 marginLeft: '10px',
                               }}
-                              key={`edit-field-${question.questionIndex}`}
+                              key={`edit-field-${question.order}`}
                               size="small"
                               onClick={(e) => {
                                 hook.handleEditField(question);
@@ -300,7 +300,7 @@ export const CustomizedFormWQuestions = ({
                           </Grid>
                           <Grid item xs={6}>
                             <IconButton
-                              key={`field-down-${question.questionIndex}`}
+                              key={`field-down-${question.order}`}
                               size="small"
                               onClick={(e) => {
                                 if (
@@ -320,7 +320,7 @@ export const CustomizedFormWQuestions = ({
                               sx={{
                                 marginLeft: '10px',
                               }}
-                              key={`delete-field-${question.questionIndex}`}
+                              key={`delete-field-${question.order}`}
                               size="small"
                               color="error"
                               onClick={(e) => {
@@ -342,6 +342,7 @@ export const CustomizedFormWQuestions = ({
                     );
                   })}
                 </Grid>
+                {/* BHAI IDHAR TAK */}
                 <Grid item container justifyContent="space-between">
                   <Grid item xs={6}>
                     <div style={{ display: 'inline-block' }}>

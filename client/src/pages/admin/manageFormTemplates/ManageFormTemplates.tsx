@@ -126,13 +126,15 @@ export const ManageFormTemplates = () => {
       ) => <TableRowActions formTemplate={params.value} />,
     },
   ];
-  const tableRows = formTemplatesQuery.data?.map((template, index) => ({
-    id: index,
-    name: template.classification.name,
-    version: template.version,
-    dateCreated: getPrettyDate(template.dateCreated),
-    takeAction: template,
-  }));
+  const tableRows = formTemplatesQuery.data?.templates.map(
+    (template, index) => ({
+      id: index,
+      name: template.name,
+      version: template.version,
+      dateCreated: getPrettyDate(template.dateCreated),
+      takeAction: template,
+    })
+  );
 
   const TableFooter = () => (
     <DataTableFooter>
@@ -197,7 +199,8 @@ export const ManageFormTemplates = () => {
         loading={formTemplatesQuery.isLoading}
         getRowClassName={(params) => {
           const index = params.row.id;
-          const formTemplate = formTemplatesQuery.data?.at(index) ?? undefined;
+          const formTemplate =
+            formTemplatesQuery.data?.templates.at(index) ?? undefined;
           if (!formTemplate) return '';
           return formTemplate.archived ? 'row-archived' : '';
         }}

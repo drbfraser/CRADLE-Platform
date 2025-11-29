@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { useMediaQuery } from '@mui/material';
 import { QuestionTypeEnum } from 'src/shared/enums';
+import { capitalize } from 'src/shared/utils';
 
 export const useCustomizedFormWQuestions = (
   fm: FormTemplateWithQuestions,
@@ -25,79 +26,76 @@ export const useCustomizedFormWQuestions = (
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
-  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
+  const [selectedOrder, setSelectedOrder] = useState<
     number | null
   >(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
+  
   const getInputLanguages = (question: TQuestion) => {
-    return question.langVersions.map((item) => item.lang);
+    return Object.keys(question.questionText);
   };
 
   const isMobile = useMediaQuery('(max-width:599px)');
 
   useEffect(() => {
     updateAddedQuestions(languages);
-    setSelectedLanguage(languages[0]);
+    setSelectedLanguage(capitalize(languages[0]));
     upd();
   }, [languages]);
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
-      const currentLanguages = question.langVersions.map(
-        (version) => version.lang
-      );
+      const currentLanguages = Object.keys(question.questionText);
 
-      // if language is removed
-      question.langVersions = question.langVersions.filter((v) =>
-        languages.includes(v.lang)
-      );
+      // Remove languages
+      for (const lang of currentLanguages) {
+        if (!languages.map(l => l.toLowerCase()).includes(lang.toLowerCase())) {
+          delete question.questionText[lang];
+        }
+      }
 
+      // Add missing languages
       languages.forEach((language) => {
-        // if language is added
         if (!currentLanguages.includes(language)) {
-          question.langVersions.push({
-            lang: language,
-            mcOptions: [],
-            questionText: '',
-          });
+          question.questionText[language] = '';
         }
       });
     });
   };
 
   const handleEditField = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
+    setSelectedOrder(question.order);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setCategoryIndex(question.categoryIndex);
       setCategoryPopupOpen(true);
     } else {
       setVisibilityToggle(
-        selectedQuestionIndex != null &&
-          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+        selectedOrder != null &&
+          fm.questions[selectedOrder]?.visibleCondition.length > 0
       );
       setEditPopupOpen(true);
     }
   };
 
   const handleDeleteOnClose = (confirmed: boolean) => {
-    if (selectedQuestionIndex !== null && confirmed) {
+    if (selectedOrder !== null && confirmed) {
       // User clicked OK
       const questionsToDelete = questions.filter(
         (q) =>
-          q.categoryIndex === selectedQuestionIndex ||
-          q.questionIndex === selectedQuestionIndex
+          q.categoryIndex === selectedOrder ||
+          q.order === selectedOrder
       );
       questionsToDelete.forEach(deleteField);
     }
     setIsDeletePopupOpen(false);
-    setSelectedQuestionIndex(null);
+    setSelectedOrder(null);
   };
 
   const handleDeleteField = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
+    setSelectedOrder(question.order);
     setCategoryIndex(null);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setIsDeletePopupOpen(true);
@@ -107,24 +105,24 @@ export const useCustomizedFormWQuestions = (
   };
 
   const handleCatUp = (cat: TQuestion) => {
-    if (cat.questionIndex === 0) {
+    if (cat.order === 0) {
       return;
     }
-    const prevCatIndex = questions[cat.questionIndex - 1].categoryIndex;
+    const prevCatIndex = questions[cat.order - 1].categoryIndex;
     let prevCatQs: TQuestion[] = [];
     // edge case: prev cat has no qs
     if (prevCatIndex !== null) {
       prevCatQs = questions.filter(
         (q) =>
-          q.questionIndex == prevCatIndex || q.categoryIndex == prevCatIndex
+          q.order == prevCatIndex || q.categoryIndex == prevCatIndex
       );
     } else {
-      prevCatQs.push(questions[cat.questionIndex - 1]);
+      prevCatQs.push(questions[cat.order - 1]);
     }
     const catQs = questions.filter(
       (q) =>
-        q.questionIndex == cat.questionIndex ||
-        q.categoryIndex == cat.questionIndex
+        q.order == cat.order ||
+        q.categoryIndex == cat.order
     );
     moveCat(prevCatQs, catQs);
   };
@@ -132,33 +130,33 @@ export const useCustomizedFormWQuestions = (
   const handleCatDown = (cat: TQuestion) => {
     const catQs = questions.filter(
       (q) =>
-        q.questionIndex == cat.questionIndex ||
-        q.categoryIndex == cat.questionIndex
+        q.order == cat.order ||
+        q.categoryIndex == cat.order
     );
-    const nextCatIndex = catQs[catQs.length - 1].questionIndex + 1;
+    const nextCatIndex = catQs[catQs.length - 1].order + 1;
     if (nextCatIndex >= questions.length) {
       return;
     }
     const nextCatQs = questions.filter(
-      (q) => q.questionIndex == nextCatIndex || q.categoryIndex == nextCatIndex
+      (q) => q.order == nextCatIndex || q.categoryIndex == nextCatIndex
     );
     moveCat(catQs, nextCatQs);
   };
 
   // switches position of 2 categories of questions
   const moveCat = (prevCatQs: TQuestion[], catQs: TQuestion[]) => {
-    let insertionIndex = prevCatQs[0].questionIndex;
+    let insertionIndex = prevCatQs[0].order;
     prevCatQs.forEach((q) => {
-      updateVisCond(q.questionIndex, q.questionIndex + catQs.length);
-      q.questionIndex += catQs.length;
+      updateVisCond(q.order, q.order + catQs.length);
+      q.order += catQs.length;
       if (q.categoryIndex !== null) {
         q.categoryIndex += catQs.length;
       }
     });
     catQs.forEach((q) => {
-      const oldIndex = q.questionIndex;
-      updateVisCond(q.questionIndex, q.questionIndex - prevCatQs.length);
-      q.questionIndex -= prevCatQs.length;
+      const oldIndex = q.order;
+      updateVisCond(q.order, q.order - prevCatQs.length);
+      q.order -= prevCatQs.length;
       if (q.categoryIndex !== null) {
         q.categoryIndex -= prevCatQs.length;
       }
@@ -169,17 +167,17 @@ export const useCustomizedFormWQuestions = (
   };
 
   const handleFieldUp = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
+    setSelectedOrder(question.order);
     moveField(question, true);
   };
 
   const handleFieldDown = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
+    setSelectedOrder(question.order);
     moveField(question, false);
   };
 
   const deleteField = (question: TQuestion) => {
-    const index = question.questionIndex;
+    const index = question.order;
     questions.splice(index, 1);
 
     // reset indices
@@ -194,8 +192,8 @@ export const useCustomizedFormWQuestions = (
       if (q.categoryIndex && q.categoryIndex > index) {
         q.categoryIndex -= 1;
       }
-      updateVisCond(q.questionIndex, i);
-      q.questionIndex = i;
+      updateVisCond(q.order, i);
+      q.order = i;
     });
 
     // update form
@@ -205,12 +203,12 @@ export const useCustomizedFormWQuestions = (
         return form;
       });
     }
-    setSelectedQuestionIndex(null);
+    setSelectedOrder(null);
     upd();
   };
 
   const moveField = (question: any, up: boolean) => {
-    const index = question.questionIndex;
+    const index = question.order;
     if (
       up &&
       index > 0 &&
@@ -220,12 +218,12 @@ export const useCustomizedFormWQuestions = (
       const temp = questions[index - 1];
       questions[index - 1] = questions[index];
       questions[index] = temp;
-      questions[index].questionIndex = index;
-      questions[index - 1].questionIndex = index - 1;
+      questions[index].order = index;
+      questions[index - 1].order = index - 1;
       updateVisCond(index - 1, index);
       updateVisCond(index, index - 1);
       upd();
-    } else if (!up && question.questionIndex < questions.length - 1) {
+    } else if (!up && question.order < questions.length - 1) {
       moveField(questions[index + 1], true);
     }
   };
@@ -243,9 +241,9 @@ export const useCustomizedFormWQuestions = (
   };
 
   const getEmptyLanguages = (question: TQuestion) => {
-    const emptyLangs = question.langVersions
-      .filter((qlv) => qlv.questionText === '')
-      .map((qlv) => qlv.lang);
+    const emptyLangs = Object.entries(question.questionText)
+      .filter(([_, text]) => text.trim() === '')
+      .map(([lang]) => lang);
 
     return emptyLangs.join(', ');
   };
@@ -275,10 +273,10 @@ export const useCustomizedFormWQuestions = (
     errorMessage,
     categoryPopupOpen,
     setCategoryPopupOpen,
-    setSelectedQuestionIndex,
+    setSelectedOrder,
     categoryIndex,
     questions,
-    selectedQuestionIndex,
+    selectedOrder,
     getInputLanguages,
     editPopupOpen,
     setEditPopupOpen,

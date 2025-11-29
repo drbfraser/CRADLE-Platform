@@ -2,6 +2,7 @@
 import { axiosFetch } from '../core/http';
 import {
   FormTemplate,
+  FormTemplates,
   FormTemplateWithQuestions,
 } from '../../types/form/formTemplateTypes';
 import { EndpointEnum } from 'src/shared/enums';
@@ -43,7 +44,7 @@ export const getFormClassificationTemplates = async (
 
 export const getAllFormTemplatesAsync = async (
   includeArchived: boolean
-): Promise<FormTemplate[]> => {
+): Promise<FormTemplates> => {
   try {
     const response = await axiosFetch.get(
       EndpointEnum.FORM_TEMPLATES + `?include_archived=${includeArchived}`
@@ -59,7 +60,7 @@ export const getFormTemplateAsync = async (
   formTemplateId: string
 ): Promise<FormTemplateWithQuestions> => {
   const response = await axiosFetch.get(
-    `${EndpointEnum.FORM_TEMPLATES}/blank/${formTemplateId}`
+    `${EndpointEnum.FORM_TEMPLATES}/${formTemplateId}`
   );
   return response.data;
 };

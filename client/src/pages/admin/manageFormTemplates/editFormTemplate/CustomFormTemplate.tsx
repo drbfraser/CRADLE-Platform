@@ -25,6 +25,7 @@ import {
 } from 'src/pages/customizedForm/queries';
 import LanguageModal from './LanguageModal';
 import { getDefaultLanguage } from './utils';
+import { capitalize } from 'src/shared/utils';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -50,7 +51,13 @@ export const CustomFormTemplate = () => {
   };
 
   const [form, setForm] = useState<FormTemplateWithQuestions>({
-    classification: { name: 'string', id: undefined },
+    classification: {
+      name: {
+        english: 'Template',
+      },
+      id: undefined,
+      nameStringId: undefined,
+    },
     version: generateDefaultVersion(),
     questions: [],
   });
@@ -63,32 +70,30 @@ export const CustomFormTemplate = () => {
 
   useEffect(() => {
     if (formTemplateQuery.data) {
-      const { classification, questions } = formTemplateQuery.data;
+      const { classification, questions, version } = formTemplateQuery.data;
 
       setForm({
         classification,
-        version: generateDefaultVersion(),
+        version,
         questions,
       });
 
-      const langs = questions[0]?.langVersions?.map((q) => q.lang) ?? [
-        browserLanguage,
-      ];
+      const langs = questions[0]?.questionText
+        ? Object.keys(questions[0].questionText)
+        : [browserLanguage];
+
       setLanguage(langs);
     }
   }, [formTemplateQuery.data]);
 
   const browserLanguage = getDefaultLanguage() ?? 'English';
-  const [language, setLanguage] = useState<string[]>(
-    formTemplateQuery.data?.questions[0].langVersions?.map((q) => q.lang) ?? [
-      browserLanguage,
-    ]
-  );
+  const [language, setLanguage] = useState<string[]>([browserLanguage]);
 
   const isLoading =
     editFormId &&
     formTemplateQuery.isPending &&
     previousVersionsQuery.isPending;
+
   return (
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
@@ -101,7 +106,7 @@ export const CustomFormTemplate = () => {
         </Tooltip>
         <Typography variant={'h4'} component={'h4'}>
           {editFormId
-            ? `Editing Form: ${form.classification.name || 'Template'}`
+            ? `Editing Form: ${form.classification.name.english || 'Template'}`
             : 'Create New Template'}
         </Typography>
       </Box>
@@ -133,7 +138,8 @@ export const CustomFormTemplate = () => {
                       required={true}
                       variant="outlined"
                       defaultValue={
-                        formTemplateQuery.data?.classification?.name ?? ''
+                        formTemplateQuery.data?.classification?.name.english ??
+                        ''
                       }
                       fullWidth
                       inputProps={{
@@ -141,13 +147,7 @@ export const CustomFormTemplate = () => {
                         maxLength: 100,
                       }}
                       onChange={(e: any) => {
-                        setForm((prev) => ({
-                          ...prev,
-                          classification: {
-                            ...prev.classification,
-                            name: e.target.value,
-                          },
-                        }));
+                        setForm(() => ({} as any));
                       }}
                       InputProps={{
                         endAdornment: (
@@ -212,7 +212,7 @@ export const CustomFormTemplate = () => {
 
                   <Grid item xs={12} md={4}>
                     <LanguageModal
-                      language={language}
+                      language={language.map((lang) => capitalize(lang))}
                       setLanguage={setLanguage}
                     />
                   </Grid>
