@@ -237,12 +237,20 @@ def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[d
 
     return updated_steps
 
-
+# Helper function to generate an updated workflow template from a patch body
 def generate_updated_workflow_template(
     existing_template: WorkflowTemplateOrm, 
     patch_body: dict,
     auto_assign_id: bool = True
 ) -> WorkflowTemplateOrm:
+    """
+    Generates an updated workflow template from a patch body
+
+    :param existing_template: The existing workflow template to be updated
+    :param patch_body: The patch body to be applied to the workflow template
+    :param auto_assign_id: Whether to auto-assign IDs to the workflow template and steps
+    :return: The updated workflow template
+    """
     copy_workflow_template_dict = orm_serializer.marshal(existing_template)
 
     copy_workflow_template_dict.pop("steps", None)
