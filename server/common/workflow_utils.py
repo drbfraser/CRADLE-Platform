@@ -8,7 +8,7 @@ import data.db_operations as crud
 from api.resources.form_templates import handle_form_template_upload
 from common.commonUtil import get_uuid
 from common.form_utils import assign_form_or_template_ids
-from data import marshal
+from data import orm_serializer
 from models import (
     FormOrm,
     FormTemplateOrm,
@@ -243,7 +243,7 @@ def generate_updated_workflow_template(
     patch_body: dict,
     auto_assign_id: bool = True
 ) -> WorkflowTemplateOrm:
-    copy_workflow_template_dict = marshal.marshal(existing_template)
+    copy_workflow_template_dict = orm_serializer.marshal(existing_template)
 
     copy_workflow_template_dict.pop("steps", None)
     copy_workflow_template_dict["steps"] = []
@@ -252,7 +252,7 @@ def generate_updated_workflow_template(
         m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=auto_assign_id
     )
 
-    new_workflow_template = marshal.unmarshal(
+    new_workflow_template = orm_serializer.unmarshal(
         WorkflowTemplateOrm, copy_workflow_template_dict
     )
 
@@ -285,7 +285,7 @@ def generate_updated_workflow_template(
             template_changes["starting_step_id"] = old_to_new_step_id_map[patch_body["starting_step_id"]]
 
         template_changes["steps"] = [
-            marshal.unmarshal(WorkflowTemplateStepOrm, step) for step in updated_steps
+            orm_serializer.unmarshal(WorkflowTemplateStepOrm, step) for step in updated_steps
         ]
 
     apply_changes_to_model(new_workflow_template, template_changes)
