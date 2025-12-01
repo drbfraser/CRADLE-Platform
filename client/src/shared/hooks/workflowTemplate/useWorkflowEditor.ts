@@ -2,6 +2,40 @@ import { useState } from 'react';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 
+/**
+ * Helper function to extract data sources (var fields) from a condition rule JSON
+ * Returns a JSON string of the array (backend expects string, not array)
+ * Example: {"<": [{"var": "patient.age"}, 32]} => '["patient.age"]'
+ */
+const extractDataSources = (ruleJSON: string): string => {
+  try {
+    const rule = JSON.parse(ruleJSON);
+    const dataSources: string[] = [];
+
+    // Recursive function to find all "var" properties
+    const findVars = (obj: any) => {
+      if (typeof obj === 'object' && obj !== null) {
+        if ('var' in obj && typeof obj.var === 'string') {
+          dataSources.push(obj.var);
+        }
+        // Recursively search in nested objects and arrays
+        Object.values(obj).forEach((value) => {
+          if (typeof value === 'object') {
+            findVars(value);
+          }
+        });
+      }
+    };
+
+    findVars(rule);
+    // Return JSON string representation of the array
+    return JSON.stringify(dataSources);
+  } catch (error) {
+    console.error('Failed to extract data sources from rule:', error);
+    return '[]';
+  }
+};
+
 export interface UseWorkflowEditorOptions {
   initialWorkflow: WorkflowTemplate | null;
   onSave: (workflow: WorkflowTemplate) => Promise<void>;
@@ -60,6 +94,47 @@ export const useWorkflowEditor = ({
       const updatedSteps = prev.steps?.map((step) => {
         if (step.id === stepId) {
           return { ...step, [field]: value };
+        }
+        return step;
+      });
+
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
+    setHasChanges(true);
+  };
+
+  const handleBranchChange = (
+    stepId: string,
+    branchIndex: number,
+    conditionRule: string
+  ) => {
+    if (!editedWorkflow) return;
+
+    // Extract data sources from the condition rule as a JSON string
+    const dataSourcesJSON = extractDataSources(conditionRule);
+
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps?.map((step) => {
+        if (step.id === stepId && step.branches) {
+          const updatedBranches = step.branches.map((branch, idx) => {
+            if (idx === branchIndex) {
+              return {
+                ...branch,
+                condition: {
+                  id: branch.condition?.id || `condition-${Date.now()}`,
+                  rule: conditionRule,
+                  data_sources: dataSourcesJSON,
+                },
+              };
+            }
+            return branch;
+          });
+          return { ...step, branches: updatedBranches };
         }
         return step;
       });
@@ -398,6 +473,7 @@ export const useWorkflowEditor = ({
     setToastMsg,
     handleFieldChange,
     handleStepChange,
+    handleBranchChange,
     handleInsertNode,
     handleAddBranch,
     handleConnectionCreate,

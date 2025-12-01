@@ -22,6 +22,11 @@ interface StepDetailsProps {
   isInstance?: boolean;
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
+  onBranchChange?: (
+    stepId: string,
+    branchIndex: number,
+    conditionRule: string
+  ) => void;
 }
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
@@ -30,6 +35,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   isInstance = false,
   isEditMode = false,
   onStepChange,
+  onBranchChange,
 }) => {
   // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
@@ -176,6 +182,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                     stepId={selectedStep.id}
                     targetStepName={targetStep?.name}
                     isEditMode={isEditMode}
+                    onChange={onBranchChange}
                   />
                 );
               }

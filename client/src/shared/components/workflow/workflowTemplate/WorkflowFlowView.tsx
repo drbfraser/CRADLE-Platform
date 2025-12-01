@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Grid, Typography, Paper, Stack, Tooltip, Button } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Typography,
+  Paper,
+  Stack,
+  Tooltip,
+  Button,
+} from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
@@ -14,6 +22,11 @@ interface WorkflowFlowViewProps {
   isEditMode?: boolean;
   selectedStepId?: string;
   onStepChange?: (stepId: string, field: string, value: string) => void;
+  onBranchChange?: (
+    stepId: string,
+    branchIndex: number,
+    conditionRule: string
+  ) => void;
   onStepSelect?: (stepId: string) => void;
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
@@ -33,6 +46,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   isEditMode = false,
   selectedStepId: controlledSelectedStepId,
   onStepChange,
+  onBranchChange,
   onStepSelect,
   onInsertNode,
   onAddBranch,
@@ -84,9 +98,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
             </Typography> */}
             {isEditMode && (
               <Stack direction="row" spacing={1}>
-                <Tooltip
-                  title='Undo the last action'
-                  placement="top">
+                <Tooltip title="Undo the last action" placement="top">
                   <span>
                     <Button
                       onClick={onUndo}
@@ -99,9 +111,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                     </Button>
                   </span>
                 </Tooltip>
-                <Tooltip
-                  title='Redo the last action'
-                  placement="top">
+                <Tooltip title="Redo the last action" placement="top">
                   <span>
                     <Button
                       onClick={onRedo}
@@ -148,6 +158,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
               isInstance={isInstance}
               isEditMode={isEditMode}
               onStepChange={onStepChange}
+              onBranchChange={onBranchChange}
             />
           </Box>
         </Grid>

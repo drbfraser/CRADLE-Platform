@@ -38,6 +38,11 @@ interface BranchConditionEditorProps {
   stepId: string;
   targetStepName?: string;
   isEditMode?: boolean;
+  onChange?: (
+    stepId: string,
+    branchIndex: number,
+    conditionRule: string
+  ) => void;
 }
 
 export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
@@ -46,6 +51,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   stepId,
   targetStepName = 'Unknown Step',
   isEditMode = false,
+  onChange,
 }) => {
   const [selectedField, setSelectedField] = useState<
     (typeof CONDITION_OPTIONS)[number] | null
@@ -57,7 +63,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 
   const [selectedValue, setSelectedValue] = useState<string>('');
 
-  // Generate and log JSON whenever inputs change
+  // Generate and save condition JSON whenever inputs change
   useEffect(() => {
     if (selectedField && selectedOperator && selectedValue) {
       const conditionJSON = generateConditionJSON(
@@ -66,6 +72,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
         Number(selectedValue)
       );
       console.log('Generated Condition JSON:', conditionJSON);
+
+      onChange?.(stepId, branchIndex, conditionJSON);
     }
   }, [selectedField, selectedOperator, selectedValue]);
 
@@ -99,7 +107,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
           <Autocomplete
             fullWidth
             size="small"
-            options={selectedField?.operators || []}
+            options={CONDITION_OPTIONS[0].operators || []}
             getOptionLabel={(option) => option.label}
             value={selectedOperator}
             onChange={(_, newValue) => {
