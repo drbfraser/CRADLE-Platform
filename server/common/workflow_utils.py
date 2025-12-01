@@ -8,6 +8,7 @@ import data.db_operations as crud
 from api.resources.form_templates import handle_form_template_upload
 from common.commonUtil import get_uuid
 from common.form_utils import assign_form_or_template_ids
+from data import marshal
 from models import (
     FormOrm,
     FormTemplateOrm,
@@ -183,3 +184,111 @@ def validate_workflow_template_step(workflow_template_step: dict):
 
     except ValueError as err:
         return abort(code=409, description=str(err))
+
+def _build_step_id_mapping(
+    steps: list[dict],
+    workflow_template_id: str,
+    auto_assign_id: bool = True
+) -> dict[str, str]:
+    old_to_new_step_id_map = {}
+
+    for step in steps:
+        old_step_id = step["id"]
+        form_id = step.get("form_id")
+
+        check_branch_conditions(step)
+
+        assign_step_ids(
+            WorkflowTemplateStepOrm,
+            step,
+            workflow_template_id,
+            auto_assign_id=auto_assign_id,
+        )
+
+        if form_id:
+            step["form_id"] = form_id
+
+        new_step_id = step["id"]
+        old_to_new_step_id_map[old_step_id] = new_step_id
+
+    return old_to_new_step_id_map
+
+
+def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[dict]:
+    updated_steps = []
+
+    for step in steps:
+        updated_step = step.copy()
+
+        if updated_step.get("branches"):
+            updated_branches = []
+            for branch in updated_step["branches"]:
+                updated_branch = branch.copy()
+                old_target_id = updated_branch.get("target_step_id")
+
+                if old_target_id and old_target_id in id_map:
+                    updated_branch["target_step_id"] = id_map[old_target_id]
+
+                updated_branches.append(updated_branch)
+
+            updated_step["branches"] = updated_branches
+
+        updated_steps.append(updated_step)
+
+    return updated_steps
+
+
+def generate_updated_workflow_template(
+    existing_template: WorkflowTemplateOrm, 
+    patch_body: dict,
+    auto_assign_id: bool = True
+) -> WorkflowTemplateOrm:
+    copy_workflow_template_dict = marshal.marshal(existing_template)
+
+    copy_workflow_template_dict.pop("steps", None)
+    copy_workflow_template_dict["steps"] = []
+
+    assign_workflow_template_or_instance_ids(
+        m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=auto_assign_id
+    )
+
+    new_workflow_template = marshal.unmarshal(
+        WorkflowTemplateOrm, copy_workflow_template_dict
+    )
+
+    new_workflow_template.steps = []
+    new_workflow_template_id = copy_workflow_template_dict["id"]
+
+    if patch_body.get("classification"):
+        assign_workflow_template_or_instance_ids(
+            m=WorkflowTemplateOrm, workflow=patch_body["classification"]
+        )
+
+    template_changes = {key: value for key, value in patch_body.items() if key != "steps"}
+
+    if patch_body.get("steps"):
+        old_to_new_step_id_map = _build_step_id_mapping(
+            patch_body["steps"],
+            new_workflow_template_id,
+            auto_assign_id
+        )
+
+        updated_steps = _update_step_references(
+            patch_body["steps"],
+            old_to_new_step_id_map
+        )
+
+        if (
+            patch_body.get("starting_step_id")
+            and patch_body["starting_step_id"] in old_to_new_step_id_map
+        ):
+            template_changes["starting_step_id"] = old_to_new_step_id_map[patch_body["starting_step_id"]]
+
+        template_changes["steps"] = [
+            marshal.unmarshal(WorkflowTemplateStepOrm, step) for step in updated_steps
+        ]
+
+    apply_changes_to_model(new_workflow_template, template_changes)
+
+    return new_workflow_template
+
