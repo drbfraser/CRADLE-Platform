@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import AssessmentOrm, PatientOrm, UserOrm
 
 
@@ -42,7 +42,7 @@ def test_assessment_strips_relationship_objects_when_present():
     assessment.patient = patient
     assessment.healthcare_worker = user
 
-    marshalled = m.marshal(assessment)
+    marshalled = orm_seralizer.marshal(assessment)
 
     # NOTE: Relationship objects must be removed from marshalledput.
     # BUG EXPOSED (current marshal only deletes 'health_facility' which doesn't exist):
@@ -65,7 +65,7 @@ def test_assessment_strips_none_fields_but_preserves_false_boolean_and_scalars()
         follow_up_needed=False,  # ensure False isn't stripped
     )
 
-    marshalled = m.marshal(assessment)
+    marshalled = orm_seralizer.marshal(assessment)
 
     # None fields should be gone
     for attr in (
@@ -97,7 +97,7 @@ def test_assessment_preserves_nonempty_text_and_true_boolean():
         follow_up_needed=True,
     )
 
-    marshalled = m.marshal(a)
+    marshalled = orm_seralizer.marshal(a)
 
     assert marshalled["follow_up_instructions"] == "Return in 3 days"
     assert marshalled["special_investigations"] == "CBC, LFT"
@@ -127,7 +127,7 @@ def test_assessment_private_attrs_stripped_and_input_not_mutated():
     before_patient = assesment.patient
     before_worker = assesment.healthcare_worker
 
-    marshalled = m.marshal(assesment)
+    marshalled = orm_seralizer.marshal(assesment)
 
     # Private attr gone
     assert "_secret" not in marshalled
@@ -143,7 +143,7 @@ def test_assessment_private_attrs_stripped_and_input_not_mutated():
 
 def test_assessment_minimum_expected_keys_present():
     a = make_assessment()
-    marshalled = m.marshal(a)
+    marshalled = orm_seralizer.marshal(a)
 
     for k in ("id", "patient_id", "healthcare_worker_id", "date_assessed"):
         assert k in marshalled

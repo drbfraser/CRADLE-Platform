@@ -222,3 +222,14 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     if not kwargs:
         return m.query.all()
     return m.query.filter_by(**kwargs).all()
+
+
+def read_by_filter(m: Type[M], filter_condition) -> Optional[M]:
+    """
+    Queries the database for a single object using a SQLAlchemy filter condition.
+
+    :param m: Type of the model to query for
+    :param filter_condition: SQLAlchemy filter expression (e.g., Model.field == value)
+    :return: A model from the database or None if no model was found
+    """
+    return m.query.filter(filter_condition).one_or_none()

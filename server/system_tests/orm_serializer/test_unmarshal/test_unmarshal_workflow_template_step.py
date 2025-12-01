@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import (
     FormTemplateOrm,
     RuleGroupOrm,
@@ -93,7 +93,7 @@ def test_unmarshal_step_with_form_and_branches():
         last_edited=1_700_100_000,
     )
 
-    obj = unmarshal(WorkflowTemplateStepOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
 
     # Scalars
@@ -143,7 +143,7 @@ def test_unmarshal_step_without_form_or_branches():
         last_edited=1_700_200_000,
     )
 
-    obj = unmarshal(WorkflowTemplateStepOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
     assert obj.id == "wts-200"
     assert obj.name == "Review"
@@ -175,7 +175,7 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
         last_edited=1_700_300_000,
     )
 
-    obj = unmarshal(WorkflowTemplateStepOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
     assert obj.id == "wts-300"
     assert obj.name == "Counseling"

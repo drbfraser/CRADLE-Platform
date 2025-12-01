@@ -5,6 +5,7 @@ from data import db_session
 from models import (
     FormAnswerOrmV2,
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
     FormSubmissionOrmV2,
     FormTemplateOrm,
@@ -307,3 +308,24 @@ def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict
         d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
+
+
+def __unmarshal_form_classification_v2(d: dict) -> FormClassificationOrmV2:
+    """
+    Construct a ``FormClassificationOrmV2``; optionally load nested templates.
+
+    :param d: Form classification V2 payload (may include a ``templates`` list).
+    :return: ``FormClassificationOrmV2`` with optional templates attached.
+    """
+    with db_session.no_autoflush:
+        templates = []
+        if d.get("templates") is not None:
+            templates = [__unmarshal_form_template_v2(t) for t in d["templates"]]
+            del d["templates"]
+
+        form_classification_v2 = __load(FormClassificationOrmV2, d)
+
+        if templates:
+            form_classification_v2.templates = templates
+
+        return form_classification_v2

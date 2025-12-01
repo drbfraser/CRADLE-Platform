@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormTemplateOrm,
@@ -117,7 +117,7 @@ def test_workflow_classification_marshal_basic_omits_backrefs_and_privates():
     workflow_classification.collection_id = "coll-1"
     workflow_classification._secret = "nope"
 
-    marshalled = m.marshal(workflow_classification)
+    marshalled = orm_seralizer.marshal(workflow_classification)
 
     assert marshalled["id"] == "wc-1"
     assert marshalled["name"] == "Antenatal"
@@ -146,7 +146,7 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     workflow_classification.workflow_templates = [wt1, wt2]
     workflow_classification.templates = [wt1, wt2]
 
-    marshalled = m.marshal(
+    marshalled = orm_seralizer.marshal(
         workflow_classification, shallow=True, if_include_versions=True
     )
 

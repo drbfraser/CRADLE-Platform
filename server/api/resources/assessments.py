@@ -5,7 +5,7 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from common.api_utils import AssessmentIdPath
 from common.user_utils import get_current_user_from_jwt
-from data import marshal
+from data import orm_serializer
 from models import AssessmentOrm
 from validation.assessments import (
     AssessmentList,
@@ -29,7 +29,7 @@ api_assessments = APIBlueprint(
 def get_all_assessments():
     """Get All Assessments"""
     assessments = crud.read_all(AssessmentOrm)
-    return [marshal.marshal(assessment) for assessment in assessments], 200
+    return [orm_serializer.marshal(assessment) for assessment in assessments], 200
 
 
 # /api/assessments [POST]
@@ -40,9 +40,9 @@ def create_new_assessment(body: AssessmentPostBody):
         return abort(409, description=f"Assessment with ID: {body.id} already exists.")
     if body.healthcare_worker_id is None:
         body.healthcare_worker_id = get_current_user_from_jwt()["id"]
-    assessment = marshal.unmarshal(AssessmentOrm, body.model_dump())
+    assessment = orm_serializer.unmarshal(AssessmentOrm, body.model_dump())
     crud.create(assessment, refresh=True)
-    return marshal.marshal(assessment), 201
+    return orm_serializer.marshal(assessment), 201
 
 
 # /api/assessments/<string:assessment_id> [GET]
@@ -52,7 +52,7 @@ def get_assessment(path: AssessmentIdPath):
     assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if assessment is None:
         return abort(404, description=f"No assessment with ID: {path.assessment_id}")
-    return marshal.marshal(assessment)
+    return orm_serializer.marshal(assessment)
 
 
 # /api/assessments/<string:assessment_id> [PUT]
@@ -76,4 +76,4 @@ def update_assessment(path: AssessmentIdPath, body: AssessmentPutBody):
 
     updated_assessment = crud.read(AssessmentOrm, id=body.id)
 
-    return marshal.marshal(updated_assessment), 200
+    return orm_serializer.marshal(updated_assessment), 200

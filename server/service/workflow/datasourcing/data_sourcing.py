@@ -1,105 +1,252 @@
+import logging
+from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Callable, Dict, List, TypeAlias, Union
+from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
+
+from pydantic import BaseModel
+
+from validation.assessments import AssessmentModel
+from validation.patients import PatientModel
+from validation.pregnancies import PregnancyModel
+from validation.readings import ReadingModel, UrineTestModel
 
 ObjectResolver = Callable[[str, str], Any]
 CustomResolver = Callable[[Dict], Any]
 
-ObjectCatalogue: TypeAlias = Dict[str, Union[ObjectResolver, Dict[str, CustomResolver]]]
+ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
+
+# ResolverContext: Context information for resolving data
+# Contains ID mappings for data resolution, e.g., {"patient_id": "p123", "assessment_id": "a456"}
+ResolverContext: TypeAlias = Dict[str, str]
+
+DataModel = Union[
+    PatientModel,
+    ReadingModel,
+    AssessmentModel,
+    PregnancyModel,
+    UrineTestModel,
+]
+
+MODEL_REGISTRY: Dict[str, type[BaseModel]] = {
+    "patient": PatientModel,
+    "reading": ReadingModel,
+    "assessment": AssessmentModel,
+    "pregnancy": PregnancyModel,
+    "urine_test": UrineTestModel,
+}
 
 
-def parse_attribute_name(data_string: str) -> str:
-    if not data_string.startswith("$"):
-        return ""
+@dataclass(frozen=True)
+class DatasourceAttribute:
+    """Represents an attribute name in a datasource variable (e.g., 'age' in 'patient.age')"""
 
-    # "$object.attribute" -> ["$object", "attribute"]
-    #  future: modify to fetch trailing attributes if required
-    return data_string.split(".")[1]
+    name: str
 
 
-def parse_object_name(data_string: str) -> str:
-    if not data_string.startswith("$"):
-        return ""
+@dataclass(frozen=True)
+class DatasourceObject:
+    """Represents an object name in a datasource variable (e.g., 'patient' in 'patient.age')"""
 
-    # "object.attribute" -> ["object", "attribute"]
-    return data_string[1:].split(".")[0]
+    name: str
 
 
-def __group_objects(a: Dict[str, List[str]], ds: str):
-    object = parse_object_name(ds)
-    attr = parse_attribute_name(ds)
+@dataclass(frozen=True)
+class DatasourceVariable:
+    """
+    Represents a complete datasource variable (e.g., 'patient.age').
+    """
 
-    if object in a:
-        a[object].append(attr)
+    obj: DatasourceObject
+    attr: DatasourceAttribute
+
+    @classmethod
+    def from_string(cls, variable: str) -> Optional["DatasourceVariable"]:
+        """Parse a string variable into a DatasourceVariable."""
+        parts = variable.split(".")
+        if len(parts) < 2:
+            return None
+
+        obj_name = parts[0]
+        attr_name = parts[1]
+
+        if not obj_name or not attr_name:
+            return None
+
+        return cls(
+            obj=DatasourceObject(name=obj_name),
+            attr=DatasourceAttribute(name=attr_name),
+        )
+
+    def to_string(self) -> str:
+        """Convert back to string format."""
+        return f"{self.obj.name}.{self.attr.name}"
+
+    def __str__(self) -> str:
+        return self.to_string()
+
+    def __hash__(self) -> int:
+        return hash((self.obj.name, self.attr.name))
+
+
+def _group_objects(
+    accumulator: Dict[DatasourceObject, List[DatasourceAttribute]],
+    variable: DatasourceVariable,
+) -> Dict[DatasourceObject, List[DatasourceAttribute]]:
+    """Group variables by object name for batch resolution."""
+    obj = variable.obj
+
+    if obj in accumulator:
+        accumulator[obj].append(variable.attr)
     else:
-        a[object] = [attr]
-    return a
+        accumulator[obj] = [variable.attr]
+
+    return accumulator
 
 
-def __resolve_object(catalogue: Dict, patient_id: str, object_name: str) -> Dict:
-    object_query = catalogue.get(object_name).get("query")
-    return object_query(id=patient_id)
+def _resolve_object(
+    catalogue: Dict[str, ObjectCatalogue], context: ResolverContext, object_name: str
+) -> Optional[BaseModel]:
+    """
+    Resolve an object instance from the catalogue and return as a Pydantic model.
+
+    :param catalogue: The data catalogue
+    :param context: Context containing IDs (e.g., {"patient_id": "p123"})
+    :param object_name: Name of object type to resolve (e.g., "patient", "assessment")
+    :returns: Pydantic model instance or None if not found
+    """
+    logger = logging.getLogger(__name__)
+
+    if object_name not in catalogue:
+        logger.debug(
+            "Object resolution failed: Object '%s' not found in catalogue.", object_name
+        )
+        return None
+
+    object_entry = catalogue.get(object_name)
+    if not object_entry or "query" not in object_entry:
+        logger.debug(
+            "Object resolution failed: No query function for '%s'.", object_name
+        )
+        return None
+
+    object_query = object_entry.get("query")
+    if object_query is None:
+        logger.debug(
+            "Object resolution failed: Query function is None for '%s'.", object_name
+        )
+        return None
+
+    # Try object-specific ID first (e.g., "assessment_id"), fall back to patient_id
+    id_value = context.get(f"{object_name}_id") or context.get("patient_id")
+
+    if id_value is None:
+        logger.debug(
+            "Object resolution failed: No ID found in context for '%s'.", object_name
+        )
+        return None
+
+    try:
+        dict_data = object_query(id=id_value)
+
+        if dict_data is None:
+            logger.debug(
+                "Object resolution failed: Query returned None for '%s' with id '%s'.",
+                object_name,
+                id_value,
+            )
+            return None
+
+        model_class = MODEL_REGISTRY.get(object_name)
+        if model_class is None:
+            logger.error("No Pydantic model registered for '%s'.", object_name)
+            raise ValueError(f"No Pydantic model registered for {object_name}")
+
+        return model_class(**dict_data)
+
+    except Exception as e:
+        logger.error("Error resolving '%s': %s", object_name, e)
+        return None
 
 
-def resolve_datasources(
-    patient_id: str, datasources: List[str], catalogue: Dict[str, ObjectCatalogue]
+def resolve_variables(
+    context: ResolverContext,
+    variables: List[DatasourceVariable],
+    catalogue: Dict[str, ObjectCatalogue],
 ) -> Dict[str, Any]:
     """
-    Given a list of datastrings, returns a dict of resolved datasources
+    Resolve multiple variables into their concrete values.
 
-    :param patient_id: an id for identifying data relevant to a patient
-    :param datasources: a list of strings representing a datasource
-    :param catalogue: the data catalogue of support objects
-    :returns: a dict of resolved datasources, Any can be an int, bool, string
-    :rtype: Dict[str, Any]
+    :param context: Context containing IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
+    :param variables: List of DatasourceVariable objects to resolve
+    :param catalogue: The data catalogue of supported objects
+    :returns: Dict mapping variable names to resolved values
     """
-    # group datastrings by object
-    object_groups = reduce(__group_objects, datasources, {})
+    object_groups = reduce(_group_objects, variables, {})
     resolved = {}
 
     for obj, attrs in object_groups.items():
-        inst = __resolve_object(catalogue, patient_id, obj)
-        resolved_attrs = []
+        obj_name = obj.name
+        model_instance = _resolve_object(catalogue, context, obj_name)
 
-        for a in attrs:
-            if inst.get(a) is not None:
-                resolved_attrs.append((f"${obj}.{a}", inst.get(a)))
+        if model_instance is None:
+            # If object not found, all its attributes are None
+            for attr in attrs:
+                variable_key = f"{obj_name}.{attr.name}"
+                resolved[variable_key] = None
+            continue
+
+        for attr in attrs:
+            variable_key = f"{obj_name}.{attr.name}"
+
+            attr_value = getattr(model_instance, attr.name, None)
+
+            if attr_value is not None:
+                resolved[variable_key] = attr_value
             else:
-                # attempt custom attribute lookup
-                ca_query = catalogue.get(obj).get("custom")
-                print(ca_query)
+                custom_queries = catalogue.get(obj_name, {}).get("custom", {})
+                custom_query = custom_queries.get(attr.name)
 
-                ca_query = ca_query.get(a)
-                ca_value = None
-
-                if ca_query is not None:
-                    ca_value = ca_query(inst)
-
-                resolved_attrs.append((f"${obj}.{a}", ca_value))
-
-        resolved.update(resolved_attrs)
+                if custom_query is not None:
+                    model_dict = model_instance.model_dump()
+                    ca_value = custom_query(model_dict)
+                    resolved[variable_key] = ca_value
+                else:
+                    resolved[variable_key] = None
 
     return resolved
 
 
-def resolve_datastring(
-    patient_id: str, data_string: str, catalogue: Dict[str, ObjectCatalogue]
+def resolve_variable(
+    context: ResolverContext,
+    variable: DatasourceVariable,
+    catalogue: Dict[str, ObjectCatalogue],
 ) -> Any:
     """
-    Resolve a single datastring it into a concrete value
+    Resolve a single variable into a concrete value.
 
-    :param patient_id: an id for identifying data relevant to a patient
-    :param data_string: a string representing a source of value of format `$object.attribute`
-    :param catalogue: the data catalogue of support objects
-    :returns: a resolved value
-    :rtype: any type of int, float, bool, string, char, None if not found
+    :param context: Context containing IDs
+    :param variable: DatasourceVariable object to resolve
+    :param catalogue: The data catalogue of supported objects
+    :returns: Resolved value or None if not found
     """
-    object = parse_object_name(data_string)
-    attribute = parse_attribute_name(data_string)
-    query = catalogue.get(object).get("query")
+    obj_name = variable.obj.name
+    attr_name = variable.attr.name
 
-    if query is None:
+    model_instance = _resolve_object(catalogue, context, obj_name)
+
+    if model_instance is None:
         return None
 
-    object: Dict = query(id=patient_id)
+    attr_value = getattr(model_instance, attr_name, None)
 
-    return object.get(attribute)
+    if attr_value is not None:
+        return attr_value
+
+    custom_queries = catalogue.get(obj_name, {}).get("custom", {})
+    custom_query = custom_queries.get(attr_name)
+
+    if custom_query is not None:
+        model_dict = model_instance.model_dump()
+        return custom_query(model_dict)
+
+    return None

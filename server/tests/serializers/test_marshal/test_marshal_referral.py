@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 
 
@@ -107,7 +107,7 @@ def test_referral_strips_relationship_objects_when_present():
     patient.id = "p-1"
     reading.patient = patient
 
-    marshalled = m.marshal(reading)
+    marshalled = orm_seralizer.marshal(reading)
 
     # Relationships must be removed
     assert "health_facility" not in marshalled
@@ -139,7 +139,7 @@ def test_referral_strips_none_fields_but_preserves_false_booleans_and_timestamps
         not_attended=False,
     )
 
-    marshalled = m.marshal(reading)
+    marshalled = orm_seralizer.marshal(reading)
 
     # None fields should be gone
     for k in (
@@ -176,7 +176,7 @@ def test_referral_preserves_non_empty_strings_and_scalars():
         is_assessed=True,
         date_assessed=1577923200,  # 2020-01-02
     )
-    marshalled = m.marshal(reading)
+    marshalled = orm_seralizer.marshal(reading)
 
     assert marshalled["comment"] == "Patient referred for evaluation"
     assert marshalled["action_taken"] == "Initial triage completed"
@@ -200,7 +200,7 @@ def test_referral_private_attrs_are_stripped_and_input_not_mutated():
     reading.health_facility = health_facility
     before_rel = reading.health_facility
 
-    marshalled = m.marshal(reading)
+    marshalled = orm_seralizer.marshal(reading)
 
     assert "_secret" not in marshalled
 
@@ -218,7 +218,7 @@ def test_referral_minimum_expected_keys_present():
     date_referred, last_edited)
     """
     reading = make_referral()
-    marshalled = m.marshal(reading)
+    marshalled = orm_seralizer.marshal(reading)
 
     for k in (
         "id",

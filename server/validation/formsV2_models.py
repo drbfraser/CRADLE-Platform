@@ -1,29 +1,43 @@
-from typing import Any, List, Optional
+from typing import List, Optional, Union
 
-from pydantic import Field
+from pydantic import Field, RootModel
 
-from common.api_utils import (
-    FormTemplateIdPath,
-)
-from enums import QuestionTypeEnum
+from common.commonUtil import get_current_time
+from enums import QRelationalEnum, QuestionTypeEnum
 from validation import CradleBaseModel
 
 
+class FormTemplateIdPath(CradleBaseModel):
+    form_template_id: str
+
+
 class FormTemplateV2Response(CradleBaseModel):
-    """Response model for a single form template V2"""
+    """Response model for a single shallow form template V2, without any questions"""
 
     id: str
     form_classification_id: str
     version: int
     archived: bool
-    is_latest: bool
-    date_created: int
+    name: str
+    date_created: int = Field(default_factory=get_current_time)
+
+    model_config = dict(
+        openapi_extra={
+            "description": "Form Template object",
+        }
+    )
 
 
 class FormTemplateListV2Response(CradleBaseModel):
     """Response model for list of form templates V2"""
 
     templates: list[FormTemplateV2Response]
+
+
+class FormTemplateLangList(CradleBaseModel):
+    """Response model for list of available form templates languages"""
+
+    langVersions: list[str]
 
 
 class GetAllFormTemplatesV2Query(CradleBaseModel):
@@ -46,42 +60,123 @@ class LangVersion(CradleBaseModel):
     text: str
 
 
-class LangVersionResponse(CradleBaseModel):
-    id: Optional[int] = None
-    lang: str
-    questionId: str
-    questionText: str
+class MultiLangText(RootModel[dict[str, str]]):
+    """
+    Represents multilingual text like:
+    {"english": "Hello", "french": "Bonjour"}
+    """
 
 
-class QuestionResponse(CradleBaseModel):
+class NumberAnswer(CradleBaseModel):
+    number: float
+
+
+class TextAnswer(CradleBaseModel):
+    text: str
+
+
+class OptionAnswer(CradleBaseModel):
+    options: List[str]
+
+
+class DateAnswer(CradleBaseModel):
+    date: str
+
+
+AnswerType = Union[
+    NumberAnswer,
+    TextAnswer,
+    OptionAnswer,
+    DateAnswer,
+]
+
+
+class VisibleCondition(CradleBaseModel, use_enum_values=True):
+    """
+    Valid example:
+        {
+            "question_index": 1,
+            "relation": "EQUAL_TO",
+            "answers": {
+                "number": 5
+            }
+        }
+    """
+
+    question_index: int
+    answers: AnswerType
+    relation: QRelationalEnum
+
+
+class MCOption(CradleBaseModel):
+    string_id: Optional[str] = None
+    translations: MultiLangText
+
+    class Config:
+        extra = "forbid"
+
+
+class FormTemplateQuestion(CradleBaseModel):
     id: str
-    formTemplateId: str
-    questionType: QuestionTypeEnum
+    form_template_id: str
+    question_type: QuestionTypeEnum
     order: int
-    questionText: str = ""
-    categoryIndex: Optional[int] = None
+
+    question_text: MultiLangText
+    question_string_id: Optional[str] = None
+
+    category_index: Optional[int] = None
     required: bool
-    hasCommentAttached: bool
-    allowFutureDates: bool
-    allowPastDates: bool
-    visibleCondition: List[Any] = []
-    mcOptions: List[str] = []
-    langVersions: List[LangVersionResponse]
+    has_comment_attached: Optional[bool] = False
+    allow_future_dates: Optional[bool] = None
+    allow_past_dates: Optional[bool] = None
+
+    visible_condition: Optional[list[VisibleCondition]] = []
+
+    string_max_length: Optional[int] = None
+    string_max_lines: Optional[int] = None
+
+    num_min: Optional[float] = None
+    num_max: Optional[float] = None
+    units: Optional[str] = None
+
+    user_question_id: Optional[str] = None
+
+    mc_options: Optional[List[MCOption]] = None
 
 
 class FormClassification(CradleBaseModel):
-    id: str
-    name: str
+    id: Optional[str] = None
+    name: MultiLangText
+    name_string_id: Optional[str] = None
 
 
-class FormTemplateResponse(CradleBaseModel):
+class FormTemplate(CradleBaseModel):
     id: str
-    archived: bool
+    version: int
+    archived: Optional[bool] = False
     classification: FormClassification
-    dateCreated: int
-    version: str
-    questions: List[QuestionResponse]
+    date_created: int = Field(default_factory=get_current_time)
+    questions: List[FormTemplateQuestion]
 
 
 class FormTemplateVersionPath(FormTemplateIdPath):
     version: str = Field(..., description="Form Template version.")
+
+
+class ArchiveFormTemplateQuery(CradleBaseModel):
+    archived: bool = Field(
+        True,
+        description="If true, the Form Template will be archived. If false, the Form Template will be unarchived.",
+    )
+
+
+class FormTemplateUploadQuestion(FormTemplateQuestion):
+    id: Optional[str] = None
+    form_template_id: Optional[str] = None
+
+
+class FormTemplateUploadRequest(FormTemplate):
+    id: Optional[str] = None
+    version: Optional[int] = 1
+    questions: List[FormTemplateUploadQuestion]

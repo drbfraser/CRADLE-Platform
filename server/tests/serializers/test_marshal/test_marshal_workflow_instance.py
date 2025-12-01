@@ -1,6 +1,6 @@
 # ruff: noqa: SLF001
 
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormOrm,
@@ -113,7 +113,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
 
     workflow_instance.steps = [workflow_instance_1, workflow_instance_2]
 
-    marshalled = m.marshal(workflow_instance)
+    marshalled = orm_seralizer.marshal(workflow_instance)
 
     # --- top-level checks
 
@@ -220,7 +220,7 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     s.workflow_instance_id = workflow_instance.id
     workflow_instance.steps = [s]
 
-    marshalled = m.marshal(workflow_instance, shallow=True)
+    marshalled = orm_seralizer.marshal(workflow_instance, shallow=True)
 
     # kept
 
