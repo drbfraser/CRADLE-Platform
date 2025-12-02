@@ -52,14 +52,14 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
 
 
 # TODO: Move to a more relevant location, maybe in variable resolver?
-class VariableResolutionStatus(StrEnum):
-    """Status codes for variable resolution"""
+# class VariableResolutionStatus(StrEnum):
+#     """Status codes for variable resolution"""
 
-    RESOLVED = "RESOLVED"
-    # TODO: Can add more statuses as needed (e.g., DATABASE_ERROR)
+#     RESOLVED = "RESOLVED"
+#     # TODO: Can add more statuses as needed (e.g., DATABASE_ERROR)
 
 
-class VariableResolution(CradleBaseModel):
-    var: str
-    value: Union[int, float, str, bool]
-    status: VariableResolutionStatus
+# class VariableResolution(CradleBaseModel):
+#     var: str
+#     value: Union[int, float, str, bool]
+#     status: VariableResolutionStatus
