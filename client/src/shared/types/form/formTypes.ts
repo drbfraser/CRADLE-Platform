@@ -74,13 +74,7 @@ export type Question = {
   dependencies?: OrNull<[]> | undefined;
 };
 
-export interface QuestionLangVersion {
-  lang: string;
-  mcOptions: McOption[];
-  questionText: string;
-}
-
 export type McOption = {
-  mcId: number;
-  opt: string;
+  stringId?: string | undefined;
+  translations: Record<string, string>;
 };

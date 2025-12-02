@@ -30,6 +30,7 @@ interface IProps {
   renderState: FormRenderStateEnum;
   setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   versionError: boolean;
+  setCurrentLanguage: Dispatch<SetStateAction<string>>;
 }
 
 export const CustomizedFormWQuestions = ({
@@ -38,12 +39,14 @@ export const CustomizedFormWQuestions = ({
   renderState,
   setForm,
   versionError,
+  setCurrentLanguage,
 }: IProps) => {
   const hook = useCustomizedFormWQuestions(
     fm,
     languages,
     versionError,
-    setForm
+    setForm,
+    setCurrentLanguage
   );
 
   return (
@@ -53,7 +56,7 @@ export const CustomizedFormWQuestions = ({
         onClose={() => hook.setSubmitError(false)}
         errorMessage={hook.errorMessage}
       />
-      {/* <EditCategory
+      <EditCategory
         open={hook.categoryPopupOpen}
         onClose={() => {
           hook.setSelectedOrder(null);
@@ -80,8 +83,8 @@ export const CustomizedFormWQuestions = ({
           fm.questions[hook.selectedOrder]?.visibleCondition.length > 0
         }
         categoryIndex={hook.categoryIndex}
-      /> */}
-      {/* <EditField
+      />
+      <EditField
         open={hook.editPopupOpen}
         onClose={() => {
           hook.setSelectedOrder(null);
@@ -104,22 +107,22 @@ export const CustomizedFormWQuestions = ({
             ? hook.questions[hook.selectedOrder].categoryIndex !== null &&
               fm.questions[
                 hook.questions[hook.selectedOrder].categoryIndex ?? 0
-              ].visibleCondition.length > 0 // add "?? 0" to suppress null index error
+              ].visibleCondition.length > 0
             : hook.categoryIndex != null &&
               fm.questions[hook.categoryIndex].visibleCondition.length > 0
         }
         visibilityToggle={hook.visibilityToggle}
         setVisibilityToggle={hook.setVisibilityToggle}
         categoryIndex={hook.categoryIndex}
-      /> */}
-      {/* <DeleteCategoryDialog
+      />
+      <DeleteCategoryDialog
         open={hook.isDeletePopupOpen}
         onClose={hook.handleDeleteOnClose}
         numQuestionsProp={
           hook.questions.filter((q) => q.categoryIndex === hook.selectedOrder)
             .length
         }
-      /> */}
+      />
       <Formik
         initialValues={initialState as any}
         validationSchema={validationSchema}
@@ -206,7 +209,6 @@ export const CustomizedFormWQuestions = ({
                     />
                   </Grid>
                 </Grid>
-                {/* BHAI IDHAR SE */}
                 <Grid id={'form-container'} item container spacing={3}>
                   {FormQuestions({
                     questions: hook.questions,
@@ -342,7 +344,6 @@ export const CustomizedFormWQuestions = ({
                     );
                   })}
                 </Grid>
-                {/* BHAI IDHAR TAK */}
                 <Grid item container justifyContent="space-between">
                   <Grid item xs={6}>
                     <div style={{ display: 'inline-block' }}>

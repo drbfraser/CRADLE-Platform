@@ -17,7 +17,8 @@ export const useCustomizedFormWQuestions = (
   fm: FormTemplateWithQuestions,
   languages: string[],
   versionError: boolean,
-  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>,
+  setCurrentLanguage: Dispatch<SetStateAction<string>>
 ) => {
   const questions = fm.questions;
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
@@ -45,6 +46,10 @@ export const useCustomizedFormWQuestions = (
     setSelectedLanguage(capitalize(languages[0]));
     upd();
   }, [languages]);
+
+  useEffect(() => {
+    setCurrentLanguage(selectedLanguage)
+  }, [selectedLanguage])
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {

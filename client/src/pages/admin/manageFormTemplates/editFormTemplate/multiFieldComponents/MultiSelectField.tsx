@@ -4,31 +4,33 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction } from 'react';
-import { QuestionLangVersion } from 'src/shared/types/form/formTypes';
+import { McOption } from 'src/shared/types/form/formTypes';
 import * as handlers from './handlers';
 
 interface IProps {
   numChoices: number;
   inputLanguages: string[];
   fieldChanged: boolean;
-  questionLangVersions: QuestionLangVersion[];
+  mcOptions: McOption[];
   setNumChoices: Dispatch<SetStateAction<number>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
   setFormDirty: Dispatch<SetStateAction<boolean>>;
-  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>;
+  setMcOptions: Dispatch<SetStateAction<McOption[]>>;
   getMcOptionValue: (language: string, index: number) => string;
+  updateMcOption?: (index: number, language: string, value: string) => void;
 }
 
 const MultiSelect = ({
   numChoices,
   inputLanguages,
   fieldChanged,
-  questionLangVersions,
+  mcOptions,
   setNumChoices,
   setFieldChanged,
   setFormDirty,
-  setQuestionLangversions,
+  setMcOptions,
   getMcOptionValue,
+  updateMcOption,
 }: IProps) => {
   return (
     <Grid item container spacing={3}>
@@ -40,8 +42,8 @@ const MultiSelect = ({
               numChoices,
               inputLanguages,
               setNumChoices,
-              questionLangVersions,
-              setQuestionLangversions
+              mcOptions,
+              setMcOptions
             );
             setFieldChanged(!fieldChanged);
             setFormDirty(true);
@@ -74,14 +76,14 @@ const MultiSelect = ({
                   key={`remove-option-${index + 1}`}
                   color="error"
                   style={{ padding: '0px' }}
-                  onClick={(e) => {
+                  onClick={() => {
                     handlers.handleRemoveMultiChoice(
                       index,
                       numChoices,
-                      questionLangVersions,
+                      mcOptions,
                       inputLanguages,
                       setNumChoices,
-                      setQuestionLangversions
+                      setMcOptions
                     );
                     setFieldChanged(!fieldChanged);
                     setFormDirty(true);
@@ -109,17 +111,22 @@ const MultiSelect = ({
                     multiline
                     size="small"
                     inputProps={{
-                      // TODO: Determine what types of input restrictions we should have for multiple choice option
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
                     onChange={(e) => {
-                      handlers.handleMultiChoiceOptionChange(
-                        lang,
-                        e.target.value,
-                        index,
-                        questionLangVersions,
-                        setQuestionLangversions
-                      );
+                      if (updateMcOption) {
+                        // Use the hook's update function if provided
+                        updateMcOption(index, lang, e.target.value);
+                      } else {
+                        // Fallback to handler
+                        handlers.handleMultiChoiceOptionChange(
+                          lang,
+                          e.target.value,
+                          index,
+                          mcOptions,
+                          setMcOptions
+                        );
+                      }
                       setFieldChanged(!fieldChanged);
                       setFormDirty(true);
                     }}

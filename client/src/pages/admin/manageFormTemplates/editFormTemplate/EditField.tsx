@@ -20,12 +20,7 @@ import {
 } from '../../../../shared/components/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import {
-  McOption,
-  QCondition,
-  QuestionLangVersion,
-} from 'src/shared/types/form/formTypes';
+import { Dispatch, SetStateAction } from 'react';
 import {
   FormTemplateWithQuestions,
   TQuestion,
@@ -36,6 +31,7 @@ import MultiChoice from './multiFieldComponents/MultiChoiceField';
 import MultiSelect from './multiFieldComponents/MultiSelectField';
 import * as handlers from './multiFieldComponents/handlers';
 import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
+import { useEditField } from 'src/shared/hooks/forms/useEditField';
 
 interface IProps {
   open: boolean;
@@ -71,73 +67,6 @@ const EditField = ({
   setVisibilityToggle,
   categoryIndex,
 }: IProps) => {
-  const [fieldType, setFieldType] = useState<string>('category');
-  const [questionId, setQuestionId] = useState<string>('');
-  const [numChoices, setNumChoices] = useState<number>(0);
-  const [questionLangVersions, setQuestionLangversions] = useState<
-    QuestionLangVersion[]
-  >([] as QuestionLangVersion[]);
-  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
-  const [fieldChanged, setFieldChanged] = useState(false);
-  const [formDirty, setFormDirty] = useState(false);
-  const [isRequired, setIsRequired] = useState(question?.required ?? false);
-  const [allowPastDates, setAllowPastDates] = useState(
-    question?.allowPastDates ?? true
-  );
-  const [allowFutureDates, setAllowFutureDates] = useState(
-    question?.allowFutureDates ?? true
-  );
-  const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
-  const [editVisCondKey, setEditVisCondKey] = useState(0);
-  const [stringMaxLines, setStringMaxLines] = useState<
-    string | number | null | undefined
-  >('');
-  const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
-    Number(stringMaxLines) > 0
-  );
-  const [numMin, setNumMin] = useState<number | null>(null);
-  const [numMax, setNumMax] = useState<number | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const removeAllMultChoices = () => {
-    questionLangVersions.forEach((qLangVersion) => {
-      if (qLangVersion.mcOptions) {
-        qLangVersion.mcOptions = [] as McOption[];
-      }
-    });
-  };
-
-  const getMcOptionValue = (language: string, index: number) => {
-    let mcOptionValue = '';
-    const qlangVersion = questionLangVersions.find(
-      (qlv) => qlv.lang == language
-    );
-    if (qlangVersion) {
-      if (index < qlangVersion.mcOptions.length) {
-        mcOptionValue = qlangVersion.mcOptions[index].opt;
-      }
-    }
-
-    return mcOptionValue;
-  };
-
-  const validateNumberFields = (
-    newMin: number | null,
-    newMax: number | null
-  ) => {
-    if (newMin !== null && newMax !== null) {
-      if (newMin > newMax) {
-        setValidationError(
-          `Minimum value cannot be greater than maximum value. ${newMax}`
-        );
-        return;
-      }
-    }
-
-    setValidationError(null);
-  };
-
   const fieldTypes: FieldTypes = {
     category: {
       value: 'category',
@@ -155,27 +84,27 @@ const EditField = ({
             <CustomNumberField
               label="Minimum Value"
               id="number-field-min"
-              value={numMin}
+              value={hook.numMin}
               onChange={(event) => {
                 const value = Number.parseFloat(event.target.value);
-                setNumMin(value);
-                validateNumberFields(value, numMax);
+                hook.setNumMin(value);
+                hook.validateNumberFields(value, hook.numMax);
               }}
             />
             <CustomNumberField
               label="Maximum Value"
               id="number-field-max"
-              value={numMax}
+              value={hook.numMax}
               onChange={(event) => {
                 const value = Number.parseFloat(event.target.value);
-                setNumMax(value);
-                validateNumberFields(numMin, value);
+                hook.setNumMax(value);
+                hook.validateNumberFields(hook.numMin, value);
               }}
             />
           </Stack>
-          {validationError && (
+          {hook.validationError && (
             <Typography color="error" variant="body2">
-              {validationError}
+              {hook.validationError}
             </Typography>
           )}
         </Grid>
@@ -191,15 +120,15 @@ const EditField = ({
             style={{ marginLeft: 0 }}
             control={
               <Switch
-                checked={isNumOfLinesRestricted}
+                checked={hook.isNumOfLinesRestricted}
                 onChange={(e) =>
                   handlers.handleIsNumOfLinesRestrictedChange(
                     e,
-                    setIsNumOfLinesRestricted,
-                    setFormDirty,
-                    setFieldChanged,
-                    setStringMaxLines,
-                    fieldChanged
+                    hook.setIsNumOfLinesRestricted,
+                    hook.setFormDirty,
+                    hook.setFieldChanged,
+                    hook.setStringMaxLines,
+                    hook.fieldChanged
                   )
                 }
                 data-testid="lines-num-restriction-switch"
@@ -225,17 +154,18 @@ const EditField = ({
             labelPlacement="start"
           />
 
-          {isNumOfLinesRestricted && (
+          {hook.isNumOfLinesRestricted && (
             <Grid item>
               <TextField
                 label={`Max Lines`}
-                required={isNumOfLinesRestricted}
+                required={hook.isNumOfLinesRestricted}
                 variant="outlined"
                 fullWidth
                 size="small"
                 defaultValue={
-                  !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0
-                    ? Number(stringMaxLines)
+                  !isNaN(Number(hook.stringMaxLines)) &&
+                  Number(hook.stringMaxLines) > 0
+                    ? Number(hook.stringMaxLines)
                     : ``
                 }
                 inputProps={{
@@ -243,9 +173,9 @@ const EditField = ({
                   min: 0,
                 }}
                 onChange={(e) => {
-                  setStringMaxLines(e.target.value);
-                  setFieldChanged(!fieldChanged);
-                  setFormDirty(true);
+                  hook.setStringMaxLines(e.target.value);
+                  hook.setFieldChanged(!hook.fieldChanged);
+                  hook.setFormDirty(true);
                 }}
               />
             </Grid>
@@ -259,15 +189,16 @@ const EditField = ({
       type: QuestionTypeEnum.MULTIPLE_CHOICE,
       render: () => (
         <MultiChoice
-          numChoices={numChoices}
+          numChoices={hook.numChoices}
           inputLanguages={inputLanguages}
-          fieldChanged={fieldChanged}
-          questionLangVersions={questionLangVersions}
-          setNumChoices={setNumChoices}
-          setQuestionLangversions={setQuestionLangversions}
-          setFieldChanged={setFieldChanged}
-          setFormDirty={setFormDirty}
-          getMcOptionValue={getMcOptionValue}
+          fieldChanged={hook.fieldChanged}
+          mcOptions={hook.mcOptions}
+          setNumChoices={hook.setNumChoices}
+          setMcOptions={hook.setMcOptions}
+          setFieldChanged={hook.setFieldChanged}
+          setFormDirty={hook.setFormDirty}
+          getMcOptionValue={hook.getMcOptionValue}
+          updateMcOption={hook.updateMcOption}
         />
       ),
     },
@@ -277,15 +208,16 @@ const EditField = ({
       type: QuestionTypeEnum.MULTIPLE_SELECT,
       render: () => (
         <MultiSelect
-          numChoices={numChoices}
+          numChoices={hook.numChoices}
           inputLanguages={inputLanguages}
-          fieldChanged={fieldChanged}
-          questionLangVersions={questionLangVersions}
-          setNumChoices={setNumChoices}
-          setQuestionLangversions={setQuestionLangversions}
-          setFieldChanged={setFieldChanged}
-          setFormDirty={setFormDirty}
-          getMcOptionValue={getMcOptionValue}
+          fieldChanged={hook.fieldChanged}
+          mcOptions={hook.mcOptions}
+          setNumChoices={hook.setNumChoices}
+          setMcOptions={hook.setMcOptions}
+          setFieldChanged={hook.setFieldChanged}
+          setFormDirty={hook.setFormDirty}
+          getMcOptionValue={hook.getMcOptionValue}
+          updateMcOption={hook.updateMcOption}
         />
       ),
     },
@@ -301,179 +233,17 @@ const EditField = ({
     },
   };
 
-  const getFieldType = (questionType: QuestionTypeEnum) => {
-    const fType = Object.keys(fieldTypes).find(
-      (fieldType) => fieldTypes[fieldType].type === questionType
-    );
-    return fType ? fType : '';
-  };
-
-  useEffect(() => {
-    if (open) {
-      setValidationError(null);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    setIsVisCondAnswered(!visibilityToggle);
-    setFieldChanged(!fieldChanged);
-  }, [visibilityToggle]);
-
-  const areAllFieldsFilled = (): boolean => {
-    let areAllNamesFilled = true;
-    questionLangVersions.forEach((qLangVersion) => {
-      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
-    });
-    let areAllMcOptionFilled = true;
-    let isMaxLinesAllowedFilled = true;
-    const isFieldTypeChosen = fieldType.trim() != '';
-
-    if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
-      questionLangVersions.forEach((qLangVersion) => {
-        areAllNamesFilled =
-          areAllNamesFilled && qLangVersion.questionText.trim() != '';
-        if (qLangVersion.mcOptions.length == 0) {
-          areAllMcOptionFilled = false;
-        } else {
-          qLangVersion.mcOptions.forEach((option) => {
-            areAllMcOptionFilled =
-              areAllMcOptionFilled && option.opt.trim() != '';
-          });
-        }
-      });
-    } else if (fieldType == 'text' && isNumOfLinesRestricted) {
-      isMaxLinesAllowedFilled =
-        !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0;
-    }
-
-    const nonMultiChoiceCheck =
-      areAllNamesFilled && isFieldTypeChosen && isVisCondAnswered;
-
-    let ret = false;
-    if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
-      ret = nonMultiChoiceCheck && areAllMcOptionFilled;
-    } else if (fieldType == 'text') {
-      ret = nonMultiChoiceCheck && isMaxLinesAllowedFilled;
-    } else {
-      ret = nonMultiChoiceCheck;
-    }
-    return ret;
-  };
-
-  const getQLangVersionsCopy = (
-    questionLangVersions: QuestionLangVersion[]
-  ): QuestionLangVersion[] => {
-    const qLangVersions = [] as QuestionLangVersion[];
-    questionLangVersions.forEach((qLangVersion) => {
-      const mcOptions = [] as McOption[];
-      if (qLangVersion.mcOptions) {
-        qLangVersion.mcOptions.forEach((mcOption) => {
-          mcOptions.push({
-            mcId: mcOption.mcId,
-            opt: mcOption.opt,
-          });
-        });
-      }
-      qLangVersions.push({
-        lang: qLangVersion.lang,
-        mcOptions: mcOptions,
-        questionText: qLangVersion.questionText,
-      });
-    });
-    return qLangVersions;
-  };
-
-  useEffect(() => {
-    if (
-      categoryIndex !== null &&
-      questionsArr[categoryIndex].visibleCondition.length > 0
-    ) {
-      setVisibleCondition(questionsArr[categoryIndex].visibleCondition);
-    } else setVisibleCondition([]);
-    // force re-render of EditVisibleCondition after updating the visibility condition
-    setEditVisCondKey(editVisCondKey + 1);
-  }, [open]);
-
-  useEffect(() => {
-    // edit field
-    if (formDirty) {
-      setFieldType(fieldType);
-      setQuestionId(questionId);
-    } else {
-      if (question) {
-        setFieldType(getFieldType(question.questionType));
-        setQuestionId(question.id ? question.id : '');
-        setVisibilityToggle(
-          visibilityToggle || question.visibleCondition.length > 0
-        );
-        const qlvCopy = getQLangVersionsCopy(question.langVersions);
-        setQuestionLangversions(qlvCopy);
-        if (qlvCopy.length > 0) {
-          setNumChoices(qlvCopy[0].mcOptions.length);
-        }
-        setIsRequired(question.required);
-        setAllowFutureDates(question.allowFutureDates);
-        setAllowPastDates(question.allowPastDates);
-        setStringMaxLines(question.stringMaxLines);
-        setIsNumOfLinesRestricted(question.stringMaxLines ? true : false);
-        setNumMin(question.numMin ?? null);
-        setNumMax(question.numMax ?? null);
-      }
-      // create new field
-      else {
-        setFieldType('category');
-        setQuestionId('');
-        setQuestionLangversions([]);
-        setNumChoices(0);
-        setIsRequired(false);
-        setAllowFutureDates(true);
-        setAllowPastDates(true);
-        setIsNumOfLinesRestricted(false);
-        setStringMaxLines(null);
-        setNumMin(null);
-        setNumMax(null);
-      }
-    }
-    // Check if all fields are filled
-    // Enable/disable save button based on filled fields
-    setIsSaveDisabled(!areAllFieldsFilled());
-  }, [open, setForm, fieldChanged]);
-
-  const getFieldName = (language: string) => {
-    let fName = '';
-    if (question) {
-      const qLangVersion = question.langVersions.find(
-        (version) => version.lang === language
-      );
-      if (qLangVersion) {
-        fName = qLangVersion.questionText;
-      }
-    }
-    return fName;
-  };
-
-  const addFieldToQuestionLangVersions = (
-    language: string,
-    fieldName: string
-  ) => {
-    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-    const newQLangVersion = {
-      lang: language,
-      mcOptions: [] as McOption[],
-      questionText: fieldName,
-    };
-
-    const qLangVersion = qLangVersions.find((q) => q.lang === language);
-
-    if (!qLangVersion) {
-      qLangVersions.push(newQLangVersion);
-    } else {
-      const i = qLangVersions.indexOf(qLangVersion);
-      qLangVersions[i].questionText = fieldName;
-    }
-    setQuestionLangversions(qLangVersions);
-  };
+  const hook = useEditField({
+    question,
+    visibilityToggle,
+    setForm,
+    fieldTypes,
+    open,
+    setVisibilityToggle,
+    categoryIndex,
+    questionsArr,
+    inputLanguages,
+  });
 
   return (
     <>
@@ -521,20 +291,20 @@ const EditField = ({
                   fullWidth
                   multiline
                   size="small"
-                  defaultValue={getFieldName(lang)}
+                  defaultValue={hook.getFieldName(lang)}
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
                   onChange={(e) => {
-                    addFieldToQuestionLangVersions(lang, e.target.value);
-                    setFieldChanged(!fieldChanged);
-                    setFormDirty(true);
+                    hook.addFieldToQuestionLangVersions(lang, e.target.value);
+                    hook.setFieldChanged(!hook.fieldChanged);
+                    hook.setFormDirty(true);
                   }}
                 />
               </Grid>
             ))}
 
-            {fieldType != 'category' && (
+            {hook.fieldType != 'category' && (
               <Grid item xs={12}>
                 <TextField
                   label={'Question ID'}
@@ -548,9 +318,9 @@ const EditField = ({
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
                   onChange={(e) => {
-                    setQuestionId(e.target.value);
-                    setFieldChanged(!fieldChanged);
-                    setFormDirty(true);
+                    hook.setQuestionId(e.target.value);
+                    hook.setFieldChanged(!hook.fieldChanged);
+                    hook.setFormDirty(true);
                   }}
                 />
               </Grid>
@@ -580,17 +350,17 @@ const EditField = ({
                 aria-labelledby="field-type-label"
                 name="field-type-group"
                 row
-                value={fieldType}
+                value={hook.fieldType}
                 onChange={(e) => {
                   handlers.handleRadioChange(
                     e,
-                    setFieldType,
-                    setFieldChanged,
-                    setFormDirty,
-                    fieldChanged
+                    hook.setFieldType,
+                    hook.setFieldChanged,
+                    hook.setFormDirty,
+                    hook.fieldChanged
                   );
-                  setFieldChanged(!fieldChanged);
-                  setFormDirty(true);
+                  hook.setFieldChanged(!hook.fieldChanged);
+                  hook.setFormDirty(true);
                 }}>
                 {Object.values(fieldTypes).map((field) => (
                   <FormControlLabel
@@ -602,11 +372,8 @@ const EditField = ({
                 ))}
               </RadioGroup>
             </Grid>
-            {fieldType ? fieldTypes[fieldType].render() : null}
+            {hook.fieldType ? fieldTypes[hook.fieldType].render() : null}
             {questionsArr.some(
-              // only include questions that:
-              // 1. is not this question
-              // 2. are not categories
               (q) =>
                 q != question && q.questionType != QuestionTypeEnum.CATEGORY
             ) && (
@@ -622,9 +389,9 @@ const EditField = ({
                           handlers.handleVisibilityChange(
                             e,
                             setVisibilityToggle,
-                            setFormDirty,
-                            setFieldChanged,
-                            fieldChanged
+                            hook.setFormDirty,
+                            hook.setFieldChanged,
+                            hook.fieldChanged
                           )
                         }
                         data-testid="conditional-switch"
@@ -657,42 +424,41 @@ const EditField = ({
                 <Grid item sm={12} md={10} lg={10}>
                   {visibilityToggle ? (
                     <EditVisibleCondition
-                      key={editVisCondKey}
+                      key={hook.editVisCondKey}
                       currVisCond={
-                        visibleCondition[0] ??
+                        hook.visibleCondition[0] ??
                         question?.visibleCondition[0] ??
                         null
                       }
                       disabled={visibilityDisabled}
                       filteredQs={questionsArr.filter(
-                        // must use exact same filter criteria as above
                         (q) =>
                           q != question &&
                           q.questionType != QuestionTypeEnum.CATEGORY
                       )}
-                      setVisibleCondition={setVisibleCondition}
-                      setIsVisCondAnswered={setIsVisCondAnswered}
-                      setFieldChanged={setFieldChanged}
+                      setVisibleCondition={hook.setVisibleCondition}
+                      setIsVisCondAnswered={hook.setIsVisCondAnswered}
+                      setFieldChanged={hook.setFieldChanged}
                     />
                   ) : null}
                 </Grid>
               </>
             )}
           </Grid>
-          {fieldType != 'category' && (
+          {hook.fieldType != 'category' && (
             <Grid item>
               <FormControlLabel
                 style={{ marginLeft: 0 }}
                 control={
                   <Switch
-                    checked={isRequired}
+                    checked={hook.isRequired}
                     onChange={(e) =>
                       handlers.handleRequiredChange(
                         e,
-                        setIsRequired,
-                        setFormDirty,
-                        setFieldChanged,
-                        fieldChanged
+                        hook.setIsRequired,
+                        hook.setFormDirty,
+                        hook.setFieldChanged,
+                        hook.fieldChanged
                       )
                     }
                     data-testid="required-switch"
@@ -717,20 +483,20 @@ const EditField = ({
               />
             </Grid>
           )}
-          {fieldType == 'date' && (
+          {hook.fieldType == 'date' && (
             <Grid item>
               <FormControlLabel
                 style={{ marginLeft: 0, marginTop: 5 }}
                 control={
                   <Switch
-                    checked={allowPastDates}
+                    checked={hook.allowPastDates}
                     onChange={(e) =>
                       handlers.handleAllowPastDatesChange(
                         e,
-                        setAllowPastDates,
-                        setFormDirty,
-                        setFieldChanged,
-                        fieldChanged
+                        hook.setAllowPastDates,
+                        hook.setFormDirty,
+                        hook.setFieldChanged,
+                        hook.fieldChanged
                       )
                     }
                     data-testid="allow-past-dates-switch"
@@ -757,20 +523,20 @@ const EditField = ({
               />
             </Grid>
           )}
-          {fieldType == 'date' && (
+          {hook.fieldType == 'date' && (
             <Grid item>
               <FormControlLabel
                 style={{ marginLeft: 0, marginTop: 5 }}
                 control={
                   <Switch
-                    checked={allowFutureDates}
+                    checked={hook.allowFutureDates}
                     onChange={(e) =>
                       handlers.handleAllowFutureDatesChange(
                         e,
-                        setAllowFutureDates,
-                        setFormDirty,
-                        setFieldChanged,
-                        fieldChanged
+                        hook.setAllowFutureDates,
+                        hook.setFormDirty,
+                        hook.setFieldChanged,
+                        hook.fieldChanged
                       )
                     }
                     data-testid="allow-future-dates-switch"
@@ -801,9 +567,9 @@ const EditField = ({
         <DialogActions>
           <CancelButton
             type="button"
-            onClick={(e) => {
-              setFormDirty(false);
-              setNumChoices(0);
+            onClick={() => {
+              hook.setFormDirty(false);
+              hook.setNumChoices(0);
               setVisibilityToggle(false);
               onClose();
             }}>
@@ -811,40 +577,43 @@ const EditField = ({
           </CancelButton>
           <PrimaryButton
             type="submit"
-            disabled={isSaveDisabled || validationError !== null}
+            disabled={hook.isSaveDisabled || hook.validationError !== null}
             onClick={() => {
               if (setForm) {
-                if (fieldType != 'mult_choice' && fieldType != 'mult_select') {
-                  removeAllMultChoices();
-                }
-                if (question && !visibilityToggle) {
-                  question.visibleCondition.length = 0;
-                }
                 setForm((form) => {
                   let finalStringMaxLines = null;
-                  const stringMaxLinesInt = Number(stringMaxLines);
+                  const stringMaxLinesInt = Number(hook.stringMaxLines);
                   if (!isNaN(stringMaxLinesInt) && stringMaxLinesInt > 0) {
                     finalStringMaxLines = stringMaxLinesInt;
                   }
+
+                  // Determine final mcOptions based on field type
+                  const finalMcOptions =
+                    hook.fieldType === 'mult_choice' ||
+                    hook.fieldType === 'mult_select'
+                      ? hook.mcOptions
+                      : [];
+
                   // edit field
                   if (question) {
                     const questionToUpdate = form.questions.find(
-                      (q) => q.questionIndex === question.questionIndex
+                      (q) => q.order === question.order
                     );
                     if (questionToUpdate) {
-                      questionToUpdate.id = questionId;
-                      questionToUpdate.langVersions = questionLangVersions;
+                      questionToUpdate.id = hook.questionId;
+                      questionToUpdate.questionText = hook.questionText;
                       questionToUpdate.questionType =
-                        fieldTypes[fieldType].type;
+                        fieldTypes[hook.fieldType].type;
                       questionToUpdate.visibleCondition = visibilityToggle
-                        ? visibleCondition
+                        ? hook.visibleCondition
                         : [];
-                      questionToUpdate.required = isRequired;
-                      questionToUpdate.allowFutureDates = allowFutureDates;
-                      questionToUpdate.allowPastDates = allowPastDates;
+                      questionToUpdate.required = hook.isRequired;
+                      questionToUpdate.allowFutureDates = hook.allowFutureDates;
+                      questionToUpdate.allowPastDates = hook.allowPastDates;
                       questionToUpdate.stringMaxLines = finalStringMaxLines;
-                      questionToUpdate.numMin = numMin;
-                      questionToUpdate.numMax = numMax;
+                      questionToUpdate.numMin = hook.numMin;
+                      questionToUpdate.numMax = hook.numMax;
+                      questionToUpdate.mcOptions = finalMcOptions;
                     }
                   }
                   // create new field
@@ -863,38 +632,45 @@ const EditField = ({
                       }
                     }
                     form.questions.splice(indexToInsert, 0, {
-                      questionIndex: indexToInsert,
-                      langVersions: questionLangVersions,
-                      questionType: fieldTypes[fieldType].type,
-                      required: isRequired,
-                      allowFutureDates: allowFutureDates,
-                      allowPastDates: allowPastDates,
-                      numMin: numMin,
-                      numMax: numMax,
+                      order: indexToInsert,
+                      questionText: hook.questionText,
+                      questionType: fieldTypes[hook.fieldType].type,
+                      required: hook.isRequired,
+                      allowFutureDates: hook.allowFutureDates,
+                      allowPastDates: hook.allowPastDates,
+                      numMin: hook.numMin,
+                      numMax: hook.numMax,
                       stringMaxLength: null,
                       stringMaxLines: finalStringMaxLines,
                       units: null,
-                      visibleCondition: visibleCondition,
-                      categoryIndex: categoryIndex,
-                      id: questionId,
-                    });
+                      visibleCondition: visibilityToggle
+                        ? hook.visibleCondition
+                        : [],
+                      categoryIndex: hook.categoryIndex,
+                      id: hook.questionId,
+                      mcOptions: finalMcOptions,
+                    } as TQuestion);
                     form.questions.forEach((q, index) => {
                       if (q.categoryIndex && q.categoryIndex >= indexToInsert) {
                         q.categoryIndex += 1;
                       }
-                      q.questionIndex = index;
+                      q.order = index;
                     });
                   }
-                  setVisibleCondition([]);
-                  setFormDirty(false);
-                  form.questions = [...form.questions];
-                  return form;
+
+                  // Reset state after save
+                  hook.setVisibleCondition([]);
+                  hook.setFormDirty(false);
+
+                  // Return new form with updated questions array
+                  return {
+                    ...form,
+                    questions: [...form.questions],
+                  };
                 });
               }
               onClose();
             }}>
-            {/* disabled={isSubmitting || !isValid}>*/}
-            {/* {creatingNew ? 'Create' : 'Save'}*/}
             {'Save'}
           </PrimaryButton>
         </DialogActions>

@@ -64,8 +64,8 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   }
 
   const getAvailableLanguages = (selectedFormName: string) => {
-    const index = formTemplatesQuery.data.findIndex(
-      (form) => form.classification.name === selectedFormName
+    const index = formTemplatesQuery.data.templates.findIndex(
+      (form) => form.classification.name.selectedLanguage === selectedFormName
     );
     return formTemplateLangsQueries[index]?.data ?? [];
   };
@@ -79,8 +79,8 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   };
 
   const handleSubmit = async () => {
-    const formId = formTemplatesQuery.data.find(
-      (form) => form.classification.name === selectedFormName
+    const formId = formTemplatesQuery.data.templates.find(
+      (form) => form.classification.name.selectedLanguage === selectedFormName
     )?.id;
 
     submitForm.mutate({
@@ -96,7 +96,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
         onClose={() => submitForm.reset()}
       />
 
-      {formTemplatesQuery.data.length > 0 ? (
+      {formTemplatesQuery.data.templates.length > 0 ? (
         <Formik
           initialValues={{ name: selectedFormName, lang: selectedLanguage }}
           enableReinitialize
@@ -112,8 +112,8 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
                       component={Autocomplete}
                       fullWidth
                       name={CustomizedFormField.name}
-                      options={formTemplatesQuery.data.map(
-                        (form) => form.classification.name
+                      options={formTemplatesQuery.data.templates.map(
+                        (form) => form.classification.name.selectedLanguage
                       )}
                       disableClearable={true}
                       onInputChange={handleSelectForm}

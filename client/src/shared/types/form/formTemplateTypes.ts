@@ -22,6 +22,7 @@ export interface FormTemplate {
 }
 
 export interface FormTemplateWithQuestions {
+  id?: string | undefined;
   classification: IFormClassification;
   version: string;
   questions: TQuestion[];
@@ -38,7 +39,7 @@ export interface TQuestion {
   allowPastDates: boolean;
   allowFutureDates: boolean;
   categoryIndex: OrNull<number>;
-  formTemplateId: string;
+  formTemplateId?: string;
   hasCommentAttached: boolean;
   id: string | undefined;
   order: number;
