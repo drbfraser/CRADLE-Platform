@@ -37,6 +37,7 @@ export const useEditField = ({
 }: UseEditFieldProps) => {
 
   const [fieldType, setFieldType] = useState("category");
+  const [userQuestionId, setUserQuestionId] = useState(question?.userQuestionId);
   const [questionId, setQuestionId] = useState("");
   const [numChoices, setNumChoices] = useState(0);
 
@@ -72,6 +73,9 @@ export const useEditField = ({
   const [numMin, setNumMin] = useState<number | null>(question?.numMin ?? null);
   const [numMax, setNumMax] = useState<number | null>(question?.numMax ?? null);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Track if question text has changed
+  const [questionTextChanged, setQuestionTextChanged] = useState(false);
 
   const removeAllMultChoices = () => setMcOptions([]);
 
@@ -173,6 +177,9 @@ export const useEditField = ({
 
       setNumMin(null);
       setNumMax(null);
+      
+      // Reset question text changed flag
+      setQuestionTextChanged(false);
     }
   }, [open, fieldChanged]);
 
@@ -191,6 +198,8 @@ export const useEditField = ({
       ...prev,
       [language.toLowerCase()]: fieldName
     }));
+    // Mark that question text has been modified
+    setQuestionTextChanged(true);
   };
 
   // Update mcOption for a specific language
@@ -250,5 +259,8 @@ export const useEditField = ({
     getMcOptionValue,
     updateMcOption,
     areAllFieldsFilled,
+		questionTextChanged,
+		userQuestionId,
+		setUserQuestionId
   };
 };

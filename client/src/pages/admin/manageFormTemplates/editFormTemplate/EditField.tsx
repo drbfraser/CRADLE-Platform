@@ -32,6 +32,7 @@ import MultiSelect from './multiFieldComponents/MultiSelectField';
 import * as handlers from './multiFieldComponents/handlers';
 import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
 import { useEditField } from 'src/shared/hooks/forms/useEditField';
+import { capitalize } from 'src/shared/utils';
 
 interface IProps {
   open: boolean;
@@ -284,8 +285,8 @@ const EditField = ({
             {inputLanguages.map((lang) => (
               <Grid item xs={12} key={lang + '-field-text'}>
                 <TextField
-                  key={lang + '-field-text'}
-                  label={lang + ' Field Text'}
+                  key={capitalize(lang) + '-field-text'}
+                  label={capitalize(lang) + ' Field Text'}
                   required={true}
                   variant="outlined"
                   fullWidth
@@ -312,13 +313,15 @@ const EditField = ({
                   variant="outlined"
                   fullWidth
                   multiline
-                  defaultValue={question && question.id ? question.id : ''}
+                  value={
+                    question && hook.userQuestionId ? hook.userQuestionId : ''
+                  }
                   size="small"
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
                   onChange={(e) => {
-                    hook.setQuestionId(e.target.value);
+                    hook.setUserQuestionId(e.target.value);
                     hook.setFieldChanged(!hook.fieldChanged);
                     hook.setFormDirty(true);
                   }}
@@ -614,6 +617,10 @@ const EditField = ({
                       questionToUpdate.numMin = hook.numMin;
                       questionToUpdate.numMax = hook.numMax;
                       questionToUpdate.mcOptions = finalMcOptions;
+                      // Only set questionStringId to undefined if text changed
+                      if (hook.questionTextChanged) {
+                        questionToUpdate.questionStringId = undefined;
+                      }
                     }
                   }
                   // create new field
