@@ -151,7 +151,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     del workflow_template_dict["classification"]
 
     # Validate each step in the template
-    if workflow_template_dict.get("steps") is not None:
+    if workflow_template_dict.get("steps") is None:
         for workflow_template_step in workflow_template_dict["steps"]:
             validate_workflow_template_step(workflow_template_step)
 
