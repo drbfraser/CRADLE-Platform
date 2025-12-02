@@ -37,7 +37,8 @@ export const useEditField = ({
 }: UseEditFieldProps) => {
 
   const [fieldType, setFieldType] = useState("category");
-  const [userQuestionId, setUserQuestionId] = useState(question?.userQuestionId);
+  const [userQuestionId, setUserQuestionId] = useState("");
+	console.log(question)
   const [questionId, setQuestionId] = useState("");
   const [numChoices, setNumChoices] = useState(0);
 
@@ -111,6 +112,12 @@ export const useEditField = ({
   useEffect(() => {
     if (open) setValidationError(null);
   }, [open]);
+
+	useEffect(() => {
+		if (open && question) {
+			setUserQuestionId(question.userQuestionId ?? '');
+		}
+	}, [open, question]);
 
   useEffect(() => {
     setIsVisCondAnswered(!visibilityToggle);

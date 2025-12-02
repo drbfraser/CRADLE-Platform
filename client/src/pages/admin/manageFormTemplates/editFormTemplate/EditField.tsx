@@ -617,6 +617,7 @@ const EditField = ({
                       questionToUpdate.numMin = hook.numMin;
                       questionToUpdate.numMax = hook.numMax;
                       questionToUpdate.mcOptions = finalMcOptions;
+                      questionToUpdate.userQuestionId = hook.userQuestionId;
                       // Only set questionStringId to undefined if text changed
                       if (hook.questionTextChanged) {
                         questionToUpdate.questionStringId = undefined;
