@@ -185,10 +185,9 @@ def validate_workflow_template_step(workflow_template_step: dict):
     except ValueError as err:
         return abort(code=409, description=str(err))
 
+
 def _build_step_id_mapping(
-    steps: list[dict],
-    workflow_template_id: str,
-    auto_assign_id: bool = True
+    steps: list[dict], workflow_template_id: str, auto_assign_id: bool = True
 ) -> dict[str, str]:
     old_to_new_step_id_map = {}
 
@@ -237,11 +236,12 @@ def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[d
 
     return updated_steps
 
+
 # Helper function to generate an updated workflow template from a patch body
 def generate_updated_workflow_template(
-    existing_template: WorkflowTemplateOrm, 
+    existing_template: WorkflowTemplateOrm,
     patch_body: dict,
-    auto_assign_id: bool = True
+    auto_assign_id: bool = True,
 ) -> WorkflowTemplateOrm:
     """
     Generates an updated workflow template from a patch body
@@ -257,7 +257,9 @@ def generate_updated_workflow_template(
     copy_workflow_template_dict["steps"] = []
 
     assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=auto_assign_id
+        m=WorkflowTemplateOrm,
+        workflow=copy_workflow_template_dict,
+        auto_assign_id=auto_assign_id,
     )
 
     new_workflow_template = orm_serializer.unmarshal(
@@ -272,31 +274,32 @@ def generate_updated_workflow_template(
             m=WorkflowTemplateOrm, workflow=patch_body["classification"]
         )
 
-    template_changes = {key: value for key, value in patch_body.items() if key != "steps"}
+    template_changes = {
+        key: value for key, value in patch_body.items() if key != "steps"
+    }
 
     if patch_body.get("steps"):
         old_to_new_step_id_map = _build_step_id_mapping(
-            patch_body["steps"],
-            new_workflow_template_id,
-            auto_assign_id
+            patch_body["steps"], new_workflow_template_id, auto_assign_id
         )
 
         updated_steps = _update_step_references(
-            patch_body["steps"],
-            old_to_new_step_id_map
+            patch_body["steps"], old_to_new_step_id_map
         )
 
         if (
             patch_body.get("starting_step_id")
             and patch_body["starting_step_id"] in old_to_new_step_id_map
         ):
-            template_changes["starting_step_id"] = old_to_new_step_id_map[patch_body["starting_step_id"]]
+            template_changes["starting_step_id"] = old_to_new_step_id_map[
+                patch_body["starting_step_id"]
+            ]
 
         template_changes["steps"] = [
-            orm_serializer.unmarshal(WorkflowTemplateStepOrm, step) for step in updated_steps
+            orm_serializer.unmarshal(WorkflowTemplateStepOrm, step)
+            for step in updated_steps
         ]
 
     apply_changes_to_model(new_workflow_template, template_changes)
 
     return new_workflow_template
-
