@@ -34,10 +34,7 @@ class IntegratedRuleEvaluator:
         self.resolver = WorkflowDataResolver(self.catalogue)
 
     def evaluate_rule(
-        self, 
-        rule: Optional[str], 
-        context: Dict[str, str],
-        variables_to_resolve: Optional[List[str]] = None,
+        self, rule: Optional[str], patient_id: str
     ) -> Tuple[RuleStatus, List[VariableResolution]]:
         """
         Evaluate a rule with a given context.
@@ -51,15 +48,10 @@ class IntegratedRuleEvaluator:
             return (RuleStatus.TRUE, [])
 
         try:
-            if variables_to_resolve is None:
-                variable_strings = extract_variables_from_rule(rule)
-            else:
-                variable_strings = variables_to_resolve
-                
+            variable_strings = extract_variables_from_rule(rule)
             logger.debug(
-                f"Variables to resolve: {variable_strings} for context {context}"
+                f"Variables to resolve: {variable_strings} for context {patient_id}"
             )
-
             if not variable_strings:
                 return self._evaluate_static_rule(rule)
 
@@ -68,6 +60,7 @@ class IntegratedRuleEvaluator:
             ]
             variables = [v for v in variables if v is not None]
 
+            context = {"patient_id": patient_id}
             resolved_data = resolve_variables(
                 context=context, variables=variables, catalogue=self.catalogue
             )
