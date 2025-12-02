@@ -151,7 +151,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     del workflow_template_dict["classification"]
 
     # Validate each step in the template
-    if workflow_template_dict.get("steps") is None:
+    if workflow_template_dict.get("steps") is not None:
         for workflow_template_step in workflow_template_dict["steps"]:
             validate_workflow_template_step(workflow_template_step)
 
@@ -387,7 +387,9 @@ def update_workflow_template_patch(
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
 
-    classification_id = body_dict.get("classification_id") or workflow_template.classification_id
+    classification_id = (
+        body_dict.get("classification_id") or workflow_template.classification_id
+    )
 
     if classification_id is not None:
         check_for_existing_template_version(
@@ -396,9 +398,7 @@ def update_workflow_template_patch(
         )
 
     new_workflow_template = generate_updated_workflow_template(
-        existing_template=workflow_template,
-        patch_body=body_dict,
-        auto_assign_id=True
+        existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
 
     find_and_archive_previous_workflow_template(workflow_template.classification_id)
