@@ -1,6 +1,7 @@
 from typing import Optional
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
+from service.workflow.evaluate.integrated_rule_evaluator import IntegratedRuleEvaluator
 from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
@@ -32,17 +33,33 @@ from validation.workflow_models import (
 # Once implemented, it could be moved to service/evaluate or a more relevant location.
 class RuleEvaluator:
     """
-    Evaluates a rule.
-
-    For now, this is a stub that always returns TRUE and an empty list for variable resolutions.
-    TODO: Implement evaluate_rule by integrating the variable resolver and rule engine.
+    Evaluates a rule by integrating the extractor, resolver, and rule engine.
+    Uses lazy initialization to avoid creating the evaluator until needed.
     """
+    
+    _evaluator = None
+    
+    @classmethod
+    def _get_evaluator(cls) -> IntegratedRuleEvaluator:
+        """Lazy initialization of the evaluator."""
+        if cls._evaluator is None:
+            cls._evaluator = IntegratedRuleEvaluator()
+        return cls._evaluator
 
     @staticmethod
     def evaluate_rule(
-        rule: Optional[str],  # noqa: ARG004
+        rule: Optional[str],
+        patient_id: str,
     ) -> tuple[RuleStatus, list[VariableResolution]]:
-        return (RuleStatus.TRUE, [])
+        """
+        Evaluate a rule for a given patient.
+        
+        :param rule: JsonLogic rule string to evaluate (None = unconditional branch)
+        :param patient_id: Patient ID for data resolution
+        :returns: Tuple of (RuleStatus, list of VariableResolution)
+        """
+        evaluator = RuleEvaluator._get_evaluator()
+        return evaluator.evaluate_rule(rule, patient_id)
 
 
 class WorkflowPlanner:
@@ -54,12 +71,17 @@ class WorkflowPlanner:
     @staticmethod
     def _evaluate_branch(
         branch: WorkflowTemplateStepBranchModel,
+        patient_id: str,
     ) -> WorkflowBranchEvaluation:
         """
         Evaluates the rule of a workflow step's branch.
+        
+        :param branch: The branch to evaluate
+        :param patient_id: Patient ID for data resolution
+        :returns: WorkflowBranchEvaluation with rule status and variable resolutions
         """
         rule = branch.condition.rule if branch.condition else None
-        rule_status, var_resolutions = RuleEvaluator.evaluate_rule(rule)
+        rule_status, var_resolutions = RuleEvaluator.evaluate_rule(rule, patient_id)
 
         branch_evaluation = WorkflowBranchEvaluation(
             branch_id=branch.id,
@@ -77,14 +99,25 @@ class WorkflowPlanner:
         """
         Evaluates all branches of a workflow step and determines the selected branch
         based on rule evaluations.
+        
+        :param ctx: WorkflowView providing access to template and instance
+        :param step: The workflow instance step to evaluate
+        :returns: WorkflowStepEvaluation with branch evaluations and selected branch
         """
         branch_evaluations = []
         selected_branch_id = None
+        
+        # Get patient_id from the workflow instance
+        # TODO: Currently only patient_id is supported for data resolution.
+        # Need to decide on ID resolution strategy for other object types.
+        patient_id = ctx.instance.patient_id
+        if not patient_id:
+            raise ValueError("Workflow instance must have a patient_id to evaluate rules")
 
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         for branch in branches:
-            branch_evaluation = WorkflowPlanner._evaluate_branch(branch)
+            branch_evaluation = WorkflowPlanner._evaluate_branch(branch, patient_id)
             branch_evaluations.append(branch_evaluation)
 
             if (

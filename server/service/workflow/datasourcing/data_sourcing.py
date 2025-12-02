@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
 
 from pydantic import BaseModel
 
+from enums import StrEnum
 from validation.assessments import AssessmentModel
 from validation.patients import PatientModel
 from validation.pregnancies import PregnancyModel
@@ -34,6 +35,28 @@ MODEL_REGISTRY: Dict[str, type[BaseModel]] = {
     "pregnancy": PregnancyModel,
     "urine_test": UrineTestModel,
 }
+
+
+class VariableResolutionStatus(StrEnum):
+    """Status codes for variable resolution"""
+
+    RESOLVED = "RESOLVED"
+    NOT_FOUND = "NOT_FOUND"
+    DATABASE_ERROR = "DATABASE_ERROR"
+    INVALID_VARIABLE = "INVALID_VARIABLE"
+
+
+class VariableResolution(BaseModel):
+    """
+    Represents the resolution of a single variable to its data value.
+    
+    :param var: Variable name (e.g., "patient.age")
+    :param value: Resolved value (None if not resolved)
+    :param status: Resolution status
+    """
+    var: str
+    value: Optional[Union[int, float, str, bool]] = None
+    status: VariableResolutionStatus
 
 
 @dataclass(frozen=True)
