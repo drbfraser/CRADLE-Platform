@@ -40,8 +40,7 @@ class IntegratedRuleEvaluator:
         Evaluate a rule with a given context.
 
         :param rule: JsonLogic rule string to evaluate
-        :param context: Context dict with IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
-        :param variables_to_resolve: Pre-extracted variables
+        :param patient_id: Patient ID for data resolution
         :returns: Tuple of (RuleStatus, list of VariableResolution)
         """
         if rule is None or rule == "":
@@ -50,10 +49,8 @@ class IntegratedRuleEvaluator:
         try:
             variable_strings = extract_variables_from_rule(rule)
             logger.debug(
-                f"Variables to resolve: {variable_strings} for context {patient_id}"
+                f"Variables to resolve: {variable_strings} for patient {patient_id}"
             )
-            if not variable_strings:
-                return self._evaluate_static_rule(rule)
 
             variables = [
                 DatasourceVariable.from_string(v) for v in variable_strings
@@ -84,10 +81,21 @@ class IntegratedRuleEvaluator:
 
         except Exception as e:
             logger.exception(
-                f"Error evaluating rule for context {context}: {e}"
+                f"Database error evaluating rule for patient {patient_id}: {e}"
             )
-            # change this for specific error handling
-            return (RuleStatus.NOT_ENOUGH_DATA, [])
+            try:
+                variable_strings = extract_variables_from_rule(rule)
+                error_resolutions = [
+                    VariableResolution(
+                        var=var_str,
+                        value=None,
+                        status=VariableResolutionStatus.DATABASE_ERROR,
+                    )
+                    for var_str in variable_strings
+                ]
+                return (RuleStatus.NOT_ENOUGH_DATA, error_resolutions)
+            except:
+                return (RuleStatus.NOT_ENOUGH_DATA, [])
 
     def _create_variable_resolutions(
         self, resolved_data: Dict[str, Any]
@@ -106,6 +114,14 @@ class IntegratedRuleEvaluator:
                         var=var_name,
                         value=value,
                         status=VariableResolutionStatus.RESOLVED,
+                    )
+                )
+            else:
+                var_resolutions.append(
+                    VariableResolution(
+                        var=var_name,
+                        value=None,
+                        status=VariableResolutionStatus.OBJECT_NOT_FOUND,
                     )
                 )
         return var_resolutions

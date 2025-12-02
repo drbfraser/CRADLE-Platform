@@ -28,38 +28,6 @@ from validation.workflow_models import (
 )
 
 
-# NOTE: This class may not belong here since it's not inherently workflow-specific.
-# Once implemented, it could be moved to service/evaluate or a more relevant location.
-class RuleEvaluator:
-    """
-    Evaluates a rule by integrating the extractor, resolver, and rule engine.
-    Uses lazy initialization to avoid creating the evaluator until needed.
-    """
-    
-    _evaluator = None
-    
-    @classmethod
-    def _get_evaluator(cls) -> IntegratedRuleEvaluator:
-        """Lazy initialization of the evaluator."""
-        if cls._evaluator is None:
-            cls._evaluator = IntegratedRuleEvaluator()
-        return cls._evaluator
-
-    @staticmethod
-    def evaluate_rule(
-        rule: Optional[str],
-        patient_id: str,
-    ) -> tuple[RuleStatus, list[VariableResolution]]:
-        """
-        Evaluate a rule for a given patient.
-        
-        :param rule: JsonLogic rule string to evaluate (None = unconditional branch)
-        :param patient_id: Patient ID for data resolution
-        :returns: Tuple of (RuleStatus, list of VariableResolution)
-        """
-        evaluator = RuleEvaluator._get_evaluator()
-        return evaluator.evaluate_rule(rule, patient_id)
-
 
 class WorkflowPlanner:
     """
@@ -80,7 +48,8 @@ class WorkflowPlanner:
         :returns: WorkflowBranchEvaluation with rule status and variable resolutions
         """
         rule = branch.condition.rule if branch.condition else None
-        rule_status, var_resolutions = RuleEvaluator.evaluate_rule(rule, patient_id)
+        evaluator = IntegratedRuleEvaluator()
+        rule_status, var_resolutions = evaluator.evaluate_rule(rule, patient_id)
 
         branch_evaluation = WorkflowBranchEvaluation(
             branch_id=branch.id,

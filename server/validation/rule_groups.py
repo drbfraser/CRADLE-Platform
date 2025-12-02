@@ -51,15 +51,3 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
     # TODO: Add validators to determine if rule and data_sources are in the correct format
 
 
-# TODO: Move to a more relevant location, maybe in variable resolver?
-# class VariableResolutionStatus(StrEnum):
-#     """Status codes for variable resolution"""
-
-#     RESOLVED = "RESOLVED"
-#     # TODO: Can add more statuses as needed (e.g., DATABASE_ERROR)
-
-
-# class VariableResolution(CradleBaseModel):
-#     var: str
-#     value: Union[int, float, str, bool]
-#     status: VariableResolutionStatus

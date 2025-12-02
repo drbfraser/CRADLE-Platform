@@ -41,9 +41,8 @@ class VariableResolutionStatus(StrEnum):
     """Status codes for variable resolution"""
 
     RESOLVED = "RESOLVED"
-    NOT_FOUND = "NOT_FOUND"
     DATABASE_ERROR = "DATABASE_ERROR"
-    INVALID_VARIABLE = "INVALID_VARIABLE"
+    OBJECT_NOT_FOUND = "OBJECT_NOT_FOUND"
 
 
 class VariableResolution(BaseModel):
