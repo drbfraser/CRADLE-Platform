@@ -21,40 +21,11 @@ export default function NextStepSelector({
   setSelectedId,
   options,
 }: IProps) {
-  const mockOptions: WorkflowNextStepOption[] = [
-    {
-      branchId: 'branch-1',
-      stepId: 'test-workflow-instance-1-step2',
-      title: 'Name Assessment',
-      isRecommended: true,
-      ruleDetails: [
-        'Rule: patient.age < 32',
-        'Resolved: patient.age = 30',
-        'Status: TRUE',
-      ],
-    },
-    {
-      branchId: 'branch-2',
-      stepId: 'test-workflow-instance-1-step3',
-      title: 'Schedule Follow-up',
-      isRecommended: false,
-      ruleDetails: [
-        'Rule: patient.age >= 32',
-        'Resolved: patient.age = 30',
-        'Status: FALSE',
-      ],
-    },
-  ];
-
-  const test = (e: any) => {
-    // TODO: TO REMOVE AFTER DEBUG
-    setSelectedId(e.target.value);
-    console.log(e.target.value);
-  };
-
   return (
-    <Box sx={{ width: 400 }}>
-      <RadioGroup value={selectedId} onChange={test}>
+    <Box sx={{ width: '35vw' }}>
+      <RadioGroup
+        value={selectedId}
+        onChange={(e) => setSelectedId(e.target.value)}>
         {options.map((opt) => (
           <Box
             key={opt.stepId}

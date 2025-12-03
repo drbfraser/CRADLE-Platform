@@ -15,16 +15,9 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  advanceOverrideStep,
-  advanceRecommendedStep,
-  applyInstanceStepAction,
-  archiveInstanceStepForm,
-  evaluateInstanceStep,
-  getInstanceActions,
-} from 'src/shared/api';
+import { archiveInstanceStepForm } from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
@@ -38,18 +31,11 @@ import { SnackbarSeverity } from 'src/shared/enums';
 import WorkflowRecommendationBanner, {
   RecommendationBannerData,
 } from './components/WorkflowRecommendationBanner';
-import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
-import {
-  ApplyInstanceStepActionRequest,
-  WorkflowInstanceAction,
-  WorkflowInstanceStepEvaluation,
-} from 'src/shared/types/workflow/workflowApiTypes';
-import {
-  getWorkflowNextStepOptions,
-  getWorkflowStepWithId,
-} from './WorkflowUtils';
+import { WorkflowInstanceAction } from 'src/shared/types/workflow/workflowApiTypes';
+import { getWorkflowStepWithId } from './WorkflowUtils';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
-import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
+import { useWorkflowNextStepOptions } from 'src/shared/hooks/patient/useWorkflowNextStepOptions';
+import { useWorkflowStepActions } from 'src/shared/hooks/patient/useWorkflowStepActions';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -74,12 +60,7 @@ export default function WorkflowInstanceDetailsPage() {
       hasNextStep: false,
       message: '',
     });
-  const [stepActions, setStepActions] = useState<WorkflowInstanceAction[]>([]);
   const [nextStep, setNextStep] = useState<string | null>(null);
-  const [openNextStepModal, setOpenNextStepModal] = useState<boolean>(false);
-  const [nextOptions, setNextOptions] = useState<WorkflowNextStepOption[]>([]);
-  const [currentStepEvaluation, setCurrentStepEvaluation] =
-    useState<WorkflowInstanceStepEvaluation | null>(null);
 
   const { instanceDetails, template, currentStep, progressInfo, reload } =
     useWorkflowInstanceDetails(instanceId!);
@@ -90,21 +71,35 @@ export default function WorkflowInstanceDetailsPage() {
     onRefetchForm,
   } = useWorkflowFormModal(currentStep, reload);
 
-  // TODO: add setCurrentStep function inside useWorkflowInstanceDetails
-  const handleMakeCurrent = React.useCallback(
-    (stepId: string, title: string) => {
-      setConfirmDialog({
-        open: true,
-        title: 'Override Current Step',
-        message: `Override current step and move to ${title}?`,
-        onConfirm: () => {
-          console.log('Make current step:', stepId);
-          setConfirmDialog((prev) => ({ ...prev, open: false }));
-        },
-      });
-    },
-    []
+  const showSnackbar = (message: string, severity: SnackbarSeverity) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const {
+    nextOptions,
+    currentStepEvaluation,
+    openNextStepModal,
+    handleOpenNextStepModal,
+    handleCloseNextStepModal,
+  } = useWorkflowNextStepOptions(
+    instanceDetails,
+    template,
+    currentStep,
+    showSnackbar
   );
+
+  const { completeAndStartNextStep, completeFinalStep } =
+    useWorkflowStepActions(
+      instanceDetails,
+      currentStep,
+      currentStepEvaluation,
+      showSnackbar,
+      reload
+    );
 
   const handleArchiveForm = async () => {
     try {
@@ -137,14 +132,6 @@ export default function WorkflowInstanceDetailsPage() {
     }
   };
 
-  const showSnackbar = (message: string, severity: SnackbarSeverity) => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
   const handleOpenRecommendation = (newActions: WorkflowInstanceAction[]) => {
     // TODO: Pass next action to recommendation banner
     const recommendedStep = getWorkflowStepWithId(
@@ -165,120 +152,36 @@ export default function WorkflowInstanceDetailsPage() {
     setRecommendation({ open: false, message: '' });
   };
 
+  // TODO: Placeholder function. To be implemented for overrides.
+  const handleSetCurrentStep = useCallback((stepId: string, title: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Override Current Step',
+      message: `Override current step and move to ${title}?`,
+      onConfirm: () => {
+        console.log('Make current step:', stepId);
+        setConfirmDialog((prev) => ({ ...prev, open: false }));
+      },
+    });
+  }, []);
+
   const handleGoToStep = () => {
     setExpandedStep('test-workflow-instance-1-step2'); // TODO: To be replaced by recommended step ID from backend once implemented
     handleCloseRecommendation();
   };
 
-  const handleApplyStepAction = async (
-    actionType: InstanceStepAction,
-    stepId: string
-  ) => {
-    const payload: ApplyInstanceStepActionRequest = {
-      action: {
-        type: actionType,
-        step_id: stepId,
-      },
-    };
-    const response = await applyInstanceStepAction(
-      instanceDetails!.id,
-      payload
-    );
+  const handleCompleteFinalStep = async () => {
+    const { success } = await completeFinalStep();
+    if (!success) return;
 
-    return response;
+    handleCloseNextStepModal();
+    setExpandedStep(null);
   };
 
-  const completeStep = async () => {
-    return await handleApplyStepAction(
-      InstanceStepAction.COMPLETE,
-      currentStep!.id
-    );
-  };
-
-  const startStep = async (stepId: string) => {
-    return await handleApplyStepAction(InstanceStepAction.START, stepId);
-  };
-
-  const completeWorkflow = async () => {
-    return await handleApplyStepAction(
-      InstanceStepAction.COMPLETE_WORKFLOW,
-      currentStep!.id
-    );
-  };
-
-  const getNextStepOptions = async () => {
-    if (!instanceDetails || !template || !currentStep) return;
-
-    const currentStepEval = await evaluateInstanceStep(
-      instanceDetails.id,
-      currentStep.id
-    );
-    setCurrentStepEvaluation(currentStepEval);
-    console.log('STEP EVAL', currentStepEval);
-
-    return getWorkflowNextStepOptions(
-      instanceDetails,
-      template,
-      currentStepEval,
-      currentStep.id
-    );
-  };
-
-  const handleOpenNextStepModal = async () => {
+  const handleCompleteAndStartNextStep = async (stepId: string) => {
     try {
-      const options = await getNextStepOptions();
-      console.log('OPTIONS', options);
-      if (!options) return;
-
-      setNextOptions(options);
-      setOpenNextStepModal(true);
-    } catch (e) {
-      console.error('Unable to get next steps', e);
-      showSnackbar('Unable to get next steps', SnackbarSeverity.ERROR);
-    }
-  };
-
-  const handleCloseNextStepModal = () => {
-    setOpenNextStepModal(false);
-  };
-
-  const handleCompleteFinalStep = async (): Promise<void> => {
-    try {
-      await completeStep();
-      await reload();
-
-      await completeWorkflow();
-      await reload();
-      handleCloseNextStepModal();
-      showSnackbar('Workflow completed!', SnackbarSeverity.SUCCESS);
-      setExpandedStep(null);
-    } catch (e) {
-      console.error('Unable to complete step', e);
-      showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-    }
-  };
-
-  const handleSelectNextStep = async (stepId: string): Promise<void> => {
-    try {
-      await startStep(stepId); // Currently only recommended step is valid
-      await reload();
-      handleCloseNextStepModal();
-      setExpandedStep(stepId);
-    } catch (e) {
-      console.error('Unable to select step', e);
-      showSnackbar('Unable to select step', SnackbarSeverity.ERROR);
-    }
-  };
-
-  const handleCompleteAndStartNext = async (stepId: string) => {
-    try {
-      await completeStep();
-      await reload();
-
-      await advanceInstanceCurrentStep(stepId);
-
-      await startStep(stepId);
-      await reload();
+      const { success } = await completeAndStartNextStep(stepId);
+      if (!success) return;
 
       handleCloseNextStepModal();
       setExpandedStep(stepId);
@@ -286,20 +189,6 @@ export default function WorkflowInstanceDetailsPage() {
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-    }
-  };
-
-  const isRecommendedStep = (stepId: string) => {
-    return currentStepEvaluation!.selectedBranchId === stepId;
-  };
-
-  const advanceInstanceCurrentStep = async (stepId: string) => {
-    if (isRecommendedStep(stepId)) {
-      await advanceRecommendedStep(instanceDetails!.id);
-    } else {
-      await advanceOverrideStep(instanceDetails!.id, {
-        workflowInstanceStepId: stepId,
-      });
     }
   };
 
@@ -401,7 +290,7 @@ export default function WorkflowInstanceDetailsPage() {
               expandAll={expandAll}
               setExpandAll={setExpandAll}
               setConfirmDialog={setConfirmDialog}
-              handleMakeCurrent={handleMakeCurrent}
+              handleMakeCurrent={handleSetCurrentStep}
               handleOpenFormModal={handleOpenFormModal}
               handleCloseFormModal={handleCloseFormModal}
               formModalState={formModalState}
@@ -415,7 +304,7 @@ export default function WorkflowInstanceDetailsPage() {
             {/* Section 4: Possible Other Steps */}
             <WorkflowPossibleSteps
               workflowInstance={instanceDetails}
-              handleMakeCurrent={handleMakeCurrent}
+              handleMakeCurrent={handleSetCurrentStep}
             />
 
             {/* Confirmation Dialog */}
@@ -457,9 +346,8 @@ export default function WorkflowInstanceDetailsPage() {
         nextStep={nextStep}
         setNextStep={setNextStep}
         handleCloseNextStepModal={handleCloseNextStepModal}
-        handleSelectNextStep={handleSelectNextStep}
         handleCompleteFinalStep={handleCompleteFinalStep}
-        handleCompleteAndStartNext={handleCompleteAndStartNext}
+        handleCompleteAndStartNextStep={handleCompleteAndStartNextStep}
         options={nextOptions}
       />
     </>

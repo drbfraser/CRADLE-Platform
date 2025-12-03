@@ -239,8 +239,6 @@ export const getWorkflowNextStepOptions = (
   const branchEvals = stepEval.branchEvaluations;
   const selectedBranchId = stepEval.selectedBranchId;
   const nextOptions: WorkflowNextStepOption[] = [];
-  console.log('step eval', stepEval);
-  console.log('branch eval', branchEvals);
 
   branchEvals.forEach((branchEval) => {
     const targetInstanceStep = getTargetTemplateStepFromBranchId(
@@ -260,11 +258,13 @@ export const getWorkflowNextStepOptions = (
       isRecommended: selectedBranchId === branchEval.branchId,
       ruleDetails: [
         `Rule: ${branchEval.rule}`,
-        ...branchEval.varResolutions.map((vr) => {
-          const displayValue = vr.value ?? 'N/A';
-          return `Resolved: ${vr.var} = ${displayValue}, status: ${vr.status}`;
-        }),
         `Status: ${branchEval.ruleStatus}`,
+        ...(branchEval.varResolutions.length
+          ? branchEval.varResolutions.map((vr) => {
+              const displayValue = vr.value ?? 'N/A';
+              return `Resolved: ${vr.var} = ${displayValue}, status: ${vr.status}`;
+            })
+          : ['No data found']),
       ],
     };
 
