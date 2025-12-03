@@ -15,18 +15,16 @@ interface IProps {
   nextStep: string | null;
   setNextStep: React.Dispatch<React.SetStateAction<string | null>>;
   handleCloseNextStepModal: () => void;
-  handleSelectNextStep: (stepId: string) => Promise<void>;
   handleCompleteFinalStep: () => void;
-  handleCompleteAndStartNext: (stepId: string) => Promise<void>;
+  handleCompleteAndStartNextStep: (stepId: string) => Promise<void>;
   options: WorkflowNextStepOption[];
 }
 
 export default function WorkflowSelectStepModal({
   open,
   handleCloseNextStepModal,
-  handleSelectNextStep,
   handleCompleteFinalStep,
-  handleCompleteAndStartNext,
+  handleCompleteAndStartNextStep,
   options,
 }: IProps) {
   const [selectedId, setSelectedId] = useState('');
@@ -35,7 +33,7 @@ export default function WorkflowSelectStepModal({
 
   const handleOnConfirm = async () => {
     try {
-      await handleCompleteAndStartNext(selectedId);
+      await handleCompleteAndStartNextStep(selectedId);
     } catch (e) {
       console.error('Error completing/starting next step', e);
     }
