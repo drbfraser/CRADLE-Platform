@@ -18,7 +18,7 @@ from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
     validate_workflow_template_step,
 )
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 from validation import CradleBaseModel
@@ -103,7 +103,7 @@ def get_workflow_classification_from_dict(
 
     if workflow_classification_orm is None and workflow_classification_dict is not None:
         # If this workflow classification is completely new, then it will be returned
-        workflow_classification_orm = marshal.unmarshal(
+        workflow_classification_orm = orm_serializer.unmarshal(
             WorkflowClassificationOrm, workflow_classification_dict
         )
 
@@ -152,7 +152,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         for workflow_template_step in workflow_template_dict["steps"]:
             validate_workflow_template_step(workflow_template_step)
 
-    workflow_template_orm = marshal.unmarshal(
+    workflow_template_orm = orm_serializer.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
 
@@ -179,7 +179,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
     crud.create(model=workflow_template_orm, refresh=True)
 
-    return marshal.marshal(obj=workflow_template_orm, shallow=True)
+    return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
 
 
 # /api/workflow/templates [POST] - File upload (like form templates)
@@ -233,7 +233,8 @@ def get_workflow_templates():
     )
 
     response_data = [
-        marshal.marshal(template, shallow=True) for template in workflow_templates
+        orm_serializer.marshal(template, shallow=True)
+        for template in workflow_templates
     ]
 
     return {"items": response_data}, 200
@@ -261,7 +262,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_template, shallow=False)
+    response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
@@ -297,7 +298,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
         workflow_template_id=path.workflow_template_id
     )
     template_steps = [
-        marshal.marshal(template_step) for template_step in template_steps
+        orm_serializer.marshal(template_step) for template_step in template_steps
     ]
 
     return {"items": template_steps}, 200
@@ -337,7 +338,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
     response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -371,11 +372,11 @@ def update_workflow_template_patch(
         )
 
     # Create an entirely new workflow template with the new attributes
-    copy_workflow_template_dict = marshal.marshal(workflow_template)
+    copy_workflow_template_dict = orm_serializer.marshal(workflow_template)
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=True
     )
-    new_workflow_template = marshal.unmarshal(
+    new_workflow_template = orm_serializer.unmarshal(
         WorkflowTemplateOrm, copy_workflow_template_dict
     )
 
@@ -407,7 +408,7 @@ def update_workflow_template_patch(
 
     response_data = crud.read(WorkflowTemplateOrm, id=copy_workflow_template_dict["id"])
 
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -466,7 +467,7 @@ def archive_workflow_template(
     )
 
     updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
-    return marshal.marshal(updated_template, shallow=True), 200
+    return orm_serializer.marshal(updated_template, shallow=True), 200
 
 
 # /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]

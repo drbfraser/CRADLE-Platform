@@ -167,8 +167,10 @@ export interface FormResponse {
 }
 
 export interface InstanceInput {
-  templateId: ID;
+  workflowTemplateId: ID;
   patientId: ID;
+  name?: string;
+  description?: string;
   formResponses?: FormResponse[];
 }
 

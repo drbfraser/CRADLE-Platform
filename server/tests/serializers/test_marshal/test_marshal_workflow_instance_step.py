@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormOrm,
@@ -78,7 +78,7 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
     workflow_instance_step.condition_id = "rg-200"
     workflow_instance_step.condition = _make_condition("rg-200")
 
-    marshalled = m.marshal(workflow_instance_step)
+    marshalled = orm_seralizer.marshal(workflow_instance_step)
 
     # Top-level scalar fields that should be present
     assert marshalled["id"] == "wis-101"
@@ -146,7 +146,7 @@ def test_workflow_instance_step_marshal_handles_no_form_and_no_condition():
     workflow_instance_step.condition_id = None
     workflow_instance_step.condition = None
 
-    marshalled = m.marshal(workflow_instance_step)
+    marshalled = orm_seralizer.marshal(workflow_instance_step)
 
     # Regular kept fields
     assert marshalled["id"] == "wis-202"

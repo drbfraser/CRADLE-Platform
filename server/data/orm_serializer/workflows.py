@@ -87,7 +87,8 @@ def __marshal_workflow_template_step(
     d = vars(wts).copy()
     __pre_process(d)
 
-    d["form"] = __marshal_form_template(wts.form)
+    if wts.form:
+        d["form"] = __marshal_form_template(wts.form)
 
     if not shallow:
         d["branches"] = [
@@ -157,7 +158,7 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     __pre_process(d)
 
     if wis.form is not None:
-        d["formId"] = wis.form.id
+        d["form_id"] = wis.form.id
         d["form"] = __marshal_form(wis.form, shallow=True)
     else:
         d["form"] = None
@@ -233,7 +234,7 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
     :param d: Workflow template payload dictionary.
     :return: ``WorkflowTemplateOrm`` with steps/classification set.
     """
-    with db_session.no_autoflush():
+    with db_session.no_autoflush:
         steps = []
         classification = None
 

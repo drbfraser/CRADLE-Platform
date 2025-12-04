@@ -12,7 +12,7 @@ from flask.cli import FlaskGroup
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
-from data import marshal
+from data import orm_serializer
 from enums import QuestionTypeEnum, SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
 from models import (
     FormAnswerOrmV2,
@@ -370,7 +370,7 @@ def seed():
             "is_archived": False,
         }
 
-        db.session.add(marshal.unmarshal(PatientOrm, patient))
+        db.session.add(orm_serializer.unmarshal(PatientOrm, patient))
         db.session.commit()
 
         if pregnant:
@@ -401,7 +401,7 @@ def seed():
                 "symptoms": get_random_symptoms(),
             }
 
-            reading_orm = marshal.unmarshal(ReadingOrm, reading)
+            reading_orm = orm_serializer.unmarshal(ReadingOrm, reading)
 
             referral_comments = [
                 " needs help!",
@@ -513,7 +513,7 @@ def create_patient_reading_referral_pregnancy(
     db.session.add(PatientOrm(**patient))
     db.session.commit()
 
-    reading_orm = marshal.unmarshal(ReadingOrm, reading)
+    reading_orm = orm_serializer.unmarshal(ReadingOrm, reading)
     crud.create(reading_orm, refresh=True)
 
     db.session.add(ReferralOrm(**referral))

@@ -1,4 +1,4 @@
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import RuleGroupOrm
 
 
@@ -23,7 +23,7 @@ def test_rule_group_marshal_preserves_json_and_strips_private():
         "source": "form_readings",
     }
 
-    marshalled = m.marshal(rule_group)
+    marshalled = orm_seralizer.marshal(rule_group)
 
     assert set(marshalled.keys()) == {"id", "rule", "data_sources"}
     assert marshalled["id"] == "rg-001"
@@ -51,7 +51,7 @@ def test_rule_group_marshal_strips_none_values_for_optional_json_fields():
     rule_group.rule = {"any": [{"qidx": 7, "op": "EQUALS", "value": "YES"}]}
     rule_group.data_sources = None
 
-    marshalled = m.marshal(rule_group)
+    marshalled = orm_seralizer.marshal(rule_group)
 
     assert set(marshalled.keys()) == {"id", "rule"}
     assert marshalled["id"] == "rg-002"
@@ -67,7 +67,7 @@ def test_rule_group_marshal_allows_empty_structures():
     rule_group.rule = {}
     rule_group.data_sources = []
 
-    marshalled = m.marshal(rule_group)
+    marshalled = orm_seralizer.marshal(rule_group)
 
     assert set(marshalled.keys()) == {"id", "rule", "data_sources"}
     assert marshalled["id"] == "rg-003"

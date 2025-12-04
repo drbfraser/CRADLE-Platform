@@ -11,7 +11,7 @@ from common.api_utils import (
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
-from data import marshal
+from data import orm_serializer
 from models import (
     PatientOrm,
     WorkflowInstanceOrm,
@@ -54,6 +54,8 @@ WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not
 class CreateWorkflowInstanceRequest(CradleBaseModel):
     workflow_template_id: str
     patient_id: str
+    name: str
+    description: str
 
 
 def get_workflow_view(workflow_instance_id: str) -> WorkflowView:
@@ -123,6 +125,11 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
 
+    if body.name is not None:
+        workflow_instance.name = body.name
+    if body.description is not None:
+        workflow_instance.description = body.description
+
     workflow_view = WorkflowView(workflow_template, workflow_instance)
 
     # Start the workflow immediately to keep things simple
@@ -153,7 +160,7 @@ def get_workflow_instances():
 
     response_data = []
     for instance in workflow_instances:
-        data = marshal.marshal(instance, shallow=False)
+        data = orm_serializer.marshal(instance, shallow=False)
         if not with_steps:
             del data["steps"]
         response_data.append(data)
@@ -181,7 +188,7 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_instance, shallow=False)
+    response_data = orm_serializer.marshal(obj=workflow_instance, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
@@ -238,7 +245,7 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
     )
 
     response_data = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -266,7 +273,7 @@ def patch_workflow_instance(
 
     # If no changes were provided, return the current instance
     if not workflow_instance_changes:
-        response_data = marshal.marshal(workflow_instance, shallow=True)
+        response_data = orm_serializer.marshal(workflow_instance, shallow=True)
         return response_data, 200
 
     # Auto-update last_edited if not explicitly provided
@@ -302,7 +309,7 @@ def patch_workflow_instance(
 
     # Return the updated instance
     response_data = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 

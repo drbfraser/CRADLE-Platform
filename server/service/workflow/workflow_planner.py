@@ -101,7 +101,7 @@ class WorkflowPlanner:
     @staticmethod
     def _is_terminal_step(ctx: WorkflowView, step: WorkflowInstanceStepModel):
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
-        return branches == [] # A terminal step should not have any branches.
+        return branches == []  # A terminal step should not have any branches.
 
     @staticmethod
     def _get_next_step(

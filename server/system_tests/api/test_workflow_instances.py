@@ -43,6 +43,8 @@ def test_create_workflow_instance__success(
             json={
                 "workflow_template_id": workflow_template.id,
                 "patient_id": patient_id,
+                "name": "test_workflow_instance",
+                "description": "test_workflow_instance",
             },
         )
 
@@ -83,6 +85,8 @@ def test_create_workflow_instance__workflow_template_not_found(patient_id, api_p
         json={
             "workflow_template_id": "this-template-shouldnt-exist",
             "patient_id": patient_id,
+            "name": "test_workflow_instance",
+            "description": "test_workflow_instance",
         },
     )
 
@@ -103,6 +107,8 @@ def test_create_workflow_instance__patient_not_found(workflow_template1, api_pos
             json={
                 "workflow_template_id": workflow_template1["id"],
                 "patient_id": "this-patient-shouldnt-exist",
+                "name": "test_workflow_instance",
+                "description": "test_workflow_instance",
             },
         )
 

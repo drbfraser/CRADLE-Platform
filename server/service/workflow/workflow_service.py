@@ -2,7 +2,7 @@ from typing import Optional
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
-from data import marshal
+from data import orm_serializer
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
 from service.workflow.workflow_planner import WorkflowPlanner
@@ -80,7 +80,7 @@ class WorkflowService:
         for instance_step in workflow_instance.steps:
             instance_step.last_edited = get_current_time()
 
-        workflow_instance_orm = marshal.unmarshal(
+        workflow_instance_orm = orm_serializer.unmarshal(
             WorkflowInstanceOrm, workflow_instance.model_dump()
         )
 
@@ -95,7 +95,7 @@ class WorkflowService:
         for template_step in workflow_template.steps:
             template_step.last_edited = get_current_time()
 
-        workflow_template_orm = marshal.unmarshal(
+        workflow_template_orm = orm_serializer.unmarshal(
             WorkflowTemplateOrm, workflow_template.model_dump()
         )
 
@@ -110,7 +110,7 @@ class WorkflowService:
         if not workflow_instance_orm:
             return None
 
-        workflow_instance_dict = marshal.marshal(workflow_instance_orm)
+        workflow_instance_dict = orm_serializer.marshal(workflow_instance_orm)
         workflow_instance = WorkflowInstanceModel(**workflow_instance_dict)
         return workflow_instance
 
@@ -123,7 +123,7 @@ class WorkflowService:
         if not workflow_template_orm:
             return None
 
-        workflow_template_dict = marshal.marshal(workflow_template_orm)
+        workflow_template_dict = orm_serializer.marshal(workflow_template_orm)
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
 

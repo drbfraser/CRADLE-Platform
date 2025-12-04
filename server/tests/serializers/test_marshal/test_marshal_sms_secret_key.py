@@ -1,6 +1,6 @@
 import datetime as dt
 
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import SmsSecretKeyOrm
 
 UTC = dt.timezone.utc
@@ -56,7 +56,7 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
 
     s.extra = None
 
-    marshalled = m.marshal(s)
+    marshalled = orm_seralizer.marshal(s)
 
     # expected keys/values
     assert marshalled["id"] == "ssk-prod-42"

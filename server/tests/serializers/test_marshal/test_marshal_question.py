@@ -1,7 +1,7 @@
 # ruff: noqa: SLF001
 import json
 
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from enums import QuestionTypeEnum
 from models import (
     FormOrm,
@@ -155,7 +155,7 @@ def test_question_marshal_parses_json_fields_and_strips_relationships():
 
     question._test = {"trace": True}
 
-    marshalled = m.marshal(question)
+    marshalled = orm_seralizer.marshal(question)
 
     # Core fields
     assert marshalled["id"] == "q-parse"
@@ -222,11 +222,11 @@ def test_question_marshal_includes_lang_versions_only_when_requested():
     )
 
     # Default: versions omitted
-    base = m.marshal(question, if_include_versions=False)
+    base = orm_seralizer.marshal(question, if_include_versions=False)
     assert "lang_versions" not in base
 
     # With versions included
-    marshalled = m.marshal(question, if_include_versions=True)
+    marshalled = orm_seralizer.marshal(question, if_include_versions=True)
     assert "lang_versions" in marshalled and isinstance(
         marshalled["lang_versions"], list
     )
@@ -265,12 +265,12 @@ def test_marshal_question_to_single_version_overrides_text_and_mc_options_condit
         question_type=QuestionTypeEnum.INTEGER,
     )
 
-    out_en = m.marshal_question_to_single_version(q, "en")
+    out_en = orm_seralizer.marshal_question_to_single_version(q, "en")
     assert out_en["question_text"] == "Gravida (English)"
     assert out_en["mc_options"] == ["0", "1", "2+"]
     assert out_en["question_type"] == QuestionTypeEnum.INTEGER.value
 
-    out_fr = m.marshal_question_to_single_version(q, "fr")
+    out_fr = orm_seralizer.marshal_question_to_single_version(q, "fr")
     assert out_fr["question_text"] == "Geste (Francais)"
     assert out_fr["mc_options"] == ["BaseOnly"]
 
@@ -388,7 +388,7 @@ def test_form_question_template_v2_marshal_parses_json_fields():
         has_comment_attached=True,
     )
 
-    marshalled = m.marshal(question)
+    marshalled = orm_seralizer.marshal(question)
 
     assert marshalled["id"] == "q-v2-parse"
     assert marshalled["order"] == 2
@@ -421,7 +421,7 @@ def test_form_question_template_v2_marshal_validation_fields():
         num_max=200.0,
         units="bpm",
     )
-    numeric_marshalled = m.__marshal_form_question_template_v2(numeric_q)
+    numeric_marshalled = orm_seralizer.marshal(numeric_q)
     assert numeric_marshalled["num_min"] == 40.0
     assert numeric_marshalled["num_max"] == 200.0
     assert numeric_marshalled["units"] == "bpm"
@@ -433,7 +433,7 @@ def test_form_question_template_v2_marshal_validation_fields():
         string_max_length=500,
         string_max_lines=10,
     )
-    string_marshalled = m.__marshal_form_question_template_v2(string_q)
+    string_marshalled = orm_seralizer.marshal(string_q)
     assert string_marshalled["string_max_length"] == 500
     assert string_marshalled["string_max_lines"] == 10
 
@@ -444,7 +444,7 @@ def test_form_question_template_v2_marshal_validation_fields():
         allow_future_dates=True,
         allow_past_dates=False,
     )
-    date_marshalled = m.__marshal_form_question_template_v2(date_q)
+    date_marshalled = orm_seralizer.marshal(date_q)
     assert date_marshalled["allow_future_dates"] is True
     assert date_marshalled["allow_past_dates"] is False
 
@@ -473,7 +473,7 @@ def test_form_question_template_v2_marshal_handles_complex_visible_condition():
         visible_condition=complex_condition,
     )
 
-    marshalled = m.marshal(question)
+    marshalled = orm_seralizer.marshal(question)
 
     assert isinstance(marshalled["visible_condition"], list)
     assert len(marshalled["visible_condition"]) == 2
@@ -489,6 +489,6 @@ def test_form_question_template_v2_marshal_strips_private_attributes():
     question._sa_instance_state = "should_be_removed"
     question._test_data = {"key": "value"}
 
-    marshalled = m.__marshal_form_question_template_v2(question)
+    marshalled = orm_seralizer.marshal(question)
 
     assert all(not k.startswith("_") for k in marshalled)
