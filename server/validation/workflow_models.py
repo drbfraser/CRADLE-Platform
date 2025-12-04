@@ -9,7 +9,6 @@ from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from service.workflow.evaluate.rules_engine import RuleStatus
 from validation import CradleBaseModel
-from validation.forms import FormModel
 from validation.rule_groups import RuleGroupModel, VariableResolution
 
 
