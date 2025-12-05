@@ -25,7 +25,6 @@ from validation import CradleBaseModel
 from validation.workflow_api_models import (
     WorkflowInstanceStepModel,
     WorkflowInstanceStepUpdateModel,
-    WorkflowInstanceStepUploadModel,
 )
 
 
@@ -45,56 +44,6 @@ api_workflow_instance_steps = APIBlueprint(
 
 workflow_instance_not_found_msg = "Workflow instance with ID: ({}) not found."
 workflow_instance_step_not_found_msg = "Workflow instance step with ID: ({}) not found."
-
-
-# /api/workflow/instance/steps [POST]
-@api_workflow_instance_steps.post("", responses={201: WorkflowInstanceStepModel})
-def create_workflow_instance_step(body: WorkflowInstanceStepUploadModel):
-    """Create Workflow Instance Step"""
-    instance_step = body.model_dump()
-
-    # Check if workflow_instance_id is provided
-    if not instance_step.get("workflow_instance_id"):
-        return abort(
-            code=400,
-            description="workflow_instance_id is required to create a workflow instance step.",
-        )
-
-    # This endpoint assumes that the step has a workflow instance ID assigned to it already
-    workflow_instance = crud.read(
-        WorkflowInstanceOrm, id=instance_step["workflow_instance_id"]
-    )
-
-    if workflow_instance is None:
-        return abort(
-            code=404,
-            description=workflow_instance_not_found_msg.format(
-                instance_step["workflow_instance_id"]
-            ),
-        )
-
-    if instance_step.get("condition_id") is not None:
-        if instance_step.get("condition") is None:
-            condition = crud.read(RuleGroupOrm, id=instance_step["condition_id"])
-            if condition is None:
-                return abort(
-                    code=404,
-                    description=f"Condition with ID: ({instance_step['condition_id']}) not found.",
-                )
-
-    # Validate that the assigned user exists (if provided)
-    if instance_step.get("assigned_to") is not None:
-        try:
-            user_id = get_user_id(instance_step, "assigned_to")
-            instance_step["assigned_to"] = user_id
-        except ValueError:
-            return abort(code=404, description="Assigned user not found.")
-
-    instance_step_orm = orm_serializer.unmarshal(WorkflowInstanceStepOrm, instance_step)
-
-    crud.create(instance_step_orm, refresh=True)
-
-    return orm_serializer.marshal(instance_step_orm, shallow=True), 201
 
 
 # /api/workflow/instance/steps?workflow_instance_id=<str> [GET]
@@ -229,47 +178,6 @@ def update_workflow_instance_step(
     return updated_instance_step, 200
 
 
-# /api/workflow/instance/steps/<string:workflow_instance_step_id>/complete [PATCH]
-@api_workflow_instance_steps.patch(
-    "/<string:workflow_instance_step_id>/complete",
-    responses={200: WorkflowInstanceStepModel},
-)
-def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
-    """Complete Workflow Instance Step"""
-    instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
-    )
-
-    if instance_step is None:
-        return abort(
-            code=404,
-            description=workflow_instance_step_not_found_msg.format(
-                path.workflow_instance_step_id
-            ),
-        )
-
-    # Update the step to completed status
-    completion_changes = {
-        "status": "Completed",
-        "completion_date": get_current_time(),
-        "last_edited": get_current_time(),
-    }
-
-    crud.update(
-        WorkflowInstanceStepOrm,
-        changes=completion_changes,
-        id=path.workflow_instance_step_id,
-    )
-
-    updated_instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
-    )
-
-    updated_instance_step = orm_serializer.marshal(updated_instance_step, shallow=True)
-
-    return updated_instance_step, 200
-
-
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>/archive_form [PATCH]
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_instance_steps.patch("/<string:workflow_instance_step_id>/archive_form")
@@ -316,28 +224,3 @@ def archive_form(path: WorkflowInstanceStepIdPath):
     updated_instance_step = orm_serializer.marshal(updated_instance_step, shallow=True)
 
     return updated_instance_step, 200
-
-
-# /api/workflow/instance/steps/<string:workflow_instance_step_id> [DELETE]
-@api_workflow_instance_steps.delete(
-    "/<string:workflow_instance_step_id>", responses={204: None}
-)
-def delete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
-    """Delete Workflow Instance Step"""
-    instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
-    )
-
-    if instance_step is None:
-        return abort(
-            code=404,
-            description=workflow_instance_step_not_found_msg.format(
-                path.workflow_instance_step_id
-            ),
-        )
-
-    crud.delete_workflow_step(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
-    )
-
-    return "", 204

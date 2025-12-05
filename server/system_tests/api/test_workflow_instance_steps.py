@@ -6,126 +6,24 @@ from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from models import (
     WorkflowInstanceOrm,
-    WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
 )
 from service.workflow.workflow_service import WorkflowService
-from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 # TODO: testing has only been done for simple steps.
 # steps involving forms or rules have not been tested.
 
 
-def test_create_workflow_instance_step(
-    database,
-    workflow_template1,
-    workflow_instance1,
-    api_post,
-    vht_user_id,
-):
+def test_get_workflow_instance_steps(api_get, sequential_workflow_view, patient_id):
+    workflow_view = sequential_workflow_view
+    workflow_view.instance.patient_id = patient_id
+
     try:
-        # Create workflow template
-        WorkflowService.upsert_workflow_template(
-            WorkflowTemplateModel(**workflow_template1)
-        )
+        WorkflowService.upsert_workflow_template(workflow_view.template)
+        WorkflowService.upsert_workflow_instance(workflow_view.instance)
 
-        # Create workflow instance
-        WorkflowService.upsert_workflow_instance(
-            WorkflowInstanceModel(**workflow_instance1)
-        )
-
-        minimal_workflow_instance_step = {
-            "id": get_uuid(),
-            "name": "Test Step 1",
-            "description": "Test Step 1",
-            "start_date": get_current_time(),
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "workflow_instance_id": workflow_instance1["id"],
-        }
-
-        # Test creating workflow instance step
-        response = api_post(
-            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
-        )
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-    finally:
-        crud.delete_all(
-            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
-        )
-        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
-        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
-
-
-def test_get_workflow_instance_steps(
-    database,
-    workflow_template1,
-    workflow_instance1,
-    api_post,
-    api_get,
-    vht_user_id,
-):
-    try:
-        # Create workflow template
-        WorkflowService.upsert_workflow_template(
-            WorkflowTemplateModel(**workflow_template1)
-        )
-
-        # Create workflow instance
-        WorkflowService.upsert_workflow_instance(
-            WorkflowInstanceModel(**workflow_instance1)
-        )
-
-        # TODO: instance steps shouldn't be able to be created by the client
-        # Create first workflow instance step
-        minimal_workflow_instance_step1 = {
-            "id": get_uuid(),
-            "name": "Test Step 1",
-            "description": "Test Step 1",
-            "start_date": get_current_time(),
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-        }
-
-        response = api_post(
-            endpoint="/api/workflow/instance/steps",
-            json=minimal_workflow_instance_step1,
-        )
-        database.session.commit()
-        assert response.status_code == 201
-
-        # Create second workflow instance step
-        minimal_workflow_instance_step2 = {
-            "id": get_uuid(),
-            "name": "Test Step 2",
-            "description": "Test Step 2",
-            "start_date": get_current_time() + 44345,
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-        }
-
-        response = api_post(
-            endpoint="/api/workflow/instance/steps",
-            json=minimal_workflow_instance_step2,
-        )
-        database.session.commit()
-
-        assert response.status_code == 201
-
-        # Test getting workflow instance steps with workflow_instance_id filter
         response = api_get(
-            endpoint=f"/api/workflow/instance/steps?workflow_instance_id={workflow_instance1['id']}"
+            endpoint=f"/api/workflow/instance/steps?workflow_instance_id={workflow_view.instance.id}"
         )
 
         response_body = decamelize(response.json())
@@ -135,9 +33,9 @@ def test_get_workflow_instance_steps(
         assert len(response_body["items"]) == 2
 
         # Verify the steps are returned correctly
-        step_names = [step["name"] for step in response_body["items"]]
-        assert "Test Step 1" in step_names
-        assert "Test Step 2" in step_names
+        step_ids = [step["id"] for step in response_body["items"]]
+        assert "si-1" in step_ids
+        assert "si-2" in step_ids
 
         # Test getting all workflow instance steps without filter
         response = api_get(endpoint="/api/workflow/instance/steps")
@@ -149,80 +47,15 @@ def test_get_workflow_instance_steps(
         assert len(response_body["items"]) >= 2
 
     finally:
-        crud.delete_all(
-            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_view.template.id,
         )
-        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
-        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
-
-
-def test_complete_workflow_instance_step(
-    database,
-    workflow_template1,
-    workflow_instance1,
-    api_post,
-    api_patch,
-    vht_user_id,
-):
-    try:
-        # Create workflow template
-        WorkflowService.upsert_workflow_template(
-            WorkflowTemplateModel(**workflow_template1)
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_view.instance.id,
         )
-
-        # Create workflow instance
-        WorkflowService.upsert_workflow_instance(
-            WorkflowInstanceModel(**workflow_instance1)
-        )
-
-        # Create workflow instance step
-        start_time = get_current_time()
-        minimal_workflow_instance_step = {
-            "id": get_uuid(),
-            "name": "Test Step to Complete",
-            "description": "Test Step to Complete",
-            "start_date": start_time,
-            "last_edited": start_time + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-        }
-
-        response = api_post(
-            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
-        )
-        database.session.commit()
-        assert response.status_code == 201
-
-        step_id = minimal_workflow_instance_step["id"]
-
-        # Test completing the workflow instance step
-        response = api_patch(
-            endpoint=f"/api/workflow/instance/steps/{step_id}/complete"
-        )
-
-        if response.status_code != 200:
-            print(f"Error response status: {response.status_code}")
-            print(f"Error response text: {response.text}")
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 200
-
-        # Verify the step was marked as completed
-        assert response_body["status"] == "Completed"
-        assert response_body["completion_date"] is not None
-        assert response_body["last_edited"] is not None
-        assert response_body["id"] == step_id
-        assert response_body["name"] == "Test Step to Complete"
-
-    finally:
-        crud.delete_all(
-            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
-        )
-        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
-        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
 
 
 @pytest.fixture
