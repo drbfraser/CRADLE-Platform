@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from flask import abort
+
 import data.db_operations as crud
 from common import commonUtil
 from enums import QuestionTypeEnum
@@ -23,6 +25,8 @@ if TYPE_CHECKING:
         FormTemplateUploadRequest,
         MultiLangText,
     )
+
+FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
 
 
 def filter_template_questions_dict(form_template: dict):
@@ -629,3 +633,29 @@ def get_new_lang_versions_and_questions(
             )
 
     return new_questions, new_lang_versions
+
+
+def fetch_form(form_id: str) -> FormOrm:
+    """
+    Fetches a form.
+    Raises a 404 error (via Flask's `abort`) if the form is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    form = crud.read(FormOrm, id=form_id)
+    if form is None:
+        return abort(
+            code=404,
+            description=FORM_NOT_FOUND_MSG.format(form_id),
+        )
+    return form
+
+
+def check_form_exists(form_id: str) -> None:
+    """
+    Checks if a form exists.
+    Raises a 404 error (via Flask's `abort`) if the form is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    fetch_form(form_id)

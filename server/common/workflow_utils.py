@@ -20,13 +20,21 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
 )
+from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
     from data.crud import M
+    from validation.workflow_models import (
+        WorkflowInstanceModel,
+        WorkflowInstanceStepModel,
+        WorkflowTemplateModel,
+    )
 
 
-workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
+WORKFLOW_INSTANCE_NOT_FOUND_MSG = "Workflow instance with ID: ({}) not found."
+WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
+WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not found."
 
 
 def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -> None:
@@ -162,7 +170,7 @@ def validate_workflow_template_step(workflow_template_step: dict):
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_msg.format(
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
                 workflow_template_step["workflow_template_id"]
             ),
         )
@@ -303,3 +311,76 @@ def generate_updated_workflow_template(
     apply_changes_to_model(new_workflow_template, template_changes)
 
     return new_workflow_template
+def fetch_workflow_instance(workflow_instance_id: str) -> WorkflowInstanceModel:
+    """
+    Fetches a workflow instance.
+    Raises a 404 error (via Flask's `abort`) if the workflow instance is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    workflow_instance = WorkflowService.get_workflow_instance(workflow_instance_id)
+    if workflow_instance is None:
+        abort(
+            code=404,
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id),
+        )
+    return workflow_instance
+
+
+def fetch_workflow_template(workflow_template_id: str) -> WorkflowTemplateModel:
+    """
+    Fetches a workflow template.
+    Raises a 404 error (via Flask's `abort`) if the workflow template is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
+    if workflow_template is None:
+        abort(
+            code=404,
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id),
+        )
+    return workflow_template
+
+
+def get_workflow_view(workflow_instance_id: str) -> WorkflowView:
+    """
+    Fetches a workflow instance and its template.
+    Raises a 404 error (via Flask's `abort`) if either the workflow instance or
+    workflow instance isn't found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    workflow_instance = fetch_workflow_instance(workflow_instance_id)
+    workflow_template = fetch_workflow_template(workflow_instance.workflow_template_id)
+
+    return WorkflowView(workflow_template, workflow_instance)
+
+
+def check_workflow_instance_step_exists(
+    workflow_instance: WorkflowInstanceModel, workflow_instance_step_id: str
+) -> None:
+    """
+    Checks if the workflow instance has an instance step with this step ID.
+    Raises a 404 error (via Flask's `abort`) if the workflow instance step
+    is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    if not workflow_instance.get_instance_step(workflow_instance_step_id):
+        abort(
+            code=404,
+            description=WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
+                workflow_instance_step_id
+            ),
+        )
+
+
+def check_workflow_instance_exists(workflow_instance_id: str) -> None:
+    """
+    Checks if a workflow instance exists.
+    Raises a 404 error (via Flask's `abort`) if the workflow instance is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    fetch_workflow_instance(workflow_instance_id)
