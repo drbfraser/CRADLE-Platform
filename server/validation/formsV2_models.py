@@ -68,27 +68,27 @@ class MultiLangText(RootModel[dict[str, str]]):
     """
 
 
-class Number(CradleBaseModel):
+class AnswerTypeNumber(CradleBaseModel):
     number: float
 
 
-class Text(CradleBaseModel):
+class AnswerTypeText(CradleBaseModel):
     text: str
 
 
-class MCId(CradleBaseModel):
+class AnswerTypeMCId(CradleBaseModel):
     mc_id_array: List[int]
 
 
-class Date(CradleBaseModel):
+class AnswerTypeDate(CradleBaseModel):
     date: str
 
 
 AnswerType = Union[
-    Number,
-    Text,
-    MCId,
-    Date,
+    AnswerTypeNumber,
+    AnswerTypeText,
+    AnswerTypeMCId,
+    AnswerTypeDate,
 ]
 
 
@@ -194,19 +194,19 @@ class FormTemplateUploadRequest(FormTemplate):
     questions: List[FormTemplateUploadQuestion]
 
 
-class NumberAnswer(Number):
+class NumberAnswer(AnswerTypeNumber):
     comment: Optional[str] = None
 
 
-class TextAnswer(Text):
+class TextAnswer(AnswerTypeText):
     comment: Optional[str] = None
 
 
-class MCAnswer(MCId):
+class MCAnswer(AnswerTypeMCId):
     comment: Optional[str] = None
 
 
-class DateAnswer(Date):
+class DateAnswer(AnswerTypeDate):
     comment: Optional[str] = None
 
 
@@ -233,7 +233,7 @@ class FormSubmissionResponse(CradleBaseModel, extra="forbid"):
     id: str
     form_template_id: str
     patient_id: str
-    user_id: Optional[str] = None
+    user_id: int
     date_submitted: int
     last_edited: int
     lang: str
@@ -254,19 +254,28 @@ class AnswerWithQuestion(FormAnswer):
     order: int
 
 
+class CreateFormSubmissionRequest(CradleBaseModel):
+    """Request body for creating a new form submission"""
+    id: Optional[str] = None
+    form_template_id: str
+    patient_id: str
+    user_id: int
+    lang: str = "English"
+    answers: list[FormAnswer]
+
+
 class FormSubmission(FormSubmissionResponse):
     id: Optional[str] = None
-    form_template_id: Optional[str] = None
     date_submitted: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    answers: List[AnswerWithQuestion]
+    answers: Optional[List[AnswerWithQuestion]]
 
 
 class FormIdPath(CradleBaseModel):
     form_submission_id: str
 
 
-class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
+class UpdateFormRequestBody(CradleBaseModel):
     """
     Request body for updating a submitted Form
     """

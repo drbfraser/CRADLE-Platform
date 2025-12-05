@@ -544,15 +544,15 @@ def validate_form_answers(
     (e.g. `num_min`, `num_max`, `string_max_length`, etc.)
     - if `question_type` is multiple choise or multiple select, the selected options must exist
     """
+    form_template = crud.read(FormTemplateOrmV2, id=form_template_id)
+    questions = {question.id: question for question in form_template.questions}
+
     for answer in answers:
         question_id = answer.question_id
         if question_id is None:
             return ValidationResult(False, "Answers must have a question_id", code=422)
 
-        filter = {"form_template_id": form_template_id, "id": question_id}
-        question: FormQuestionTemplateOrmV2 = crud.read(
-            FormQuestionTemplateOrmV2, **filter
-        )
+        question = questions.get(question_id)
 
         if question is None:
             return ValidationResult(
@@ -641,9 +641,6 @@ def validate_form_answers(
                     return ValidationResult(
                         False, "Future dates are not allowed", code=422
                     )
-
-            case _:
-                return ValidationResult(True, "Validated", code=None)
 
     return ValidationResult(True, "Answers are all valid", code=None)
 
@@ -776,10 +773,16 @@ def get_new_lang_versions_and_questions(
 
 def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
     answers = [FormAnswer(**(marshal.marshal(answer))) for answer in submission.answers]
+    form_template = crud.read(FormTemplateOrmV2, id=submission.form_template_id)
+    questions = {question.id: question for question in form_template.questions}
+    
     answers_list: list[AnswerWithQuestion] = []
     for answer in answers:
-        question = crud.read(FormQuestionTemplateOrmV2, id=answer.question_id)
-
+        question = questions.get(answer.question_id)
+        # Handle case where question_id doesn't exist (shouldn't happen with valid data)
+        if question is None:
+            raise ValueError("Question doesn't exist for one or more answers")
+        
         raw_mc = question.mc_options or "[]"
         mc_ids = json.loads(raw_mc)
 

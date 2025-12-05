@@ -19,6 +19,7 @@ from validation.formsV2_models import (
     FormSubmission,
     FormSubmissionResponse,
     UpdateFormRequestBody,
+    CreateFormSubmissionRequest    
 )
 
 # /api/forms/v2/responses
@@ -38,7 +39,7 @@ api_form_submissions_v2 = APIBlueprint(
 
 # /api/forms/v2/responses [POST]
 @api_form_submissions_v2.post("", responses={201: FormSubmissionResponse})
-def submit_form(body: FormSubmission):
+def submit_form(body: CreateFormSubmissionRequest):
     """Submit a Form"""
     submission = body
 
@@ -95,8 +96,9 @@ def submit_form(body: FormSubmission):
     form.last_edited = form.date_submitted
 
     crud.create(form, refresh=True)
+    result = marshal.marshal(form, shallow=True)
 
-    return marshal.marshal(form, shallow=True), 201
+    return FormSubmissionResponse(**result).model_dump(), 201
 
 
 # /api/forms/v2/responses/<string:form_submission_id> [GET]
@@ -115,8 +117,6 @@ def get_form(path: FormIdPath):
 
     if form.get("answers", None):
         form.pop("answers", None)
-    if form.get("user_id") is not None:
-        form["user_id"] = str(form["user_id"])
 
     result = FormSubmission(
         **form,
@@ -128,7 +128,7 @@ def get_form(path: FormIdPath):
 
 # /api/forms/v2/responses/<string:form_submission_id> [PUT]
 @api_form_submissions_v2.put(
-    "/<string:form_submission_id>", responses={201: FormSubmission}
+    "/<string:form_submission_id>", responses={201: FormSubmissionResponse}
 )
 def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update a previously submitted form (partial update of answers)."""
@@ -170,4 +170,5 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     crud.db_session.commit()
     crud.db_session.refresh(form)
 
-    return marshal.marshal(form, True), 201
+    result = marshal.marshal(form, shallow=True)
+    return FormSubmissionResponse(**result).model_dump(), 201

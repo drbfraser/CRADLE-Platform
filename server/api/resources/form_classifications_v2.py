@@ -45,7 +45,7 @@ def get_all_form_classifications():
 
 
 # /api/forms/v2/classifications [POST]
-@api_form_classifications_v2.post("")
+@api_form_classifications_v2.post("", responses={201: FormClassification})
 @roles_required([RoleEnum.ADMIN])
 def create_form_classification(body: FormClassification):
     """Create Form Classification"""
@@ -64,7 +64,9 @@ def create_form_classification(body: FormClassification):
     fc_orm = FormClassificationOrmV2(id=get_uuid(), name_string_id=name_string_id)
     crud.create(fc_orm, refresh=True)
 
-    return marshal.marshal(fc_orm, shallow=True), 201
+    result = marshal.marshal(fc_orm, shallow=True)
+    result['name'] = name_map
+    return FormClassification(**result).model_dump(), 201
 
 
 # /api/forms/v2/classifications/<string:form_classification_id> [GET]
@@ -79,7 +81,7 @@ def get_form_classification(path: FormClassificationIdPath):
 
     if form_classification is None:
         return abort(
-            400,
+            404,
             description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
@@ -90,7 +92,7 @@ def get_form_classification(path: FormClassificationIdPath):
     )
     form_classification["name"] = {lv.lang: lv.text for lv in available_langs}
 
-    return form_classification, 200
+    return FormClassification(**form_classification).model_dump(), 200
 
 
 # /api/forms/v2/classifications/<string:form_classification_id> [PUT]
@@ -122,8 +124,13 @@ def edit_form_classification_name(
 
     crud.db_session.commit()
     crud.db_session.refresh(fc_orm)
+    
+    result = marshal.marshal(fc_orm, shallow=True)
+    langs = form_utils.read_all_translations(fc_orm.name_string_id)
+    name_map = {lv.lang: lv.text for lv in langs}
+    result["name"] = name_map
 
-    return marshal.marshal(fc_orm, shallow=True), 200
+    return FormClassification(**result).model_dump(), 200
 
 
 # /api/forms/v2/classifications/summary [GET]
@@ -158,7 +165,7 @@ def get_form_classification_summary():
 
     result = []
     for template in valid_templates:
-        marshalled = marshal.marshal(template, shallow=False)
+        marshalled = marshal.marshal(template, shallow=True)
 
         marshalled["classification"]["name"] = {
             "english": form_utils.resolve_string_text(
@@ -168,7 +175,7 @@ def get_form_classification_summary():
 
         result.append(marshalled)
 
-    return result, 200
+    return FormTemplateList(result).model_dump(), 200
 
 
 # /api/forms/v2/classifications/<string:form_classification_id>/templates [GET]
@@ -196,4 +203,4 @@ def get_form_classification_templates(path: FormClassificationIdPath):
 
         out.append(d)
 
-    return out, 200
+    return FormTemplateList(out).model_dump(), 200
