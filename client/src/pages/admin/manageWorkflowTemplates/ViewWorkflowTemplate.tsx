@@ -44,6 +44,7 @@ export const ViewWorkflowTemplate = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string>('');
+  const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
 
   // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
@@ -56,7 +57,10 @@ export const ViewWorkflowTemplate = () => {
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
-      return await getTemplateWithStepsAndClassification(viewWorkflow.id);
+      const result = await getTemplateWithStepsAndClassification(
+        viewWorkflow.id
+      );
+      return result;
     },
     enabled: !!viewWorkflow?.id,
     initialData: viewWorkflow,
@@ -107,19 +111,13 @@ export const ViewWorkflowTemplate = () => {
     }
 
     try {
-      await editWorkflowTemplateMutation.mutateAsync(editedWorkflow);
-      setIsEditMode(false);
-      setEditedWorkflow(null);
-      setHasChanges(false);
+      await editWorkflowTemplateMutation.mutateAsync({
+        template: editedWorkflow,
+      });
+      // Redirect to workflow templates page after successful save
+      navigate('/admin/workflow-templates');
     } catch (error: any) {
-      const status = error?.status || error?.response?.status;
-      if (status === 409) {
-        setToastMsg(
-          'Version conflict: a template with this version exists. Please bump the version and try again.'
-        );
-        setToastOpen(true);
-      }
-      console.error('Error saving workflow template:', error);
+      return;
     }
   };
 
@@ -131,6 +129,294 @@ export const ViewWorkflowTemplate = () => {
       [field]: value,
     }));
     setHasChanges(true);
+  };
+
+  const handleStepChange = (stepId: string, field: string, value: string) => {
+    if (!editedWorkflow) return;
+
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps?.map((step) => {
+        if (step.id === stepId) {
+          return { ...step, [field]: value };
+        }
+        return step;
+      });
+
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
+    setHasChanges(true);
+  };
+
+  const handleInsertNode = (stepId: string) => {
+    if (!editedWorkflow) return;
+
+    // Get the current step
+    const currentStep = editedWorkflow.steps.find((s) => s.id === stepId);
+    if (!currentStep) {
+      return;
+    }
+
+    // Generate a unique ID for the new step
+    // (It will be overridden by the backend, so it doesn't matter what we use here)
+    const newStepId = `step-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // Determine the next step connections
+    // If current step has branches, preserve them for the new step
+    // If no branches, the new step will be a terminal node (no branches)
+    const newStepBranches =
+      currentStep.branches && currentStep.branches.length > 0
+        ? currentStep.branches.map((branch) => ({
+            ...branch,
+            stepId: newStepId, // Update stepId reference to new step
+          }))
+        : [];
+
+    // Create a new step
+    const newStep = {
+      id: newStepId,
+      name: 'New Step',
+      description: 'Add description here',
+      lastEdited: Date.now(),
+      workflowTemplateId: editedWorkflow.id,
+      branches: newStepBranches,
+    };
+
+    // Update current step to point all its branches to the new step
+    const updatedCurrentStep = {
+      ...currentStep,
+      branches:
+        currentStep.branches && currentStep.branches.length > 0
+          ? currentStep.branches.map((branch) => ({
+              ...branch,
+              targetStepId: newStepId, // All branches now point to new step
+            }))
+          : [{ stepId: currentStep.id, targetStepId: newStepId }], // If no branches existed, create one pointing to new step
+    };
+
+    // Update the workflow with the modifications
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      // Replace the current step with updated version
+      const updatedSteps = prev.steps.map((step) =>
+        step.id === stepId ? updatedCurrentStep : step
+      );
+
+      // Add the new step to the array
+      return {
+        ...prev,
+        steps: [...updatedSteps, newStep],
+      };
+    });
+
+    setHasChanges(true);
+
+    // Auto-select the newly created step
+    setSelectedStepId(newStepId);
+  };
+
+  const handleAddBranch = (stepId: string) => {
+    if (!editedWorkflow) return;
+
+    // Get the current step
+    const currentStep = editedWorkflow.steps.find((s) => s.id === stepId);
+    if (!currentStep) {
+      return;
+    }
+
+    // Generate a unique ID for the new step
+    // (It will be overridden by the backend, so it doesn't matter what we use here)
+    const newStepId = `step-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // Create a new step that will be the target of the new branch
+    const newStep = {
+      id: newStepId,
+      name: 'New Branch Step',
+      description: 'Add description here',
+      lastEdited: Date.now(),
+      workflowTemplateId: editedWorkflow.id,
+      branches: [], // New branch step has no outgoing branches initially
+    };
+
+    // Add a new branch to the current step
+    const newBranch = {
+      stepId: stepId, // Reference to the source step
+      targetStepId: newStepId, // Points to the new step
+      condition: undefined, // No condition initially - user can add later
+    };
+
+    // Add the new branch to the current step's branches
+    const updatedCurrentStep = {
+      ...currentStep,
+      branches: currentStep.branches
+        ? [...currentStep.branches, newBranch]
+        : [newBranch],
+    };
+
+    // Update the workflow
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      // Replace the current step with updated version
+      const updatedSteps = prev.steps.map((step) =>
+        step.id === stepId ? updatedCurrentStep : step
+      );
+
+      // Add the new step to the array
+      return {
+        ...prev,
+        steps: [...updatedSteps, newStep],
+      };
+    });
+
+    setHasChanges(true);
+
+    // Auto-select the newly created step
+    setSelectedStepId(newStepId);
+  };
+
+  const handleConnectionCreate = (
+    sourceStepId: string,
+    targetStepId: string
+  ) => {
+    if (!editedWorkflow) return;
+
+    // Find the source step
+    const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
+    if (!sourceStep) {
+      return;
+    }
+
+    // Create a new branch for the connection
+    const newBranch = {
+      stepId: sourceStepId,
+      targetStepId: targetStepId,
+      condition: undefined, // No condition initially
+    };
+
+    // Add the new branch to the source step
+    const updatedSourceStep = {
+      ...sourceStep,
+      branches: sourceStep.branches
+        ? [...sourceStep.branches, newBranch]
+        : [newBranch],
+    };
+
+    // Update the workflow
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps.map((step) =>
+        step.id === sourceStepId ? updatedSourceStep : step
+      );
+
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
+
+    setHasChanges(true);
+  };
+
+  const handleDeleteNode = (stepId: string) => {
+    if (!editedWorkflow) return;
+
+    if (stepId === editedWorkflow.startingStepId) {
+      setToastMsg('Cannot delete the starting step');
+      setToastOpen(true);
+      return;
+    }
+
+    const incomingConnections = new Map<string, string[]>();
+    editedWorkflow.steps.forEach((step) => {
+      if (step.branches) {
+        step.branches.forEach((branch) => {
+          const parents = incomingConnections.get(branch.targetStepId) || [];
+          parents.push(step.id);
+          incomingConnections.set(branch.targetStepId, parents);
+        });
+      }
+    });
+
+    // DFS to collect all nodes to delete
+    const nodesToDelete = new Set<string>();
+    const visited = new Set<string>();
+
+    const dfsToDelete = (currentStepId: string) => {
+      if (visited.has(currentStepId)) return;
+
+      visited.add(currentStepId);
+
+      nodesToDelete.add(currentStepId);
+
+      const currentStep = editedWorkflow.steps.find(
+        (s) => s.id === currentStepId
+      );
+      if (!currentStep?.branches) return;
+
+      currentStep.branches.forEach((branch) => {
+        const targetStepId = branch.targetStepId;
+        const parents = incomingConnections.get(targetStepId) || [];
+
+        // DFS continue only if the target has only one parent (the current node)
+        const hasOnlyThisParent =
+          parents.length === 1 && parents[0] === currentStepId;
+
+        // Or if all parents marked for deletion
+        const allParentsDeleted = parents.every(
+          (parentId) =>
+            nodesToDelete.has(parentId) || parentId === currentStepId
+        );
+
+        if (hasOnlyThisParent || allParentsDeleted) {
+          dfsToDelete(targetStepId);
+        }
+      });
+    };
+
+    dfsToDelete(stepId);
+
+    // Remove all nodes to delete from the workflow
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps
+        .filter((step) => !nodesToDelete.has(step.id))
+        .map((step) => {
+          if (step.branches) {
+            const cleanedBranches = step.branches.filter(
+              (branch) => !nodesToDelete.has(branch.targetStepId)
+            );
+            return {
+              ...step,
+              branches: cleanedBranches.length > 0 ? cleanedBranches : [],
+            };
+          }
+          return step;
+        });
+
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
+
+    setHasChanges(true);
+
+    // Clear selected step if it was deleted
+    if (nodesToDelete.has(selectedStepId || '')) {
+      setSelectedStepId(undefined);
+    }
   };
 
   const currentWorkflow = isEditMode
@@ -190,11 +476,7 @@ export const ViewWorkflowTemplate = () => {
                 }
                 onClick={handleSave}
                 disabled={
-                  !hasChanges ||
-                  editWorkflowTemplateMutation.isPending ||
-                  (isEditMode &&
-                    editedWorkflow?.version ===
-                      workflowTemplateQuery.data?.version)
+                  !hasChanges || editWorkflowTemplateMutation.isPending
                 }>
                 {editWorkflowTemplateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
@@ -271,17 +553,23 @@ export const ViewWorkflowTemplate = () => {
         ) : viewMode === WorkflowViewMode.FLOW ? (
           <WorkflowFlowView
             steps={
-              workflowTemplateQuery.data
-                ?.steps as WorkflowTemplateStepWithFormAndIndex[]
+              currentWorkflow?.steps as WorkflowTemplateStepWithFormAndIndex[]
             }
             firstStepId={currentWorkflow?.startingStepId || ''}
             isInstance={false}
+            isEditMode={isEditMode}
+            selectedStepId={selectedStepId}
+            onStepSelect={setSelectedStepId}
+            onStepChange={handleStepChange}
+            onInsertNode={handleInsertNode}
+            onAddBranch={handleAddBranch}
+            onConnectionCreate={handleConnectionCreate}
+            onDeleteNode={handleDeleteNode}
           />
         ) : (
           <WorkflowSteps
             steps={
-              workflowTemplateQuery.data
-                ?.steps as WorkflowTemplateStepWithFormAndIndex[]
+              currentWorkflow?.steps as WorkflowTemplateStepWithFormAndIndex[]
             }
             firstStep={currentWorkflow?.startingStepId}
             isInstance={false}
