@@ -1,4 +1,3 @@
-import { set } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import {
   buildInstanceDetails,

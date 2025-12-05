@@ -1,5 +1,4 @@
 // src/pages/patient/WorkflowInstanceDetails.tsx
-import * as React from 'react';
 import {
   Box,
   Paper,
@@ -133,7 +132,6 @@ export default function WorkflowInstanceDetailsPage() {
   };
 
   const handleOpenRecommendation = (newActions: WorkflowInstanceAction[]) => {
-    // TODO: Pass next action to recommendation banner
     const recommendedStep = getWorkflowStepWithId(
       newActions[0].stepId,
       instanceDetails!
@@ -339,6 +337,7 @@ export default function WorkflowInstanceDetailsPage() {
         recommendation={recommendation}
         handleClose={handleCloseRecommendation}
         handleGoToStep={handleGoToStep}
+        handleOpen={handleOpenRecommendation}
       />
 
       <WorkflowSelectStepModal

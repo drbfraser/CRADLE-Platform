@@ -16,7 +16,6 @@ import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CheckCircle } from '@mui/icons-material';
 import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
-import { WorkflowInstanceAction } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface IProps {
   workflowInstance: InstanceDetails;

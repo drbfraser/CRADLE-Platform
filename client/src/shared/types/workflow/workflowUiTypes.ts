@@ -1,9 +1,5 @@
 import { ISODate, Nullable } from 'src/shared/constants';
-import {
-  InstanceStatus,
-  StepStatus,
-  WorkflowBranchEvaluationStatus,
-} from './workflowEnums';
+import { InstanceStatus, StepStatus } from './workflowEnums';
 import { CForm } from '../form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 

@@ -1,4 +1,5 @@
 import { Alert, Typography, Button, Box, Slide } from '@mui/material';
+import { WorkflowInstanceAction } from 'src/shared/types/workflow/workflowApiTypes';
 
 export interface RecommendationBannerData {
   open: boolean;
@@ -10,12 +11,14 @@ interface IProps {
   recommendation: RecommendationBannerData;
   handleClose: () => void;
   handleGoToStep: () => void;
+  handleOpen: (newActions: WorkflowInstanceAction[]) => void;
 }
 
 export default function RecommendationBanner({
   recommendation,
   handleClose,
   handleGoToStep,
+  handleOpen,
 }: IProps) {
   return (
     <Slide in={recommendation.open} direction="up">
