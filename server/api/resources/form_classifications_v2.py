@@ -65,7 +65,7 @@ def create_form_classification(body: FormClassification):
     crud.create(fc_orm, refresh=True)
 
     result = marshal.marshal(fc_orm, shallow=True)
-    result['name'] = name_map
+    result["name"] = name_map
     return FormClassification(**result).model_dump(), 201
 
 
@@ -124,7 +124,7 @@ def edit_form_classification_name(
 
     crud.db_session.commit()
     crud.db_session.refresh(fc_orm)
-    
+
     result = marshal.marshal(fc_orm, shallow=True)
     langs = form_utils.read_all_translations(fc_orm.name_string_id)
     name_map = {lv.lang: lv.text for lv in langs}

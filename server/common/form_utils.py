@@ -11,7 +11,6 @@ from models import (
     FormClassificationOrm,
     FormClassificationOrmV2,
     FormOrm,
-    FormQuestionTemplateOrmV2,
     FormSubmissionOrmV2,
     FormTemplateOrm,
     FormTemplateOrmV2,
@@ -775,14 +774,14 @@ def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion
     answers = [FormAnswer(**(marshal.marshal(answer))) for answer in submission.answers]
     form_template = crud.read(FormTemplateOrmV2, id=submission.form_template_id)
     questions = {question.id: question for question in form_template.questions}
-    
+
     answers_list: list[AnswerWithQuestion] = []
     for answer in answers:
         question = questions.get(answer.question_id)
         # Handle case where question_id doesn't exist (shouldn't happen with valid data)
         if question is None:
             raise ValueError("Question doesn't exist for one or more answers")
-        
+
         raw_mc = question.mc_options or "[]"
         mc_ids = json.loads(raw_mc)
 

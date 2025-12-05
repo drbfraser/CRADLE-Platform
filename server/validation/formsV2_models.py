@@ -256,6 +256,7 @@ class AnswerWithQuestion(FormAnswer):
 
 class CreateFormSubmissionRequest(CradleBaseModel):
     """Request body for creating a new form submission"""
+
     id: Optional[str] = None
     form_template_id: str
     patient_id: str
