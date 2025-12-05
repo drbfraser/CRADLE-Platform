@@ -5,6 +5,7 @@ import secrets
 from typing import Any, Optional, TypedDict, cast
 
 from botocore.exceptions import ClientError
+from flask import abort
 
 import data.db_operations as crud
 from authentication import cognito, get_username_from_jwt
@@ -28,6 +29,8 @@ else:
 
 logger = logging.getLogger(__name__)
 
+
+USER_NOT_FOUND_MSG = "User with ID: ({}) not found."
 
 supported_roles = [supported_role.value for supported_role in RoleEnum]
 
@@ -606,3 +609,29 @@ def get_user_roles(user_id):
     if user_orm is None:
         raise ValueError(f"No user with id ({user_id}) was found.")
     return user_orm.role
+
+
+def fetch_user(user_id: int) -> UserOrm:
+    """
+    Fetches a user.
+    Raises a 404 error (via Flask's `abort`) if the user is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    user = crud.read(UserOrm, id=user_id)
+    if user is None:
+        return abort(
+            code=404,
+            description=USER_NOT_FOUND_MSG.format(user_id),
+        )
+    return user
+
+
+def check_user_exists(user_id: int) -> None:
+    """
+    Checks if a user exists.
+    Raises a 404 error (via Flask's `abort`) if the user is not found.
+
+    Intended as a helper function used within Flask API endpoint functions.
+    """
+    fetch_user(user_id)
