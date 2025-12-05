@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from data.crud import M
     from validation.workflow_models import (
         WorkflowInstanceModel,
-        WorkflowInstanceStepModel,
         WorkflowTemplateModel,
     )
 
