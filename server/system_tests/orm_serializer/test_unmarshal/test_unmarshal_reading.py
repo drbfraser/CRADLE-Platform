@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from enums import TrafficLightEnum
 from models import ReadingOrm
 
@@ -50,7 +50,7 @@ def test_unmarshal_reading_roundtrip_and_absent_fields_are_none():
     payload = (
         _create_reading()
     )  # symptoms/retest_* omitted (None → filtered before load)
-    r = unmarshal(ReadingOrm, payload)
+    r = orm_serializer.unmarshal(ReadingOrm, payload)
 
     assert r.id == payload["id"]
     assert r.systolic_blood_pressure == payload["systolic_blood_pressure"]
@@ -82,7 +82,7 @@ def test_unmarshal_reading_keeps_symptoms_string_and_preserves_scalars():
         traffic_light_status=TrafficLightEnum.YELLOW_UP,
         retest_of_previous_reading_ids="r-0001,r-0002",
     )
-    r = unmarshal(ReadingOrm, payload)
+    r = orm_serializer.unmarshal(ReadingOrm, payload)
 
     assert r.symptoms == "headache,cough"
 

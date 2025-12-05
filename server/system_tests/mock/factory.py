@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 import data
 import data.db_operations as crud
-from data import marshal
+from data import orm_serializer
 from manage import get_username_from_email
 from models import (
     AssessmentSchema,
@@ -120,7 +120,7 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        readingModel = marshal.unmarshal(ReadingOrm, dict(**kwargs))
+        readingModel = orm_serializer.unmarshal(ReadingOrm, dict(**kwargs))
         crud.create(readingModel, refresh=True)
 
         return readingModel
@@ -204,7 +204,7 @@ class UserFactory(ModelFactory):
             d["email"] = "user@email.com"
             d["username"] = "user"
 
-        user = marshal.unmarshal(UserOrm, d)
+        user = orm_serializer.unmarshal(UserOrm, d)
         crud.create(user)
         data.db_session.commit()
         return user

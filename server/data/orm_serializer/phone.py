@@ -11,7 +11,7 @@ def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:
     :return: ``RelayServerPhoneNumberOrm`` instance.
     """
     relay_server_phone = __load(RelayServerPhoneNumberOrm, d)
-    relay_server_phone.phone = d["phone"]
+    relay_server_phone.phone_number = d["phone_number"]
     relay_server_phone.description = d["description"]
     return relay_server_phone
 

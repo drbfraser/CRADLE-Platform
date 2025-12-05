@@ -2,7 +2,7 @@ from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
 import data.db_operations as crud
-from data import marshal
+from data import orm_serializer
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,
@@ -33,17 +33,17 @@ def __query_object(
     General function for querying system data
 
     :param model: the ORM data model being queried for
-    :param predicate: the query to match on
-    :param id: id for data querying, is partially applied
-
-    :returns: a callable function that returns the object model
+    :param query: SQLAlchemy filter expression (e.g., lambda _id: Model.field == _id)
+    :param id: id value for the filter
+    :returns: a dict of the marshaled object or None
     """
-    data = crud.read(model, id=id)
+    filter_condition = query(id)
+    data = crud.read_by_filter(model, filter_condition)
 
     if data is None:
         return None
 
-    return marshal.marshal(data)
+    return orm_serializer.marshal(data)
 
 
 def get_catalogue() -> Dict[str, ObjectCatalogue]:

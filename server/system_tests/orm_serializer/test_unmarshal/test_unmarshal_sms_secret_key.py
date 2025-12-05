@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime as dt
 import types
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import SmsSecretKeyOrm
 
 
@@ -58,7 +58,7 @@ def _dt(y, m, d, H, M, S) -> dt.datetime:
 
 def test_unmarshal_sms_secret_key_happy_path_sets_fields_and_keeps_input_unchanged():
     """
-    Test that unmarshal(SmsSecretKeyOrm) sets fields and keeps input unchanged when given a valid payload.
+    Test that orm_serializer.unmarshal(SmsSecretKeyOrm) sets fields and keeps input unchanged when given a valid payload.
     The test creates a valid payload for SmsSecretKeyOrm, calls unmarshal with that payload, and then
     asserts that the returned object has the correct values for each field and that the input dict is unmodified.
     """
@@ -71,7 +71,7 @@ def test_unmarshal_sms_secret_key_happy_path_sets_fields_and_keeps_input_unchang
     )
     original = dict(payload)
 
-    obj = unmarshal(SmsSecretKeyOrm, payload)
+    obj = orm_serializer.unmarshal(SmsSecretKeyOrm, payload)
 
     assert isinstance(obj, (SmsSecretKeyOrm, types.SimpleNamespace))
     assert obj.id == "ssk-xyz"
@@ -91,7 +91,7 @@ def test_unmarshal_sms_secret_key_with_minimal_payload():
         expiry_date=dt.datetime(2024, 1, 31, 12, 0, 0, tzinfo=dt.timezone.utc),
     )
 
-    obj = unmarshal(SmsSecretKeyOrm, payload)
+    obj = orm_serializer.unmarshal(SmsSecretKeyOrm, payload)
 
     assert isinstance(obj, (SmsSecretKeyOrm, types.SimpleNamespace))
     assert obj.id == "ssk-002"

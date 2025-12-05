@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
+
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
 import Link from '@mui/material/Link';
 import SearchIcon from '@mui/icons-material/Search';
 import { getPrettyDate } from 'src/shared/utils';
+import { Toast } from 'src/shared/components/toast';
 import {
   Box,
   Typography,
@@ -29,6 +31,11 @@ import { WorkflowInfoRow } from 'src/shared/types/workflow/workflowUiTypes';
 import { buildWorkflowInstanceRowList } from './WorkflowUtils';
 import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import RuleEngineDemoDialog from './components/RuleEngineDemoDialog';
+
+type ToastState = {
+  severity: React.ComponentProps<typeof Toast>['severity'];
+  message: string;
+};
 
 function Toolbar() {
   const apiRef = useGridApiContext();
@@ -225,9 +232,29 @@ export const WorkflowInfo: React.FC = () => {
     },
   ];
 
+  const location = useLocation();
+
+  const navState = location.state as { toast?: ToastState } | null;
+
+  const [toast, setToast] = useState<ToastState | null>(
+    navState?.toast ?? null
+  );
+
+  const handleToastClose = () => {
+    setToast(null);
+  };
+
   return (
     <Paper sx={{ p: 2, mt: 1 }}>
       {/* Page header */}
+      {toast && (
+        <Toast
+          severity={toast.severity}
+          message={toast.message}
+          open={true}
+          onClose={handleToastClose}
+        />
+      )}
       <Box
         borderBottom={1.5}
         borderColor="divider"
@@ -243,7 +270,8 @@ export const WorkflowInfo: React.FC = () => {
             variant="outlined"
             size="small"
             sx={{ textTransform: 'none', height: 36 }}
-            startIcon={<AddIcon />}>
+            startIcon={<AddIcon />}
+            onClick={() => navigate(`/workflow-instance/new/${patientId}`)}>
             Start New Workflow
           </Button>
           {/* Rule Engine Button */}

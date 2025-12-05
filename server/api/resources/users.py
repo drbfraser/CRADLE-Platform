@@ -10,7 +10,7 @@ import data.db_operations as crud
 from api.decorator import roles_required
 from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import UserOrm
 from validation import CradleBaseModel
@@ -68,7 +68,7 @@ def get_vhts():
     vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
     vht_dictionary_list = []
     for vht in vht_model_list:
-        marshal.marshal(vht)
+        orm_serializer.marshal(vht)
         vht_dictionary_list.append(
             {
                 "user_id": vht.id,

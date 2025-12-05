@@ -1,4 +1,4 @@
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormTemplateOrm,
@@ -87,7 +87,7 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     # Appending mapped instances is allowed and sets the backref .step
     workflow_step.branches = [b1, b2]
 
-    marshalled = m.marshal(workflow_step, shallow=False)
+    marshalled = orm_seralizer.marshal(workflow_step, shallow=False)
 
     # Top-level expectations
     for key in (
@@ -164,7 +164,7 @@ def test_workflow_template_step_marshal_shallow_tolerates_existing_branches_attr
 
     workflow_step.branches = []
 
-    marshalled = m.marshal(workflow_step, shallow=True)
+    marshalled = orm_seralizer.marshal(workflow_step, shallow=True)
 
     if "branches" in marshalled:
         assert marshalled["branches"] == []

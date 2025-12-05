@@ -99,7 +99,6 @@ export const editWorkflowTemplateAsync = async (
       return stepWithoutForm;
     });
   }
-  console.log('patchBody', patchBody);
 
   const response = await axiosFetch({
     method: 'PATCH',

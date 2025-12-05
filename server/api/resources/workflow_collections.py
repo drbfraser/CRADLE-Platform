@@ -8,7 +8,7 @@ import data.db_operations as crud
 from api.decorator import roles_required
 from common.api_utils import WorkflowCollectionIdPath, convert_query_parameter_to_bool
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel
@@ -106,13 +106,13 @@ def create_workflow_collection(body: WorkflowCollectionUploadModel):
 
     check_if_existing_workflow_collection_exists(workflow_collection_dict)
 
-    workflow_collection_orm = marshal.unmarshal(
+    workflow_collection_orm = orm_serializer.unmarshal(
         WorkflowCollectionOrm, workflow_collection_dict
     )
 
     crud.create(model=workflow_collection_orm, refresh=True)
 
-    return marshal.marshal(obj=workflow_collection_orm, shallow=True), 201
+    return orm_serializer.marshal(obj=workflow_collection_orm, shallow=True), 201
 
 
 # /api/workflow/collections [GET]
@@ -121,7 +121,7 @@ def get_workflow_collections():
     """Get all workflow collections"""
     data = crud.read_all(WorkflowCollectionModel)
 
-    workflow_collections = [marshal.marshal(collection) for collection in data]
+    workflow_collections = [orm_serializer.marshal(collection) for collection in data]
 
     return {"items": workflow_collections}, 200
 
@@ -145,9 +145,9 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
     workflow_collection = get_workflow_collection_from_db(path.workflow_collection_id)
 
     if with_workflows:
-        workflow_collection = marshal.marshal(workflow_collection, shallow=False)
+        workflow_collection = orm_serializer.marshal(workflow_collection, shallow=False)
     else:
-        workflow_collection = marshal.marshal(workflow_collection, shallow=True)
+        workflow_collection = orm_serializer.marshal(workflow_collection, shallow=True)
     return workflow_collection, 200
 
 
@@ -169,7 +169,7 @@ def update_workflow_collection(
     )
 
     response_data = crud.read(WorkflowCollectionOrm, id=path.workflow_collection_id)
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 

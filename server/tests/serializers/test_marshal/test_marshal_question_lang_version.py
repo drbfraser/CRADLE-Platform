@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from enums import QuestionTypeEnum
 from models import (
     LangVersionOrmV2,
@@ -70,7 +70,7 @@ def test_lang_version_marshal_parses_mc_options_and_strips_relationships_and_pri
     question_lang_version._debug = {"trace": True}
     question_lang_version.extra = None
 
-    marshalled = m.marshal(question_lang_version)
+    marshalled = orm_seralizer.marshal(question_lang_version)
 
     # Core scalar fields preserved
     assert marshalled["id"] == 101
@@ -103,7 +103,7 @@ def test_lang_version_marshal_omits_default_empty_mc_options():
         question_id="q-bp",
     )
 
-    marshalled = m.marshal(question_lang_version)
+    marshalled = orm_seralizer.marshal(question_lang_version)
 
     assert marshalled["id"] == 202
     assert marshalled["lang"] == "rw"
@@ -155,7 +155,7 @@ def test_lang_version_integration_when_embedded_in_question():
     )
     question.lang_versions = [lv_en, lv_fr]
 
-    marshalled = m.marshal(question, if_include_versions=True)
+    marshalled = orm_seralizer.marshal(question, if_include_versions=True)
 
     # Question-level parsed JSON fields exist and are parsed
     assert marshalled["visible_condition"] == []
@@ -199,7 +199,7 @@ def make_lang_version_v2(
 def test_lang_version_v2_marshal_basic_fields():
     lv = make_lang_version_v2(string_id="abc", lang="French", text="Bonjour")
 
-    marshalled = m.marshal(lv)
+    marshalled = orm_seralizer.marshal(lv)
 
     assert marshalled["string_id"] == "abc"
     assert marshalled["lang"] == "French"
@@ -211,7 +211,7 @@ def test_lang_version_v2_marshal_strips_private_fields():
     lv._debug_tmp = True
     lv._something_internal = {"x": 1}
 
-    marshalled = m.marshal(lv)
+    marshalled = orm_seralizer.marshal(lv)
 
     assert "_debug_tmp" not in marshalled
     assert "_something_internal" not in marshalled
@@ -221,7 +221,7 @@ def test_lang_version_v2_marshal_strips_private_fields():
 def test_lang_version_v2_marshal_has_no_unexpected_keys():
     lv = make_lang_version_v2(string_id="s1", lang="Kinyarwanda", text="Muraho")
 
-    marshalled = m.marshal(lv)
+    marshalled = orm_seralizer.marshal(lv)
 
     # Only these three should exist
     assert set(marshalled.keys()) == {"string_id", "lang", "text"}

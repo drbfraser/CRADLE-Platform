@@ -1,8 +1,6 @@
-import json
-from json import JSONDecodeError
 from typing import Optional
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, model_validator
 from typing_extensions import Self
 
 from common.commonUtil import get_current_time
@@ -109,34 +107,13 @@ class WorkflowInstanceStepUpdateModel(CradleBaseModel, extra="forbid"):
     form_id: Optional[str] = None
 
 
-class WorkflowEvaluateResponseModel(CradleBaseModel):
-    result: dict
-
-
-class WorkflowEvaluateRequestModel(CradleBaseModel):
-    id: str
-    input_data: dict
-
-    @field_validator("id", mode="before")
-    @classmethod
-    def validate_id(cls, id: str) -> str:
-        if id == "":
-            raise ValueError("missing id")
-        return id
-
-    @field_validator("input_data", mode="before")
-    @classmethod
-    def validate_data(cls, input_data: str) -> dict:
-        try:
-            obj = json.loads(input_data)
-        except JSONDecodeError:
-            raise ValueError("input_data must be valid JSON")
-        return obj
-
-
 class GetAvailableActionsResponse(CradleBaseModel):
     actions: list[WorkflowActionModel]
 
 
 class ApplyActionRequest(CradleBaseModel):
     action: WorkflowActionModel
+
+
+class OverrideCurrentStepRequest(CradleBaseModel):
+    workflow_instance_step_id: str
