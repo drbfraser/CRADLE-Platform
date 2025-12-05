@@ -7,8 +7,8 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils as form_api_utils
-from common import form_utils as workflow_api_utils
 from common import user_utils as user_api_utils
+from common import workflow_utils as workflow_api_utils
 from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from data import orm_serializer
