@@ -5,8 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from common import patient_utils as patient_api_utils
-from common import workflow_utils as workflow_api_utils
+from common import patient_utils, workflow_utils
 from common.api_utils import (
     WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
@@ -57,11 +56,11 @@ class CreateWorkflowInstanceRequest(CradleBaseModel):
 @api_workflow_instances.post("", responses={201: WorkflowInstanceModel})
 def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     """Create Workflow Instance"""
-    workflow_template = workflow_api_utils.fetch_workflow_template(
+    workflow_template = workflow_utils.fetch_workflow_template_or_404(
         body.workflow_template_id
     )
 
-    patient_api_utils.check_patient_exists(body.patient_id)
+    patient_utils.fetch_patient_or_404(body.patient_id)
 
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
@@ -124,7 +123,7 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_api_utils.WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
                 path.workflow_instance_id
             ),
         )
@@ -145,12 +144,12 @@ def patch_workflow_instance(
     path: WorkflowInstanceIdPath, body: WorkflowInstancePatchModel
 ):
     """Partially (PATCH) Update Workflow Instance"""
-    workflow_instance = workflow_api_utils.fetch_workflow_instance(
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
         path.workflow_instance_id
     )
 
     if body.patient_id is not None and body.patient_id != workflow_instance.patient_id:
-        patient_api_utils.check_patient_exists(body.patient_id)
+        patient_utils.fetch_patient_or_404(body.patient_id)
 
     WorkflowService.apply_workflow_instance_patch(workflow_instance, body)
 
@@ -164,7 +163,7 @@ def patch_workflow_instance(
 @api_workflow_instances.delete("/<string:workflow_instance_id>", responses={204: None})
 def delete_workflow_instance(path: WorkflowInstanceIdPath):
     """Delete Workflow Instance"""
-    workflow_api_utils.check_workflow_instance_exists(path.workflow_instance_id)
+    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
 
     crud.delete_workflow(WorkflowInstanceOrm, id=path.workflow_instance_id)
 
@@ -178,7 +177,7 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
 )
 def get_available_actions(path: WorkflowInstanceIdPath):
     """Get Available Workflow Actions"""
-    workflow_view = workflow_api_utils.get_workflow_view(path.workflow_instance_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
     actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     response = GetAvailableActionsResponse(actions=actions)
@@ -191,7 +190,7 @@ def get_available_actions(path: WorkflowInstanceIdPath):
 )
 def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     """Apply a Workflow Action"""
-    workflow_view = workflow_api_utils.get_workflow_view(path.workflow_instance_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
 
     try:
         WorkflowService.apply_workflow_action(body.action, workflow_view)
@@ -210,8 +209,8 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
 )
 def evaluate_step(path: WorkflowInstanceAndStepIdPath):
     """Evaluate a Workflow Instance Step"""
-    workflow_view = workflow_api_utils.get_workflow_view(path.workflow_instance_id)
-    workflow_api_utils.check_workflow_instance_step_exists(
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    workflow_utils.fetch_workflow_instance_step_or_404(
         workflow_view.instance, path.workflow_instance_step_id
     )
 
@@ -229,7 +228,7 @@ def evaluate_step(path: WorkflowInstanceAndStepIdPath):
 )
 def advance(path: WorkflowInstanceIdPath):
     """Advance the workflow to the next step, if possible"""
-    workflow_view = workflow_api_utils.get_workflow_view(path.workflow_instance_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
     WorkflowService.advance_workflow(workflow_view)
 
     WorkflowService.upsert_workflow_instance(workflow_view.instance)
@@ -247,8 +246,8 @@ def override_current_step(
     path: WorkflowInstanceIdPath, body: OverrideCurrentStepRequest
 ):
     """Override the current step of a workflow"""
-    workflow_view = workflow_api_utils.get_workflow_view(path.workflow_instance_id)
-    workflow_api_utils.check_workflow_instance_step_exists(
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    workflow_utils.fetch_workflow_instance_step_or_404(
         workflow_view.instance, body.workflow_instance_step_id
     )
 

@@ -1,7 +1,5 @@
-from flask import abort
-
 import data.db_operations as crud
-from common.commonUtil import get_uuid
+from common.commonUtil import abort_not_found, get_uuid
 from models import PatientOrm
 
 PATIENT_NOT_FOUND_MSG = "Patient with ID: ({}) not found."
@@ -46,27 +44,13 @@ def assign_patient_id(patient: dict) -> None:
         referral["patient_id"] = id
 
 
-def fetch_patient(patient_id: str) -> PatientOrm:
+def fetch_patient_or_404(patient_id: str) -> PatientOrm:
     """
-    Fetches a patient.
-    Raises a 404 error (via Flask's `abort`) if the patient is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
+    Fetch a patient or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
     """
     patient = crud.read(PatientOrm, id=patient_id)
     if patient is None:
-        return abort(
-            code=404,
-            description=PATIENT_NOT_FOUND_MSG.format(patient_id),
-        )
+        abort_not_found(PATIENT_NOT_FOUND_MSG.format(patient_id))
+
     return patient
-
-
-def check_patient_exists(patient_id: str) -> PatientOrm:
-    """
-    Checks if a patient exists.
-    Raises a 404 error (via Flask's `abort`) if the patient is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
-    """
-    fetch_patient(patient_id)

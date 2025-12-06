@@ -5,11 +5,10 @@ import secrets
 from typing import Any, Optional, TypedDict, cast
 
 from botocore.exceptions import ClientError
-from flask import abort
 
 import data.db_operations as crud
 from authentication import cognito, get_username_from_jwt
-from common import health_facility_utils, phone_number_utils
+from common import commonUtil, health_facility_utils, phone_number_utils
 from common.constants import EMAIL_REGEX_PATTERN, MAX_SMS_RELAY_REQUEST_NUMBER
 from common.date_utils import get_future_date, is_date_passed
 from config import db
@@ -611,27 +610,13 @@ def get_user_roles(user_id):
     return user_orm.role
 
 
-def fetch_user(user_id: int) -> UserOrm:
+def fetch_user_or_404(user_id: int) -> UserOrm:
     """
-    Fetches a user.
-    Raises a 404 error (via Flask's `abort`) if the user is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
+    Fetch a user or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
     """
     user = crud.read(UserOrm, id=user_id)
     if user is None:
-        return abort(
-            code=404,
-            description=USER_NOT_FOUND_MSG.format(user_id),
-        )
+        commonUtil.abort_not_found(USER_NOT_FOUND_MSG.format(user_id))
+
     return user
-
-
-def check_user_exists(user_id: int) -> None:
-    """
-    Checks if a user exists.
-    Raises a 404 error (via Flask's `abort`) if the user is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
-    """
-    fetch_user(user_id)

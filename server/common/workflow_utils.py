@@ -6,7 +6,7 @@ from flask import abort
 
 import data.db_operations as crud
 from api.resources.form_templates import handle_form_template_upload
-from common.commonUtil import get_uuid
+from common.commonUtil import abort_not_found, get_uuid
 from common.form_utils import assign_form_or_template_ids
 from data import orm_serializer
 from models import (
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from data.crud import M
     from validation.workflow_models import (
         WorkflowInstanceModel,
+        WorkflowInstanceStepModel,
         WorkflowTemplateModel,
     )
 
@@ -312,76 +313,53 @@ def generate_updated_workflow_template(
     return new_workflow_template
 
 
-def fetch_workflow_instance(workflow_instance_id: str) -> WorkflowInstanceModel:
+def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanceModel:
     """
-    Fetches a workflow instance.
-    Raises a 404 error (via Flask's `abort`) if the workflow instance is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
+    Fetch a workflow instance or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
     """
     workflow_instance = WorkflowService.get_workflow_instance(workflow_instance_id)
     if workflow_instance is None:
-        abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id),
-        )
+        abort_not_found(WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id))
+
     return workflow_instance
 
 
-def fetch_workflow_template(workflow_template_id: str) -> WorkflowTemplateModel:
+def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplateModel:
     """
-    Fetches a workflow template.
-    Raises a 404 error (via Flask's `abort`) if the workflow template is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
+    Fetch a workflow template or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
     """
     workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
     if workflow_template is None:
-        abort(
-            code=404,
-            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id),
-        )
+        abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
+
     return workflow_template
 
 
-def get_workflow_view(workflow_instance_id: str) -> WorkflowView:
+def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     """
-    Fetches a workflow instance and its template.
-    Raises a 404 error (via Flask's `abort`) if either the workflow instance or
-    workflow instance isn't found.
-
-    Intended as a helper function used within Flask API endpoint functions.
+    Fetch a workflow instance and its template or raise a 404 if either aren't found.
+    Intended for use inside Flask endpoint handlers.
     """
-    workflow_instance = fetch_workflow_instance(workflow_instance_id)
-    workflow_template = fetch_workflow_template(workflow_instance.workflow_template_id)
+    workflow_instance = fetch_workflow_instance_or_404(workflow_instance_id)
+    workflow_template = fetch_workflow_template_or_404(
+        workflow_instance.workflow_template_id
+    )
 
     return WorkflowView(workflow_template, workflow_instance)
 
 
-def check_workflow_instance_step_exists(
+def fetch_workflow_instance_step_or_404(
     workflow_instance: WorkflowInstanceModel, workflow_instance_step_id: str
-) -> None:
+) -> WorkflowInstanceStepModel:
     """
-    Checks if the workflow instance has an instance step with this step ID.
-    Raises a 404 error (via Flask's `abort`) if the workflow instance step
-    is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
+    Fetch a workflow instance step or raise a 404 error if not found.
+    Intended for use inside Flask endpoint handlers.
     """
-    if not workflow_instance.get_instance_step(workflow_instance_step_id):
-        abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
-                workflow_instance_step_id
-            ),
+    step = workflow_instance.get_instance_step(workflow_instance_step_id)
+    if step is None:
+        abort_not_found(
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
         )
-
-
-def check_workflow_instance_exists(workflow_instance_id: str) -> None:
-    """
-    Checks if a workflow instance exists.
-    Raises a 404 error (via Flask's `abort`) if the workflow instance is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
-    """
-    fetch_workflow_instance(workflow_instance_id)
+    return step

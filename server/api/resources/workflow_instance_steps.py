@@ -6,9 +6,7 @@ from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
 from api.decorator import roles_required
-from common import form_utils as form_api_utils
-from common import user_utils as user_api_utils
-from common import workflow_utils as workflow_api_utils
+from common import form_utils, user_utils, workflow_utils
 from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from data import orm_serializer
@@ -74,7 +72,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     if workflow_instance_step is None:
         return abort(
             code=404,
-            description=workflow_api_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
                 path.workflow_instance_step_id
             ),
         )
@@ -102,17 +100,17 @@ def update_workflow_instance_step(
     if instance_step is None:
         return abort(
             code=404,
-            description=workflow_api_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
                 path.workflow_instance_step_id
             ),
         )
 
     if body.form_id is not None and body.form_id != instance_step.form_id:
-        form_api_utils.check_form_exists(body.form_id)
+        form_utils.fetch_form_or_404(body.form_id)
         instance_step.form_id = body.form_id
 
     if body.assigned_to is not None and body.assigned_to != instance_step.assigned_to:
-        user_api_utils.check_user_exists(body.assigned_to)
+        user_utils.fetch_user_or_404(body.assigned_to)
         instance_step.assigned_to = body.assigned_to
 
     crud.common_crud.merge(instance_step)
@@ -140,7 +138,7 @@ def archive_form(path: WorkflowInstanceStepIdPath):
     if instance_step is None:
         return abort(
             code=404,
-            description=workflow_api_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
                 path.workflow_instance_step_id
             ),
         )
@@ -158,7 +156,7 @@ def archive_form(path: WorkflowInstanceStepIdPath):
     instance_step.form_id = None
     form.archived = True
 
-    current_user = user_api_utils.get_current_user_from_jwt()
+    current_user = user_utils.get_current_user_from_jwt()
     user_id = int(current_user["id"])
     form.last_edited_by = user_id
     form.last_edited = get_current_time()
