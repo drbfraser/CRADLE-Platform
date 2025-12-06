@@ -149,17 +149,6 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               </Typography>
             )}
           </Box>
-
-          {selectedStep.expectedCompletion && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Expected Completion
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {new Date(selectedStep.expectedCompletion).toLocaleDateString()}
-              </Typography>
-            </Box>
-          )}
         </Stack>
       </Box>
 
