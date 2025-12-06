@@ -56,12 +56,28 @@ class WorkflowTemplateStepUploadModel(WorkflowTemplateStepModel):
 
 
 class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
+    """
+    Patch model for updating a workflow instance.
+
+    Defines the fields that clients may update. Fields managed by the
+    backend are intentionally excluded to prevent clients from putting
+    the workflow into an inconsistent state.
+    """
+
     name: Optional[str] = None
     description: Optional[str] = None
     patient_id: Optional[str] = None
 
 
 class WorkflowInstanceStepPatchModel(CradleBaseModel, extra="forbid"):
+    """
+    Patch model for updating a single workflow instance step.
+
+    Defines the fields that clients may update. Fields managed by the
+    backend are intentionally excluded to prevent clients from putting
+    the workflow into an inconsistent state.
+    """
+
     assigned_to: Optional[str] = None
     form_id: Optional[str] = None
 
