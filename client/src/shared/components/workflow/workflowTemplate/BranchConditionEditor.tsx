@@ -1,3 +1,11 @@
+/**
+ * BranchConditionEditor.tsx
+ * This temporary component is used to edit the condition of a branch in a workflow template.
+ * It allows the user to select a field, an operator, and a value to create a condition.
+ * The condition is then saved as a JSON string.
+ * TODO: Replace with a more generic component
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Box, Stack, TextField, Autocomplete, Typography } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
@@ -63,6 +71,13 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 
   const [selectedValue, setSelectedValue] = useState<string>('');
 
+  // Clear input fields when a different step or branch is selected
+  useEffect(() => {
+    setSelectedField(null);
+    setSelectedOperator(null);
+    setSelectedValue('');
+  }, [stepId, branchIndex]);
+
   // Generate and save condition JSON whenever inputs change
   useEffect(() => {
     if (selectedField && selectedOperator && selectedValue) {
@@ -71,7 +86,6 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
         selectedOperator.op,
         Number(selectedValue)
       );
-      console.log('Generated Condition JSON:', conditionJSON);
 
       onChange?.(stepId, branchIndex, conditionJSON);
     }
