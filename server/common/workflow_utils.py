@@ -310,6 +310,8 @@ def generate_updated_workflow_template(
     apply_changes_to_model(new_workflow_template, template_changes)
 
     return new_workflow_template
+
+
 def fetch_workflow_instance(workflow_instance_id: str) -> WorkflowInstanceModel:
     """
     Fetches a workflow instance.
