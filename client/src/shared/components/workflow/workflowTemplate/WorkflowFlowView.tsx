@@ -1,13 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import {
-  Box,
-  Grid,
-  Typography,
-  Paper,
-  Stack,
-  Tooltip,
-  Button,
-} from '@mui/material';
+import { Box, Grid, Paper, Stack, Tooltip, Button } from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';

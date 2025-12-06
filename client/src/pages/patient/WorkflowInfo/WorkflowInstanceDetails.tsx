@@ -188,9 +188,13 @@ export default function WorkflowInstanceDetailsPage() {
                   <WorkflowMetadata
                     description={instanceDetails.description}
                     collectionName={instanceDetails.collection}
-                    version={parseInt(instanceDetails.version) || 1}
-                    lastEdited={instanceDetails.lastEditedOn}
-                    dateCreated={instanceDetails.firstCreatedOn}
+                    version={instanceDetails.version}
+                    lastEdited={new Date(
+                      instanceDetails.lastEditedOn
+                    ).getTime()}
+                    dateCreated={new Date(
+                      instanceDetails.firstCreatedOn
+                    ).getTime()}
                   />
                 </Box>
               </Box>
