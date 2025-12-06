@@ -6,6 +6,7 @@ from validation.workflow_models import (
     StartWorkflowActionModel,
     CompleteStepActionModel,
     StartStepActionModel,
+    CompleteWorkflowActionModel,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
     WorkflowTemplateStepBranchModel,
@@ -161,7 +162,6 @@ class TestEndToEndConditionalWorkflow:
         """
         user_factory.create(id=1, username="test_user")
         
-
         patient_factory.create(
             id="patient-senior-high-bp",
             name="Senior High BP Patient",
@@ -189,6 +189,12 @@ class TestEndToEndConditionalWorkflow:
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         assert workflow_view.instance.status == "Active"
         
+        WorkflowService.advance_workflow(workflow_view)
+        
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        assert isinstance(actions[0], StartStepActionModel)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         current_step = workflow_view.get_current_step()
         assert current_step.workflow_template_step_id == "age-check-step"
         assert current_step.status == "Active"
@@ -200,38 +206,50 @@ class TestEndToEndConditionalWorkflow:
         assert isinstance(actions[0], CompleteStepActionModel)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
+        WorkflowService.advance_workflow(workflow_view)
+        
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert isinstance(actions[0], StartStepActionModel)
-        assert actions[0].step_id == workflow_view.get_instance_step_for_template_step("senior-care-step").id
-        
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         current_step = workflow_view.get_current_step()
         assert current_step.workflow_template_step_id == "senior-care-step"
         
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
+        WorkflowService.advance_workflow(workflow_view)
+        
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         current_step = workflow_view.get_current_step()
         assert current_step.workflow_template_step_id == "bp-check-step"
         
         step_eval = WorkflowService.evaluate_workflow_step(workflow_view, current_step.id)
-        assert step_eval.selected_branch_id == "branch-high-bp" 
+        assert step_eval.selected_branch_id == "branch-high-bp"
         
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
+        WorkflowService.advance_workflow(workflow_view)
+        
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         current_step = workflow_view.get_current_step()
         assert current_step.workflow_template_step_id == "high-bp-treatment-step"
         
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        assert len(actions) == 1
+        assert isinstance(actions[0], CompleteWorkflowActionModel)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         assert workflow_view.instance.status == "Completed"
-        assert workflow_view.instance.current_step_id is None
+        assert workflow_view.instance.current_step_id is not None
     
     def test_adult_patient_with_normal_bp_full_workflow(
         self, patient_factory, reading_factory, user_factory, conditional_workflow_template
@@ -265,19 +283,28 @@ class TestEndToEndConditionalWorkflow:
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
+        WorkflowService.advance_workflow(workflow_view)
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         current_step = workflow_view.get_current_step()
         step_eval = WorkflowService.evaluate_workflow_step(workflow_view, current_step.id)
         assert step_eval.selected_branch_id == "branch-adult"
         
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        WorkflowService.advance_workflow(workflow_view)
         
-        actions = WorkflowService.get_available_workflow_actions(workflow_view)
-        assert actions[0].step_id == workflow_view.get_instance_step_for_template_step("adult-care-step").id
-        
-        WorkflowService.apply_workflow_action(actions[0], workflow_view)  
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
+        current_step = workflow_view.get_current_step()
+        assert current_step.workflow_template_step_id == "adult-care-step"
+        
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        WorkflowService.advance_workflow(workflow_view)
+        
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
@@ -287,13 +314,19 @@ class TestEndToEndConditionalWorkflow:
         
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        WorkflowService.advance_workflow(workflow_view)
+        
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
-        WorkflowService.apply_workflow_action(actions[0], workflow_view)  
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
         current_step = workflow_view.get_current_step()
         assert current_step.workflow_template_step_id == "normal-bp-treatment-step"
         
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        assert isinstance(actions[0], CompleteWorkflowActionModel)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
         assert workflow_view.instance.status == "Completed"
@@ -319,13 +352,29 @@ class TestEndToEndConditionalWorkflow:
         
         WorkflowService.apply_workflow_action(StartWorkflowActionModel(), workflow_view)
         
+        WorkflowService.advance_workflow(workflow_view)
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
         current_step = workflow_view.get_current_step()
         step_eval = WorkflowService.evaluate_workflow_step(workflow_view, current_step.id)
         assert step_eval.selected_branch_id == "branch-adult"
         
-        for _ in range(4):
-            actions = WorkflowService.get_available_workflow_actions(workflow_view)
-            WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
+        WorkflowService.advance_workflow(workflow_view)
+        
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
+        
+        WorkflowService.advance_workflow(workflow_view)
+        
+        actions = WorkflowService.get_available_workflow_actions(workflow_view)
+        WorkflowService.apply_workflow_action(actions[0], workflow_view)
         
         current_step = workflow_view.get_current_step()
         assert current_step.workflow_template_step_id == "bp-check-step"
