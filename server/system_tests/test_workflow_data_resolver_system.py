@@ -44,7 +44,8 @@ class TestWorkflowDataResolverIntegration:
         assert result["status"] == "NOT_ENOUGH_DATA"
         assert "patient.age" in result["missing_variables"]
 
-    def test_patient_and_reading_evaluation(self, patient_factory, reading_factory):
+    def test_patient_and_reading_evaluation(self, user_factory, patient_factory, reading_factory):
+        user_factory.create(id=1, username="test_user")
         patient_factory.create(
             id="patient_bp",
             name="BP Test Patient",
@@ -76,7 +77,8 @@ class TestWorkflowDataResolverIntegration:
         assert result["status"] == "TRUE"
         assert result["branch"]["target_step_id"] == "high_bp_female"
 
-    def test_pregnancy_and_bp_evaluation(self, patient_factory, reading_factory):
+    def test_pregnancy_and_bp_evaluation(self, user_factory, patient_factory, reading_factory):
+        user_factory.create(id=1, username="test_user")
         patient_factory.create(
             id="patient_preg_bp",
             name="Pregnant BP Patient",
