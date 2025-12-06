@@ -4,8 +4,8 @@ import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 
 /**
  * Helper function to extract data sources (var fields) from a condition rule JSON
- * Returns a JSON string of the array (backend expects string, not array)
  * Example: {"<": [{"var": "patient.age"}, 32]} => '["patient.age"]'
+ * TODO: Replace with a more generic function that can handle all condition types
  */
 const extractDataSources = (ruleJSON: string): string => {
   try {
@@ -40,7 +40,7 @@ export interface UseWorkflowEditorOptions {
   initialWorkflow: WorkflowTemplate | null;
   onSave: (workflow: WorkflowTemplate) => Promise<void>;
   onCancel?: () => void;
-  enabled?: boolean; // Only initialize when this is true (e.g., when in edit mode)
+  enabled?: boolean;
 }
 
 export const useWorkflowEditor = ({
@@ -488,4 +488,3 @@ export const useWorkflowEditor = ({
     redo,
   };
 };
-
