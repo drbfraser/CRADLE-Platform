@@ -46,56 +46,37 @@ class IntegratedRuleEvaluator:
         if rule is None or rule == "":
             return (RuleStatus.TRUE, [])
 
-        try:
-            variable_strings = extract_variables_from_rule(rule)
-            logger.debug(
-                f"Variables to resolve: {variable_strings} for patient {patient_id}"
+        variable_strings = extract_variables_from_rule(rule)
+        logger.debug(
+            f"Variables to resolve: {variable_strings} for patient {patient_id}"
+        )
+
+        variables = [
+            DatasourceVariable.from_string(v) for v in variable_strings
+        ]
+        variables = [v for v in variables if v is not None]
+
+        context = {"patient_id": patient_id}
+        resolved_data = resolve_variables(
+            context=context, variables=variables, catalogue=self.catalogue
+        )
+
+        logger.debug(f"Resolved data for context {context}: {resolved_data}")
+
+        missing_vars = [k for k, v in resolved_data.items() if v is None]
+        if missing_vars:
+            logger.info(
+                f"Missing data for variables: {missing_vars} for context {context}"
             )
-
-            variables = [
-                DatasourceVariable.from_string(v) for v in variable_strings
-            ]
-            variables = [v for v in variables if v is not None]
-
-            context = {"patient_id": patient_id}
-            resolved_data = resolve_variables(
-                context=context, variables=variables, catalogue=self.catalogue
-            )
-
-            logger.debug(f"Resolved data for context {context}: {resolved_data}")
-
-            missing_vars = [k for k, v in resolved_data.items() if v is None]
-            if missing_vars:
-                logger.info(
-                    f"Missing data for variables: {missing_vars} for context {context}"
-                )
-                var_resolutions = self._create_variable_resolutions(resolved_data)
-                return (RuleStatus.NOT_ENOUGH_DATA, var_resolutions)
-
-            rule_engine = RulesEngineFacade(rule=rule, args={})
-            evaluation_result = rule_engine.evaluate(input=resolved_data)
-
             var_resolutions = self._create_variable_resolutions(resolved_data)
+            return (RuleStatus.NOT_ENOUGH_DATA, var_resolutions)
 
-            return (evaluation_result.status, var_resolutions)
+        rule_engine = RulesEngineFacade(rule=rule, args={})
+        evaluation_result = rule_engine.evaluate(input=resolved_data)
 
-        except Exception as e:
-            logger.exception(
-                f"Database error evaluating rule for patient {patient_id}: {e}"
-            )
-            try:
-                variable_strings = extract_variables_from_rule(rule)
-                error_resolutions = [
-                    VariableResolution(
-                        var=var_str,
-                        value=None,
-                        status=VariableResolutionStatus.DATABASE_ERROR,
-                    )
-                    for var_str in variable_strings
-                ]
-                return (RuleStatus.NOT_ENOUGH_DATA, error_resolutions)
-            except:
-                return (RuleStatus.NOT_ENOUGH_DATA, [])
+        var_resolutions = self._create_variable_resolutions(resolved_data)
+
+        return (evaluation_result.status, var_resolutions)
 
     def _create_variable_resolutions(
         self, resolved_data: Dict[str, Any]
@@ -103,6 +84,9 @@ class IntegratedRuleEvaluator:
         """
         Create VariableResolution objects from resolved data.
 
+        TODO: Move VariableResolution creation to resolve_variables() for finer-grained
+        error status. This requires updating _resolve_object() to preserve error context.
+        
         :param resolved_data: Dict mapping variable names to resolved values
         :returns: List of VariableResolution objects
         """
