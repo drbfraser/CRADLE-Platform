@@ -1,6 +1,6 @@
 import pytest
 
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from enums import TrafficLightEnum
 from models import ReadingOrm, UrineTestOrm
 
@@ -48,7 +48,7 @@ def test_symptoms_parsing_table(raw, expected):
     will result in a marshalled object with the symptoms parsed into a list.
     """
     r = make_reading(symptoms=raw)
-    marshalled = m.marshal(r, shallow=True)
+    marshalled = orm_seralizer.marshal(r, shallow=True)
     assert marshalled["symptoms"] == expected
 
 
@@ -60,7 +60,7 @@ def test_enum_converted_and_nones_stripped():
     omits nested relationships when shallow=True.
     """
     reading = make_reading(traffic=TrafficLightEnum.RED_UP)
-    marshalled = m.marshal(reading, shallow=True)
+    marshalled = orm_seralizer.marshal(reading, shallow=True)
     # Enum -> .value via __pre_process
     assert marshalled["traffic_light_status"] == TrafficLightEnum.RED_UP.value
     assert marshalled["last_edited"] == 1577836800
@@ -84,11 +84,11 @@ def test_urine_tests_respects_shallow_toggle():
     reading.urine_tests = urine_test
 
     # shallow=True: nested should NOT appear
-    o_shallow = m.marshal(reading, shallow=True)
+    o_shallow = orm_seralizer.marshal(reading, shallow=True)
     assert "urine_tests" not in o_shallow
 
     # shallow=False: nested should appear and be marshalled
-    o_deep = m.marshal(reading, shallow=False)
+    o_deep = orm_seralizer.marshal(reading, shallow=False)
     assert "urine_tests" in o_deep
     assert o_deep["urine_tests"]["id"] == "ut-9"
     assert o_deep["urine_tests"]["protein"] == "++"
@@ -105,7 +105,7 @@ def test_input_object_not_mutated_by_marshal():
     """
     reading = make_reading(symptoms="A,B")
     _before = reading.symptoms
-    marshalled = m.marshal(reading, shallow=True)
+    marshalled = orm_seralizer.marshal(reading, shallow=True)
     assert marshalled["symptoms"] == ["A", "B"]
     assert reading.symptoms == _before
 
@@ -122,7 +122,7 @@ def test_basic_fields_preserved_minimally():
 
     """
     reading = make_reading(id_="r-xyz", patient_id="p-007", symptoms=None)
-    marshalled = m.marshal(reading, shallow=True)
+    marshalled = orm_seralizer.marshal(reading, shallow=True)
     assert marshalled["id"] == "r-xyz"
     assert marshalled["patient_id"] == "p-007"
     assert marshalled["symptoms"] == []

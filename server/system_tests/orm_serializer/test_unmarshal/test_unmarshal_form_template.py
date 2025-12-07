@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import FormTemplateOrm
 
 
@@ -123,7 +123,7 @@ def test_unmarshal_form_template_with_questions_attaches_and_encodes_nested_fiel
         ],
     )
 
-    tmpl = unmarshal(FormTemplateOrm, payload)
+    tmpl = orm_serializer.unmarshal(FormTemplateOrm, payload)
     assert isinstance(tmpl, FormTemplateOrm)
     assert tmpl.id == "t-qa"
     assert tmpl.version == "v2"
@@ -175,7 +175,7 @@ def test_unmarshal_form_template_with_empty_questions_sets_empty_attr():
     """
     payload = _create_form_template(id="t-empty", questions=[])
 
-    tmpl = unmarshal(FormTemplateOrm, payload)
+    tmpl = orm_serializer.unmarshal(FormTemplateOrm, payload)
     assert hasattr(tmpl, "questions") and tmpl.questions == []
 
 
@@ -186,5 +186,5 @@ def test_unmarshal_form_template_without_questions_key_sets_empty_attr():
     """
     payload = _create_form_template(id="t-absent")  # no 'questions' key
 
-    tmpl = unmarshal(FormTemplateOrm, payload)
+    tmpl = orm_serializer.unmarshal(FormTemplateOrm, payload)
     assert hasattr(tmpl, "questions") and tmpl.questions == []

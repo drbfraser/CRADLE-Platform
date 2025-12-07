@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import RuleGroupOrm, WorkflowTemplateStepBranchOrm
 
 
@@ -43,7 +43,7 @@ def test_unmarshal_branch_with_condition_str_id_attaches_relation():
         condition="rg-777",
     )
 
-    obj = unmarshal(WorkflowTemplateStepBranchOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateStepBranchOrm, payload)
 
     assert isinstance(obj, WorkflowTemplateStepBranchOrm)
     assert obj.id == "wtsb-B"
@@ -69,7 +69,7 @@ def test_unmarshal_branch_without_condition_leaves_relation_none():
         # no condition
     )
 
-    obj = unmarshal(WorkflowTemplateStepBranchOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateStepBranchOrm, payload)
 
     assert isinstance(obj, WorkflowTemplateStepBranchOrm)
     assert obj.id == "wtsb-C"

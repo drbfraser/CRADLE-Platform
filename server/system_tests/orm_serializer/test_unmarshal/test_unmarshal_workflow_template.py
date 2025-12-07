@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import (
     FormTemplateOrm,
     RuleGroupOrm,
@@ -160,7 +160,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
         classification=classification,
     )
 
-    obj = unmarshal(WorkflowTemplateOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateOrm, payload)
 
     # Top-level object
     assert isinstance(obj, WorkflowTemplateOrm)
@@ -218,7 +218,7 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
     )
     payload.pop("starting_step_id", None)
 
-    obj = unmarshal(WorkflowTemplateOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateOrm, payload)
 
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == "wt-2"
@@ -253,7 +253,7 @@ def test_unmarshal_workflow_template_strips_none_and_handles_empty_steps():
         steps=[],
     )
 
-    obj = unmarshal(WorkflowTemplateOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowTemplateOrm, payload)
 
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == "wt-3"

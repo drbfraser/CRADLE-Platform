@@ -17,7 +17,7 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from common.patient_utils import assign_patient_id
 from config import db
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
@@ -90,7 +90,7 @@ def create_patient(body: NestedPatient):
     """Create New Patient"""
     new_patient = body.model_dump()
     assign_patient_id(new_patient)
-    patient = marshal.unmarshal(PatientOrm, new_patient)
+    patient = orm_serializer.unmarshal(PatientOrm, new_patient)
 
     # Resolve invariants and set the creation timestamp for the patient ensuring
     # that both the created and last_edited fields have the exact same value.
@@ -115,7 +115,7 @@ def create_patient(body: NestedPatient):
             # wipe out the patient we want to return we must refresh it.
             crud.db_session.refresh(patient)
 
-    return marshal.marshal(patient, shallow=True), 201
+    return orm_serializer.marshal(patient, shallow=True), 201
 
 
 # /api/patients/<string:patient_id> [GET]
@@ -146,7 +146,7 @@ def get_patient_info(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
-    return marshal.marshal(patient, shallow=True)
+    return orm_serializer.marshal(patient, shallow=True)
 
 
 # /api/patients/<string:patient_id>/info [PUT]
@@ -191,7 +191,7 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
         crud.db_session.commit()
         crud.db_session.refresh(patient)  # Need to refresh the patient after commit
 
-    return marshal.marshal(patient)
+    return orm_serializer.marshal(patient)
 
 
 # /api/patients/<string:patient_id>/stats [GET]
@@ -293,7 +293,7 @@ def get_patient_readings(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
-    return [marshal.marshal(r) for r in patient.readings]
+    return [orm_serializer.marshal(r) for r in patient.readings]
 
 
 # /api/patients/<string:patient_id>/most_recent_reading [GET]
@@ -305,7 +305,7 @@ def get_patient_most_recent_reading(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
-    readings = [marshal.marshal(r) for r in patient.readings]
+    readings = [orm_serializer.marshal(r) for r in patient.readings]
     if len(readings) == 0:
         return []
 
@@ -326,7 +326,7 @@ def get_patient_referrals(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
-    return [marshal.marshal(ref) for ref in patient.referrals]
+    return [orm_serializer.marshal(ref) for ref in patient.referrals]
 
 
 # /api/patients/<string:patient_id>/forms [GET]
@@ -336,7 +336,7 @@ def get_patient_forms(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
-    return [marshal.marshal(form, True) for form in patient.forms]
+    return [orm_serializer.marshal(form, True) for form in patient.forms]
 
 
 class PatientPregnancySummary(CradleBaseModel):
@@ -354,7 +354,7 @@ def get_patient_pregnancy_summary(path: PatientIdPath):
     pregnancies = crud.read_medical_records(
         PregnancyOrm, path.patient_id, direction="DESC"
     )
-    return marshal.marshal_patient_pregnancy_summary(pregnancies)
+    return orm_serializer.marshal_patient_pregnancy_summary(pregnancies)
 
 
 class MedicalHistory(CradleBaseModel):
@@ -373,7 +373,7 @@ def get_patient_medical_history(path: PatientIdPath):
     """Get Patient Medical History"""
     medical = crud.read_patient_current_medical_record(path.patient_id, False)
     drug = crud.read_patient_current_medical_record(path.patient_id, True)
-    return marshal.marshal_patient_medical_history(medical=medical, drug=drug)
+    return orm_serializer.marshal_patient_medical_history(medical=medical, drug=drug)
 
 
 class PatientTimelineItem(CradleBaseModel):
@@ -415,21 +415,21 @@ def create_reading_with_assessment(body: NewReadingAndAssessment):
     reading.user_id = user_id
     assessment.healthcare_worker_id = user_id
 
-    new_reading = marshal.unmarshal(ReadingOrm, reading.model_dump())
+    new_reading = orm_serializer.unmarshal(ReadingOrm, reading.model_dump())
 
     if crud.read(ReadingOrm, id=new_reading.id):
         return abort(409, description=f"A reading already exists with id: {reading.id}")
 
     invariant.resolve_reading_invariants(new_reading)
 
-    new_assessment = marshal.unmarshal(AssessmentOrm, assessment.model_dump())
+    new_assessment = orm_serializer.unmarshal(AssessmentOrm, assessment.model_dump())
 
     crud.create(new_reading, refresh=True)
     crud.create(new_assessment)
 
     response_body = {
-        "reading": marshal.marshal(reading),
-        "assessment": marshal.marshal(assessment),
+        "reading": orm_serializer.marshal(reading),
+        "assessment": orm_serializer.marshal(assessment),
     }
 
     return response_body, 201
@@ -466,7 +466,7 @@ def get_all_records_for_patient(
     Its kind of difficult to document the way that it is now.
     """
 
-    return [marshal.marshal_with_type(r) for r in records]
+    return [orm_serializer.marshal_with_type(r) for r in records]
 
 
 class AdminPatientListItem(CradleBaseModel):

@@ -7,7 +7,7 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from common import form_utils, user_utils
 from common.commonUtil import get_current_time
-from data import marshal
+from data import orm_serializer
 from models import (
     FormSubmissionOrmV2,
     FormTemplateOrmV2,
@@ -90,13 +90,13 @@ def submit_form(body: CreateFormSubmissionRequest):
 
     form_utils.assign_form_ids_v2(submission)
 
-    form = marshal.unmarshal(FormSubmissionOrmV2, submission.model_dump())
+    form = orm_serializer.unmarshal(FormSubmissionOrmV2, submission.model_dump())
 
     form.date_submitted = get_current_time()
     form.last_edited = form.date_submitted
 
     crud.create(form, refresh=True)
-    result = marshal.marshal(form, shallow=True)
+    result = orm_serializer.marshal(form, shallow=True)
 
     return FormSubmissionResponse(**result).model_dump(), 201
 
@@ -113,7 +113,7 @@ def get_form(path: FormIdPath):
         return abort(404, description=f"No form with ID: {path.form_submission_id}.")
 
     form_answers = form_utils.attach_questions(form)
-    form = marshal.marshal(form, shallow=False)
+    form = orm_serializer.marshal(form, shallow=False)
 
     if form.get("answers", None):
         form.pop("answers", None)
@@ -170,5 +170,5 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     crud.db_session.commit()
     crud.db_session.refresh(form)
 
-    result = marshal.marshal(form, shallow=True)
+    result = orm_serializer.marshal(form, shallow=True)
     return FormSubmissionResponse(**result).model_dump(), 201

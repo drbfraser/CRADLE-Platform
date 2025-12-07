@@ -9,7 +9,7 @@ from common.api_utils import (
     FormClassificationIdPath,
 )
 from common.commonUtil import get_uuid
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import FormClassificationOrmV2, FormTemplateOrmV2, LangVersionOrmV2
 from validation.formsV2_models import (
@@ -36,7 +36,7 @@ def get_all_form_classifications():
     out = []
 
     for fc in form_classifications:
-        d = marshal.marshal(fc, shallow=True)
+        d = orm_serializer.marshal(fc, shallow=True)
         d["name"] = {"english": form_utils.resolve_string_text(d.get("name_string_id"))}
 
         out.append(d)
@@ -49,8 +49,8 @@ def get_all_form_classifications():
 @roles_required([RoleEnum.ADMIN])
 def create_form_classification(body: FormClassification):
     """Create Form Classification"""
-    name_map = body.name.root
-    english_name = name_map.get("english") or name_map.get("English")
+    name_map = {lang.lower(): text for lang, text in body.name.root.items()}
+    english_name = name_map.get("english")
     if not english_name:
         abort(400, "English name is required.")
 
@@ -64,7 +64,7 @@ def create_form_classification(body: FormClassification):
     fc_orm = FormClassificationOrmV2(id=get_uuid(), name_string_id=name_string_id)
     crud.create(fc_orm, refresh=True)
 
-    result = marshal.marshal(fc_orm, shallow=True)
+    result = orm_serializer.marshal(fc_orm, shallow=True)
     result["name"] = name_map
     return FormClassification(**result).model_dump(), 201
 
@@ -85,7 +85,7 @@ def get_form_classification(path: FormClassificationIdPath):
             description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
-    form_classification = marshal.marshal(form_classification, shallow=True)
+    form_classification = orm_serializer.marshal(form_classification, shallow=True)
 
     available_langs: list[LangVersionOrmV2] = form_utils.read_all_translations(
         form_classification.get("name_string_id")
@@ -111,8 +111,8 @@ def edit_form_classification_name(
     if not fc_orm:
         abort(404, f"No Form Classification with id=({body.id}) found.")
 
-    name_map = body.name.root
-    english_name = name_map.get("english") or name_map.get("English")
+    name_map = {lang.lower(): text for lang, text in body.name.root.items()}
+    english_name = name_map.get("english")
     if not english_name:
         abort(400, "English name is required.")
 
@@ -125,7 +125,7 @@ def edit_form_classification_name(
     crud.db_session.commit()
     crud.db_session.refresh(fc_orm)
 
-    result = marshal.marshal(fc_orm, shallow=True)
+    result = orm_serializer.marshal(fc_orm, shallow=True)
     langs = form_utils.read_all_translations(fc_orm.name_string_id)
     name_map = {lv.lang: lv.text for lv in langs}
     result["name"] = name_map
@@ -165,7 +165,7 @@ def get_form_classification_summary():
 
     result = []
     for template in valid_templates:
-        marshalled = marshal.marshal(template, shallow=True)
+        marshalled = orm_serializer.marshal(template, shallow=True)
 
         marshalled["classification"]["name"] = {
             "english": form_utils.resolve_string_text(
@@ -194,7 +194,7 @@ def get_form_classification_templates(path: FormClassificationIdPath):
     out = []
 
     for ft in form_templates:
-        d = marshal.marshal(ft, shallow=True)
+        d = orm_serializer.marshal(ft, shallow=True)
         d["classification"]["name"] = {
             "english": form_utils.resolve_string_text(
                 d["classification"].get("name_string_id")

@@ -1,7 +1,7 @@
 # ruff: noqa: SLF001
 from __future__ import annotations
 
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormClassificationOrmV2,
@@ -37,7 +37,7 @@ def make_question(
     Construct a minimal QuestionOrm instance with the given parameters.
 
     :param id_: ID of the QuestionOrm to create.
-    :param question_index: Index of the question in the form.
+    :param question_index: Index of the question in the fororm_seralizer.
     :param visible_condition: Visible condition for the question.
     :param mc_options: Multiple choice options for the question.
     :param answers: Answers to the question.
@@ -131,7 +131,7 @@ def test_form_template_shallow_omits_questions_and_embeds_classification():
         questions=[question_1, question_2],
     )
 
-    marshalled = m.marshal(form_template, shallow=True)
+    marshalled = orm_seralizer.marshal(form_template, shallow=True)
 
     assert marshalled["id"] == "ft-9"
     assert marshalled["version"] == "v9"
@@ -182,7 +182,7 @@ def test_form_template_deep_includes_sorted_questions_and_parses_fields():
         questions=[question_1, question_2, question_3],
     )
 
-    marshalled = m.marshal(form_template, shallow=False)
+    marshalled = orm_seralizer.marshal(form_template, shallow=False)
 
     assert "questions" in marshalled and isinstance(marshalled["questions"], list)
     idxs = [question["question_index"] for question in marshalled["questions"]]
@@ -223,7 +223,9 @@ def test_form_template_propagates_if_include_versions_to_questions():
         questions=[question],
     )
 
-    marshalled = m.marshal(form_template, shallow=False, if_include_versions=True)
+    marshalled = orm_seralizer.marshal(
+        form_template, shallow=False, if_include_versions=True
+    )
 
     [qo] = marshalled["questions"]
     assert "lang_versions" in qo
@@ -258,7 +260,7 @@ def test_form_template_private_attrs_stripped_and_no_input_mutation():
 
     before = (form_template._secret, form_classification._hidden, question._debug)
 
-    marshalled = m.marshal(form_template, shallow=False)
+    marshalled = orm_seralizer.marshal(form_template, shallow=False)
 
     assert "_secret" not in marshalled
     assert "_hidden" not in marshalled.get("classification", {})
@@ -279,7 +281,7 @@ def test_form_template_classification_does_not_expand_templates_or_leak_relation
         id_="ft-44", classification=form_classification, questions=[question]
     )
 
-    marshalled = m.marshal(form_template, shallow=True)
+    marshalled = orm_seralizer.marshal(form_template, shallow=True)
     assert "templates" not in marshalled["classification"]
 
 
@@ -299,7 +301,7 @@ def test_form_template_type_sanity_and_core_fields():
         questions=[],
     )
 
-    marshalled = m.marshal(form_template, shallow=True)
+    marshalled = orm_seralizer.marshal(form_template, shallow=True)
 
     assert isinstance(marshalled["id"], str) and marshalled["id"] == "ft-core"
     assert isinstance(marshalled["version"], str) and marshalled["version"] == "v2"
@@ -383,7 +385,7 @@ def test_form_template_v2_marshal_shallow_omits_questions():
     # Add some mock questions to verify they're omitted
     template.__dict__["questions"] = [{"id": "q-1"}, {"id": "q-2"}]
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert "questions" not in marshalled
 
@@ -403,7 +405,7 @@ def test_form_template_v2_marshal_shallow_includes_core_fields():
         classification=classification,
     )
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert marshalled["id"] == "ft-v2-9"
     assert marshalled["version"] == 3
@@ -424,7 +426,7 @@ def test_form_template_v2_marshal_shallow_embeds_classification():
         classification=classification,
     )
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert "classification" in marshalled
     assert isinstance(marshalled["classification"], dict)
@@ -441,7 +443,7 @@ def test_form_template_v2_marshal_handles_null_classification():
         classification=None,
     )
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert marshalled["classification"] is None
 
@@ -462,7 +464,7 @@ def test_form_template_v2_marshal_strips_private_attributes():
     before_template = template._secret
     before_classification = classification._hidden
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert "_secret" not in marshalled
     assert "_hidden" not in marshalled.get("classification", {})
@@ -481,7 +483,7 @@ def test_form_template_v2_marshal_classification_does_not_expand_templates():
         classification=classification,
     )
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert "templates" not in marshalled["classification"]
 
@@ -498,7 +500,7 @@ def test_form_template_v2_marshal_preserves_field_types():
         classification=make_form_classification_v2(id_="fc-v2-55"),
     )
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert isinstance(marshalled["id"], str)
     assert isinstance(marshalled["version"], int)
@@ -513,7 +515,7 @@ def test_form_template_v2_marshal_version_is_integer():
     """
     template = make_form_template_v2(id_="ft-v2-ver", version=42)
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert marshalled["version"] == 42
     assert isinstance(marshalled["version"], int)
@@ -526,8 +528,8 @@ def test_form_template_v2_marshal_archived_flag():
     template_archived = make_form_template_v2(id_="ft-v2-arch-1", archived=True)
     template_active = make_form_template_v2(id_="ft-v2-arch-2", archived=False)
 
-    marshalled_archived = m.marshal(template_archived, shallow=True)
-    marshalled_active = m.marshal(template_active, shallow=True)
+    marshalled_archived = orm_seralizer.marshal(template_archived, shallow=True)
+    marshalled_active = orm_seralizer.marshal(template_active, shallow=True)
 
     assert marshalled_archived["archived"] is True
     assert marshalled_active["archived"] is False
@@ -540,7 +542,7 @@ def test_form_template_v2_marshal_date_created_timestamp():
     timestamp = 1699999999
     template = make_form_template_v2(id_="ft-v2-date", date_created=timestamp)
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert marshalled["date_created"] == timestamp
     assert isinstance(marshalled["date_created"], int)
@@ -555,6 +557,6 @@ def test_form_template_v2_marshal_foreign_key_preserved():
         form_classification_id="fc-custom-id",
     )
 
-    marshalled = m.marshal(template, shallow=True)
+    marshalled = orm_seralizer.marshal(template, shallow=True)
 
     assert marshalled["form_classification_id"] == "fc-custom-id"
