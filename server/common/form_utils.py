@@ -5,7 +5,7 @@ from typing import Literal, NamedTuple
 
 import data.db_operations as crud
 from common import commonUtil
-from data import marshal
+from data import orm_serializer
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
@@ -641,6 +641,11 @@ def validate_form_answers(
                         False, "Future dates are not allowed", code=422
                     )
 
+            case _:
+                return ValidationResult(
+                    False, f"Question type '{ques_type}' not supported", code=422
+                )
+
     return ValidationResult(True, "Answers are all valid", code=None)
 
 
@@ -771,7 +776,9 @@ def get_new_lang_versions_and_questions(
 
 
 def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
-    answers = [FormAnswer(**(marshal.marshal(answer))) for answer in submission.answers]
+    answers = [
+        FormAnswer(**(orm_serializer.marshal(answer))) for answer in submission.answers
+    ]
     form_template = crud.read(FormTemplateOrmV2, id=submission.form_template_id)
     questions = {question.id: question for question in form_template.questions}
 
