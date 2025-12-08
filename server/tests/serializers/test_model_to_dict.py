@@ -1,5 +1,5 @@
-from tests.helpers import DummyModel, DummyModelSchema
 from data import orm_serializer
+from tests.helpers import DummyModel, DummyModelSchema
 
 
 def test_model_to_dict_returns_none_for_falsy_model():
