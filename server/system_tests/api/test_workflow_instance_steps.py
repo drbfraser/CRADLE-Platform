@@ -2,7 +2,6 @@ import pytest
 from humps import decamelize
 
 import data.db_operations as crud
-from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from models import (
     WorkflowInstanceOrm,
@@ -59,77 +58,7 @@ def test_get_workflow_instance_steps(api_get, sequential_workflow_view, patient_
 
 
 @pytest.fixture
-def workflow_template1(vht_user_id):
-    template_id = get_uuid()
-    classification_id = get_uuid()
-    return {
-        "id": template_id,
-        "name": "workflow_example1",
-        "description": "workflow_example1",
-        "archived": False,
-        "date_created": get_current_time(),
-        "last_edited": get_current_time() + 44345,
-        "version": "0",
-        "classification_id": classification_id,
-        "classification": {
-            "id": classification_id,
-            "name": "Workflow Classification example 1",
-        },
-        "steps": [],
-    }
-
-
-@pytest.fixture
-def workflow_instance1(vht_user_id, patient_id, workflow_template1):
-    instance_id = get_uuid()
-    return {
-        "id": instance_id,
-        "name": "workflow_instance1",
-        "description": "Workflow Instance 1",
-        "status": "Active",
-        "start_date": get_current_time(),
-        "current_step_id": None,
-        "last_edited": get_current_time() + 44345,
-        "completion_date": None,
-        "patient_id": patient_id,
-        "workflow_template_id": workflow_template1["id"],
-        "steps": [],
-    }
-
-
-@pytest.fixture
 def patient_id(create_patient, patient_info):
     """Create a patient and return its ID"""
     create_patient()
     return patient_info["id"]
-
-
-@pytest.fixture
-def form_classification():
-    return {
-        "id": "wissfc",
-        "name": "wissfc",
-    }
-
-
-@pytest.fixture
-def form_template():
-    return {
-        "classification": {"id": "wissfc", "name": "wissfc"},
-        "id": "wissft",
-        "version": "V1",
-        "questions": [],
-    }
-
-
-@pytest.fixture
-def form(patient_id):
-    return {
-        "id": "wissf",
-        "lang": "english",
-        "form_template_id": "wissft",
-        "form_classification_id": "wissfc",
-        "patient_id": patient_id,
-        "date_created": 1561011126,
-        "questions": [],
-    }

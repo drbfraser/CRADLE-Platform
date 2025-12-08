@@ -6,7 +6,7 @@ from flask import abort
 
 import data.db_operations as crud
 from api.resources.form_templates import handle_form_template_upload
-from common.commonUtil import get_uuid
+from common.commonUtil import abort_not_found, get_uuid
 from common.form_utils import assign_form_or_template_ids
 from data import orm_serializer
 from models import (
@@ -20,13 +20,21 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
 )
+from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
     from data.crud import M
+    from validation.workflow_models import (
+        WorkflowInstanceModel,
+        WorkflowInstanceStepModel,
+        WorkflowTemplateModel,
+    )
 
 
-workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
+WORKFLOW_INSTANCE_NOT_FOUND_MSG = "Workflow instance with ID: ({}) not found."
+WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
+WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not found."
 
 
 def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -> None:
@@ -162,7 +170,7 @@ def validate_workflow_template_step(workflow_template_step: dict):
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_msg.format(
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
                 workflow_template_step["workflow_template_id"]
             ),
         )
@@ -303,3 +311,55 @@ def generate_updated_workflow_template(
     apply_changes_to_model(new_workflow_template, template_changes)
 
     return new_workflow_template
+
+
+def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanceModel:
+    """
+    Fetch a workflow instance or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_instance = WorkflowService.get_workflow_instance(workflow_instance_id)
+    if workflow_instance is None:
+        abort_not_found(WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id))
+
+    return workflow_instance
+
+
+def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplateModel:
+    """
+    Fetch a workflow template or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
+    if workflow_template is None:
+        abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
+
+    return workflow_template
+
+
+def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
+    """
+    Fetch a workflow instance and its template or raise a 404 if either aren't found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_instance = fetch_workflow_instance_or_404(workflow_instance_id)
+    workflow_template = fetch_workflow_template_or_404(
+        workflow_instance.workflow_template_id
+    )
+
+    return WorkflowView(workflow_template, workflow_instance)
+
+
+def fetch_workflow_instance_step_or_404(
+    workflow_instance: WorkflowInstanceModel, workflow_instance_step_id: str
+) -> WorkflowInstanceStepModel:
+    """
+    Fetch a workflow instance step or raise a 404 error if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    step = workflow_instance.get_instance_step(workflow_instance_step_id)
+    if step is None:
+        abort_not_found(
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
+        )
+    return step

@@ -1,4 +1,8 @@
-from common.commonUtil import get_uuid
+import data.db_operations as crud
+from common.commonUtil import abort_not_found, get_uuid
+from models import PatientOrm
+
+PATIENT_NOT_FOUND_MSG = "Patient with ID: ({}) not found."
 
 
 def assign_patient_id(patient: dict) -> None:
@@ -38,3 +42,15 @@ def assign_patient_id(patient: dict) -> None:
             referral["id"] = get_uuid()
 
         referral["patient_id"] = id
+
+
+def fetch_patient_or_404(patient_id: str) -> PatientOrm:
+    """
+    Fetch a patient or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    patient = crud.read(PatientOrm, id=patient_id)
+    if patient is None:
+        abort_not_found(PATIENT_NOT_FOUND_MSG.format(patient_id))
+
+    return patient
