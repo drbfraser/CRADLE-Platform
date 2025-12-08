@@ -34,7 +34,10 @@ api_form_templates_v2 = APIBlueprint(
     import_name=__name__,
     url_prefix="/forms/v2/templates",
     abp_tags=[
-        Tag(name="Form V2 API", description="Form V2 CRUD and testing endpoints")
+        Tag(
+            name="Form Templates V2 API",
+            description="Endpoints to get/create/archive/list form templates",
+        )
     ],
     abp_security=[{"jwt": []}],
 )

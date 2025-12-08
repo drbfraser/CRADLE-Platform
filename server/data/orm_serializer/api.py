@@ -34,6 +34,7 @@ from models import (
 from .forms import (
     __marshal_form,
     __marshal_form_answer_v2,
+    __marshal_form_classification_v2,
     __marshal_form_question_template_v2,
     __marshal_form_submission_v2,
     __marshal_form_template,
@@ -106,6 +107,8 @@ def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) 
         return __marshal_lang_version_v2(obj)
     if isinstance(obj, FormTemplateOrmV2):
         return __marshal_form_template_v2(obj, shallow)
+    if isinstance(obj, FormClassificationOrmV2):
+        return __marshal_form_classification_v2(obj, shallow)
     if isinstance(obj, FormQuestionTemplateOrmV2):
         return __marshal_form_question_template_v2(obj)
     if isinstance(obj, FormSubmissionOrmV2):
