@@ -1,10 +1,15 @@
+import json
+
 from common.commonUtil import get_current_time, get_uuid
 from models import (
     FormClassificationOrm,
     FormOrm,
+    FormTemplateOrm,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
+    QuestionLangVersionOrm,
+    QuestionOrm,
     ReadingOrm,
     UrineTestOrm,
 )
@@ -215,7 +220,6 @@ def make_form_orm(**overrides) -> FormOrm:
         classification = make_form_classification_orm()
     f.classification = classification
 
-    # Relationships
     f.patient = overrides.pop("patient", None)
     f.questions = overrides.pop("questions", [])
 
@@ -223,3 +227,73 @@ def make_form_orm(**overrides) -> FormOrm:
         setattr(f, key, value)
 
     return f
+
+
+def make_form_template_orm(**overrides) -> FormTemplateOrm:
+    t = FormTemplateOrm()
+
+    t.id = overrides.pop("id", get_uuid())
+    t.name = overrides.pop("name", "Test Form Template")
+    t.description = overrides.pop("description", "Form template used for tests.")
+    t.lang = overrides.pop("lang", "en")
+    t.category = overrides.pop("category", "testing")
+    t.date_created = overrides.pop("date_created", TIMESTAMP_TODAY)
+    t.last_edited = overrides.pop("last_edited", TIMESTAMP_TODAY)
+
+    t.questions = overrides.pop("questions", [])
+
+    for key, value in overrides.items():
+        setattr(t, key, value)
+
+    return t
+
+
+def make_question_orm(**overrides) -> QuestionOrm:
+    q = QuestionOrm()
+
+    q.id = overrides.pop("id", get_uuid())
+    q.question_index = overrides.pop("question_index", 0)
+    q.question_text = overrides.pop("question_text", "Test question?")
+
+    mc_options = overrides.pop("mc_options", [])
+    if isinstance(mc_options, list):
+        q.mc_options = json.dumps(mc_options)
+    else:
+        q.mc_options = mc_options
+
+    q.visible_condition = overrides.pop("visible_condition", "null")
+    q.answers = overrides.pop("answers", "[]")
+
+    form_template = overrides.pop("form_template", None)
+    if form_template is not None:
+        q.form_template = form_template
+
+    q.lang_versions = overrides.pop("lang_versions", [])
+
+    for key, value in overrides.items():
+        setattr(q, key, value)
+
+    return q
+
+
+def make_question_lang_version_orm(**overrides) -> QuestionLangVersionOrm:
+    v = QuestionLangVersionOrm()
+
+    v.id = overrides.pop("id", get_uuid())
+    v.lang = overrides.pop("lang", "en")
+    v.question_text = overrides.pop("question_text", "Localized text")
+
+    mc_options = overrides.pop("mc_options", [])
+    if isinstance(mc_options, list):
+        v.mc_options = json.dumps(mc_options)
+    else:
+        v.mc_options = mc_options
+
+    question = overrides.pop("question", None)
+    if question is not None:
+        v.question = question
+
+    for key, value in overrides.items():
+        setattr(v, key, value)
+
+    return v
