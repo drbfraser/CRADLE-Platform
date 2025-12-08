@@ -99,8 +99,15 @@ def run_test_sequence(workflow_view, sequence: list[TestStep]):
         run_test_step(workflow_view, test_step)
 
 
-def test_sequential_workflow__in_order(sequential_workflow_view):
+def test_sequential_workflow__in_order(sequential_workflow_view, mocker):
     workflow_view = sequential_workflow_view
+    
+    workflow_view.instance.patient_id = "test-patient-123"
+    
+    mocker.patch(
+        'service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+        return_value=(RuleStatus.TRUE, [])
+    )
 
     sequence = [
         DoAdvance(expected_ops=[]),
@@ -162,8 +169,15 @@ def test_sequential_workflow__in_order(sequential_workflow_view):
     run_test_sequence(workflow_view, sequence)
 
 
-def test_sequential_workflow__out_of_order(sequential_workflow_view):
+def test_sequential_workflow__out_of_order(sequential_workflow_view, mocker):
     workflow_view = sequential_workflow_view
+    
+    workflow_view.instance.patient_id = "test-patient-123"
+    
+    mocker.patch(
+        'service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+        return_value=(RuleStatus.TRUE, [])
+    )
 
     sequence = [
         DoAdvance(expected_ops=[]),
@@ -270,8 +284,15 @@ def test_get_operations_is_stateless(sequential_workflow_view):
     run_test_sequence(workflow_view, sequence)
 
 
-def test_evaluate_step(sequential_workflow_view):
+def test_evaluate_step(sequential_workflow_view, mocker):
     view = sequential_workflow_view
+    
+    view.instance.patient_id = "test-patient-123"
+    
+    mocker.patch(
+        'service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+        return_value=(RuleStatus.TRUE, [])
+    )
 
     expected_step_1_evaluation = WorkflowStepEvaluation(
         branch_evaluations=[

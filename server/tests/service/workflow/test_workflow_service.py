@@ -1,5 +1,6 @@
 import pytest
 
+from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService
 from tests.helpers import (
@@ -80,8 +81,15 @@ def test_workflow_service__generate_workflow_instance():
         assert step_instance.form is None
 
 
-def test_workflow_service__sequential_workflow__in_order(sequential_workflow_view):
+def test_workflow_service__sequential_workflow__in_order(sequential_workflow_view, mocker):
     workflow_view = sequential_workflow_view
+    
+    workflow_view.instance.patient_id = "test-patient-123"
+    
+    mocker.patch(
+        'service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+        return_value=(RuleStatus.TRUE, [])
+    )
 
     assert workflow_view.instance.status == "Pending"
     assert workflow_view.instance.current_step_id is None

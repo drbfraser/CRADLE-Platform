@@ -80,30 +80,13 @@ class WorkflowPlanner:
         # TODO: Currently only patient_id is supported for data resolution.
         # Need to decide on ID resolution strategy for other object types.
         patient_id = ctx.instance.patient_id
-        # Unit tests have to be updated to set patient_id.
-        # if not patient_id:
-        #     raise ValueError("Workflow instance must have a patient_id to evaluate rules")
+        if not patient_id:
+            raise ValueError("Workflow instance must have a patient_id to evaluate rules")
 
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         for branch in branches:
-            # If no patient_id and branch has a rule, skip evaluation (for unit tests)
-            if not patient_id and branch.condition and branch.condition.rule:
-                branch_evaluation = WorkflowBranchEvaluation(
-                    branch_id=branch.id,
-                    rule=branch.condition.rule,
-                    var_resolutions=[],
-                    rule_status=RuleStatus.NOT_ENOUGH_DATA,
-                )
-            elif not branch.condition or not branch.condition.rule:
-                branch_evaluation = WorkflowBranchEvaluation(
-                    branch_id=branch.id,
-                    rule=None,
-                    var_resolutions=[],
-                    rule_status=RuleStatus.TRUE,
-                )
-            else:
-                branch_evaluation = WorkflowPlanner._evaluate_branch(branch, patient_id)
+            branch_evaluation = WorkflowPlanner._evaluate_branch(branch, patient_id)
             
             branch_evaluations.append(branch_evaluation)
 
