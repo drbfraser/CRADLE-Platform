@@ -3,7 +3,7 @@ from models import get_schema_for_model
 from service import invariant
 
 from .api import marshal, marshal_with_type, unmarshal
-from .forms import unmarshal_question_list
+from .forms import marshal_template_to_single_version, unmarshal_question_list
 from .patients import (
     make_medical_record_from_patient,
     makePregnancyFromPatient,
@@ -23,6 +23,7 @@ __all__ = [
     "marshal_patient_medical_history",
     "marshal_patient_pregnancy_summary",
     "marshal_question_to_single_version",
+    "marshal_template_to_single_version",
     "marshal_with_type",
     "model_to_dict",
     "models_to_list",
