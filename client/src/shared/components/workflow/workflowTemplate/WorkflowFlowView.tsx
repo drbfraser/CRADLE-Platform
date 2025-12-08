@@ -9,14 +9,38 @@ interface WorkflowFlowViewProps {
   steps: WorkflowTemplateStepWithFormAndIndex[];
   firstStepId: ID;
   isInstance?: boolean;
+  isEditMode?: boolean;
+  selectedStepId?: string;
+  onStepChange?: (stepId: string, field: string, value: string) => void;
+  onStepSelect?: (stepId: string) => void;
+  onInsertNode?: (stepId: string) => void;
+  onAddBranch?: (stepId: string) => void;
+  onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
+  onDeleteNode?: (stepId: string) => void;
 }
 
 export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   steps,
   firstStepId,
   isInstance = false,
+  isEditMode = false,
+  selectedStepId: controlledSelectedStepId,
+  onStepChange,
+  onStepSelect,
+  onInsertNode,
+  onAddBranch,
+  onConnectionCreate,
+  onDeleteNode,
 }) => {
-  const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
+  const [internalSelectedStepId, setInternalSelectedStepId] = useState<
+    string | undefined
+  >();
+
+  // Use controlled prop if provided, otherwise use internal state
+  const selectedStepId =
+    controlledSelectedStepId !== undefined
+      ? controlledSelectedStepId
+      : internalSelectedStepId;
 
   const selectedStep = useMemo(() => {
     if (!selectedStepId) return undefined;
@@ -24,7 +48,11 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   }, [selectedStepId, steps]);
 
   const handleStepSelect = (stepId: string) => {
-    setSelectedStepId(stepId);
+    if (onStepSelect) {
+      onStepSelect(stepId);
+    } else {
+      setInternalSelectedStepId(stepId);
+    }
   };
 
   return (
@@ -48,7 +76,12 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 steps={steps}
                 firstStepId={firstStepId}
                 selectedStepId={selectedStepId}
+                isEditMode={isEditMode}
                 onStepSelect={handleStepSelect}
+                onInsertNode={onInsertNode}
+                onAddBranch={onAddBranch}
+                onConnectionCreate={onConnectionCreate}
+                onDeleteNode={onDeleteNode}
               />
             </Box>
           </Paper>
@@ -67,6 +100,8 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
               selectedStep={selectedStep}
               steps={steps}
               isInstance={isInstance}
+              isEditMode={isEditMode}
+              onStepChange={onStepChange}
             />
           </Box>
         </Grid>

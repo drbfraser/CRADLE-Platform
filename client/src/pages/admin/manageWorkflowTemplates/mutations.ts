@@ -5,11 +5,13 @@ import {
   unarchiveWorkflowTemplateAsync,
   archiveWorkflowTemplateAsync,
 } from 'src/shared/api';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 export const useEditWorkflowTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: editWorkflowTemplateAsync,
+    mutationFn: ({ template }: { template: Partial<WorkflowTemplate> }) =>
+      editWorkflowTemplateAsync(template),
     onSuccess: (variables) => {
       // Invalidate all workflow template related queries
       queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] }); // Template list

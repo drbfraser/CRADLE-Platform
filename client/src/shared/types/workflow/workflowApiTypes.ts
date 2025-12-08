@@ -27,9 +27,10 @@ export interface WorkflowTemplateStep {
   name: string;
   description: string;
   formId?: ID;
-  expectedCompletion?: ISODate;
+  expectedCompletion?: number;
   branches?: WorkflowTemplateStepBranch[];
-  lastEdited: ISODate;
+  lastEdited: number | string;
+  workflowTemplateId?: ID;
 }
 
 export interface WorkflowTemplateStepWithFormAndIndex

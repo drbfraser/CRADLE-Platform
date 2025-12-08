@@ -159,6 +159,12 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
 
         return self
 
+    def get_instance_step(self, step_id: str) -> Optional[WorkflowInstanceStepModel]:
+        for step in self.steps:
+            if step.id == step_id:
+                return step
+        return None
+
 
 class StartWorkflowActionModel(CradleBaseModel):
     type: Literal["start_workflow"] = "start_workflow"

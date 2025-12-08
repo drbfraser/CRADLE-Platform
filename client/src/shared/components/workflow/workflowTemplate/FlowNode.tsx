@@ -1,19 +1,53 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Box, Typography } from '@mui/material';
+import { NodeHandler } from './NodeHandler';
+import { DeleteButton } from './DeleteButton';
 
 interface FlowNodeData {
   stepNumber: number;
   stepName: string;
   stepId: string;
   isSelected?: boolean;
+  isEditMode?: boolean;
   onNodeClick?: (stepId: string) => void;
+  onInsertNode?: (stepId: string) => void;
+  onAddBranch?: (stepId: string) => void;
+  onDeleteNode?: (stepId: string) => void;
 }
 
 export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
   if (!data) return null;
 
-  const { stepNumber, stepName, isSelected } = data as unknown as FlowNodeData;
+  const {
+    stepNumber,
+    stepName,
+    stepId,
+    isSelected,
+    isEditMode = false,
+    onNodeClick,
+    onInsertNode,
+    onAddBranch,
+    onDeleteNode,
+  } = data as unknown as FlowNodeData;
+
+  const handleInsertNode = () => {
+    if (onInsertNode) {
+      onInsertNode(stepId);
+    }
+  };
+
+  const handleAddBranch = () => {
+    if (onAddBranch) {
+      onAddBranch(stepId);
+    }
+  };
+
+  const handleDeleteNode = () => {
+    if (onDeleteNode) {
+      onDeleteNode(stepId);
+    }
+  };
 
   return (
     <Box
@@ -31,13 +65,15 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
         transition: 'all 0.2s ease-in-out',
         px: 2,
         py: 1,
+        position: 'relative',
         '&:hover': {
           transform: 'translateY(-2px)',
           boxShadow: isSelected
             ? '0 6px 12px rgba(25, 118, 210, 0.4)'
             : '0 4px 8px rgba(0,0,0,0.15)',
         },
-      }}>
+      }}
+      onClick={() => onNodeClick?.(stepId)}>
       <Handle
         type="target"
         position={Position.Top}
@@ -59,16 +95,12 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
         }}>
         {stepName || `Step ${stepNumber}`}
       </Typography>
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{
-          background: '#1976d2',
-          width: 6,
-          height: 6,
-          border: '2px solid white',
-        }}
+      <NodeHandler
+        isEditMode={isEditMode}
+        onInsertNode={handleInsertNode}
+        onAddBranch={handleAddBranch}
       />
+      <DeleteButton isEditMode={isEditMode} onDelete={handleDeleteNode} />
     </Box>
   );
 };

@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 
-from pydantic import Field, RootModel
+from pydantic import Field, RootModel, model_validator
+from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from enums import QRelationalEnum, QuestionTypeEnum
@@ -67,27 +68,27 @@ class MultiLangText(RootModel[dict[str, str]]):
     """
 
 
-class NumberAnswer(CradleBaseModel):
+class AnswerTypeNumber(CradleBaseModel):
     number: float
 
 
-class TextAnswer(CradleBaseModel):
+class AnswerTypeText(CradleBaseModel):
     text: str
 
 
-class OptionAnswer(CradleBaseModel):
-    options: List[str]
+class AnswerTypeMCId(CradleBaseModel):
+    mc_id_array: List[int]
 
 
-class DateAnswer(CradleBaseModel):
+class AnswerTypeDate(CradleBaseModel):
     date: str
 
 
 AnswerType = Union[
-    NumberAnswer,
-    TextAnswer,
-    OptionAnswer,
-    DateAnswer,
+    AnswerTypeNumber,
+    AnswerTypeText,
+    AnswerTypeMCId,
+    AnswerTypeDate,
 ]
 
 
@@ -151,16 +152,27 @@ class FormClassification(CradleBaseModel):
     name_string_id: Optional[str] = None
 
 
+class FormClassificationList(CradleBaseModel):
+    classifications: List[FormClassification]
+
+
 class FormTemplate(CradleBaseModel):
     id: str
     version: int
     archived: Optional[bool] = False
     classification: FormClassification
     date_created: int = Field(default_factory=get_current_time)
-    questions: List[FormTemplateQuestion]
+    questions: Optional[List[FormTemplateQuestion]] = []
 
 
-class FormTemplateVersionPath(FormTemplateIdPath):
+class FormTemplateList(RootModel[list[FormTemplate]]):
+    """
+    List response for getting all form templates under a form classification
+    """
+
+
+class FormTemplateVersionPath(CradleBaseModel):
+    form_template_id: str
     version: str = Field(..., description="Form Template version.")
 
 
@@ -180,3 +192,93 @@ class FormTemplateUploadRequest(FormTemplate):
     id: Optional[str] = None
     version: Optional[int] = 1
     questions: List[FormTemplateUploadQuestion]
+
+
+class NumberAnswer(AnswerTypeNumber):
+    comment: Optional[str] = None
+
+
+class TextAnswer(AnswerTypeText):
+    comment: Optional[str] = None
+
+
+class MCAnswer(AnswerTypeMCId):
+    comment: Optional[str] = None
+
+
+class DateAnswer(AnswerTypeDate):
+    comment: Optional[str] = None
+
+
+AnswerValue = Union[
+    NumberAnswer,
+    TextAnswer,
+    MCAnswer,
+    DateAnswer,
+]
+
+
+class FormAnswer(CradleBaseModel, extra="forbid"):
+    """Model representing a submitted answer in a FormSubmission"""
+
+    id: Optional[str] = None
+    question_id: str
+    form_submission_id: Optional[str] = None
+    answer: AnswerValue
+
+
+class FormSubmission(CradleBaseModel, extra="forbid"):
+    """Model representing a submitted Form"""
+
+    id: str
+    form_template_id: str
+    patient_id: str
+    user_id: int
+    date_submitted: int
+    last_edited: int
+    lang: str
+
+    @model_validator(mode="after")
+    def validate_date_sequence(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_submitted:
+            raise ValueError(
+                "last_edited cannot be before date_submitted.",
+            )
+        return self
+
+
+class AnswerWithQuestion(FormAnswer):
+    question_type: QuestionTypeEnum
+    question_text: str
+    mc_options: List[str]
+    order: int
+
+
+class CreateFormSubmissionRequest(CradleBaseModel):
+    """Request body for creating a new form submission"""
+
+    id: Optional[str] = None
+    form_template_id: str
+    patient_id: str
+    user_id: int
+    lang: str = "English"
+    answers: list[FormAnswer]
+
+
+class FormSubmissionWithAnswers(FormSubmission):
+    id: Optional[str] = None
+    date_submitted: Optional[int] = Field(default_factory=get_current_time)
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    answers: Optional[List[AnswerWithQuestion]]
+
+
+class FormIdPath(CradleBaseModel):
+    form_submission_id: str
+
+
+class UpdateFormRequestBody(CradleBaseModel):
+    """
+    Request body for updating a submitted Form
+    """
+
+    answers: list[FormAnswer]
