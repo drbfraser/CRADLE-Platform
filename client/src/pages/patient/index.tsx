@@ -37,14 +37,23 @@ type RouteParams = {
   patientId: string;
 };
 
-// TODO: improve this custom type
 type Record = {
   id: string | undefined;
   readingId?: string;
-  type: string;
-  isAssessed: boolean;
-  isCancelled: boolean;
-  notAttended: boolean;
+  isAssessed?: boolean;
+  isCancelled?: boolean;
+  notAttended?: boolean;
+  date_taken?: number;
+  date_referred?: number;
+  date_assessed?: number;
+  date_submitted?: number;
+};
+
+type OrganizedRecords = {
+  readings: Record[];
+  referrals: Record[];
+  assessments: Record[];
+  forms: Record[];
 };
 
 const filters: Filter[] = [
@@ -87,11 +96,39 @@ export const PatientPage = () => {
     queryFn: () => getPatientReferralsAsync(patientId),
   });
 
-  const { data: records, isError: errorLoadingRecords } = useQuery({
+  const { data: organizedRecords, isError: errorLoadingRecords } = useQuery({
     queryKey: ['records', patientId, filterRequestBody],
-    queryFn: (): Promise<Record[]> =>
+    queryFn: (): Promise<OrganizedRecords> =>
       getPatientRecordsAsync(patientId, filterRequestBody),
   });
+
+  // Flatten and merge all records with their type, then sort by timestamp
+  const records = organizedRecords
+    ? [
+        ...organizedRecords.readings.map((r) => ({ ...r, type: 'reading' })),
+        ...organizedRecords.referrals.map((r) => ({ ...r, type: 'referral' })),
+        ...organizedRecords.assessments.map((r) => ({
+          ...r,
+          type: 'assessment',
+        })),
+        ...organizedRecords.forms.map((r) => ({ ...r, type: 'form' })),
+      ].sort((a, b) => {
+        // Sort by most recent timestamp
+        const timeA =
+          a.date_taken ||
+          a.date_referred ||
+          a.date_assessed ||
+          a.date_submitted ||
+          0;
+        const timeB =
+          b.date_taken ||
+          b.date_referred ||
+          b.date_assessed ||
+          b.date_submitted ||
+          0;
+        return timeB - timeA;
+      })
+    : [];
 
   const hasPendingReferral =
     referrals?.some((r) => !r.isAssessed && !r.isCancelled && !r.notAttended) ??
