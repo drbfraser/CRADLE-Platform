@@ -258,6 +258,10 @@ def marshal_with_type(obj: Any, shallow: bool = False) -> dict:
         form_dict = __marshal_form_submission_v2(obj, True)
         form_dict["type"] = "form"
         return form_dict
+    if isinstance(obj, FormOrm):
+        form_dict = __marshal_form(obj, True)
+        form_dict["type"] = "form"
+        return form_dict
     d = vars(obj).copy()
     __pre_process(d)
     d["type"] = "other"
