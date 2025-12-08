@@ -19,17 +19,14 @@ import InfoIcon from '@mui/icons-material/Info';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import {
-  McOption,
-  QCondition,
-  QuestionLangVersion,
-} from 'src/shared/types/form/formTypes';
+import { QCondition } from 'src/shared/types/form/formTypes';
 import {
   FormTemplateWithQuestions,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
+import { capitalize } from 'src/shared/utils';
 
 interface IProps {
   open: boolean;
@@ -54,9 +51,8 @@ const EditCategory = ({
   visibilityToggle,
   categoryIndex,
 }: IProps) => {
-  const [questionLangVersions, setQuestionLangversions] = useState<
-    QuestionLangVersion[]
-  >([] as QuestionLangVersion[]);
+  // Store as object with language keys
+  const [questionText, setQuestionText] = useState<Record<string, string>>({});
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
@@ -70,14 +66,20 @@ const EditCategory = ({
       setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
-        setQuestionLangversions(getQlvCopy(question.questionText));
+        // Convert questionText to object format
+        if (
+          question.questionText &&
+          typeof question.questionText === 'object'
+        ) {
+          setQuestionText(question.questionText as Record<string, string>);
+        }
         setEnableVisiblity(
           enableVisibility || question.visibleCondition.length > 0
         );
       }
       // create new field
       else {
-        setQuestionLangversions([]);
+        setQuestionText({});
         setEnableVisiblity(false);
       }
     }
@@ -88,55 +90,26 @@ const EditCategory = ({
     setIsVisCondAnswered(!enableVisibility);
   }, [enableVisibility]);
 
-  const getQlvCopy = (questionLangVersions) => {
-    const qlvCopy = [];
-    questionLangVersions.forEach((qlv) => {
-      qlvCopy.push({
-        lang: qlv.lang,
-        mcOptions: [],
-        questionText: qlv.questionText,
-      });
-    });
-    return qlvCopy;
-  };
-
   const getFieldName = (language: string) => {
-    let fName = '';
-    if (question) {
-      fName = question.questionText[language.toLowerCase()];
-    }
-    return fName;
+    return questionText[language.toLowerCase()] ?? '';
   };
 
   const fieldFilled = () => {
-    let areAllNamesFilled = questionLangVersions.length === 0 ? false : true;
-    questionLangVersions.forEach((qLangVersion) => {
-      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
+    // All languages must have non-empty strings
+    return inputLanguages.every((lang) => {
+      const text = questionText[lang.toLowerCase()];
+      return typeof text === 'string' && text.trim().length > 0;
     });
-    return areAllNamesFilled;
   };
 
   const addFieldToQuestionLangVersions = (
     language: string,
     fieldName: string
   ) => {
-    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-    const newQLangVersion = {
-      lang: language,
-      mcOptions: [] as McOption[],
-      questionText: fieldName,
-    };
-
-    const qLangVersion = qLangVersions.find((q) => q.lang === language);
-
-    if (!qLangVersion) {
-      qLangVersions.push(newQLangVersion);
-    } else {
-      const i = qLangVersions.indexOf(qLangVersion);
-      qLangVersions[i].questionText = fieldName;
-    }
-    setQuestionLangversions(qLangVersions);
+    setQuestionText((prev) => ({
+      ...prev,
+      [language.toLowerCase()]: fieldName,
+    }));
   };
 
   return (
@@ -155,12 +128,12 @@ const EditCategory = ({
               <Grid item xs={12} key={lang + '-category-name'}>
                 <TextField
                   key={lang + '-field-text'}
-                  label={lang + ' Category Name'}
+                  label={capitalize(lang) + ' Category Name'}
                   required={true}
                   variant="outlined"
                   fullWidth
                   size="small"
-                  defaultValue={getFieldName(lang)}
+                  value={getFieldName(lang)}
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
@@ -298,7 +271,7 @@ const EditCategory = ({
                       (q) => q.order === question.order
                     );
                     if (questionToUpdate) {
-                      questionToUpdate.langVersions = questionLangVersions;
+                      questionToUpdate.questionText = questionText;
                       questionToUpdate.visibleCondition = enableVisibility
                         ? visibleCondition
                         : [];
@@ -337,7 +310,7 @@ const EditCategory = ({
                   else {
                     form.questions.push({
                       order: form.questions.length,
-                      langVersions: questionLangVersions,
+                      questionText: questionText,
                       questionType: QuestionTypeEnum.CATEGORY,
                       required: false,
                       allowFutureDates: true,
@@ -349,6 +322,9 @@ const EditCategory = ({
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
                       id: undefined,
+                      hasCommentAttached: false,
+                      questionStringId: undefined,
+                      userQuestionId: undefined,
                     });
                   }
                   setVisibleCondition([]);

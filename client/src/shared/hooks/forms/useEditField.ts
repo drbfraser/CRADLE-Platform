@@ -38,7 +38,6 @@ export const useEditField = ({
 
   const [fieldType, setFieldType] = useState("category");
   const [userQuestionId, setUserQuestionId] = useState("");
-	console.log(question)
   const [questionId, setQuestionId] = useState("");
   const [numChoices, setNumChoices] = useState(0);
 
