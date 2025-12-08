@@ -1,5 +1,7 @@
 import json
 
+from marshmallow import Schema, fields
+
 from common.commonUtil import get_current_time, get_uuid
 from models import (
     FormClassificationOrm,
@@ -297,3 +299,16 @@ def make_question_lang_version_orm(**overrides) -> QuestionLangVersionOrm:
         setattr(v, key, value)
 
     return v
+
+
+class DummyModel:
+    def __init__(self, id, name, active=True):
+        self.id = id
+        self.name = name
+        self.active = active
+
+
+class DummyModelSchema(Schema):
+    id = fields.Integer(required=True)
+    name = fields.String(required=True)
+    active = fields.Boolean(required=True)

@@ -1,20 +1,5 @@
-from marshmallow import Schema, fields
-
 from data import orm_serializer
-
-
-class DummyModel:
-    def __init__(self, id, name, active=True):
-        self.id = id
-        self.name = name
-        self.active = active
-
-
-class DummyModelSchema(Schema):
-    id = fields.Integer(required=True)
-    name = fields.String(required=True)
-    active = fields.Boolean(required=True)
-
+from tests.helpers import DummyModel, DummyModelSchema
 
 def test_models_to_list_empty_list_returns_empty_list():
     """
