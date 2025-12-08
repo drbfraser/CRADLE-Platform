@@ -22,11 +22,11 @@ from validation.formsV2_models import (
     UpdateFormRequestBody,
 )
 
-# /api/forms/v2/responses
+# /api/forms/v2/submissions
 api_form_submissions_v2 = APIBlueprint(
     name="forms_v2",
     import_name=__name__,
-    url_prefix="/forms/v2/responses",
+    url_prefix="/forms/v2/submissions",
     abp_tags=[
         Tag(
             name="Forms submissions V2 API",
@@ -37,7 +37,7 @@ api_form_submissions_v2 = APIBlueprint(
 )
 
 
-# /api/forms/v2/responses [POST]
+# /api/forms/v2/submissions [POST]
 @api_form_submissions_v2.post("", responses={201: FormSubmission})
 def submit_form(body: CreateFormSubmissionRequest):
     """Submit a Form"""
@@ -101,7 +101,7 @@ def submit_form(body: CreateFormSubmissionRequest):
     return FormSubmission(**result).model_dump(), 201
 
 
-# /api/forms/v2/responses/<string:form_submission_id> [GET]
+# /api/forms/v2/submissions/<string:form_submission_id> [GET]
 @api_form_submissions_v2.get(
     "/<string:form_submission_id>", responses={200: FormSubmissionWithAnswers}
 )
@@ -126,9 +126,9 @@ def get_form(path: FormIdPath):
     return result.model_dump()
 
 
-# /api/forms/v2/responses/<string:form_submission_id> [PUT]
-@api_form_submissions_v2.put(
-    "/<string:form_submission_id>", responses={201: FormSubmission}
+# /api/forms/v2/submissions/<string:form_submission_id> [PATCH]
+@api_form_submissions_v2.patch(
+    "/<string:form_submission_id>", responses={200: FormSubmission}
 )
 def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update a previously submitted form (partial update of answers)."""
@@ -171,4 +171,4 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     crud.db_session.refresh(form)
 
     result = orm_serializer.marshal(form, shallow=True)
-    return FormSubmission(**result).model_dump(), 201
+    return FormSubmission(**result).model_dump(), 200
