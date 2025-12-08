@@ -21,7 +21,7 @@ from validation.formsV2_models import (
     AnswerWithQuestion,
     FormAnswer,
     FormClassification,
-    FormSubmission,
+    FormSubmissionWithAnswers,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
     MultiLangText,
@@ -123,7 +123,7 @@ def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
                 _assign_id(opt, "string_id")
 
 
-def assign_form_ids_v2(req: FormSubmission) -> None:
+def assign_form_ids_v2(req: FormSubmissionWithAnswers) -> None:
     """
     Mutates the request dict to assign ALL required UUIDs:
     - submission.id
@@ -132,7 +132,7 @@ def assign_form_ids_v2(req: FormSubmission) -> None:
     _assign_id(req, "id")
     submission_id = req.id
 
-    # Questions
+    # Answers
     for answer in req.answers:
         _assign_id(answer, "id")
         answer.form_submission_id = submission_id

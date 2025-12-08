@@ -227,7 +227,7 @@ class FormAnswer(CradleBaseModel, extra="forbid"):
     answer: AnswerValue
 
 
-class FormSubmissionResponse(CradleBaseModel, extra="forbid"):
+class FormSubmission(CradleBaseModel, extra="forbid"):
     """Model representing a submitted Form"""
 
     id: str
@@ -265,7 +265,7 @@ class CreateFormSubmissionRequest(CradleBaseModel):
     answers: list[FormAnswer]
 
 
-class FormSubmission(FormSubmissionResponse):
+class FormSubmissionWithAnswers(FormSubmission):
     id: Optional[str] = None
     date_submitted: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
