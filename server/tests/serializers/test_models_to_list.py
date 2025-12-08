@@ -30,7 +30,7 @@ def test_models_to_list_single_model_serializes_to_single_dict_in_list():
 
 def test_models_to_list_multiple_models_preserves_order_and_fields():
     """
-    Tests that models_to_list preserves the order of models and their fields.
+    Test that models_to_list preserves the order of models and their fields.
     """
     models = [
         DummyModel(id=1, name="Alice", active=True),
