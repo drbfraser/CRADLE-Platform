@@ -1,6 +1,7 @@
 from data import orm_serializer
 from tests.helpers import DummyModel, DummyModelSchema
 
+
 def test_models_to_list_empty_list_returns_empty_list():
     """
     When given an empty list of models, models_to_list should return an empty list.
