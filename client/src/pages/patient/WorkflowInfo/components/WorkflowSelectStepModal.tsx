@@ -1,6 +1,6 @@
 import { Box, Typography, Modal, Paper, Button } from '@mui/material';
 import NextStepSelector from './NextStepSelector';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
 export interface NextStepModalState {
@@ -28,6 +28,11 @@ export default function WorkflowSelectStepModal({
   options,
 }: IProps) {
   const [selectedId, setSelectedId] = useState('');
+
+  useEffect(() => {
+    const recommended = options.find((o) => o.isRecommended)?.stepId ?? '';
+    setSelectedId(recommended);
+  }, [options]);
 
   if (!open) return null;
 
@@ -98,7 +103,10 @@ export default function WorkflowSelectStepModal({
                   }}>
                   <Button onClick={handleCloseNextStepModal}>Cancel</Button>
 
-                  <Button variant="contained" onClick={handleOnConfirm}>
+                  <Button
+                    variant="contained"
+                    onClick={handleOnConfirm}
+                    disabled={!selectedId}>
                     Confirm
                   </Button>
                 </Box>
