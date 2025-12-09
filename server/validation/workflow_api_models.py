@@ -9,6 +9,7 @@ from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
     WorkflowCollectionModel,
+    WorkflowInstanceStepModel,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
 )
@@ -80,6 +81,14 @@ class WorkflowInstanceStepPatchModel(CradleBaseModel, extra="forbid"):
 
     assigned_to: Optional[str] = None
     form_id: Optional[str] = None
+
+
+class GetWorkflowInstanceStepsRequest(CradleBaseModel, extra="forbid"):
+    workflow_instance_id: str
+
+
+class GetWorkflowInstanceStepsResponse(CradleBaseModel, extra="forbid"):
+    items: list[WorkflowInstanceStepModel]
 
 
 class GetAvailableActionsResponse(CradleBaseModel):

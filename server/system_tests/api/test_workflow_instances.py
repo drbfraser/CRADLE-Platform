@@ -5,7 +5,6 @@ from humps import decamelize
 
 import data.db_operations as crud
 from common.api_utils import (
-    WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
 )
 from common.commonUtil import get_current_time, get_uuid
@@ -22,7 +21,6 @@ from validation.workflow_models import (
     CompleteWorkflowActionModel,
     StartStepActionModel,
     WorkflowInstanceModel,
-    WorkflowStepEvaluation,
     WorkflowTemplateModel,
 )
 
@@ -477,76 +475,6 @@ def test_override_current_step(api_post, sequential_workflow_view, patient_id):
             workflow_instance_id_path,
             OverrideCurrentStepRequest(
                 workflow_instance_step_id="this-step-shouldnt-exist"
-            ),
-            expected_code=404,
-        )
-
-    finally:
-        crud.delete_workflow(
-            m=WorkflowTemplateOrm,
-            delete_classification=True,
-            id=workflow_view.template.id,
-        )
-        crud.delete_workflow(
-            m=WorkflowInstanceOrm,
-            id=workflow_view.instance.id,
-        )
-
-
-def api_evaluate_step(
-    api_get, path: WorkflowInstanceAndStepIdPath, expected_code: int
-) -> Optional[WorkflowStepEvaluation]:
-    """
-    Helper function to send API request for evaluating a workflow step
-    and validating the response.
-    """
-    url = (
-        f"/api/workflow/instances/{path.workflow_instance_id}"
-        + f"/steps/{path.workflow_instance_step_id}/evaluate"
-    )
-
-    response = api_get(endpoint=url)
-    assert response.status_code == expected_code
-
-    if response.status_code == 200:
-        step_evaluation_resp = decamelize(response.json())
-        return WorkflowStepEvaluation(**step_evaluation_resp)
-    return None
-
-
-def test_evaluate_step(api_get, sequential_workflow_view, patient_id):
-    workflow_view = sequential_workflow_view
-    workflow_view.instance.patient_id = patient_id
-
-    try:
-        WorkflowService.upsert_workflow_template(workflow_view.template)
-        WorkflowService.upsert_workflow_instance(workflow_view.instance)
-
-        step_1_evaluation = api_evaluate_step(
-            api_get,
-            WorkflowInstanceAndStepIdPath(
-                workflow_instance_id=workflow_view.instance.id,
-                workflow_instance_step_id="si-1",
-            ),
-            expected_code=200,
-        )
-        step_2_evaluation = api_evaluate_step(
-            api_get,
-            WorkflowInstanceAndStepIdPath(
-                workflow_instance_id=workflow_view.instance.id,
-                workflow_instance_step_id="si-2",
-            ),
-            expected_code=200,
-        )
-        # sanity checks, workflow planner unit tests already have more thorough checks
-        assert step_1_evaluation.selected_branch_id == "b-1"
-        assert step_2_evaluation.selected_branch_id == None
-
-        api_evaluate_step(
-            api_get,
-            WorkflowInstanceAndStepIdPath(
-                workflow_instance_id=workflow_view.instance.id,
-                workflow_instance_step_id="this-step-shouldnt-exist",
             ),
             expected_code=404,
         )

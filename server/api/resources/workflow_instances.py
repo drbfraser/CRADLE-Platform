@@ -7,7 +7,6 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from common import patient_utils, workflow_utils
 from common.api_utils import (
-    WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
 )
@@ -26,7 +25,6 @@ from validation.workflow_api_models import (
 )
 from validation.workflow_models import (
     WorkflowInstanceModel,
-    WorkflowStepEvaluation,
 )
 
 
@@ -202,25 +200,6 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     return workflow_view.instance.model_dump(), 200
 
 
-# /api/workflow/instances/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate [GET]
-@api_workflow_instances.get(
-    "/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate",
-    responses={200: WorkflowStepEvaluation},
-)
-def evaluate_step(path: WorkflowInstanceAndStepIdPath):
-    """Evaluate a Workflow Instance Step"""
-    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
-    workflow_utils.fetch_workflow_instance_step_or_404(
-        workflow_view.instance, path.workflow_instance_step_id
-    )
-
-    step_evaluation = WorkflowService.evaluate_workflow_step(
-        workflow_view, path.workflow_instance_step_id
-    )
-
-    return step_evaluation.model_dump(), 200
-
-
 # /api/workflow/instances/<string:workflow_instance_id>/advance [POST]
 @api_workflow_instances.post(
     "/<string:workflow_instance_id>/advance",
@@ -247,7 +226,7 @@ def override_current_step(
 ):
     """Override the current step of a workflow"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
-    workflow_utils.fetch_workflow_instance_step_or_404(
+    workflow_utils.find_workflow_instance_step_or_404(
         workflow_view.instance, body.workflow_instance_step_id
     )
 

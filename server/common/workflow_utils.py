@@ -325,6 +325,24 @@ def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanc
     return workflow_instance
 
 
+def fetch_workflow_instance_step_or_404(
+    workflow_instance_step_id: str,
+) -> WorkflowInstanceModel:
+    """
+    Fetch a workflow instance step or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_instance_step = WorkflowService.get_workflow_instance_step(
+        workflow_instance_step_id
+    )
+    if workflow_instance_step is None:
+        abort_not_found(
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id)
+        )
+
+    return workflow_instance_step
+
+
 def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplateModel:
     """
     Fetch a workflow template or raise a 404 if not found.
@@ -350,11 +368,11 @@ def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     return WorkflowView(workflow_template, workflow_instance)
 
 
-def fetch_workflow_instance_step_or_404(
+def find_workflow_instance_step_or_404(
     workflow_instance: WorkflowInstanceModel, workflow_instance_step_id: str
 ) -> WorkflowInstanceStepModel:
     """
-    Fetch a workflow instance step or raise a 404 error if not found.
+    Find a workflow instance step or raise a 404 error if not found.
     Intended for use inside Flask endpoint handlers.
     """
     step = workflow_instance.get_instance_step(workflow_instance_step_id)

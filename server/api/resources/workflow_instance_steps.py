@@ -1,5 +1,3 @@
-from typing import List
-
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
@@ -15,15 +13,13 @@ from models import (
     FormOrm,
     WorkflowInstanceStepOrm,
 )
-from validation import CradleBaseModel
-from validation.workflow_api_models import WorkflowInstanceStepPatchModel
-from validation.workflow_models import WorkflowInstanceStepModel
-
-
-# Create a response model for the list endpoints
-class WorkflowInstanceStepListResponse(CradleBaseModel):
-    items: List[WorkflowInstanceStepModel]
-
+from service.workflow.workflow_service import WorkflowService
+from validation.workflow_api_models import (
+    GetWorkflowInstanceStepsRequest,
+    GetWorkflowInstanceStepsResponse,
+    WorkflowInstanceStepPatchModel,
+)
+from validation.workflow_models import WorkflowInstanceStepModel, WorkflowStepEvaluation
 
 # /api/workflow/instance/steps
 api_workflow_instance_steps = APIBlueprint(
@@ -35,25 +31,19 @@ api_workflow_instance_steps = APIBlueprint(
 )
 
 
-# /api/workflow/instance/steps?workflow_instance_id=<str> [GET]
-@api_workflow_instance_steps.get("", responses={200: WorkflowInstanceStepListResponse})
-def get_workflow_instance_steps():
+# /api/workflow/instance/steps [GET]
+@api_workflow_instance_steps.get("", responses={200: GetWorkflowInstanceStepsResponse})
+def get_workflow_instance_steps(body: GetWorkflowInstanceStepsRequest):
     """Get All Workflow Instance Steps"""
-    # Get query parameters
-    workflow_instance_id = request.args.get(
-        "workflow_instance_id", default=None, type=str
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        body.workflow_instance_id
     )
 
-    instance_steps = crud.read_instance_steps(
-        WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance_id
+    response = GetWorkflowInstanceStepsResponse(
+        items=[step.model_dump() for step in workflow_instance.steps]
     )
 
-    response_data = [
-        orm_serializer.marshal(instance_step, shallow=True)
-        for instance_step in instance_steps
-    ]
-
-    return {"items": response_data}, 200
+    return response.model_dump(), 200
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>?with_form=<bool> [GET]
@@ -172,3 +162,22 @@ def archive_form(path: WorkflowInstanceStepIdPath):
     updated_instance_step = orm_serializer.marshal(updated_instance_step, shallow=True)
 
     return updated_instance_step, 200
+
+
+# /api/workflow/instance/steps/<string:workflow_instance_step_id>/evaluate [GET]
+@api_workflow_instance_steps.get(
+    "<string:workflow_instance_step_id>/evaluate",
+    responses={200: WorkflowStepEvaluation},
+)
+def evaluate_step(path: WorkflowInstanceStepIdPath):
+    """Evaluate a Workflow Instance Step"""
+    step = workflow_utils.fetch_workflow_instance_step_or_404(
+        path.workflow_instance_step_id
+    )
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(step.workflow_instance_id)
+
+    step_evaluation = WorkflowService.evaluate_workflow_step(
+        workflow_view, path.workflow_instance_step_id
+    )
+
+    return step_evaluation.model_dump(), 200
