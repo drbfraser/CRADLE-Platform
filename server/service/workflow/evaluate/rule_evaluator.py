@@ -47,7 +47,9 @@ class RuleEvaluator:
             return (RuleStatus.TRUE, [])
 
         variable_strings = extract_variables_from_rule(rule)
-        logger.debug("Variables to resolve: %s for patient %s", variable_strings, patient_id)
+        logger.debug(
+            "Variables to resolve: %s for patient %s", variable_strings, patient_id
+        )
 
         variables = [DatasourceVariable.from_string(v) for v in variable_strings]
         variables = [v for v in variables if v is not None]

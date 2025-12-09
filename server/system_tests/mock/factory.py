@@ -15,6 +15,7 @@ from models import (
     PregnancySchema,
     ReadingOrm,
     ReferralSchema,
+    UserOrm,
 )
 
 
@@ -188,8 +189,6 @@ class UserFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        # from config import flask_bcrypt
-        from models import UserOrm
 
         d = dict(**kwargs)
 
