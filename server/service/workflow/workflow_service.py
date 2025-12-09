@@ -315,7 +315,8 @@ class WorkflowService:
         workflow_instance_step: WorkflowInstanceStepModel, editor_user_id: int
     ) -> None:
         """
-        Archive the form associated with a workflow instance step.
+        Archive the form associated with a workflow instance step and persist
+        the update.
 
         :param workflow_instance_step: The workflow step whose form should be archived.
         :param editor_user_id: The ID of the user performing the archive action.
