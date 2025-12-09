@@ -189,7 +189,6 @@ class UserFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         d = dict(**kwargs)
 
         # Check if user with this ID already exists to prevent accidental overwrites
