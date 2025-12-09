@@ -27,11 +27,6 @@ import axios from 'axios';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
 import { useWorkflowFormModal } from 'src/shared/hooks/patient/useWorkflowFormModal';
 import { SnackbarSeverity } from 'src/shared/enums';
-import WorkflowRecommendationBanner, {
-  RecommendationBannerData,
-} from './components/WorkflowRecommendationBanner';
-import { WorkflowInstanceAction } from 'src/shared/types/workflow/workflowApiTypes';
-import { getWorkflowStepWithId } from './WorkflowUtils';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowNextStepOptions } from 'src/shared/hooks/patient/useWorkflowNextStepOptions';
 import { useWorkflowStepActions } from 'src/shared/hooks/patient/useWorkflowStepActions';
@@ -53,12 +48,6 @@ export default function WorkflowInstanceDetailsPage() {
     message: '',
     severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
   });
-  const [recommendation, setRecommendation] =
-    useState<RecommendationBannerData>({
-      open: false,
-      hasNextStep: false,
-      message: '',
-    });
   const [nextStep, setNextStep] = useState<string | null>(null);
 
   const { instanceDetails, template, currentStep, progressInfo, reload } =
@@ -131,25 +120,6 @@ export default function WorkflowInstanceDetailsPage() {
     }
   };
 
-  const handleOpenRecommendation = (newActions: WorkflowInstanceAction[]) => {
-    const recommendedStep = getWorkflowStepWithId(
-      newActions[0].stepId,
-      instanceDetails!
-    );
-
-    setRecommendation({
-      open: true,
-      hasNextStep: recommendedStep ? true : false,
-      message: recommendedStep
-        ? `Continue to ${recommendedStep.title}.`
-        : 'No recommended next step.',
-    });
-  };
-
-  const handleCloseRecommendation = () => {
-    setRecommendation({ open: false, message: '' });
-  };
-
   // TODO: Placeholder function. To be implemented for overrides.
   const handleSetCurrentStep = useCallback((stepId: string, title: string) => {
     setConfirmDialog({
@@ -162,11 +132,6 @@ export default function WorkflowInstanceDetailsPage() {
       },
     });
   }, []);
-
-  const handleGoToStep = () => {
-    setExpandedStep('test-workflow-instance-1-step2'); // TODO: To be replaced by recommended step ID from backend once implemented
-    handleCloseRecommendation();
-  };
 
   const handleCompleteFinalStep = async () => {
     const { success } = await completeFinalStep();
@@ -331,14 +296,6 @@ export default function WorkflowInstanceDetailsPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-
-      {/* Banner for Next Step Recommendation */}
-      <WorkflowRecommendationBanner
-        recommendation={recommendation}
-        handleClose={handleCloseRecommendation}
-        handleGoToStep={handleGoToStep}
-        handleOpen={handleOpenRecommendation}
-      />
 
       <WorkflowSelectStepModal
         open={openNextStepModal}

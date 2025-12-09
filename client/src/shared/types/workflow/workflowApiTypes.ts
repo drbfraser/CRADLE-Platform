@@ -15,7 +15,7 @@ export interface RuleGroup {
 
 //   Template side
 export interface WorkflowTemplateStepBranch {
-  id: ID;
+  id?: ID;
   stepId: ID;
   conditionId?: ID;
   condition?: RuleGroup;
