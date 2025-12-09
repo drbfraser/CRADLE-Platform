@@ -109,17 +109,3 @@ class IntegratedRuleEvaluator:
                     )
                 )
         return var_resolutions
-
-    def evaluate_branches_for_patient(
-        self, patient_id: str, branches: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-        """
-        Function to evaluate all branches for a patient.
-
-        This wraps the WorkflowDataResolver's evaluate_workflow_branches method.
-
-        :param patient_id: Patient ID
-        :param branches: List of branch dicts with 'rule' and 'target_step_id'
-        :returns: Evaluation result dict
-        """
-        return self.resolver.evaluate_workflow_branches(patient_id, branches)
