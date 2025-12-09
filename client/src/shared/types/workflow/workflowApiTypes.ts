@@ -1,7 +1,12 @@
 import { ID, ISODate, Nullable } from '../../constants';
 import { FormTemplate } from '../form/formTemplateTypes';
 import { CForm } from '../form/formTypes';
-import { InstanceStatus, StepStatus } from './workflowEnums';
+import {
+  InstanceStatus,
+  InstanceStepAction,
+  StepStatus,
+  WorkflowBranchEvaluationStatus,
+} from './workflowEnums';
 export interface RuleGroup {
   id: ID;
   rule: string; // JSON object representing a structured rule
@@ -10,9 +15,9 @@ export interface RuleGroup {
 
 //   Template side
 export interface WorkflowTemplateStepBranch {
-  // ⇒ workflow_template_step.id
-  stepId?: ID;
-  // Condition that must evaluate true for the branch to activate
+  id?: ID;
+  stepId: ID;
+  conditionId?: ID;
   condition?: RuleGroup;
   targetStepId: ID;
 }
@@ -114,6 +119,44 @@ export interface WorkflowInstance {
   lastEdited: number;
   lastEditedBy?: ID;
   completionDate?: number;
+}
+
+export interface WorkflowInstanceActionsResponse {
+  actions: WorkflowInstanceAction[];
+}
+
+export interface WorkflowInstanceAction {
+  stepId: ID;
+  type: InstanceStepAction;
+}
+
+export interface ApplyInstanceStepActionRequest {
+  action: {
+    type: InstanceStepAction;
+    step_id: ID;
+  };
+}
+
+export interface OverrideStepRequest {
+  workflowInstanceStepId: ID;
+}
+
+export interface WorkflowBranchVarResolution {
+  var: string;
+  value: number | null;
+  status: string;
+}
+
+export interface WorkflowBranchEvaluation {
+  branchId: ID;
+  rule: string;
+  varResolutions: WorkflowBranchVarResolution[];
+  ruleStatus: WorkflowBranchEvaluationStatus;
+}
+
+export interface WorkflowInstanceStepEvaluation {
+  branchEvaluations: WorkflowBranchEvaluation[];
+  selectedBranchId: ID;
 }
 
 // Payload for POST /workflow/instances
