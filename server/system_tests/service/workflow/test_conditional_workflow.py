@@ -160,7 +160,7 @@ class TestEndToEndConditionalWorkflow:
         Test complete workflow: Senior patient (age 75) with high BP (150/95)
         Expected path: Age Check → Senior Care → BP Check → High BP Treatment
         """
-        user_factory.create(id=1, username="test_user")
+        user_factory.create(id=100, username="test_user")
         
         patient_factory.create(
             id="patient-senior-high-bp",
@@ -258,7 +258,7 @@ class TestEndToEndConditionalWorkflow:
         Test complete workflow: Adult patient (age 35) with normal BP (120/80)
         Expected path: Age Check → Adult Care → BP Check → Normal BP Treatment
         """
-        user_factory.create(id=1, username="test_user2")
+        user_factory.create(id=110, username="test_user2")
         
         patient_factory.create(
             id="patient-adult-normal-bp",

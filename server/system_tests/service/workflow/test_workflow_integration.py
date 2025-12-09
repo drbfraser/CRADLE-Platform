@@ -51,7 +51,7 @@ class TestIntegratedRuleEvaluator:
     def test_evaluate_rule_with_multiple_variables(
         self, patient_factory, reading_factory, user_factory
     ):
-        user_factory.create(id=1, username="user_multi_var")
+        user_factory.create(id=120, username="user_multi_var")
         
         patient_factory.create(
             id="patient_multi_var",
