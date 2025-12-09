@@ -211,17 +211,6 @@ export const applyInstanceStepAction = async (
   return response;
 };
 
-// GET /workflow/instances/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate
-export const evaluateInstanceStep = async (
-  instanceId: ID,
-  stepId: ID
-): Promise<WorkflowInstanceStepEvaluation> => {
-  const response = await axiosFetch.get<WorkflowInstanceStepEvaluation>(
-    `${INSTANCES}/${instanceId}/steps/${stepId}/evaluate`
-  );
-  return response.data;
-};
-
 // POST /workflow/instances/<string:workflow_instance_id>/advance
 export const advanceRecommendedStep = async (
   instanceId: ID
@@ -299,3 +288,13 @@ export const archiveInstanceStepForm = (stepId: ID) =>
   axiosFetch
     .patch<WorkflowInstanceStep>(`${INSTANCE_STEPS}/${stepId}/archive_form`)
     .then((r) => r.data);
+
+// GET /api/workflow/instance/steps/<string:workflow_instance_step_id>/evaluate
+export const evaluateInstanceStep = async (
+  stepId: ID
+): Promise<WorkflowInstanceStepEvaluation> => {
+  const response = await axiosFetch.get<WorkflowInstanceStepEvaluation>(
+    `${INSTANCE_STEPS}/${stepId}/evaluate`
+  );
+  return response.data;
+};

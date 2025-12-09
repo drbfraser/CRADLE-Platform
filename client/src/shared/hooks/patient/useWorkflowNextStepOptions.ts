@@ -26,10 +26,7 @@ export function useWorkflowNextStepOptions(
   const getNextStepOptions = async () => {
     if (!instanceDetails || !template || !currentStep) return;
 
-    const currentStepEval = await evaluateInstanceStep(
-      instanceDetails.id,
-      currentStep.id
-    );
+    const currentStepEval = await evaluateInstanceStep(currentStep.id);
     setCurrentStepEvaluation(currentStepEval);
 
     return getWorkflowNextStepOptions(
