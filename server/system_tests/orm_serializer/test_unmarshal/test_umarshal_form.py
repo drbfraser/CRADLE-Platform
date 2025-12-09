@@ -1,73 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from data import orm_serializer
 from models import FormOrm
-
-
-def _create_question(
-    *,
-    id: str,
-    question_index: int = 0,
-    question_text: str = "Q?",
-    question_type: str = "STRING",
-    visible_condition: dict | str | None = None,
-    mc_options: list | str | None = None,
-    answers: dict | None = None,
-    lang_versions: list[dict | None] | None = None,
-    **extras: Any,
-) -> dict:
-    return dict(
-        id=id,
-        question_index=question_index,
-        question_text=question_text,
-        question_type=question_type,
-        visible_condition=visible_condition,
-        mc_options=mc_options,
-        answers=answers,
-        lang_versions=lang_versions,
-        **extras,
-    )
-
-
-def _create_lang_version(
-    *,
-    lang: str,
-    question_text: str = "LV text",
-    mc_options: list | None = None,
-    **extras: Any,
-) -> dict:
-    payload = dict(lang=lang, question_text=question_text, **extras)
-    if mc_options is not None:
-        payload["mc_options"] = mc_options
-    return payload
-
-
-def _create_form(
-    *,
-    id: str,
-    lang: str = "en",
-    name: str = "Vitals",
-    category: str = "screening",
-    patient_id: str = "p-001",
-    last_edited: int = 1_600_000_000,
-    questions: list[dict | None] | None = None,
-    **extras: Any,
-) -> dict:
-    payload = dict(
-        id=id,
-        lang=lang,
-        name=name,
-        category=category,
-        patient_id=patient_id,
-        last_edited=last_edited,
-        **extras,
-    )
-    if questions is not object():
-        payload["questions"] = questions
-    return payload
+from tests.helpers import make_form, make_question, make_question_lang_version
 
 
 def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
@@ -75,10 +12,10 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
     Test that unmarshalling a form payload with questions and lang versions
     correctly attaches the questions and encodes nested fields.
     """
-    form_payload = _create_form(
+    form_payload = make_form(
         id="f-001",
         questions=[
-            _create_question(
+            make_question(
                 id="q-1",
                 question_index=2,
                 question_text="Any symptoms?",
@@ -90,7 +27,7 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
                 ],
                 answers={"selected": "y"},
                 lang_versions=[
-                    _create_lang_version(
+                    make_question_lang_version(
                         lang="fr",
                         question_id="q-1",
                         question_text="Des symptômes ?",
@@ -138,7 +75,7 @@ def test_unmarshal_form_questions_empty_list_keeps_attribute_empty():
     Test that unmarshalling a form payload with an empty questions list
     correctly leaves the questions attribute empty.
     """
-    form_payload = _create_form(id="f-002", questions=[])
+    form_payload = make_form(id="f-002", questions=[])
     form = orm_serializer.unmarshal(FormOrm, form_payload)
     assert hasattr(form, "questions") and form.questions == []
 
@@ -148,7 +85,7 @@ def test_unmarshal_form_without_questions_attribute_is_absent():
     Test that unmarshalling a form payload without a 'questions' attribute
     removes the 'questions' attribute from the resulting FormOrm object.
     """
-    form_payload = _create_form(id="f-003")
+    form_payload = make_form(id="f-003")
     form = orm_serializer.unmarshal(FormOrm, form_payload)
     assert not getattr(form, "questions", None)
 
@@ -159,11 +96,11 @@ def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
     lang_versions correctly removes these attributes and leaves the resulting
     FormOrm object with the expected structure.
     """
-    form_payload = _create_form(
+    form_payload = make_form(
         id="f-004",
         questions=[
             None,
-            _create_question(
+            make_question(
                 id="q-keep",
                 question_index=1,
                 question_text="Pick one",
@@ -173,7 +110,7 @@ def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
                 answers=None,
                 lang_versions=[
                     None,
-                    _create_lang_version(
+                    make_question_lang_version(
                         lang="es",
                         question_id="q-keep",
                         question_text="Elige uno",
@@ -212,16 +149,16 @@ def test_unmarshal_form_mixed_mc_options_list_and_string_pass_through():
     - "q-str" has pre-encoded string mc_options which should remain a string.
     - "q-list" has list mc_options which should be encoded to a string.
     """
-    form_payload = _create_form(
+    form_payload = make_form(
         id="f-005",
         questions=[
-            _create_question(
+            make_question(
                 id="q-str",
                 question_index=0,
                 question_type="MULTIPLE_CHOICE",
                 mc_options='["A","B"]',
             ),
-            _create_question(
+            make_question(
                 id="q-list",
                 question_index=1,
                 question_type="MULTIPLE_CHOICE",
