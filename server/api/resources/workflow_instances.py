@@ -4,15 +4,10 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data.db_operations as crud
 from common import patient_utils, workflow_utils
 from common.api_utils import (
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
-)
-from data import orm_serializer
-from models import (
-    WorkflowInstanceOrm,
 )
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService, WorkflowView
@@ -90,20 +85,18 @@ def get_workflow_instances():
     )
     with_steps = request.args.get("with_steps", default=False)
 
-    workflow_instances = crud.read_workflow_instances(
+    workflow_instances = WorkflowService.get_workflow_instances(
         patient_id=patient_id,
         status=status,
         workflow_template_id=workflow_template_id,
     )
 
-    response_data = []
-    for instance in workflow_instances:
-        data = orm_serializer.marshal(instance, shallow=False)
-        if not with_steps:
-            del data["steps"]
-        response_data.append(data)
+    if not with_steps:
+        for workflow in workflow_instances:
+            workflow.steps = []
 
-    return {"items": response_data}, 200
+    response = WorkflowInstanceListResponse(items=workflow_instances)
+    return response.model_dump(), 200
 
 
 # /api/workflow/instances/<string:workflow_instance_id>?with_steps=<bool> [GET]
@@ -116,22 +109,14 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     with_steps = request.args.get("with_steps", default=False)
     with_steps = convert_query_parameter_to_bool(with_steps)
 
-    workflow_instance = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-
-    if workflow_instance is None:
-        return abort(
-            code=404,
-            description=workflow_utils.WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
-                path.workflow_instance_id
-            ),
-        )
-
-    response_data = orm_serializer.marshal(obj=workflow_instance, shallow=False)
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        path.workflow_instance_id
+    )
 
     if not with_steps:
-        del response_data["steps"]
+        workflow_instance.steps = []
 
-    return response_data, 200
+    return workflow_instance.model_dump(), 200
 
 
 # /api/workflow/instances/<string:workflow_instance_id> [PATCH]
@@ -162,8 +147,7 @@ def patch_workflow_instance(
 def delete_workflow_instance(path: WorkflowInstanceIdPath):
     """Delete Workflow Instance"""
     workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
-
-    crud.delete_workflow(WorkflowInstanceOrm, id=path.workflow_instance_id)
+    WorkflowService.delete_workflow_instance(path.workflow_instance_id)
 
     return "", 204
 

@@ -13,6 +13,7 @@ from service.workflow.workflow_planner import WorkflowPlanner
 from service.workflow.workflow_view import WorkflowView
 from validation.workflow_api_models import (
     WorkflowInstancePatchModel,
+    WorkflowInstanceStepPatchModel,
 )
 from validation.workflow_models import (
     StartStepActionModel,
@@ -82,21 +83,46 @@ class WorkflowService:
 
     @classmethod
     def upsert_workflow_instance(cls, workflow_instance: WorkflowInstanceModel):
+        """
+        Insert or update a workflow instance in the database.
+        """
         workflow_instance.last_edited = get_current_time()
 
         for instance_step in workflow_instance.steps:
             instance_step.last_edited = get_current_time()
 
+        cls._validate_workflow_instance_dates(workflow_instance)
+
         workflow_instance_orm = orm_serializer.unmarshal(
             WorkflowInstanceOrm, workflow_instance.model_dump()
         )
 
-        cls._check_last_edited_and_start_date(workflow_instance)
-
         crud.common_crud.merge(workflow_instance_orm)
 
     @classmethod
+    def upsert_workflow_instance_step(
+        cls, workflow_instance_step: WorkflowInstanceStepModel
+    ):
+        """
+        Insert or update a workflow instance step in the database.
+        """
+        workflow_instance_step.last_edited = get_current_time()
+
+        WorkflowService._validate_start_date_and_last_edited(
+            workflow_instance_step.start_date, workflow_instance_step.last_edited
+        )
+
+        workflow_instance_step_orm = orm_serializer.unmarshal(
+            WorkflowInstanceStepOrm, workflow_instance_step.model_dump()
+        )
+
+        crud.common_crud.merge(workflow_instance_step_orm)
+
+    @classmethod
     def upsert_workflow_template(cls, workflow_template: WorkflowTemplateModel):
+        """
+        Insert or update a workflow template in the database.
+        """
         workflow_template.last_edited = get_current_time()
 
         for template_step in workflow_template.steps:
@@ -112,6 +138,9 @@ class WorkflowService:
     def get_workflow_instance(
         cls, workflow_instance_id: str
     ) -> Optional[WorkflowInstanceModel]:
+        """
+        Fetch a workflow instance by ID, returning None if it does not exist.
+        """
         workflow_instance_orm = crud.read(WorkflowInstanceOrm, id=workflow_instance_id)
 
         if not workflow_instance_orm:
@@ -122,9 +151,38 @@ class WorkflowService:
         return workflow_instance
 
     @classmethod
+    def get_workflow_instances(
+        cls,
+        user_id: Optional[int] = None,
+        patient_id: Optional[str] = None,
+        status: Optional[WorkflowStatusEnum] = None,
+        workflow_template_id: Optional[str] = None,
+    ) -> list[WorkflowInstanceModel]:
+        """
+        Fetch a list of workflow instances, optionally filtered by user, patient, status
+        or workflow template.
+        """
+        workflow_instance_orms = crud.read_workflow_instances(
+            user_id, patient_id, status, workflow_template_id
+        )
+
+        workflow_instance_dicts = [
+            orm_serializer.marshal(workflow_instance_orm)
+            for workflow_instance_orm in workflow_instance_orms
+        ]
+
+        return [
+            WorkflowInstanceModel(**workflow_instance_dict)
+            for workflow_instance_dict in workflow_instance_dicts
+        ]
+
+    @classmethod
     def get_workflow_instance_step(
         cls, workflow_instance_step_id: str
     ) -> Optional[WorkflowInstanceModel]:
+        """
+        Fetch a workflow instance step by ID, returning None if it does not exist.
+        """
         workflow_instance_step_orm = crud.read(
             WorkflowInstanceStepOrm, id=workflow_instance_step_id
         )
@@ -142,6 +200,9 @@ class WorkflowService:
     def get_workflow_template(
         cls, workflow_template_id: str
     ) -> Optional[WorkflowTemplateModel]:
+        """
+        Fetch a workflow template by ID, returning None if it does not exist.
+        """
         workflow_template_orm = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
 
         if not workflow_template_orm:
@@ -150,6 +211,13 @@ class WorkflowService:
         workflow_template_dict = orm_serializer.marshal(workflow_template_orm)
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
+
+    @staticmethod
+    def delete_workflow_instance(workflow_instance_id: str) -> None:
+        """
+        Delete a workflow instance from the database by its ID.
+        """
+        crud.delete_workflow(WorkflowInstanceOrm, id=workflow_instance_id)
 
     @staticmethod
     def get_available_workflow_actions(
@@ -218,7 +286,7 @@ class WorkflowService:
         workflow_instance: WorkflowInstanceModel, patch: WorkflowInstancePatchModel
     ) -> None:
         """
-        Apply a PATCH to a workflow instance. Assumes patient exists.
+        Apply a PATCH to a workflow instance.
         """
         if patch.name is not None:
             workflow_instance.name = patch.name
@@ -230,7 +298,55 @@ class WorkflowService:
             workflow_instance.patient_id = patch.patient_id
 
     @staticmethod
-    def _check_last_edited_and_start_date(
+    def apply_workflow_instance_step_patch(
+        workflow_instance_step: WorkflowInstanceStepModel,
+        patch: WorkflowInstanceStepPatchModel,
+    ) -> None:
+        """
+        Apply a PATCH to a workflow instance step.
+        """
+        if patch.form_id is not None:
+            workflow_instance_step.form_id = patch.form_id
+
+        if patch.assigned_to is not None:
+            workflow_instance_step.assigned_to = patch.assigned_to
+
+    @staticmethod
+    def archive_form(
+        workflow_instance_step: WorkflowInstanceStepModel, editor_user_id: int
+    ) -> None:
+        """
+        Archive the form associated with a workflow instance step.
+
+        :param workflow_instance_step: The workflow step whose form should be archived.
+        :param editor_user_id: The ID of the user performing the archive action.
+        """
+        assert workflow_instance_step.form
+
+        # NOTE: Perhaps use Pydantic form model to improve type safety and correctness
+        workflow_instance_step.form["archived"] = True
+        workflow_instance_step.form["last_edited_by"] = editor_user_id
+        workflow_instance_step.form["last_edited"] = get_current_time()
+        workflow_instance_step.form_id = None
+
+        WorkflowService.upsert_workflow_instance_step(workflow_instance_step)
+
+    @staticmethod
+    def _validate_start_date_and_last_edited(
+        start_date: Optional[int], last_edited: Optional[int]
+    ) -> None:
+        """
+        Validate that last_edited >= start_date.
+        """
+        if (
+            last_edited is not None
+            and start_date is not None
+            and last_edited < start_date
+        ):
+            raise ValueError("last_edited cannot be before start_date")
+
+    @staticmethod
+    def _validate_workflow_instance_dates(
         workflow_instance: WorkflowInstanceModel,
     ) -> None:
         """
@@ -241,17 +357,11 @@ class WorkflowService:
 
         If this error is thrown, it indicates a programming error on the backend.
         """
-        if (
-            workflow_instance.last_edited is not None
-            and workflow_instance.start_date is not None
-            and workflow_instance.last_edited < workflow_instance.start_date
-        ):
-            raise ValueError("last_edited cannot be before start_date")
+        WorkflowService._validate_start_date_and_last_edited(
+            workflow_instance.start_date, workflow_instance.last_edited
+        )
 
-        if any(
-            instance_step.last_edited is not None
-            and instance_step.start_date is not None
-            and instance_step.last_edited < instance_step.start_date
-            for instance_step in workflow_instance.steps
-        ):
-            raise ValueError("last_edited cannot be before start_date")
+        for step in workflow_instance.steps:
+            WorkflowService._validate_start_date_and_last_edited(
+                step.start_date, step.last_edited
+            )
