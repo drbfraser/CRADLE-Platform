@@ -254,6 +254,10 @@ def marshal_with_type(obj: Any, shallow: bool = False) -> dict:
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
+    if isinstance(obj, FormSubmissionOrmV2):
+        form_dict = __marshal_form_submission_v2(obj, True)
+        form_dict["type"] = "form"
+        return form_dict
     if isinstance(obj, FormOrm):
         form_dict = __marshal_form(obj, True)
         form_dict["type"] = "form"

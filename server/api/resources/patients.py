@@ -8,7 +8,7 @@ from pydantic import Field, RootModel
 
 import data.db_operations as crud
 from api.decorator import patient_association_required, roles_required
-from common import user_utils
+from common import form_utils, user_utils
 from common.api_utils import (
     PageLimitFilterQueryParams,
     PatientIdPath,
@@ -21,6 +21,7 @@ from data import orm_serializer
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
+    FormTemplateOrmV2,
     PatientOrm,
     PregnancyOrm,
     ReadingOrm,
@@ -42,7 +43,7 @@ from validation.referrals import ReferralList
 from validation.stats import PatientStats
 
 patient_not_found_message = "Patient with ID: ({}) not found."
-
+FORM_NAME_DEFAULT = "Unknown Form"
 
 # /api/patients
 api_patients = APIBlueprint(
@@ -449,24 +450,41 @@ class GetAllRecordsForPatientQueryParams(CradleBaseModel):
 def get_all_records_for_patient(
     path: PatientIdPath, query: GetAllRecordsForPatientQueryParams
 ):
-    """Get All Records for Patient"""
+    """Get All Records for Patient (organized by type)"""
     params = query.model_dump()
     records = crud.read_patient_all_records(path.patient_id, **params)
 
-    """ 
-    TODO: Could we not return the data in a more organized manner? 
-    Like:
-    {
-        readings: [],
-        referrals: [],
-        assessments: [],
-        forms: []
+    # Organize records by type
+    organized_records = {
+        "readings": [],
+        "referrals": [],
+        "assessments": [],
+        "forms": [],
     }
-    Instead of just returning them all in one array and attaching a "type" attribute to them.
-    Its kind of difficult to document the way that it is now.
-    """
 
-    return [orm_serializer.marshal_with_type(r) for r in records]
+    for record in records:
+        marshalled = orm_serializer.marshal_with_type(record)
+        record_type = marshalled.pop("type")
+
+        if record_type == "reading":
+            organized_records["readings"].append(marshalled)
+        elif record_type == "referral":
+            organized_records["referrals"].append(marshalled)
+        elif record_type == "assessment":
+            organized_records["assessments"].append(marshalled)
+        elif record_type == "form":
+            template: FormTemplateOrmV2 = crud.read(
+                FormTemplateOrmV2, id=marshalled.get("form_template_id")
+            )
+            if template and template.classification:
+                marshalled["name"] = form_utils.resolve_string_text(
+                    template.classification.name_string_id, "English"
+                )
+            else:
+                marshalled["name"] = FORM_NAME_DEFAULT
+            organized_records["forms"].append(marshalled)
+
+    return organized_records
 
 
 class AdminPatientListItem(CradleBaseModel):
