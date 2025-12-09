@@ -1,18 +1,9 @@
-from service.workflow.datasourcing.data_sourcing import VariableResolutionStatus
 from server.service.workflow.evaluate.rule_evaluator import RuleEvaluator
-from service.workflow.workflow_planner import WorkflowPlanner
-from service.workflow.workflow_service import WorkflowService
-from service.workflow.workflow_view import WorkflowView
-from validation.workflow_models import (
-    StartWorkflowActionModel,
-    WorkflowTemplateModel,
-    WorkflowTemplateStepBranchModel,
-    WorkflowTemplateStepModel,
-)
+
+from service.workflow.datasourcing.data_sourcing import VariableResolutionStatus
 
 
 class TestIntegratedRuleEvaluator:
-
     def test_evaluate_rule_with_patient_age(self, patient_factory):
         patient_factory.create(
             id="patient_age_test",
@@ -33,9 +24,7 @@ class TestIntegratedRuleEvaluator:
         assert var_resolutions[0].status == VariableResolutionStatus.RESOLVED
 
     def test_evaluate_rule_with_missing_data(self, patient_factory):
-        patient_factory.create(
-            id="patient_no_reading", name="No Reading Patient"
-        )
+        patient_factory.create(id="patient_no_reading", name="No Reading Patient")
 
         evaluator = RuleEvaluator()
         rule = '{">=": [{"var": "reading.systolic_blood_pressure"}, 120]}'
@@ -52,7 +41,7 @@ class TestIntegratedRuleEvaluator:
         self, patient_factory, reading_factory, user_factory
     ):
         user_factory.create(id=120, username="user_multi_var")
-        
+
         patient_factory.create(
             id="patient_multi_var",
             name="Multi Var Patient",
@@ -75,14 +64,17 @@ class TestIntegratedRuleEvaluator:
 
         assert status == "TRUE"
         assert len(var_resolutions) == 2
-        
+
         var_dict = {vr.var: vr for vr in var_resolutions}
         assert "patient.sex" in var_dict
         assert "reading.systolic_blood_pressure" in var_dict
-        
+
         assert var_dict["patient.sex"].status == VariableResolutionStatus.RESOLVED
-        assert var_dict["reading.systolic_blood_pressure"].status == VariableResolutionStatus.RESOLVED
-        
+        assert (
+            var_dict["reading.systolic_blood_pressure"].status
+            == VariableResolutionStatus.RESOLVED
+        )
+
         assert var_dict["patient.sex"].value == "FEMALE"
         assert var_dict["reading.systolic_blood_pressure"].value == 150
 

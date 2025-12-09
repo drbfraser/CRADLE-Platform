@@ -86,10 +86,11 @@ def test_workflow_service__generate_workflow_instance():
 def test_workflow_service__sequential_workflow__in_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
-    
-    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule',
-               return_value=(RuleStatus.TRUE, [])):
 
+    with patch(
+        "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
+        return_value=(RuleStatus.TRUE, []),
+    ):
         assert workflow_view.instance.status == "Pending"
         assert workflow_view.instance.current_step_id is None
         assert workflow_view.get_instance_step("si-1").status == "Pending"
@@ -120,7 +121,9 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
         assert workflow_view.instance.current_step_id == "si-1"
         assert workflow_view.get_instance_step("si-1").status == "Completed"
         assert workflow_view.get_instance_step("si-2").status == "Pending"
-        assert_is_recent_timestamp(workflow_view.get_instance_step("si-1").completion_date)
+        assert_is_recent_timestamp(
+            workflow_view.get_instance_step("si-1").completion_date
+        )
 
         WorkflowService.advance_workflow(workflow_view)
         assert workflow_view.instance.current_step_id == "si-2"
@@ -154,7 +157,9 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
         )
         assert workflow_view.instance.status == "Completed"
         assert workflow_view.instance.current_step_id == "si-2"
-        assert_is_recent_timestamp(workflow_view.get_instance_step("si-2").completion_date)
+        assert_is_recent_timestamp(
+            workflow_view.get_instance_step("si-2").completion_date
+        )
         assert_is_recent_timestamp(workflow_view.instance.completion_date)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)

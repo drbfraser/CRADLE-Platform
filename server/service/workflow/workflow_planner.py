@@ -20,14 +20,12 @@ from validation.workflow_models import (
     CompleteWorkflowActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
-    VariableResolution,
     WorkflowActionModel,
     WorkflowBranchEvaluation,
     WorkflowInstanceStepModel,
     WorkflowStepEvaluation,
     WorkflowTemplateStepBranchModel,
 )
-
 
 
 class WorkflowPlanner:
@@ -43,7 +41,7 @@ class WorkflowPlanner:
     ) -> WorkflowBranchEvaluation:
         """
         Evaluates the rule of a workflow step's branch.
-        
+
         :param branch: The branch to evaluate
         :param patient_id: Patient ID for data resolution
         :returns: WorkflowBranchEvaluation with rule status and variable resolutions
@@ -68,26 +66,28 @@ class WorkflowPlanner:
         """
         Evaluates all branches of a workflow step and determines the selected branch
         based on rule evaluations.
-        
+
         :param ctx: WorkflowView providing access to template and instance
         :param step: The workflow instance step to evaluate
         :returns: WorkflowStepEvaluation with branch evaluations and selected branch
         """
         branch_evaluations = []
         selected_branch_id = None
-        
+
         # Get patient_id from the workflow instance
         # TODO: Currently only patient_id is supported for data resolution.
         # Need to decide on ID resolution strategy for other object types.
         patient_id = ctx.instance.patient_id
         if not patient_id:
-            raise ValueError("Workflow instance must have a patient_id to evaluate rules")
+            raise ValueError(
+                "Workflow instance must have a patient_id to evaluate rules"
+            )
 
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         for branch in branches:
             branch_evaluation = WorkflowPlanner._evaluate_branch(branch, patient_id)
-            
+
             branch_evaluations.append(branch_evaluation)
 
             if (

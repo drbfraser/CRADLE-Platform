@@ -11,7 +11,6 @@ from service.workflow.datasourcing.data_sourcing import VariableResolution
 from service.workflow.evaluate.rules_engine import RuleStatus
 from validation import CradleBaseModel
 from validation.forms import FormModel
-from validation.formTemplates import FormTemplateUpload
 from validation.rule_groups import RuleGroupModel
 
 

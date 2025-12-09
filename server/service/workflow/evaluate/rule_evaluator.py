@@ -4,13 +4,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
     DatasourceVariable,
-    resolve_variables,
     VariableResolution,
     VariableResolutionStatus,
+    resolve_variables,
 )
 from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
-from service.workflow.evaluate.rules_engine import RuleStatus, RulesEngineFacade
+from service.workflow.evaluate.rules_engine import RulesEngineFacade, RuleStatus
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +47,9 @@ class RuleEvaluator:
             return (RuleStatus.TRUE, [])
 
         variable_strings = extract_variables_from_rule(rule)
-        logger.debug(
-            f"Variables to resolve: {variable_strings} for patient {patient_id}"
-        )
+        logger.debug("Variables to resolve: %s for patient %s", variable_strings, patient_id)
 
-        variables = [
-            DatasourceVariable.from_string(v) for v in variable_strings
-        ]
+        variables = [DatasourceVariable.from_string(v) for v in variable_strings]
         variables = [v for v in variables if v is not None]
 
         context = {"patient_id": patient_id}
@@ -61,12 +57,12 @@ class RuleEvaluator:
             context=context, variables=variables, catalogue=self.catalogue
         )
 
-        logger.debug(f"Resolved data for context {context}: {resolved_data}")
+        logger.debug("Resolved data for context %s: %s", context, resolved_data)
 
         missing_vars = [k for k, v in resolved_data.items() if v is None]
         if missing_vars:
             logger.info(
-                f"Missing data for variables: {missing_vars} for context {context}"
+                "Missing data for variables: %s for context %s", missing_vars, context
             )
             var_resolutions = self._create_variable_resolutions(resolved_data)
             return (RuleStatus.NOT_ENOUGH_DATA, var_resolutions)
@@ -86,7 +82,7 @@ class RuleEvaluator:
 
         TODO: Move VariableResolution creation to resolve_variables() for finer-grained
         error status. This requires updating _resolve_object() to preserve error context.
-        
+
         :param resolved_data: Dict mapping variable names to resolved values
         :returns: List of VariableResolution objects
         """

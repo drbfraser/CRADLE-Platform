@@ -48,11 +48,12 @@ class VariableResolutionStatus(StrEnum):
 class VariableResolution(BaseModel):
     """
     Represents the resolution of a single variable to its data value.
-    
+
     :param var: Variable name (e.g., "patient.age")
     :param value: Resolved value (None if not resolved)
     :param status: Resolution status
     """
+
     var: str
     value: Optional[Union[int, float, str, bool]] = None
     status: VariableResolutionStatus

@@ -192,7 +192,7 @@ class UserFactory(ModelFactory):
         from models import UserOrm
 
         d = dict(**kwargs)
-        
+
         # Check if user with this ID already exists to prevent accidental overwrites
         if "id" in d:
             existing_user = crud.read(UserOrm, id=d["id"])
@@ -200,7 +200,7 @@ class UserFactory(ModelFactory):
                 raise ValueError(
                     f"User with id={d['id']} already exists (username='{existing_user.username}'). "
                 )
-        
+
         email = d.get("email")
         username = d.get("username")
         if username is None and email is not None:

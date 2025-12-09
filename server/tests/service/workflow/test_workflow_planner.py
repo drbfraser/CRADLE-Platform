@@ -103,10 +103,11 @@ def run_test_sequence(workflow_view, sequence: list[TestStep]):
 def test_sequential_workflow__in_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
-    
-    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule', 
-               return_value=(RuleStatus.TRUE, [])):
 
+    with patch(
+        "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
+        return_value=(RuleStatus.TRUE, []),
+    ):
         sequence = [
             DoAdvance(expected_ops=[]),
             GetActions(expected_actions=[StartWorkflowActionModel()]),
@@ -126,7 +127,9 @@ def test_sequential_workflow__in_order(sequential_workflow_view):
                     UpdateWorkflowStepStartDate("si-1"),
                 ],
             ),
-            DoAdvance(expected_ops=[]),  # Should do nothing, current step isn't COMPLETED
+            DoAdvance(
+                expected_ops=[]
+            ),  # Should do nothing, current step isn't COMPLETED
             GetActions(expected_actions=[CompleteStepActionModel(step_id="si-1")]),
             ApplyAction(
                 action=CompleteStepActionModel(step_id="si-1"),
@@ -170,10 +173,11 @@ def test_sequential_workflow__in_order(sequential_workflow_view):
 def test_sequential_workflow__out_of_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
-    
-    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule',
-               return_value=(RuleStatus.TRUE, [])):
 
+    with patch(
+        "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
+        return_value=(RuleStatus.TRUE, []),
+    ):
         sequence = [
             DoAdvance(expected_ops=[]),
             GetActions(expected_actions=[StartWorkflowActionModel()]),
@@ -187,7 +191,9 @@ def test_sequential_workflow__out_of_order(sequential_workflow_view):
             # Instead of advancing to si-1, go to si-2. NOTE: si-1 has status PENDING
             # and has not already started.
             DoOverride(step_id="si-2", expected_ops=[UpdateCurrentStepOp("si-2")]),
-            DoAdvance(expected_ops=[]),  # Should do nothing, current step isn't COMPLETED
+            DoAdvance(
+                expected_ops=[]
+            ),  # Should do nothing, current step isn't COMPLETED
             GetActions(expected_actions=[StartStepActionModel(step_id="si-2")]),
             ApplyAction(
                 action=StartStepActionModel(step_id="si-2"),
@@ -207,7 +213,9 @@ def test_sequential_workflow__out_of_order(sequential_workflow_view):
             DoAdvance(expected_ops=[]),  # Should do nothing, current step is terminal
             # Go back to si-1 and start and complete it
             DoOverride(step_id="si-1", expected_ops=[UpdateCurrentStepOp("si-1")]),
-            DoAdvance(expected_ops=[]),  # Should do nothing, current step isn't COMPLETED
+            DoAdvance(
+                expected_ops=[]
+            ),  # Should do nothing, current step isn't COMPLETED
             GetActions(expected_actions=[StartStepActionModel(step_id="si-1")]),
             ApplyAction(
                 action=StartStepActionModel(step_id="si-1"),
@@ -216,7 +224,9 @@ def test_sequential_workflow__out_of_order(sequential_workflow_view):
                     UpdateWorkflowStepStartDate("si-1"),
                 ],
             ),
-            DoAdvance(expected_ops=[]),  # Should do nothing, current step isn't COMPLETED
+            DoAdvance(
+                expected_ops=[]
+            ),  # Should do nothing, current step isn't COMPLETED
             GetActions(expected_actions=[CompleteStepActionModel(step_id="si-1")]),
             ApplyAction(
                 action=CompleteStepActionModel(step_id="si-1"),
@@ -282,10 +292,11 @@ def test_get_operations_is_stateless(sequential_workflow_view):
 def test_evaluate_step(sequential_workflow_view):
     view = sequential_workflow_view
     view.instance.patient_id = "test-patient-123"
-    
-    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule',
-               return_value=(RuleStatus.TRUE, [])):
 
+    with patch(
+        "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
+        return_value=(RuleStatus.TRUE, []),
+    ):
         expected_step_1_evaluation = WorkflowStepEvaluation(
             branch_evaluations=[
                 WorkflowBranchEvaluation(

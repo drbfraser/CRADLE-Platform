@@ -64,7 +64,9 @@ class TestPatientResolution:
 class TestReadingResolution:
     """System tests for reading data resolution"""
 
-    def test_resolve_reading_vitals(self, user_factory, patient_factory, reading_factory):
+    def test_resolve_reading_vitals(
+        self, user_factory, patient_factory, reading_factory
+    ):
         user_factory.create(id=150, username="test_user")
         patient_factory.create(id="patient_003", name="BP Test Patient")
         reading_factory.create(
@@ -112,7 +114,9 @@ class TestReadingResolution:
 class TestAssessmentResolution:
     """System tests for assessment data resolution"""
 
-    def test_resolve_assessment_fields(self, user_factory, patient_factory, followup_factory):
+    def test_resolve_assessment_fields(
+        self, user_factory, patient_factory, followup_factory
+    ):
         user_factory.create(id=160, username="test_user")
         patient_factory.create(id="patient_005", name="Assessment Patient")
         followup_factory.create(

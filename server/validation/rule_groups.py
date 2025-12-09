@@ -1,9 +1,8 @@
 import json
-from typing import Optional, Union
+from typing import Optional
 
 from pydantic import field_validator
 
-from enums import StrEnum
 from validation import CradleBaseModel
 
 
@@ -49,5 +48,3 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
         return data_sources
 
     # TODO: Add validators to determine if rule and data_sources are in the correct format
-
-
