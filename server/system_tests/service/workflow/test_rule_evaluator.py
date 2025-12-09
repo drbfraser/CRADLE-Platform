@@ -1,5 +1,5 @@
 from service.workflow.datasourcing.data_sourcing import VariableResolutionStatus
-from service.workflow.evaluate.integrated_rule_evaluator import IntegratedRuleEvaluator
+from server.service.workflow.evaluate.rule_evaluator import RuleEvaluator
 from service.workflow.workflow_planner import WorkflowPlanner
 from service.workflow.workflow_service import WorkflowService
 from service.workflow.workflow_view import WorkflowView
@@ -21,7 +21,7 @@ class TestIntegratedRuleEvaluator:
             is_exact_date_of_birth=True,
         )
 
-        evaluator = IntegratedRuleEvaluator()
+        evaluator = RuleEvaluator()
         rule = '{">=": [{"var": "patient.age"}, 65]}'
 
         status, var_resolutions = evaluator.evaluate_rule(rule, "patient_age_test")
@@ -37,7 +37,7 @@ class TestIntegratedRuleEvaluator:
             id="patient_no_reading", name="No Reading Patient"
         )
 
-        evaluator = IntegratedRuleEvaluator()
+        evaluator = RuleEvaluator()
         rule = '{">=": [{"var": "reading.systolic_blood_pressure"}, 120]}'
 
         status, var_resolutions = evaluator.evaluate_rule(rule, "patient_no_reading")
@@ -68,7 +68,7 @@ class TestIntegratedRuleEvaluator:
             heart_rate=78,
         )
 
-        evaluator = IntegratedRuleEvaluator()
+        evaluator = RuleEvaluator()
         rule = '{"and": [{"==": [{"var": "patient.sex"}, "FEMALE"]}, {">=": [{"var": "reading.systolic_blood_pressure"}, 140]}]}'
 
         status, var_resolutions = evaluator.evaluate_rule(rule, "patient_multi_var")
@@ -89,7 +89,7 @@ class TestIntegratedRuleEvaluator:
     def test_evaluate_rule_no_rule_returns_true(self, patient_factory):
         patient_factory.create(id="patient_no_rule", name="Test Patient")
 
-        evaluator = IntegratedRuleEvaluator()
+        evaluator = RuleEvaluator()
 
         status_none, _ = evaluator.evaluate_rule(None, "patient_no_rule")
         status_empty, _ = evaluator.evaluate_rule("", "patient_no_rule")

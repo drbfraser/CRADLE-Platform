@@ -1,7 +1,7 @@
 from typing import Optional
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
-from service.workflow.evaluate.integrated_rule_evaluator import IntegratedRuleEvaluator
+from service.workflow.evaluate.rule_evaluator import RuleEvaluator
 from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
@@ -49,7 +49,7 @@ class WorkflowPlanner:
         :returns: WorkflowBranchEvaluation with rule status and variable resolutions
         """
         rule = branch.condition.rule if branch.condition else None
-        evaluator = IntegratedRuleEvaluator()
+        evaluator = RuleEvaluator()
         rule_status, var_resolutions = evaluator.evaluate_rule(rule, patient_id)
 
         branch_evaluation = WorkflowBranchEvaluation(

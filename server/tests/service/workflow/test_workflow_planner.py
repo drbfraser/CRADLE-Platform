@@ -104,7 +104,7 @@ def test_sequential_workflow__in_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
     
-    with patch('service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule', 
+    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule', 
                return_value=(RuleStatus.TRUE, [])):
 
         sequence = [
@@ -171,7 +171,7 @@ def test_sequential_workflow__out_of_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
     
-    with patch('service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule',
                return_value=(RuleStatus.TRUE, [])):
 
         sequence = [
@@ -283,7 +283,7 @@ def test_evaluate_step(sequential_workflow_view):
     view = sequential_workflow_view
     view.instance.patient_id = "test-patient-123"
     
-    with patch('service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule',
                return_value=(RuleStatus.TRUE, [])):
 
         expected_step_1_evaluation = WorkflowStepEvaluation(

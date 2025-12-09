@@ -87,7 +87,7 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
     
-    with patch('service.workflow.workflow_planner.IntegratedRuleEvaluator.evaluate_rule',
+    with patch('service.workflow.workflow_planner.RuleEvaluator.evaluate_rule',
                return_value=(RuleStatus.TRUE, [])):
 
         assert workflow_view.instance.status == "Pending"

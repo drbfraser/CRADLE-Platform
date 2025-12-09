@@ -15,7 +15,7 @@ from service.workflow.evaluate.rules_engine import RuleStatus, RulesEngineFacade
 logger = logging.getLogger(__name__)
 
 
-class IntegratedRuleEvaluator:
+class RuleEvaluator:
     """
     Evaluates workflow rules by:
     1. Extracting variables from the rule (extractor)
