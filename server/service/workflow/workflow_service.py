@@ -28,10 +28,9 @@ from validation.workflow_models import (
 
 
 class WorkflowService:
-    # TODO: make these staticmethods
-    @classmethod
+    @staticmethod
     def generate_workflow_instance(
-        cls, workflow_template: WorkflowTemplateModel
+        workflow_template: WorkflowTemplateModel,
     ) -> WorkflowInstanceModel:
         workflow_instance = {}
 
@@ -47,7 +46,9 @@ class WorkflowService:
         workflow_instance["patient_id"] = None
 
         step = [
-            cls._generate_workflow_instance_step(step_template, workflow_instance["id"])
+            WorkflowService._generate_workflow_instance_step(
+                step_template, workflow_instance["id"]
+            )
             for step_template in workflow_template.steps
         ]
 
@@ -55,9 +56,8 @@ class WorkflowService:
 
         return WorkflowInstanceModel(**workflow_instance)
 
-    @classmethod
+    @staticmethod
     def _generate_workflow_instance_step(
-        cls,
         workflow_template_step: WorkflowTemplateStepModel,
         workflow_instance_id: str,
     ) -> WorkflowInstanceStepModel:
@@ -81,8 +81,8 @@ class WorkflowService:
 
         return step
 
-    @classmethod
-    def upsert_workflow_instance(cls, workflow_instance: WorkflowInstanceModel):
+    @staticmethod
+    def upsert_workflow_instance(workflow_instance: WorkflowInstanceModel):
         """
         Insert or update a workflow instance in the database.
         """
@@ -91,7 +91,7 @@ class WorkflowService:
         for instance_step in workflow_instance.steps:
             instance_step.last_edited = get_current_time()
 
-        cls._validate_workflow_instance_dates(workflow_instance)
+        WorkflowService._validate_workflow_instance_dates(workflow_instance)
 
         workflow_instance_orm = orm_serializer.unmarshal(
             WorkflowInstanceOrm, workflow_instance.model_dump()
@@ -99,9 +99,9 @@ class WorkflowService:
 
         crud.common_crud.merge(workflow_instance_orm)
 
-    @classmethod
+    @staticmethod
     def upsert_workflow_instance_step(
-        cls, workflow_instance_step: WorkflowInstanceStepModel
+        workflow_instance_step: WorkflowInstanceStepModel,
     ):
         """
         Insert or update a workflow instance step in the database.
@@ -118,8 +118,8 @@ class WorkflowService:
 
         crud.common_crud.merge(workflow_instance_step_orm)
 
-    @classmethod
-    def upsert_workflow_template(cls, workflow_template: WorkflowTemplateModel):
+    @staticmethod
+    def upsert_workflow_template(workflow_template: WorkflowTemplateModel):
         """
         Insert or update a workflow template in the database.
         """
@@ -134,9 +134,9 @@ class WorkflowService:
 
         crud.common_crud.merge(workflow_template_orm)
 
-    @classmethod
+    @staticmethod
     def get_workflow_instance(
-        cls, workflow_instance_id: str
+        workflow_instance_id: str,
     ) -> Optional[WorkflowInstanceModel]:
         """
         Fetch a workflow instance by ID, returning None if it does not exist.
@@ -150,9 +150,8 @@ class WorkflowService:
         workflow_instance = WorkflowInstanceModel(**workflow_instance_dict)
         return workflow_instance
 
-    @classmethod
+    @staticmethod
     def get_workflow_instances(
-        cls,
         user_id: Optional[int] = None,
         patient_id: Optional[str] = None,
         status: Optional[WorkflowStatusEnum] = None,
@@ -176,9 +175,9 @@ class WorkflowService:
             for workflow_instance_dict in workflow_instance_dicts
         ]
 
-    @classmethod
+    @staticmethod
     def get_workflow_instance_step(
-        cls, workflow_instance_step_id: str
+        workflow_instance_step_id: str,
     ) -> Optional[WorkflowInstanceModel]:
         """
         Fetch a workflow instance step by ID, returning None if it does not exist.
@@ -196,9 +195,9 @@ class WorkflowService:
         )
         return workflow_instance_step
 
-    @classmethod
+    @staticmethod
     def get_workflow_template(
-        cls, workflow_template_id: str
+        workflow_template_id: str,
     ) -> Optional[WorkflowTemplateModel]:
         """
         Fetch a workflow template by ID, returning None if it does not exist.
