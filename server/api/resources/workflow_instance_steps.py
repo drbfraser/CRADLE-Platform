@@ -6,26 +6,18 @@ from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
 from api.decorator import roles_required
-from common import user_utils
-from common.api_utils import (
-    WorkflowInstanceStepIdPath,
-    convert_query_parameter_to_bool,
-    get_user_id,
-)
+from common import form_utils, user_utils, workflow_utils
+from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from data import orm_serializer
 from enums import RoleEnum
 from models import (
     FormOrm,
-    RuleGroupOrm,
-    WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_api_models import (
-    WorkflowInstanceStepModel,
-    WorkflowInstanceStepUpdateModel,
-)
+from validation.workflow_api_models import WorkflowInstanceStepPatchModel
+from validation.workflow_models import WorkflowInstanceStepModel
 
 
 # Create a response model for the list endpoints
@@ -41,9 +33,6 @@ api_workflow_instance_steps = APIBlueprint(
     abp_tags=[Tag(name="Workflow Instance Steps", description="")],
     abp_security=[{"jwt": []}],
 )
-
-workflow_instance_not_found_msg = "Workflow instance with ID: ({}) not found."
-workflow_instance_step_not_found_msg = "Workflow instance step with ID: ({}) not found."
 
 
 # /api/workflow/instance/steps?workflow_instance_id=<str> [GET]
@@ -83,7 +72,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     if workflow_instance_step is None:
         return abort(
             code=404,
-            description=workflow_instance_step_not_found_msg.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
                 path.workflow_instance_step_id
             ),
         )
@@ -101,7 +90,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     "/<string:workflow_instance_step_id>", responses={200: WorkflowInstanceStepModel}
 )
 def update_workflow_instance_step(
-    path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepUpdateModel
+    path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepPatchModel
 ):
     """Update Workflow Instance Step"""
     instance_step = crud.read(
@@ -111,61 +100,20 @@ def update_workflow_instance_step(
     if instance_step is None:
         return abort(
             code=404,
-            description=workflow_instance_step_not_found_msg.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
                 path.workflow_instance_step_id
             ),
         )
 
-    workflow_instance_step_changes = body.model_dump(exclude_unset=True)
-    workflow_instance_step_changes["last_edited"] = get_current_time()
+    if body.form_id is not None and body.form_id != instance_step.form_id:
+        form_utils.fetch_form_or_404(body.form_id)
+        instance_step.form_id = body.form_id
 
-    # Validate that the workflow instance exists (if being updated)
-    if workflow_instance_step_changes.get("workflow_instance_id") is not None:
-        workflow_instance = crud.read(
-            WorkflowInstanceOrm,
-            id=workflow_instance_step_changes["workflow_instance_id"],
-        )
-        if workflow_instance is None:
-            return abort(
-                code=404,
-                description=workflow_instance_not_found_msg.format(
-                    workflow_instance_step_changes["workflow_instance_id"]
-                ),
-            )
+    if body.assigned_to is not None and body.assigned_to != instance_step.assigned_to:
+        user_utils.fetch_user_or_404(body.assigned_to)
+        instance_step.assigned_to = body.assigned_to
 
-    # Validate that the condition exists (if being updated)
-    if workflow_instance_step_changes.get("condition_id") is not None:
-        condition = crud.read(
-            RuleGroupOrm, id=workflow_instance_step_changes["condition_id"]
-        )
-        if condition is None:
-            return abort(
-                code=404,
-                description=f"Condition with ID: ({workflow_instance_step_changes['condition_id']}) not found.",
-            )
-
-    # Validate that the form exists (if being updated)
-    if workflow_instance_step_changes.get("form_id") is not None:
-        form = crud.read(FormOrm, id=workflow_instance_step_changes["form_id"])
-        if form is None:
-            return abort(
-                code=404,
-                description=f"Form with ID: ({workflow_instance_step_changes['form_id']}) not found.",
-            )
-
-    # Validate that the assigned user exists (if being updated)
-    if workflow_instance_step_changes.get("assigned_to") is not None:
-        try:
-            user_id = get_user_id(workflow_instance_step_changes, "assigned_to")
-            workflow_instance_step_changes["assigned_to"] = user_id
-        except ValueError:
-            return abort(code=404, description="Assigned user not found.")
-
-    crud.update(
-        WorkflowInstanceStepOrm,
-        changes=workflow_instance_step_changes,
-        id=path.workflow_instance_step_id,
-    )
+    crud.common_crud.merge(instance_step)
 
     updated_instance_step_orm = crud.read(
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
@@ -190,7 +138,7 @@ def archive_form(path: WorkflowInstanceStepIdPath):
     if instance_step is None:
         return abort(
             code=404,
-            description=workflow_instance_step_not_found_msg.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
                 path.workflow_instance_step_id
             ),
         )

@@ -238,9 +238,8 @@ def test_patch_workflow_instance(
             WorkflowInstanceModel(**workflow_instance1)
         )
 
-        # Update the name and status
-        # TODO: status should not be able to be modified
-        patch_data = {"name": "updated_workflow_name", "status": "Completed"}
+        # Update the name
+        patch_data = {"name": "updated_workflow_name"}
 
         response = api_patch(
             endpoint=f"/api/workflow/instances/{workflow_instance1['id']}",
@@ -252,7 +251,6 @@ def test_patch_workflow_instance(
 
         assert response.status_code == 200
         assert response_body["name"] == "updated_workflow_name"
-        assert response_body["status"] == "Completed"
         assert response_body["description"] == workflow_instance1["description"]
         assert response_body["patient_id"] == workflow_instance1["patient_id"]
 
@@ -264,7 +262,6 @@ def test_patch_workflow_instance(
 
         assert response.status_code == 200
         assert response_body["name"] == "updated_workflow_name"
-        assert response_body["status"] == "Completed"
 
     finally:
         crud.delete_workflow(

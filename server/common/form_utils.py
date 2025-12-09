@@ -27,6 +27,8 @@ from validation.formsV2_models import (
     MultiLangText,
 )
 
+FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
+
 
 def filter_template_questions_dict(form_template: dict):
     form_template["questions"] = [
@@ -832,3 +834,15 @@ def upsert_multilang_versions(name_string_id: str, name_map: dict[str, str]):
         else:
             lv = LangVersionOrmV2(string_id=name_string_id, lang=lang, text=text)
             crud.create(lv)
+
+
+def fetch_form_or_404(form_id: str) -> FormOrm:
+    """
+    Fetch a form or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    form = crud.read(FormOrm, id=form_id)
+    if form is None:
+        commonUtil.abort_not_found(FORM_NOT_FOUND_MSG.format(form_id))
+
+    return form
