@@ -445,7 +445,6 @@ class GetAllRecordsForPatientQueryParams(CradleBaseModel):
     forms: bool = Field(True, description="If true, forms will be included.")
 
 
-# NOTE: The android app currently uses the old forms ORM (FormOrm) so it expects the response as a single (unstructured) array of all records (for ex. [reading_1, form_1, assessment_1, form_2, etc.]). The android app needs to be updated with this new organized structure. Also note that this endpoint now uses the new forms ORM which the frontend and the androip app is not fully integrated with, so the url `/forms/view/{:patientId}/{:formSubmissionId}` on the frontend currently does not work, both on the web app and the android app.
 # /api/patients/<string:patient_id>/get_all_records [GET]
 @api_patients.get("/<string:patient_id>/get_all_records")
 def get_all_records_for_patient(
