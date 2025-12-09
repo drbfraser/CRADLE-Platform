@@ -1,5 +1,3 @@
-from typing import List
-
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
@@ -11,22 +9,17 @@ from common.api_utils import (
 )
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService, WorkflowView
-from validation import CradleBaseModel
 from validation.workflow_api_models import (
     ApplyActionRequest,
+    CreateWorkflowInstanceRequest,
     GetAvailableActionsResponse,
+    GetWorkflowInstancesResponse,
     OverrideCurrentStepRequest,
     WorkflowInstancePatchModel,
 )
 from validation.workflow_models import (
     WorkflowInstanceModel,
 )
-
-
-# Create a response model for the list endpoints
-class WorkflowInstanceListResponse(CradleBaseModel):
-    items: List[WorkflowInstanceModel]
-
 
 # /api/workflow/instances
 api_workflow_instances = APIBlueprint(
@@ -36,13 +29,6 @@ api_workflow_instances = APIBlueprint(
     abp_tags=[Tag(name="Workflow Instances", description="")],
     abp_security=[{"jwt": []}],
 )
-
-
-class CreateWorkflowInstanceRequest(CradleBaseModel):
-    workflow_template_id: str
-    patient_id: str
-    name: str
-    description: str
 
 
 # /api/workflow/instances [POST]
@@ -74,7 +60,7 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
 
 
 # /api/workflow/instances?patient_id=<str>&status=<str>&workflow_template_id=<str>&with_steps=<bool> [GET]
-@api_workflow_instances.get("", responses={200: WorkflowInstanceListResponse})
+@api_workflow_instances.get("", responses={200: GetWorkflowInstancesResponse})
 def get_workflow_instances():
     """Get All Workflow Instances"""
     # Get query parameters
@@ -95,7 +81,7 @@ def get_workflow_instances():
         for workflow in workflow_instances:
             workflow.steps = []
 
-    response = WorkflowInstanceListResponse(items=workflow_instances)
+    response = GetWorkflowInstancesResponse(items=workflow_instances)
     return response.model_dump(), 200
 
 

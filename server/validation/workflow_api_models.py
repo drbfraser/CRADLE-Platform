@@ -9,6 +9,7 @@ from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
     WorkflowCollectionModel,
+    WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
@@ -89,6 +90,17 @@ class GetWorkflowInstanceStepsRequest(CradleBaseModel, extra="forbid"):
 
 class GetWorkflowInstanceStepsResponse(CradleBaseModel, extra="forbid"):
     items: list[WorkflowInstanceStepModel]
+
+
+class GetWorkflowInstancesResponse(CradleBaseModel, extra="forbid"):
+    items: list[WorkflowInstanceModel]
+
+
+class CreateWorkflowInstanceRequest(CradleBaseModel, extra="forbid"):
+    workflow_template_id: str
+    patient_id: str
+    name: str
+    description: str
 
 
 class GetAvailableActionsResponse(CradleBaseModel):
