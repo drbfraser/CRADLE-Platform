@@ -32,28 +32,10 @@ import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
 import { WorkflowInfo } from './WorkflowInfo/WorkflowInfo';
+import { FlattenedRecord, OrganizedRecords } from 'src/shared/types/types';
 
 type RouteParams = {
   patientId: string;
-};
-
-type Record = {
-  id: string | undefined;
-  readingId?: string;
-  isAssessed?: boolean;
-  isCancelled?: boolean;
-  notAttended?: boolean;
-  date_taken?: number;
-  date_referred?: number;
-  date_assessed?: number;
-  date_submitted?: number;
-};
-
-type OrganizedRecords = {
-  readings: Record[];
-  referrals: Record[];
-  assessments: Record[];
-  forms: Record[];
 };
 
 const filters: Filter[] = [
@@ -103,28 +85,33 @@ export const PatientPage = () => {
   });
 
   // Flatten and merge all records with their type, then sort by timestamp
-  const records = organizedRecords
+  const records: FlattenedRecord[] = organizedRecords
     ? [
-        ...organizedRecords.readings.map((r) => ({ ...r, type: 'reading' })),
-        ...organizedRecords.referrals.map((r) => ({ ...r, type: 'referral' })),
+        ...organizedRecords.readings.map((r) => ({
+          ...r,
+          type: 'reading' as const,
+        })),
+        ...organizedRecords.referrals.map((r) => ({
+          ...r,
+          type: 'referral' as const,
+        })),
         ...organizedRecords.assessments.map((r) => ({
           ...r,
-          type: 'assessment',
+          type: 'assessment' as const,
         })),
-        ...organizedRecords.forms.map((r) => ({ ...r, type: 'form' })),
+        ...organizedRecords.forms.map((r) => ({ ...r, type: 'form' as const })),
       ].sort((a, b) => {
-        // Sort by most recent timestamp
         const timeA =
-          a.date_taken ||
-          a.date_referred ||
-          a.date_assessed ||
-          a.date_submitted ||
+          ('dateTaken' in a && a.dateTaken) ||
+          ('dateReferred' in a && a.dateReferred) ||
+          ('dateAssessed' in a && a.dateAssessed) ||
+          ('dateSubmitted' in a && a.dateSubmitted) ||
           0;
         const timeB =
-          b.date_taken ||
-          b.date_referred ||
-          b.date_assessed ||
-          b.date_submitted ||
+          ('dateTaken' in b && b.dateTaken) ||
+          ('dateReferred' in b && b.dateReferred) ||
+          ('dateAssessed' in b && b.dateAssessed) ||
+          ('dateSubmitted' in b && b.dateSubmitted) ||
           0;
         return timeB - timeA;
       })
