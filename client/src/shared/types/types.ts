@@ -3,6 +3,7 @@ import { CustomizedForm } from './form/formTemplateTypes';
 import { Reading } from './readingTypes';
 import { Assessment } from './assessmentTypes';
 import { Referral } from './referralTypes';
+import { TrafficLightEnum } from '../enums';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -87,3 +88,75 @@ export type LanguageModalProps = {
   language: string[];
   setLanguage: React.Dispatch<React.SetStateAction<string[]>>;
 };
+
+export type ReadingRecord = {
+  id: string;
+  systolicBloodPressure?: number;
+  diastolicBloodPressure?: number;
+  heartRate?: number;
+  symptoms?: string[];
+  trafficLightStatus: TrafficLightEnum;
+  dateTaken: number;
+  dateRetestNeeded?: number;
+  isFlaggedForFollowUp?: boolean;
+  patientId: string;
+  userId?: number;
+  referralId?: string;
+  lastEdited: number;
+};
+
+export type ReferralRecord = {
+  id: string;
+  dateReferred: number;
+  comment?: string;
+  actionTaken?: string;
+  isAssessed: boolean;
+  dateAssessed?: number;
+  isCancelled: boolean;
+  cancelReason?: string;
+  dateCancelled?: number;
+  notAttended: boolean;
+  notAttendReason?: string;
+  dateNotAttended?: number;
+  patientId: string;
+  userId?: number;
+  healthFacilityName?: string;
+  lastEdited: number;
+};
+
+export type AssessmentRecord = {
+  id: string;
+  followUpInstructions?: string;
+  followUpNeeded?: boolean;
+  specialInvestigations?: string;
+  diagnosis?: string;
+  treatment?: string;
+  medicationPrescribed?: string;
+  dateAssessed: number;
+  patientId: string;
+  healthcareWorkerId: number;
+};
+
+export type FormSubmissionRecord = {
+  id: string;
+  formTemplateId: string;
+  patientId: string;
+  userId?: number;
+  dateSubmitted: number;
+  lastEdited: number;
+  lang: string;
+  name: string;
+};
+
+export type OrganizedRecords = {
+  readings: ReadingRecord[];
+  referrals: ReferralRecord[];
+  assessments: AssessmentRecord[];
+  forms: FormSubmissionRecord[];
+};
+
+export type FlattenedRecord =
+  | (ReadingRecord & { type: 'reading' })
+  | (ReferralRecord & { type: 'referral' })
+  | (AssessmentRecord & { type: 'assessment' })
+  | (FormSubmissionRecord & { type: 'form' });

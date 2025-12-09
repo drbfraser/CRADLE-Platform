@@ -4,7 +4,11 @@ import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from data import orm_serializer
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
-from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
+from models.workflows import (
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+)
 from service.workflow.workflow_planner import WorkflowPlanner
 from service.workflow.workflow_view import WorkflowView
 from validation.workflow_api_models import (
@@ -116,6 +120,23 @@ class WorkflowService:
         workflow_instance_dict = orm_serializer.marshal(workflow_instance_orm)
         workflow_instance = WorkflowInstanceModel(**workflow_instance_dict)
         return workflow_instance
+
+    @classmethod
+    def get_workflow_instance_step(
+        cls, workflow_instance_step_id: str
+    ) -> Optional[WorkflowInstanceModel]:
+        workflow_instance_step_orm = crud.read(
+            WorkflowInstanceStepOrm, id=workflow_instance_step_id
+        )
+
+        if not workflow_instance_step_orm:
+            return None
+
+        workflow_instance_step_dict = orm_serializer.marshal(workflow_instance_step_orm)
+        workflow_instance_step = WorkflowInstanceStepModel(
+            **workflow_instance_step_dict
+        )
+        return workflow_instance_step
 
     @classmethod
     def get_workflow_template(
