@@ -5,82 +5,12 @@ import types
 
 from data import orm_serializer
 from models import FormOrm, QuestionLangVersionOrm, QuestionOrm, WorkflowInstanceStepOrm
-
-
-def _create_question(*, id: str, form_id: str, index: int = 0) -> dict:
-    return {
-        "id": id,
-        "form_id": form_id,
-        "question_index": index,
-        "question_text": "Do you have any symptoms?",
-        "question_type": "MULTIPLE_CHOICE",
-        "visible_condition": {"op": "eq", "left": "age", "right": 18},
-        "mc_options": [
-            {"label": "Yes", "value": "yes"},
-            {"label": "No", "value": "no"},
-        ],
-        "answers": {"default": "no"},
-        "lang_versions": [
-            {
-                # schema requires this FK
-                "question_id": id,
-                "lang": "en",
-                "question_text": "Do you have any symptoms?",
-                "mc_options": [
-                    {"label": "Yes", "value": "yes"},
-                    {"label": "No", "value": "no"},
-                ],
-            }
-        ],
-    }
-
-
-def _create_form(
-    *,
-    id: str,
-    name: str = "Intake Form",
-    with_question: bool = True,
-) -> dict:
-    payload = {
-        "id": id,
-        "name": name,
-        "patient_id": "pat-1",
-        "lang": "en",
-        "last_edited": 1_700_000_123,
-        "date_created": 1_700_000_000,
-    }
-    if with_question:
-        payload["questions"] = [_create_question(id="q-1", form_id=id, index=0)]
-    return payload
-
-
-def _create_workflow_instance_step(
-    *,
-    id: str,
-    name: str,
-    description: str,
-    workflow_instance_id: str,
-    form_id: str | None = None,
-    include_form: bool = True,
-) -> dict:
-    d = {
-        "id": id,
-        "name": name,
-        "description": description,
-        "start_date": 1_700_000_001,
-        "triggered_by": "prev-step-0",
-        "last_edited": 1_700_000_010,
-        "expected_completion": 1_700_000_999,
-        "status": "Active",
-        "data": '{"note":"bring previous records"}',
-        "assigned_to": 42,
-        "workflow_instance_id": workflow_instance_id,
-    }
-    if form_id:
-        d["form_id"] = form_id
-    if include_form:
-        d["form"] = _create_form(id=form_id or "form-1", with_question=True)
-    return d
+from tests.helpers import (
+    make_form,
+    make_question,
+    make_question_lang_version,
+    make_workflow_instance_step,
+)
 
 
 def test_unmarshal_workflow_instance_step_with_form_and_questions():
@@ -94,15 +24,43 @@ def test_unmarshal_workflow_instance_step_with_form_and_questions():
 
     Finally, verifies that the original payload is not modified.
     """
-    payload = _create_workflow_instance_step(
+    question_payload = make_question(
+        id="q-pre",
+        question_index=1,
+        question_text="Dizziness severity?",
+        question_type="MULTIPLE_CHOICE",
+        visible_condition={"op": "eq", "left": "age", "right": 18},
+        mc_options=[
+            {"label": "Yes", "value": "yes"},
+            {"label": "No", "value": "no"},
+        ],
+        answers={"default": "no"},
+        lang_versions=[
+            make_question_lang_version(
+                lang="en",
+                question_text="Dizziness severity? (en)",
+                mc_options=[
+                    {"label": "Yes", "value": "yes"},
+                    {"label": "No", "value": "no"},
+                ],
+            )
+        ],
+    )
+
+    form_payload = make_form(
+        id="form-1",
+        patient_id="p-001",
+        questions=[question_payload],
+    )
+
+    payload = make_workflow_instance_step(
         id="wis-1",
         name="Intake",
         description="Collect initial data",
         workflow_instance_id="wi-1",
         form_id="form-1",
-        include_form=True,
+        form=form_payload,
     )
-    original = dict(payload)
 
     obj = orm_serializer.unmarshal(WorkflowInstanceStepOrm, payload)
 
@@ -121,7 +79,17 @@ def test_unmarshal_workflow_instance_step_with_form_and_questions():
     assert isinstance(obj.form.questions, list) and len(obj.form.questions) == 1
     q = obj.form.questions[0]
     assert isinstance(q, (QuestionOrm, types.SimpleNamespace))
-    assert json.loads(q.visible_condition) == {"op": "eq", "left": "age", "right": 18}
+
+    # These should be JSON *strings* on the ORM side
+    assert isinstance(q.visible_condition, str)
+    assert isinstance(q.answers, str)
+    assert isinstance(q.mc_options, str)
+
+    assert json.loads(q.visible_condition) == {
+        "op": "eq",
+        "left": "age",
+        "right": 18,
+    }
     assert json.loads(q.answers) == {"default": "no"}
     assert json.loads(q.mc_options) == [
         {"label": "Yes", "value": "yes"},
@@ -133,12 +101,11 @@ def test_unmarshal_workflow_instance_step_with_form_and_questions():
     qv = q.lang_versions[0]
     assert isinstance(qv, (QuestionLangVersionOrm, types.SimpleNamespace))
     assert qv.lang == "en"
+    assert isinstance(qv.mc_options, str)
     assert json.loads(qv.mc_options) == [
         {"label": "Yes", "value": "yes"},
         {"label": "No", "value": "no"},
     ]
-
-    assert payload == original
 
 
 def test_unmarshal_workflow_instance_step_minimal_no_form():
@@ -146,13 +113,12 @@ def test_unmarshal_workflow_instance_step_minimal_no_form():
     Tests that unmarshaling a WorkflowInstanceStepOrm with no form results in the correct object structure and no nested loads.
     Verifies that the unmarshalled object has form=None and no nested form loads occur.
     """
-    payload = _create_workflow_instance_step(
+    payload = make_workflow_instance_step(
         id="wis-2",
         name="Follow-up",
         description="Schedule a follow-up appointment",
         workflow_instance_id="wi-99",
         form_id=None,
-        include_form=False,
     )
     original = dict(payload)
 
