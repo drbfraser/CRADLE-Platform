@@ -141,7 +141,7 @@ export const CustomFormTemplate = () => {
                       required={true}
                       variant="outlined"
                       value={
-                        formTemplateQuery.data?.classification?.name[
+                        form.classification.name[
                           currentLanguage.toLowerCase()
                         ] ?? ''
                       }
@@ -149,16 +149,46 @@ export const CustomFormTemplate = () => {
                       inputProps={{
                         maxLength: 100,
                       }}
+                      error={
+                        !form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ] ||
+                        form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ].trim() === ''
+                      }
+                      helperText={
+                        !form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ] ||
+                        form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ].trim() === ''
+                          ? `${currentLanguage} title is required`
+                          : ''
+                      }
                       onChange={(e: any) => {
+                        const isEnglishLanguage =
+                          currentLanguage.toLowerCase() === 'english';
+
                         setForm((prev) => ({
                           ...prev,
                           classification: {
                             ...prev.classification,
+                            // Only clear IDs if English name is being changed - so that backend can check for name conflicts and create a new classification
+                            id: isEnglishLanguage
+                              ? undefined
+                              : prev.classification.id,
                             name: {
                               ...prev.classification.name,
-                              [currentLanguage]: e.target.value,
+                              [currentLanguage.toLowerCase()]: e.target.value,
                             },
+                            nameStringId: isEnglishLanguage
+                              ? undefined
+                              : prev.classification.nameStringId,
                           },
+                          // Only clear form ID if English name is being changed
+                          id: isEnglishLanguage ? undefined : prev.id,
                         }));
                       }}
                       InputProps={{

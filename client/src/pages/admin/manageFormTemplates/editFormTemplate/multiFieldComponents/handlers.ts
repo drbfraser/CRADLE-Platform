@@ -9,16 +9,16 @@ export const handleAddChoice = (
   setMcOptions: Dispatch<SetStateAction<McOption[]>>
 ) => {
   const newNumChoices = numChoices + 1;
-  
+
   // Create a new option with empty translations for all languages
   const newOption: McOption = {
-    translations: {}
+    translations: {},
   };
-  
+
   inputLanguages.forEach((lang) => {
     newOption.translations[lang.toLowerCase()] = '';
   });
-  
+
   setMcOptions([...mcOptions, newOption]);
   setNumChoices(newNumChoices);
 };
@@ -33,7 +33,7 @@ export const handleRemoveMultiChoice = (
 ) => {
   // Remove the option at the specified index
   const updatedOptions = mcOptions.filter((_, idx) => idx !== index);
-  
+
   const newNumChoices = numChoices - 1;
   setNumChoices(newNumChoices);
   setMcOptions(updatedOptions);
@@ -47,20 +47,20 @@ export const handleMultiChoiceOptionChange = (
   setMcOptions: Dispatch<SetStateAction<McOption[]>>
 ) => {
   const updatedOptions = [...mcOptions];
-  
+
   // Ensure the option exists at this index
   if (!updatedOptions[index]) {
     updatedOptions[index] = { translations: {} };
   }
-  
+
   // Ensure translations object exists
   if (!updatedOptions[index].translations) {
     updatedOptions[index].translations = {};
   }
-  
+
   // Update the translation for this language
   updatedOptions[index].translations[language.toLowerCase()] = option;
-  
+
   setMcOptions(updatedOptions);
 };
 
@@ -131,7 +131,9 @@ export const handleIsNumOfLinesRestrictedChange = (
   setIsNumOfLinesRestricted: React.Dispatch<React.SetStateAction<boolean>>,
   setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
   setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
-  setStringMaxLines: React.Dispatch<React.SetStateAction<number | string | null>>,
+  setStringMaxLines: React.Dispatch<
+    React.SetStateAction<number | string | null>
+  >,
   fieldChanged: boolean
 ) => {
   setIsNumOfLinesRestricted(event.target.checked);

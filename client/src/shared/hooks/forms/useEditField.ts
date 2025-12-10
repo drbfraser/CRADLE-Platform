@@ -1,7 +1,10 @@
-import { useState, useEffect, Dispatch, SetStateAction, useMemo } from "react";
-import { TQuestion, FormTemplateWithQuestions } from "src/shared/types/form/formTemplateTypes";
-import { QCondition, McOption } from "src/shared/types/form/formTypes";
-import { QuestionTypeEnum } from "src/shared/enums";
+import { useState, useEffect, Dispatch, SetStateAction, useMemo } from 'react';
+import {
+  TQuestion,
+  FormTemplateWithQuestions,
+} from 'src/shared/types/form/formTemplateTypes';
+import { QCondition, McOption } from 'src/shared/types/form/formTypes';
+import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface FieldTypes {
   [key: string]: {
@@ -33,23 +36,26 @@ export const useEditField = ({
   setVisibilityToggle,
   categoryIndex,
   questionsArr,
-  inputLanguages
+  inputLanguages,
 }: UseEditFieldProps) => {
-
-  const [fieldType, setFieldType] = useState("category");
-  const [userQuestionId, setUserQuestionId] = useState("");
-  const [questionId, setQuestionId] = useState("");
+  const [fieldType, setFieldType] = useState('category');
+  const [userQuestionId, setUserQuestionId] = useState('');
+  const [questionId, setQuestionId] = useState('');
   const [numChoices, setNumChoices] = useState(0);
 
   // Store as object with language keys
-  const [questionText, setQuestionText] = useState<Record<string, string>>(() => {
-    if (question?.questionText && typeof question.questionText === 'object') {
-      return question.questionText as Record<string, string>;
+  const [questionText, setQuestionText] = useState<Record<string, string>>(
+    () => {
+      if (question?.questionText && typeof question.questionText === 'object') {
+        return question.questionText as Record<string, string>;
+      }
+      return {};
     }
-    return {};
-  });
+  );
 
-  const [mcOptions, setMcOptions] = useState<McOption[]>(question?.mcOptions ?? []);
+  const [mcOptions, setMcOptions] = useState<McOption[]>(
+    question?.mcOptions ?? []
+  );
 
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
@@ -57,8 +63,12 @@ export const useEditField = ({
   const [formDirty, setFormDirty] = useState(false);
 
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
-  const [allowPastDates, setAllowPastDates] = useState(question?.allowPastDates ?? true);
-  const [allowFutureDates, setAllowFutureDates] = useState(question?.allowFutureDates ?? true);
+  const [allowPastDates, setAllowPastDates] = useState(
+    question?.allowPastDates ?? true
+  );
+  const [allowFutureDates, setAllowFutureDates] = useState(
+    question?.allowFutureDates ?? true
+  );
 
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
@@ -86,17 +96,20 @@ export const useEditField = ({
     // all languages must have non-empty string
     return inputLanguages.every((lang) => {
       const v = questionTextMap[lang.toLowerCase()];
-      return typeof v === "string" && v.trim().length > 0;
+      return typeof v === 'string' && v.trim().length > 0;
     });
   }, [inputLanguages, questionTextMap]);
 
   const getMcOptionValue = (language: string, index: number) => {
     const option = mcOptions[index];
-    if (!option) return "";
-    return option.translations?.[language.toLowerCase()] ?? "";
+    if (!option) return '';
+    return option.translations?.[language.toLowerCase()] ?? '';
   };
 
-  const validateNumberFields = (newMin: number | null, newMax: number | null) => {
+  const validateNumberFields = (
+    newMin: number | null,
+    newMax: number | null
+  ) => {
     if (newMin !== null && newMax !== null && newMin > newMax) {
       setValidationError(`Minimum value cannot be greater than maximum value.`);
       return;
@@ -105,22 +118,22 @@ export const useEditField = ({
   };
 
   const getFieldType = (qt: QuestionTypeEnum) =>
-    Object.keys(fieldTypes).find(ft => fieldTypes[ft].type === qt) || "";
+    Object.keys(fieldTypes).find((ft) => fieldTypes[ft].type === qt) || '';
 
   // Reset numeric validation errors when modal reopens
   useEffect(() => {
     if (open) setValidationError(null);
   }, [open]);
 
-	useEffect(() => {
-		if (open && question) {
-			setUserQuestionId(question.userQuestionId ?? '');
-		}
-	}, [open, question]);
+  useEffect(() => {
+    if (open && question) {
+      setUserQuestionId(question.userQuestionId ?? '');
+    }
+  }, [open, question]);
 
   useEffect(() => {
     setIsVisCondAnswered(!visibilityToggle);
-    setFieldChanged(prev => !prev);
+    setFieldChanged((prev) => !prev);
   }, [visibilityToggle]);
 
   // Rehydrate visible conditions when opening the edit modal
@@ -130,7 +143,7 @@ export const useEditField = ({
     } else {
       setVisibleCondition([]);
     }
-    setEditVisCondKey(k => k + 1);
+    setEditVisCondKey((k) => k + 1);
   }, [open, categoryIndex, questionsArr]);
 
   // Main hydration effect
@@ -142,7 +155,7 @@ export const useEditField = ({
     if (question) {
       // Editing
       setFieldType(getFieldType(question.questionType));
-      setQuestionId(question.id ?? "");
+      setQuestionId(question.id ?? '');
 
       setVisibilityToggle(
         visibilityToggle || (question.visibleCondition?.length ?? 0) > 0
@@ -152,7 +165,7 @@ export const useEditField = ({
       if (question.questionText && typeof question.questionText === 'object') {
         setQuestionText(question.questionText as Record<string, string>);
       }
-      
+
       setMcOptions(question.mcOptions ?? []);
       setNumChoices(question.mcOptions?.length ?? 0);
 
@@ -165,11 +178,10 @@ export const useEditField = ({
 
       setNumMin(question.numMin ?? null);
       setNumMax(question.numMax ?? null);
-
     } else {
       // Creating
-      setFieldType("category");
-      setQuestionId("");
+      setFieldType('category');
+      setQuestionId('');
       setQuestionText({});
       setMcOptions([]);
       setNumChoices(0);
@@ -183,7 +195,7 @@ export const useEditField = ({
 
       setNumMin(null);
       setNumMax(null);
-      
+
       // Reset question text changed flag
       setQuestionTextChanged(false);
     }
@@ -196,13 +208,16 @@ export const useEditField = ({
 
   // Get text for a specific language
   const getFieldName = (language: string) => {
-    return questionText[language.toLowerCase()] ?? "";
+    return questionText[language.toLowerCase()] ?? '';
   };
 
-  const addFieldToQuestionLangVersions = (language: string, fieldName: string) => {
-    setQuestionText(prev => ({
+  const addFieldToQuestionLangVersions = (
+    language: string,
+    fieldName: string
+  ) => {
+    setQuestionText((prev) => ({
       ...prev,
-      [language.toLowerCase()]: fieldName
+      [language.toLowerCase()]: fieldName,
     }));
     // Mark that question text has been modified
     setQuestionTextChanged(true);
@@ -210,7 +225,7 @@ export const useEditField = ({
 
   // Update mcOption for a specific language
   const updateMcOption = (index: number, language: string, value: string) => {
-    setMcOptions(prev => {
+    setMcOptions((prev) => {
       const updated = [...prev];
       if (!updated[index]) {
         updated[index] = { translations: {} };
@@ -265,8 +280,8 @@ export const useEditField = ({
     getMcOptionValue,
     updateMcOption,
     areAllFieldsFilled,
-		questionTextChanged,
-		userQuestionId,
-		setUserQuestionId
+    questionTextChanged,
+    userQuestionId,
+    setUserQuestionId,
   };
 };

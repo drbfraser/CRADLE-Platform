@@ -567,13 +567,23 @@ def handle_model_existence(
 
 
 def _extend_lang_version(
-    translations: MultiLangText, string_id: str
+    translations: MultiLangText, string_id: str, new_template: bool = True
 ) -> list[LangVersionOrmV2]:
     new_lang_versions = []
 
     for lang, text in translations.items():
         lang = lang.capitalize()
-        if not lang_version_exists(string_id, lang):
+
+        existing = None
+        if not new_template:
+            existing = crud.read(LangVersionOrmV2, string_id=string_id, lang=lang)
+
+        if existing:
+            # update existing translation
+            existing.text = text
+            crud.db_session.add(existing)
+        else:
+            # create new translation
             new_lang_versions.append(
                 LangVersionOrmV2(
                     string_id=string_id,
@@ -601,8 +611,12 @@ def get_new_lang_versions_and_questions(
                 string_id=classification_dict.get("name_string_id"),
                 lang=lang_key.capitalize(),
             )
-
-        if not existing:
+        if existing:
+            # update existing translation
+            existing.text = text
+            crud.db_session.add(existing)
+        else:
+            # create new translation
             lang_version = LangVersionOrmV2(
                 string_id=classification_dict.get("name_string_id"),
                 lang=lang_key.capitalize(),
@@ -620,12 +634,16 @@ def get_new_lang_versions_and_questions(
         new_questions.append(question)
 
         q_string_id = question.get("question_string_id")
-        new_lang_versions.extend(_extend_lang_version(question_text, q_string_id))
+        new_lang_versions.extend(
+            _extend_lang_version(question_text, q_string_id, new_template)
+        )
 
         for opt in mc_opts:
             opt_string_id = opt.get("string_id")
             new_lang_versions.extend(
-                _extend_lang_version(opt.get("translations"), opt_string_id)
+                _extend_lang_version(
+                    opt.get("translations"), opt_string_id, new_template
+                )
             )
 
     return new_questions, new_lang_versions

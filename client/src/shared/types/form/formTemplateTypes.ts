@@ -8,9 +8,8 @@ export interface IFormClassification {
   nameStringId: string | undefined;
 }
 
-
 export interface FormTemplates {
-  templates: FormTemplate[]
+  templates: FormTemplate[];
 }
 
 export interface FormTemplate {
@@ -54,7 +53,7 @@ export interface TQuestion {
   stringMaxLines?: OrNull<number>;
   units?: OrNull<string>;
   visibleCondition: QCondition[] | [];
-  mcOptions?: McOption[] | []
+  mcOptions?: McOption[] | [];
 }
 
 export type CustomizedForm = {

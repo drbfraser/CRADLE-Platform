@@ -27,14 +27,12 @@ export const useCustomizedFormWQuestions = (
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
-  const [selectedOrder, setSelectedOrder] = useState<
-    number | null
-  >(null);
+  const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
-  
+
   const getInputLanguages = (question: TQuestion) => {
     return Object.keys(question.questionText);
   };
@@ -48,24 +46,52 @@ export const useCustomizedFormWQuestions = (
   }, [languages]);
 
   useEffect(() => {
-    setCurrentLanguage(selectedLanguage)
-  }, [selectedLanguage])
+    setCurrentLanguage(selectedLanguage);
+  }, [selectedLanguage]);
 
   const updateAddedQuestions = (languages: string[]) => {
+    // Update classification name translations
+    const classificationName = fm.classification?.name || {};
+    languages.forEach((language) => {
+      const langKey = language.toLowerCase();
+      if (!classificationName[langKey]) {
+        classificationName[langKey] = '';
+      }
+    });
+
+    // Remove languages from classification
+    Object.keys(classificationName).forEach((lang) => {
+      if (!languages.map((l) => l.toLowerCase()).includes(lang.toLowerCase())) {
+        delete classificationName[lang];
+      }
+    });
+
+    // Update form with new classification name
+    setForm((prev) => ({
+      ...prev,
+      classification: {
+        ...prev.classification,
+        name: classificationName,
+      },
+    }));
+
+    // Update question translations
     questions.forEach((question) => {
       const currentLanguages = Object.keys(question.questionText);
 
       // Remove languages
       for (const lang of currentLanguages) {
-        if (!languages.map(l => l.toLowerCase()).includes(lang.toLowerCase())) {
+        if (
+          !languages.map((l) => l.toLowerCase()).includes(lang.toLowerCase())
+        ) {
           delete question.questionText[lang];
         }
       }
 
       // Add missing languages
       languages.forEach((language) => {
-        if (!currentLanguages.includes(language)) {
-          question.questionText[language] = '';
+        if (!currentLanguages.includes(language.toLowerCase())) {
+          question.questionText[language.toLowerCase()] = '';
         }
       });
     });
@@ -89,9 +115,7 @@ export const useCustomizedFormWQuestions = (
     if (selectedOrder !== null && confirmed) {
       // User clicked OK
       const questionsToDelete = questions.filter(
-        (q) =>
-          q.categoryIndex === selectedOrder ||
-          q.order === selectedOrder
+        (q) => q.categoryIndex === selectedOrder || q.order === selectedOrder
       );
       questionsToDelete.forEach(deleteField);
     }
@@ -118,25 +142,20 @@ export const useCustomizedFormWQuestions = (
     // edge case: prev cat has no qs
     if (prevCatIndex !== null) {
       prevCatQs = questions.filter(
-        (q) =>
-          q.order == prevCatIndex || q.categoryIndex == prevCatIndex
+        (q) => q.order == prevCatIndex || q.categoryIndex == prevCatIndex
       );
     } else {
       prevCatQs.push(questions[cat.order - 1]);
     }
     const catQs = questions.filter(
-      (q) =>
-        q.order == cat.order ||
-        q.categoryIndex == cat.order
+      (q) => q.order == cat.order || q.categoryIndex == cat.order
     );
     moveCat(prevCatQs, catQs);
   };
 
   const handleCatDown = (cat: TQuestion) => {
     const catQs = questions.filter(
-      (q) =>
-        q.order == cat.order ||
-        q.categoryIndex == cat.order
+      (q) => q.order == cat.order || q.categoryIndex == cat.order
     );
     const nextCatIndex = catQs[catQs.length - 1].order + 1;
     if (nextCatIndex >= questions.length) {
@@ -260,9 +279,21 @@ export const useCustomizedFormWQuestions = (
 
   const emptyLanguageFieldsInForm = (): boolean => {
     let emptyLangs = false;
+
+    const classificationName = fm.classification?.name || {};
+    const missingClassificationLangs = languages.some((lang) => {
+      const text = classificationName[lang.toLowerCase()];
+      return !text || text.trim() === '';
+    });
+
+    if (missingClassificationLangs) {
+      emptyLangs = true;
+    }
+
     questions.forEach((q) => {
       emptyLangs = emptyLangs || missingFields(q);
     });
+
     return emptyLangs;
   };
 
