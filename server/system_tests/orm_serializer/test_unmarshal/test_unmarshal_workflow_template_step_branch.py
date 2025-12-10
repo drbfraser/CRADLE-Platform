@@ -15,7 +15,7 @@ def test_unmarshal_branch_with_condition_str_id_attaches_relation():
         id="wtsb-B",
         step_id="wts-30",
         target_step_id="wts-40",
-        condition="rg-777",
+        condition={"id": "rg-777"},
     )
 
     obj = orm_serializer.unmarshal(WorkflowTemplateStepBranchOrm, payload)
