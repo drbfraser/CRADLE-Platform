@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 
+// Default values for new workflow steps
+const DEFAULT_STEP_NAME = 'New Step';
+const DEFAULT_BRANCH_STEP_NAME = 'New Branch Step';
+const DEFAULT_STEP_DESCRIPTION = 'Add description here';
+
 /**
  * Helper function to extract data sources (var fields) from a condition rule JSON
  * Example: {"<": [{"var": "patient.age"}, 32]} => '["patient.age"]'
@@ -173,8 +178,8 @@ export const useWorkflowEditor = ({
     // Create a new step
     const newStep = {
       id: newStepId,
-      name: 'New Step',
-      description: 'Add description here',
+      name: DEFAULT_STEP_NAME,
+      description: DEFAULT_STEP_DESCRIPTION,
       lastEdited: Date.now(),
       workflowTemplateId: editedWorkflow.id,
       branches: newStepBranches,
@@ -241,8 +246,8 @@ export const useWorkflowEditor = ({
     // Create a new step that will be the target of the new branch
     const newStep = {
       id: newStepId,
-      name: 'New Branch Step',
-      description: 'Add description here',
+      name: DEFAULT_BRANCH_STEP_NAME,
+      description: DEFAULT_STEP_DESCRIPTION,
       lastEdited: Date.now(),
       workflowTemplateId: editedWorkflow.id,
       branches: [],
