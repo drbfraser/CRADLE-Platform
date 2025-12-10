@@ -319,7 +319,7 @@ class WorkflowService:
         the update.
 
         :param workflow_instance_step: The workflow step whose form should be archived.
-        :param editor_user_id: The ID of the user performing the archive action.
+        :param editor_user_id: The ID of the user performing the archive.
         """
         assert workflow_instance_step.form
 

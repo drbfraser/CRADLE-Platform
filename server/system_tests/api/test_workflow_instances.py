@@ -349,146 +349,107 @@ def api_override_current_step(
 
 
 def test_sequential_workflow_progression__in_order(
-    api_post, api_get, sequential_workflow_view, patient_id
+    api_post, api_get, sequential_workflow_view_with_db
 ):
-    # NOTE: This workflow template and instance use hardcoded IDs. Easy to reference
-    #       step IDs in the test, but can make test cleanup more fragile. Consider
-    #       using randomly generated IDs?
-    workflow_view = sequential_workflow_view
-    # NOTE: This local instance will become stale as the requests modify the instance.
-    #       IDs should remain consistent though
-    workflow_view.instance.patient_id = patient_id
+    workflow_view = sequential_workflow_view_with_db
 
-    try:
-        WorkflowService.upsert_workflow_template(workflow_view.template)
-        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    workflow_instance_id_path = WorkflowInstanceIdPath(
+        workflow_instance_id=workflow_view.instance.id
+    )
 
-        workflow_instance_id_path = WorkflowInstanceIdPath(
-            workflow_instance_id=workflow_view.instance.id
-        )
+    # Start workflow
+    WorkflowService.start_workflow(workflow_view)
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
 
-        # Start workflow
-        WorkflowService.start_workflow(workflow_view)
-        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    # Complete step 1
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(
+        actions=[CompleteStepActionModel(step_id="si-1")]
+    )
+    assert resp == expected_resp
 
-        # Complete step 1
-        resp = api_get_actions(api_get, workflow_instance_id_path)
-        expected_resp = GetAvailableActionsResponse(
-            actions=[CompleteStepActionModel(step_id="si-1")]
-        )
-        assert resp == expected_resp
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteStepActionModel(step_id="si-1")),
+    )
+    # sanity check - state updates should already be tested by WorkflowService tests
+    assert resp.status == "Active"
 
-        resp = api_apply_action(
-            api_post,
-            workflow_instance_id_path,
-            ApplyActionRequest(action=CompleteStepActionModel(step_id="si-1")),
-        )
-        # sanity check - state updates should already be tested by WorkflowService tests
-        assert resp.status == "Active"
+    resp = api_advance_workflow(api_post, workflow_instance_id_path)
+    assert resp.current_step_id == "si-2"
 
-        resp = api_advance_workflow(api_post, workflow_instance_id_path)
-        assert resp.current_step_id == "si-2"
+    # Start step 2
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(
+        actions=[StartStepActionModel(step_id="si-2")]
+    )
 
-        # Start step 2
-        resp = api_get_actions(api_get, workflow_instance_id_path)
-        expected_resp = GetAvailableActionsResponse(
-            actions=[StartStepActionModel(step_id="si-2")]
-        )
+    assert resp == expected_resp
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=StartStepActionModel(step_id="si-2")),
+    )
+    assert resp.status == "Active"
 
-        assert resp == expected_resp
-        resp = api_apply_action(
-            api_post,
-            workflow_instance_id_path,
-            ApplyActionRequest(action=StartStepActionModel(step_id="si-2")),
-        )
-        assert resp.status == "Active"
+    # Complete step 2
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(
+        actions=[CompleteStepActionModel(step_id="si-2")]
+    )
+    assert resp == expected_resp
 
-        # Complete step 2
-        resp = api_get_actions(api_get, workflow_instance_id_path)
-        expected_resp = GetAvailableActionsResponse(
-            actions=[CompleteStepActionModel(step_id="si-2")]
-        )
-        assert resp == expected_resp
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteStepActionModel(step_id="si-2")),
+    )
+    assert resp.status == "Active"
 
-        resp = api_apply_action(
-            api_post,
-            workflow_instance_id_path,
-            ApplyActionRequest(action=CompleteStepActionModel(step_id="si-2")),
-        )
-        assert resp.status == "Active"
+    # Complete workflow
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(actions=[CompleteWorkflowActionModel()])
+    assert resp == expected_resp
 
-        # Complete workflow
-        resp = api_get_actions(api_get, workflow_instance_id_path)
-        expected_resp = GetAvailableActionsResponse(
-            actions=[CompleteWorkflowActionModel()]
-        )
-        assert resp == expected_resp
-
-        resp = api_apply_action(
-            api_post,
-            workflow_instance_id_path,
-            ApplyActionRequest(action=CompleteWorkflowActionModel()),
-        )
-        assert resp.status == "Completed"
-
-    finally:
-        crud.delete_workflow(
-            m=WorkflowTemplateOrm,
-            delete_classification=True,
-            id=workflow_view.template.id,
-        )
-        crud.delete_workflow(
-            m=WorkflowInstanceOrm,
-            id=workflow_view.instance.id,
-        )
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteWorkflowActionModel()),
+    )
+    assert resp.status == "Completed"
 
 
-def test_override_current_step(api_post, sequential_workflow_view, patient_id):
-    workflow_view = sequential_workflow_view
-    workflow_view.instance.patient_id = patient_id
+def test_override_current_step(api_post, sequential_workflow_view_with_db):
+    workflow_view = sequential_workflow_view_with_db
 
-    try:
-        WorkflowService.upsert_workflow_template(workflow_view.template)
-        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    workflow_instance_id_path = WorkflowInstanceIdPath(
+        workflow_instance_id=workflow_view.instance.id
+    )
 
-        workflow_instance_id_path = WorkflowInstanceIdPath(
-            workflow_instance_id=workflow_view.instance.id
-        )
+    # Start workflow
+    WorkflowService.start_workflow(workflow_view)
+    assert workflow_view.instance.current_step_id == "si-1"
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
 
-        # Start workflow
-        WorkflowService.start_workflow(workflow_view)
-        assert workflow_view.instance.current_step_id == "si-1"
-        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    # Override current step to the second step
+    resp = api_override_current_step(
+        api_post,
+        workflow_instance_id_path,
+        OverrideCurrentStepRequest(workflow_instance_step_id="si-2"),
+        expected_code=200,
+    )
+    assert resp.current_step_id == "si-2"
 
-        # Override current step to the second step
-        resp = api_override_current_step(
-            api_post,
-            workflow_instance_id_path,
-            OverrideCurrentStepRequest(workflow_instance_step_id="si-2"),
-            expected_code=200,
-        )
-        assert resp.current_step_id == "si-2"
-
-        # Override non-existent step
-        resp = api_override_current_step(
-            api_post,
-            workflow_instance_id_path,
-            OverrideCurrentStepRequest(
-                workflow_instance_step_id="this-step-shouldnt-exist"
-            ),
-            expected_code=404,
-        )
-
-    finally:
-        crud.delete_workflow(
-            m=WorkflowTemplateOrm,
-            delete_classification=True,
-            id=workflow_view.template.id,
-        )
-        crud.delete_workflow(
-            m=WorkflowInstanceOrm,
-            id=workflow_view.instance.id,
-        )
+    # Override non-existent step
+    resp = api_override_current_step(
+        api_post,
+        workflow_instance_id_path,
+        OverrideCurrentStepRequest(
+            workflow_instance_step_id="this-step-shouldnt-exist"
+        ),
+        expected_code=404,
+    )
 
 
 @pytest.fixture

@@ -3,7 +3,13 @@ import pytest
 import data.db_operations as crud
 from common.commonUtil import get_uuid
 from enums import SexEnum
-from models import FormClassificationOrm, FormOrm, FormTemplateOrm
+from models import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    WorkflowInstanceOrm,
+    WorkflowTemplateOrm,
+)
 from service.workflow.workflow_service import WorkflowService
 from service.workflow.workflow_view import WorkflowView
 from tests import helpers
@@ -200,7 +206,7 @@ def form(patient_id, form_template, form_classification):
                 "answers": {"mc_id_array": [0]},
             },
             {
-                "id": "test-question-02",
+                "id": None,
                 "category_index": None,
                 "question_index": 1,
                 "question_text": "Info",
@@ -262,3 +268,53 @@ def sequential_workflow_view(
     sequential_workflow_template, sequential_workflow_instance
 ) -> WorkflowView:
     return WorkflowView(sequential_workflow_template, sequential_workflow_instance)
+
+
+@pytest.fixture
+def sequential_workflow_view_with_db(sequential_workflow_view, patient_id):
+    """
+    Fixture that takes the sequential_workflow_view, inserts it into the DB,
+    and cleans up after the test.
+    """
+    # NOTE: This workflow template and instance use hardcoded IDs. Easy to reference
+    #       step IDs in the test, but can make test cleanup more fragile. Consider
+    #       using randomly generated IDs?
+    workflow_view = sequential_workflow_view
+    workflow_view.instance.patient_id = patient_id
+
+    # Setup
+    WorkflowService.upsert_workflow_template(workflow_view.template)
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+    yield workflow_view
+
+    # Teardown
+    crud.delete_workflow(
+        m=WorkflowTemplateOrm,
+        delete_classification=True,
+        id=workflow_view.template.id,
+    )
+    crud.delete_workflow(
+        m=WorkflowInstanceOrm,
+        id=workflow_view.instance.id,
+    )
+
+
+@pytest.fixture
+def form_with_db(api_post, form_classification, form_template, form):
+    # Setup
+    response = api_post(endpoint="/api/forms/classifications", json=form_classification)
+    assert response.status_code == 201
+
+    response = api_post(endpoint="/api/forms/templates/body", json=form_template)
+    assert response.status_code == 201
+
+    response = api_post(endpoint="/api/forms/responses", json=form)
+    assert response.status_code == 201
+
+    yield form
+
+    # Teardown
+    crud.delete_all(FormOrm, id=form["id"])
+    crud.delete_all(FormTemplateOrm, id=form_template["id"])
+    crud.delete_all(FormClassificationOrm, name=form_classification["id"])
