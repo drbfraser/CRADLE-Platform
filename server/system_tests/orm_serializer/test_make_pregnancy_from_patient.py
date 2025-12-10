@@ -1,27 +1,7 @@
 from __future__ import annotations
 
 from data.orm_serializer import makePregnancyFromPatient
-
-
-def _make_patient(
-    pid: str = "pat-42",
-    pregnancy_start_date: int | None = None,
-    is_pregnant: bool | None = None,
-    extra: dict | None = None,
-) -> dict:
-    """
-    Helper function to create a dict payload like the one makePregnancyFromPatient
-    passes through to unmarshal_patient.
-    Keep extra fields to assert non-history attributes remain untouched.
-    """
-    d = {"id": pid, "name": "Jane Doe"}
-    if pregnancy_start_date is not None:
-        d["pregnancy_start_date"] = pregnancy_start_date
-    if is_pregnant is not None:
-        d["is_pregnant"] = is_pregnant
-    if extra:
-        d.update(extra)
-    return d
+from tests.helpers import make_patient
 
 
 def test_no_pregnancy_fields_returns_empty_and_keeps_unrelated_fields():
@@ -29,7 +9,7 @@ def test_no_pregnancy_fields_returns_empty_and_keeps_unrelated_fields():
     Test that when neither 'pregnancy_start_date' nor 'is_pregnant' are present, the function
     returns an empty list and does not mutate unrelated fields in the input dict.
     """
-    patient = _make_patient(extra={"age": 30})
+    patient = make_patient(age=30, id="pat-42", name="Jane Doe")
 
     out = makePregnancyFromPatient(patient)
 
@@ -48,7 +28,7 @@ def test_truthy_start_date_creates_one_record_and_removes_keys():
     and the returned record matches the stubbed load result.
     """
     start_ts = 1_700_000_001
-    patient = _make_patient(pregnancy_start_date=start_ts, is_pregnant=True)
+    patient = make_patient(pregnancy_start_date=start_ts, is_pregnant=True, id="pat-42")
 
     out = makePregnancyFromPatient(patient)
 
@@ -69,7 +49,7 @@ def test_present_but_falsy_start_date_creates_no_record_and_leaves_key():
     an empty list, does not create a schema load, removes 'is_pregnant' from
     the input dict, and leaves 'pregnancy_start_date' in the input dict.
     """
-    patient = _make_patient(
+    patient = make_patient(
         pregnancy_start_date="", is_pregnant=False, extra={"age": 31}
     )
 
@@ -90,10 +70,8 @@ def test_weird_start_key_branch_deletes_pregnancy_start_date_when_falsy():
     untouched, removes 'is_pregnant' if present, and returns an empty list
     without any schema loads.
     """
-    patient = _make_patient(
-        pregnancy_start_date="",
-        is_pregnant=None,
-        extra={"start": "some-sentinel", "other": 123},
+    patient = make_patient(
+        pregnancy_start_date="", is_pregnant=None, start="some-sentinel", other=123
     )
 
     out = makePregnancyFromPatient(patient)
@@ -111,7 +89,7 @@ def test_absent_start_date_but_is_pregnant_present_only_removes_is_pregnant():
     truthy, the function returns an empty list, removes 'is_pregnant' from the
     input dict, and does not create a schema load.
     """
-    patient = _make_patient(is_pregnant=True)
+    patient = make_patient(is_pregnant=True)
 
     out = makePregnancyFromPatient(patient)
 

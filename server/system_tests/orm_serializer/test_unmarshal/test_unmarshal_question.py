@@ -1,90 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from data import orm_serializer
 from models import QuestionOrm
-
-
-def _lang_version(
-    *,
-    lang: str,
-    question_text: str = "LV text",
-    mc_options: list | None = None,
-    question_id: str | None = None,
-    **extras: Any,
-) -> dict:
-    d = {"lang": lang, "question_text": question_text, **extras}
-    if mc_options is not None:
-        d["mc_options"] = mc_options
-    if question_id is not None:
-        d["question_id"] = question_id
-    return d
-
-
-def _question(
-    *,
-    id: str = "q-001",
-    is_blank: bool = False,
-    question_index: int = 0,
-    question_text: str = "Q?",
-    question_type: str = "TEXT",
-    has_comment_attached: bool = False,
-    required: bool = False,
-    allow_future_dates: bool = True,
-    allow_past_dates: bool = True,
-    units: str | None = None,
-    visible_condition: dict | str | None = None,
-    mc_options: list | str | None = None,
-    num_min: float | None = None,
-    num_max: float | None = None,
-    string_max_length: int | None = None,
-    answers: dict | None = None,
-    category_index: int | None = None,
-    string_max_lines: int | None = None,
-    form_id: str | None = None,
-    form_template_id: str | None = None,
-    lang_versions: list[dict] | None = None,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {
-        "id": id,
-        "is_blank": is_blank,
-        "question_index": question_index,
-        "question_text": question_text,
-        "question_type": question_type,
-        "has_comment_attached": has_comment_attached,
-        "required": required,
-        "allow_future_dates": allow_future_dates,
-        "allow_past_dates": allow_past_dates,
-        **extras,
-    }
-    if units is not None:
-        d["units"] = units
-    if visible_condition is not None:
-        d["visible_condition"] = visible_condition
-    if mc_options is not None:
-        d["mc_options"] = mc_options
-    if num_min is not None:
-        d["num_min"] = num_min
-    if num_max is not None:
-        d["num_max"] = num_max
-    if string_max_length is not None:
-        d["string_max_length"] = string_max_length
-    if answers is not None:
-        d["answers"] = answers
-    if category_index is not None:
-        d["category_index"] = category_index
-    if string_max_lines is not None:
-        d["string_max_lines"] = string_max_lines
-    if form_id is not None:
-        d["form_id"] = form_id
-    if form_template_id is not None:
-        d["form_template_id"] = form_template_id
-    if lang_versions is not None:
-        d["lang_versions"] = lang_versions
-    return d
+from tests.helpers import make_question, make_question_lang_version
 
 
 def test_unmarshal_question_encodes_json_fields_and_detaches_lang_versions():
@@ -93,7 +13,7 @@ def test_unmarshal_question_encodes_json_fields_and_detaches_lang_versions():
     answers fields correctly encodes these fields and detaches the lang versions.
     """
     qid = "q-enc"
-    payload = _question(
+    payload = make_question(
         id=qid,
         question_index=3,
         question_text="Do you smoke?",
@@ -102,13 +22,15 @@ def test_unmarshal_question_encodes_json_fields_and_detaches_lang_versions():
         mc_options=[{"mcId": 0, "opt": "Yes"}, {"mcId": 1, "opt": "No"}],
         answers={"mcIdArray": [1]},
         lang_versions=[
-            _lang_version(
+            make_question_lang_version(
                 lang="en",
                 question_text="Do you smoke?",
                 mc_options=["Yes", "No"],
                 question_id=qid,
             ),
-            _lang_version(lang="fr", question_text="Fumez-vous?", question_id=qid),
+            make_question_lang_version(
+                lang="fr", question_text="Fumez-vous?", question_id=qid
+            ),
         ],
     )
 
@@ -150,7 +72,7 @@ def test_unmarshal_question_leaves_string_mc_options_and_handles_empty_versions(
     - correctly handles the empty lang_versions list
     """
     pre_encoded_mc = json.dumps(["mild", "severe"])
-    payload = _question(
+    payload = make_question(
         id="q-pre",
         question_index=1,
         question_text="Dizziness severity?",
@@ -174,7 +96,7 @@ def test_unmarshal_question_strips_or_ignores_none_fields_and_encodes_other_fiel
     Test that unmarshalling a QuestionOrm payload with None fields strips or ignores these fields, and
     JSON-encodes other fields correctly.
     """
-    payload = _question(
+    payload = make_question(
         id="q-none",
         question_index=2,
         question_text="Temperature?",
