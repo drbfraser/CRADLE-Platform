@@ -127,7 +127,7 @@ export const getTemplate = async (
 
 // POST /workflow/templates
 export const createTemplate = (payload: TemplateInput) =>
-  axiosFetch.post<WorkflowTemplate>(TEMPLATES, payload).then((r) => r.data);
+  axiosFetch.post<WorkflowTemplate>(`${TEMPLATES}/body`, payload).then((r) => r.data);
 
 // PUT /workflow/templates/{templateId}
 export const updateTemplate = (templateId: ID, payload: TemplateInput) =>

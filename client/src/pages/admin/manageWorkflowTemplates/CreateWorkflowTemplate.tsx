@@ -72,23 +72,31 @@ export const CreateWorkflowTemplate = () => {
         throw new Error('Version is required');
       }
 
-      const payload: TemplateInput = {
+      // Generate a temporary template ID for the steps
+      const tempTemplateId = workflow.id || `temp-${Date.now()}`;
+
+      const payload = {
         name: workflow.name,
         description: workflow.description || '',
         version: workflow.version,
-        classificationId: workflow.classificationId,
+        archived: false,
+        classification: workflow.classification || null,
         steps: workflow.steps.map((step) => ({
           id: step.id,
           name: step.name,
           description: step.description,
+          workflowTemplateId: step.workflowTemplateId || tempTemplateId,
+          branches: step.branches || [],
           lastEdited: step.lastEdited,
-          branches: step.branches,
           formId: step.formId,
           expectedCompletion: step.expectedCompletion,
-          workflowTemplateId: step.workflowTemplateId,
         })),
         startingStepId: workflow.startingStepId,
-      };
+        // Only include classificationId if it has a value
+        ...(workflow.classificationId && {
+          classificationId: workflow.classificationId,
+        }),
+      } as TemplateInput;
 
       await createWorkflowTemplateMutation.mutateAsync(payload);
 
@@ -153,14 +161,13 @@ export const CreateWorkflowTemplate = () => {
           isSaving={createWorkflowTemplateMutation.isPending}
         />
       </Paper>
-      
-      <Toast
-      severity="warning"
-      message={workflowEditor.toastMsg}
-      open={workflowEditor.toastOpen}
-      onClose={() => workflowEditor.setToastOpen(false)}
-    />
-    </>
 
+      <Toast
+        severity="warning"
+        message={workflowEditor.toastMsg}
+        open={workflowEditor.toastOpen}
+        onClose={() => workflowEditor.setToastOpen(false)}
+      />
+    </>
   );
 };

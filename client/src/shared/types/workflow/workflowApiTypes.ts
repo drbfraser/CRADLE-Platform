@@ -64,10 +64,10 @@ export interface ClassificationInput {
   name: string;
 }
 
-// Payload for POST /workflow/templates
+// Payload for POST /workflow/templates/body
 export type TemplateInput = Omit<
   WorkflowTemplate,
-  'id' | 'archived' | 'dateCreated' | 'lastEdited' | 'lastEditedBy'
+  'id' | 'dateCreated' | 'lastEdited' | 'lastEditedBy'
 >;
 
 // Optional grouping structure used by listTemplates?groupBy=classification
