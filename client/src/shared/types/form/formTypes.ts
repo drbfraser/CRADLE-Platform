@@ -4,6 +4,7 @@ import {
   QRelationEnum,
 } from 'src/shared/enums';
 import { OrNull } from '../types';
+import { TQuestion } from './formTemplateTypes';
 
 export type Form = {
   formTemplateId: number;
@@ -22,7 +23,7 @@ export interface CForm {
   version: string | undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
   name: string;
   lang: string;
-  questions: Question[];
+  questions: TQuestion[];
   patientId: string | undefined; //this is only used in client when we need to do the 'form creating' net post
 }
 

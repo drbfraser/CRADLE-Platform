@@ -63,7 +63,8 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 Associated Form
               </Typography>
               <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {selectedStep.form.classification.name}
+                {/* TODO: update this type when form submissions are integrated */}
+                {selectedStep.form.classification.name as any}
               </Typography>
             </Box>
           )}

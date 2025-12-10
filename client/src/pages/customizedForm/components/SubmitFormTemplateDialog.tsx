@@ -85,7 +85,7 @@ const SubmitFormTemplateDialog = ({
       return;
     }
     const payload = buildFormTemplatePayload(formTemplate);
-    console.log(payload);
+
     saveFormTemplate.mutate(payload, {
       onSuccess: () => {
         navigate('/admin/form-templates');

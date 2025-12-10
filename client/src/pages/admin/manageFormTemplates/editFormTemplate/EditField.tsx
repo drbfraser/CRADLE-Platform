@@ -309,19 +309,22 @@ const EditField = ({
               <Grid item xs={12}>
                 <TextField
                   label={'Question ID'}
+                  required={true}
                   key={'question-id'}
                   variant="outlined"
                   fullWidth
                   multiline
-                  value={
-                    question && hook.userQuestionId ? hook.userQuestionId : ''
-                  }
+                  value={hook.userQuestionId || ''}
                   size="small"
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
                   onChange={(e) => {
-                    hook.setUserQuestionId(e.target.value);
+                    // Format it to lowercase and replace spaces/special chars with underscores
+                    const formatted = e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '_'); // Replace non-alphanumeric with underscore
+                    hook.setUserQuestionId(formatted);
                     hook.setFieldChanged(!hook.fieldChanged);
                     hook.setFormDirty(true);
                   }}

@@ -55,13 +55,14 @@ export const CustomizedForm = ({
     }
 
     //2 number-range validation
-    if (!areNumberResponsesValid(form.questions, answers)) {
+    if (!areNumberResponsesValid(form.questions as any, answers)) {
+      // TODO: update this any type when form submissions v2 are integrated
       return;
     }
 
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
       answers,
-      form.questions
+      form.questions as any // TODO: update this type when form submissions v2 are integrated
     );
     const postBody: PostBody = TransferQAnswerToPostBody(
       anss,

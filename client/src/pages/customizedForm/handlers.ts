@@ -4,6 +4,7 @@ import {
   QAnswer,
   Question,
 } from 'src/shared/types/form/formTypes';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 export type ApiAnswer = {
@@ -48,7 +49,7 @@ export const TransferQAnswerToAPIStandard = (
         (q) => q.questionIndex === answer.questionIndex
       );
 
-      const options = question?.mcOptions?.map((option) => option.opt);
+      const options = question?.mcOptions?.map((option) => option.stringId);
 
       const apiAnswer = {
         qidx: answer.questionIndex,
@@ -90,19 +91,19 @@ export const TransferQAnswerToPostBody = (
   patientId: string,
   isEditForm: boolean
 ) => {
-  const questions: Question[] = form.questions;
+  const questions: TQuestion[] = form.questions;
   const postBody: PostBody = { create: undefined, edit: undefined };
 
   if (isEditForm) {
     //edit a form content
     postBody.edit = answers.map((answer) => {
-      const question = questions.find((q) => q.questionIndex === answer.qidx);
+      const question = questions.find((q) => q.order === answer.qidx);
       const id = question ? question.id : '';
       return {
         id,
         answers: answer.answer,
       };
-    });
+    }) as any; // TODO: update this type when form submissions v2 are integrated
   } else {
     //create(/fill in) a new form
     //deep copy
@@ -114,9 +115,10 @@ export const TransferQAnswerToPostBody = (
     newForm.patientId = patientId;
 
     newForm.questions = answers.map((apiAnswer: ApiAnswer) => {
-      const ques = questions.find((q) => q.questionIndex === apiAnswer.qidx);
+      const ques = questions.find((q) => q.order === apiAnswer.qidx);
       const question = ques ? ques : ({} as Question);
-      question.answers = apiAnswer.answer;
+      // TODO: update answers in new format, answers live in a seperate table now
+      // question.answers = apiAnswer.answer;
 
       //isBlank
       switch (question.questionType) {
@@ -125,14 +127,16 @@ export const TransferQAnswerToPostBody = (
 
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
-          question.isBlank = apiAnswer.answer.mcIdArray!.length === 0;
-
+          // TODO: update this to use new answers format
+          // question.isBlank = apiAnswer.answer.mcIdArray!.length === 0;
+          
           break;
         case QuestionTypeEnum.STRING:
         case QuestionTypeEnum.INTEGER:
         case QuestionTypeEnum.DATE:
         case QuestionTypeEnum.DATETIME:
-          question.isBlank = !apiAnswer.answer;
+          // TODO: update this to use new answers format
+          // question.isBlank = !apiAnswer.answer;
           break;
 
         default:
@@ -151,11 +155,11 @@ export const TransferQAnswerToPostBody = (
           );
         }
       }
-
-      question.shouldHidden = undefined;
+      // TODO: update this to use new answers format
+      // question.shouldHidden = undefined;
 
       return question;
-    });
+    }) as any;
 
     postBody.create = newForm;
   }
@@ -163,7 +167,7 @@ export const TransferQAnswerToPostBody = (
 };
 
 export const areMcResponsesValid = (
-  questions: Question[],
+  questions: TQuestion[],
   answers: QAnswer[]
 ) =>
   //check multi-selection while when clicking the submit button
@@ -175,11 +179,14 @@ export const areMcResponsesValid = (
     )
     .every((answer) => {
       const qidx = answer.questionIndex;
-      const isHidden = questions[qidx].shouldHidden;
+      
+      // TODO: update this to use new answers format
+      // const isHidden = questions[qidx].shouldHidden;
       const required = questions[qidx].required;
 
       return (
-        isHidden || (required ? answer.val && answer.val.length > 0 : true)
+        (required ? answer.val && answer.val.length > 0 : true)
+        // isHidden || (required ? answer.val && answer.val.length > 0 : true)
       );
     });
 

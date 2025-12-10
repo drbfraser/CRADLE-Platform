@@ -3,9 +3,9 @@ import { OrNull } from '../types';
 import { QCondition } from './formTypes';
 
 export interface IFormClassification {
-  id: string | undefined;
+  id?: string;
   name: Record<string, string>;
-  nameStringId: string | undefined;
+  nameStringId?: string;
 }
 
 export interface FormTemplates {
@@ -18,6 +18,7 @@ export interface FormTemplateList {
   dateCreated: number;
   id: string;
   version: string;
+  classification?: IFormClassification;
 }
 
 export interface FormTemplate {

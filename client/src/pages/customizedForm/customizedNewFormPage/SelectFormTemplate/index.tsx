@@ -65,7 +65,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
 
   const getAvailableLanguages = (selectedFormName: string) => {
     const index = formTemplatesQuery.data.templates.findIndex(
-      (form) => form.classification.name.selectedLanguage === selectedFormName
+      (form) => form.classification?.name.selectedLanguage === selectedFormName
     );
     return formTemplateLangsQueries[index]?.data ?? [];
   };
@@ -80,7 +80,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
 
   const handleSubmit = async () => {
     const formId = formTemplatesQuery.data.templates.find(
-      (form) => form.classification.name.selectedLanguage === selectedFormName
+      (form) => form.classification?.name.selectedLanguage === selectedFormName
     )?.id;
 
     submitForm.mutate({
@@ -113,7 +113,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
                       fullWidth
                       name={CustomizedFormField.name}
                       options={formTemplatesQuery.data.templates.map(
-                        (form) => form.classification.name.selectedLanguage
+                        (form) => form.classification?.name.selectedLanguage
                       )}
                       disableClearable={true}
                       onInputChange={handleSelectForm}
