@@ -5,7 +5,7 @@ import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
   rule: string; // JSON object representing a structured rule
-  data_sources: string; // JSON string of datasource formatted strings found in a rule
+  data_sources?: string;
 }
 
 //   Template side
