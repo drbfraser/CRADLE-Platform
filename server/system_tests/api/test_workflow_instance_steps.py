@@ -14,8 +14,9 @@ from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
     GetWorkflowInstanceStepsRequest,
     GetWorkflowInstanceStepsResponse,
+    WorkflowInstanceStepPatchModel,
 )
-from validation.workflow_models import WorkflowStepEvaluation
+from validation.workflow_models import WorkflowInstanceStepModel, WorkflowStepEvaluation
 
 # TODO: testing has only been done for simple steps.
 # steps involving forms or rules have not been tested.
@@ -41,6 +42,66 @@ def api_get_all_workflow_instance_steps(
     pretty_print(response_json)
 
     return GetWorkflowInstanceStepsResponse(**response_json)
+
+
+def api_patch_workflow_instance_step(
+    api_patch,
+    path: WorkflowInstanceStepIdPath,
+    request: WorkflowInstanceStepPatchModel,
+    expected_code: int = 200,
+) -> WorkflowInstanceStepModel:
+    """
+    Helper function to send API request to patch a workflow instance step.
+    Expects 200 OK.
+    """
+    response = api_patch(
+        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}",
+        json=request.model_dump(),
+    )
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        response_json = decamelize(response.json())
+        pretty_print(response_json)
+        return WorkflowInstanceStepModel(**response_json)
+
+    return None
+
+
+def api_evaluate_workflow_instance_step(
+    api_get, path: WorkflowInstanceStepIdPath, expected_code: int = 200
+) -> Optional[WorkflowStepEvaluation]:
+    """
+    Helper function to send API request for evaluating a workflow step
+    and validating the response.
+    """
+    response = api_get(
+        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}/evaluate"
+    )
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        step_evaluation_resp = decamelize(response.json())
+        return WorkflowStepEvaluation(**step_evaluation_resp)
+    return None
+
+
+def api_archive_workflow_instance_step_form(
+    api_get, path: WorkflowInstanceStepIdPath, expected_code: int = 200
+) -> Optional[WorkflowInstanceStepModel]:
+    """
+    Helper function to send API request for archiving the form associated with a
+    workflow instance step and validating the response.
+    """
+    response = api_get(
+        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}/evaluate"
+    )
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        step_evaluation_resp = decamelize(response.json())
+        return WorkflowInstanceStepModel(**step_evaluation_resp)
+    return None
 
 
 def test_get_workflow_instance_steps(api_get, sequential_workflow_view, patient_id):
@@ -78,25 +139,7 @@ def test_get_workflow_instance_steps(api_get, sequential_workflow_view, patient_
         )
 
 
-def api_evaluate_step(
-    api_get, path: WorkflowInstanceStepIdPath, expected_code: int
-) -> Optional[WorkflowStepEvaluation]:
-    """
-    Helper function to send API request for evaluating a workflow step
-    and validating the response.
-    """
-    response = api_get(
-        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}/evaluate"
-    )
-    assert response.status_code == expected_code
-
-    if response.status_code == 200:
-        step_evaluation_resp = decamelize(response.json())
-        return WorkflowStepEvaluation(**step_evaluation_resp)
-    return None
-
-
-def test_evaluate_step(api_get, sequential_workflow_view, patient_id):
+def test_evaluate_workflow_instance_step(api_get, sequential_workflow_view, patient_id):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = patient_id
 
@@ -104,25 +147,76 @@ def test_evaluate_step(api_get, sequential_workflow_view, patient_id):
         WorkflowService.upsert_workflow_template(workflow_view.template)
         WorkflowService.upsert_workflow_instance(workflow_view.instance)
 
-        step_1_evaluation = api_evaluate_step(
+        step_1_evaluation = api_evaluate_workflow_instance_step(
             api_get,
             WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
-            expected_code=200,
         )
-        step_2_evaluation = api_evaluate_step(
+        step_2_evaluation = api_evaluate_workflow_instance_step(
             api_get,
             WorkflowInstanceStepIdPath(workflow_instance_step_id="si-2"),
-            expected_code=200,
         )
         # sanity checks, workflow planner unit tests already have more thorough checks
         assert step_1_evaluation.selected_branch_id == "b-1"
         assert step_2_evaluation.selected_branch_id == None
 
-        api_evaluate_step(
+        api_evaluate_workflow_instance_step(
             api_get,
             WorkflowInstanceStepIdPath(
                 workflow_instance_step_id="this-step-shouldnt-exist",
             ),
+            expected_code=404,
+        )
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_view.template.id,
+        )
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_view.instance.id,
+        )
+
+
+def test_patch_workflow_instance_step(
+    api_patch, sequential_workflow_view, patient_id, vht_user_id
+):
+    workflow_view = sequential_workflow_view
+    workflow_view.instance.patient_id = patient_id
+
+    step = workflow_view.instance.get_instance_step("si-1")
+
+    try:
+        WorkflowService.upsert_workflow_template(workflow_view.template)
+        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+        assert step.assigned_to is None
+        assert vht_user_id is not None
+
+        response = api_patch_workflow_instance_step(
+            api_patch,
+            WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+            WorkflowInstanceStepPatchModel(assigned_to=vht_user_id),
+        )
+
+        assert response.assigned_to == vht_user_id
+        # Check change actually persisted
+        updated_step = WorkflowService.get_workflow_instance_step("si-1")
+        assert updated_step.assigned_to == vht_user_id
+
+        api_patch_workflow_instance_step(
+            api_patch,
+            WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+            WorkflowInstanceStepPatchModel(
+                assigned_to=-1000
+            ),  # assumes user ID not found
+            expected_code=404,
+        )
+        api_patch_workflow_instance_step(
+            api_patch,
+            WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+            WorkflowInstanceStepPatchModel(form_id="this-form-shouldnt-exist"),
             expected_code=404,
         )
 

@@ -17,9 +17,7 @@ from validation.workflow_api_models import (
     OverrideCurrentStepRequest,
     WorkflowInstancePatchModel,
 )
-from validation.workflow_models import (
-    WorkflowInstanceModel,
-)
+from validation.workflow_models import WorkflowInstanceModel
 
 # /api/workflow/instances
 api_workflow_instances = APIBlueprint(

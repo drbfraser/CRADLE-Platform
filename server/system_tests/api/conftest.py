@@ -200,7 +200,7 @@ def form(patient_id, form_template, form_classification):
                 "answers": {"mc_id_array": [0]},
             },
             {
-                "id": None,
+                "id": "test-question-02",
                 "category_index": None,
                 "question_index": 1,
                 "question_text": "Info",

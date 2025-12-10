@@ -80,7 +80,7 @@ class WorkflowInstanceStepPatchModel(CradleBaseModel, extra="forbid"):
     the workflow into an inconsistent state.
     """
 
-    assigned_to: Optional[str] = None
+    assigned_to: Optional[int] = None
     form_id: Optional[str] = None
 
 
