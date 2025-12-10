@@ -9,7 +9,15 @@ export interface IFormClassification {
 }
 
 export interface FormTemplates {
-  templates: FormTemplate[];
+  templates: FormTemplateList[];
+}
+
+export interface FormTemplateList {
+  archived: boolean;
+  name: string;
+  dateCreated: number;
+  id: string;
+  version: string;
 }
 
 export interface FormTemplate {
