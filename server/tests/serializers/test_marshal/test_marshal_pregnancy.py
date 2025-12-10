@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import PatientOrm, PregnancyOrm
 
 
@@ -43,7 +43,7 @@ def test_pregnancy_ongoing_includes_null_end_date_and_outcome_key():
     for an ongoing pregnancy.
     """
     pr = make_pregnancy(end_date=None, outcome=None)
-    marshalled = m.marshal(pr)
+    marshalled = orm_seralizer.marshal(pr)
 
     assert marshalled["id"] == 42
     assert marshalled["patient_id"] == "p-1"
@@ -70,7 +70,7 @@ def test_pregnancy_completed_sets_end_date_and_outcome():
     pregnancy = make_pregnancy(
         end_date=1580515200, outcome="Mode of delivery: assisted birth"
     )
-    marshalled = m.marshal(pregnancy)
+    marshalled = orm_seralizer.marshal(pregnancy)
 
     assert marshalled["end_date"] == 1580515200
     assert marshalled["outcome"] == "Mode of delivery: assisted birth"
@@ -88,7 +88,7 @@ def test_pregnancy_relationship_not_leaked_when_patient_loaded():
     patient.id = "p-1"
     pregnancy.patient = patient
 
-    marshalled = m.marshal(pregnancy)
+    marshalled = orm_seralizer.marshal(pregnancy)
     assert "patient" not in marshalled
     assert marshalled["patient_id"] == "p-1"
 
@@ -104,7 +104,7 @@ def test_pregnancy_private_attrs_not_leaked_and_input_not_mutated():
     pregnancy._secret = "dont-leak-me"
 
     before_secret = pregnancy._secret
-    marshalled = m.marshal(pregnancy)
+    marshalled = orm_seralizer.marshal(pregnancy)
 
     assert "_secret" not in marshalled
     assert pregnancy._secret == before_secret
@@ -129,7 +129,7 @@ def test_pregnancy_types_are_preserved():
         outcome="Healthy newborn",
         last_edited=1700011111,
     )
-    marshalled = m.marshal(pregnancy)
+    marshalled = orm_seralizer.marshal(pregnancy)
 
     assert isinstance(marshalled["id"], int)
     assert marshalled["id"] == 7

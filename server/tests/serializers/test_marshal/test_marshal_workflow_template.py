@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormTemplateOrm,
@@ -115,7 +115,7 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     )
     workflow_template.steps = [s1, s2]
 
-    marshalled = m.marshal(workflow_template, shallow=False)
+    marshalled = orm_seralizer.marshal(workflow_template, shallow=False)
 
     for key in (
         "id",
@@ -209,7 +209,7 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
     workflow_template.classification = wc
     workflow_template.classification_id = wc.id
 
-    marshalled = m.marshal(workflow_template, shallow=True)
+    marshalled = orm_seralizer.marshal(workflow_template, shallow=True)
 
     for k in (
         "id",

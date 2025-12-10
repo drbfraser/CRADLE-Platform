@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import QuestionLangVersionOrm
 
 
@@ -44,7 +44,7 @@ def test_unmarshal_lang_version_encodes_list_mc_options_to_json_string():
         question_id="q-abc",
     )
 
-    lv = unmarshal(QuestionLangVersionOrm, payload)
+    lv = orm_serializer.unmarshal(QuestionLangVersionOrm, payload)
 
     assert lv.lang == "fr"
     assert lv.question_text == "Ça va ?"
@@ -68,7 +68,7 @@ def test_unmarshal_lang_version_leaves_json_string_mc_options_unchanged():
         question_id="q-111",
     )
 
-    lv = unmarshal(QuestionLangVersionOrm, payload)
+    lv = orm_serializer.unmarshal(QuestionLangVersionOrm, payload)
 
     assert lv.lang == "en"
     assert lv.question_text == "Pick one"
@@ -88,7 +88,7 @@ def test_unmarshal_lang_version_omits_mc_options_when_absent():
         lang="sw", question_text="Habari?", question_id="q-222"
     )
 
-    lv = unmarshal(QuestionLangVersionOrm, payload)
+    lv = orm_serializer.unmarshal(QuestionLangVersionOrm, payload)
 
     assert lv.lang == "sw"
     assert lv.question_text == "Habari?"

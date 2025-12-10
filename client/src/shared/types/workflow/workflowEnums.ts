@@ -15,3 +15,15 @@ export enum WorkflowViewMode {
   LIST = 'list',
   FLOW = 'flow',
 }
+
+export enum InstanceStepAction {
+  START = 'start_step',
+  COMPLETE = 'complete_step',
+  COMPLETE_WORKFLOW = 'complete_workflow',
+}
+
+export enum WorkflowBranchEvaluationStatus {
+  TRUE = 'TRUE',
+  FALSE = 'FALSE',
+  NOT_ENOUGH_DATA = 'NOT_ENOUGH_DATA',
+}

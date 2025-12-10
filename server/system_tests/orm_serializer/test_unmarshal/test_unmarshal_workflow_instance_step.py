@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import types
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import FormOrm, QuestionLangVersionOrm, QuestionOrm, WorkflowInstanceStepOrm
 
 
@@ -104,7 +104,7 @@ def test_unmarshal_workflow_instance_step_with_form_and_questions():
     )
     original = dict(payload)
 
-    obj = unmarshal(WorkflowInstanceStepOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowInstanceStepOrm, payload)
 
     # object structure
     assert isinstance(obj, (WorkflowInstanceStepOrm, types.SimpleNamespace))
@@ -156,7 +156,7 @@ def test_unmarshal_workflow_instance_step_minimal_no_form():
     )
     original = dict(payload)
 
-    obj = unmarshal(WorkflowInstanceStepOrm, payload)
+    obj = orm_serializer.unmarshal(WorkflowInstanceStepOrm, payload)
 
     assert isinstance(obj, (WorkflowInstanceStepOrm, types.SimpleNamespace))
     assert obj.id == "wis-2"

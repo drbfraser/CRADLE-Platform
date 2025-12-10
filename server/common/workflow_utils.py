@@ -6,8 +6,9 @@ from flask import abort
 
 import data.db_operations as crud
 from api.resources.form_templates import handle_form_template_upload
-from common.commonUtil import get_uuid
+from common.commonUtil import abort_not_found, get_uuid
 from common.form_utils import assign_form_or_template_ids
+from data import orm_serializer
 from models import (
     FormOrm,
     FormTemplateOrm,
@@ -19,13 +20,21 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
 )
+from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
     from data.crud import M
+    from validation.workflow_models import (
+        WorkflowInstanceModel,
+        WorkflowInstanceStepModel,
+        WorkflowTemplateModel,
+    )
 
 
-workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
+WORKFLOW_INSTANCE_NOT_FOUND_MSG = "Workflow instance with ID: ({}) not found."
+WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
+WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not found."
 
 
 def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -> None:
@@ -61,7 +70,7 @@ def assign_step_ids(
     :param workflow_id: The ID of the workflow template or instance to be assigned to the step
     :param auto_assign_id: If true, the workflow components will always be assigned an ID
     """
-    if step["id"] is None or auto_assign_id:
+    if step.get("id") is None or auto_assign_id:
         step["id"] = get_uuid()
 
     # Assign workflow ID to step
@@ -82,7 +91,7 @@ def assign_step_ids(
         form_model = FormOrm
 
     # Assign ID to form if provided
-    if step["form"] is not None:
+    if step.get("form") is not None:
         assign_form_or_template_ids(form_model, step["form"])
         step["form_id"] = step["form"]["id"]
 
@@ -161,7 +170,7 @@ def validate_workflow_template_step(workflow_template_step: dict):
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_msg.format(
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
                 workflow_template_step["workflow_template_id"]
             ),
         )
@@ -173,7 +182,7 @@ def validate_workflow_template_step(workflow_template_step: dict):
     check_branch_conditions(workflow_template_step)
 
     try:
-        if workflow_template_step["form"] is not None:
+        if workflow_template_step.get("form") is not None:
             form_template = FormTemplateUpload(**workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown
@@ -183,3 +192,192 @@ def validate_workflow_template_step(workflow_template_step: dict):
 
     except ValueError as err:
         return abort(code=409, description=str(err))
+
+
+def _build_step_id_mapping(
+    steps: list[dict], workflow_template_id: str, auto_assign_id: bool = True
+) -> dict[str, str]:
+    old_to_new_step_id_map = {}
+
+    for step in steps:
+        old_step_id = step["id"]
+        form_id = step.get("form_id")
+
+        check_branch_conditions(step)
+
+        assign_step_ids(
+            WorkflowTemplateStepOrm,
+            step,
+            workflow_template_id,
+            auto_assign_id=auto_assign_id,
+        )
+
+        if form_id:
+            step["form_id"] = form_id
+
+        new_step_id = step["id"]
+        old_to_new_step_id_map[old_step_id] = new_step_id
+
+    return old_to_new_step_id_map
+
+
+def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[dict]:
+    updated_steps = []
+
+    for step in steps:
+        updated_step = step.copy()
+
+        if updated_step.get("branches"):
+            updated_branches = []
+            for branch in updated_step["branches"]:
+                updated_branch = branch.copy()
+                old_target_id = updated_branch.get("target_step_id")
+
+                if old_target_id and old_target_id in id_map:
+                    updated_branch["target_step_id"] = id_map[old_target_id]
+
+                updated_branches.append(updated_branch)
+
+            updated_step["branches"] = updated_branches
+
+        updated_steps.append(updated_step)
+
+    return updated_steps
+
+
+# Helper function to generate an updated workflow template from a patch body
+def generate_updated_workflow_template(
+    existing_template: WorkflowTemplateOrm,
+    patch_body: dict,
+    auto_assign_id: bool = True,
+) -> WorkflowTemplateOrm:
+    """
+    Generates an updated workflow template from a patch body
+
+    :param existing_template: The existing workflow template to be updated
+    :param patch_body: The patch body to be applied to the workflow template
+    :param auto_assign_id: Whether to auto-assign IDs to the workflow template and steps
+    :return: The updated workflow template
+    """
+    copy_workflow_template_dict = orm_serializer.marshal(existing_template)
+
+    copy_workflow_template_dict.pop("steps", None)
+    copy_workflow_template_dict["steps"] = []
+
+    assign_workflow_template_or_instance_ids(
+        m=WorkflowTemplateOrm,
+        workflow=copy_workflow_template_dict,
+        auto_assign_id=auto_assign_id,
+    )
+
+    new_workflow_template = orm_serializer.unmarshal(
+        WorkflowTemplateOrm, copy_workflow_template_dict
+    )
+
+    new_workflow_template.steps = []
+    new_workflow_template_id = copy_workflow_template_dict["id"]
+
+    if patch_body.get("classification"):
+        assign_workflow_template_or_instance_ids(
+            m=WorkflowTemplateOrm, workflow=patch_body["classification"]
+        )
+
+    template_changes = {
+        key: value for key, value in patch_body.items() if key != "steps"
+    }
+
+    if patch_body.get("steps"):
+        old_to_new_step_id_map = _build_step_id_mapping(
+            patch_body["steps"], new_workflow_template_id, auto_assign_id
+        )
+
+        updated_steps = _update_step_references(
+            patch_body["steps"], old_to_new_step_id_map
+        )
+
+        if (
+            patch_body.get("starting_step_id")
+            and patch_body["starting_step_id"] in old_to_new_step_id_map
+        ):
+            template_changes["starting_step_id"] = old_to_new_step_id_map[
+                patch_body["starting_step_id"]
+            ]
+
+        template_changes["steps"] = [
+            orm_serializer.unmarshal(WorkflowTemplateStepOrm, step)
+            for step in updated_steps
+        ]
+
+    apply_changes_to_model(new_workflow_template, template_changes)
+
+    return new_workflow_template
+
+
+def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanceModel:
+    """
+    Fetch a workflow instance or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_instance = WorkflowService.get_workflow_instance(workflow_instance_id)
+    if workflow_instance is None:
+        abort_not_found(WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id))
+
+    return workflow_instance
+
+
+def fetch_workflow_instance_step_or_404(
+    workflow_instance_step_id: str,
+) -> WorkflowInstanceModel:
+    """
+    Fetch a workflow instance step or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_instance_step = WorkflowService.get_workflow_instance_step(
+        workflow_instance_step_id
+    )
+    if workflow_instance_step is None:
+        abort_not_found(
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id)
+        )
+
+    return workflow_instance_step
+
+
+def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplateModel:
+    """
+    Fetch a workflow template or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
+    if workflow_template is None:
+        abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
+
+    return workflow_template
+
+
+def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
+    """
+    Fetch a workflow instance and its template or raise a 404 if either aren't found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_instance = fetch_workflow_instance_or_404(workflow_instance_id)
+    workflow_template = fetch_workflow_template_or_404(
+        workflow_instance.workflow_template_id
+    )
+
+    return WorkflowView(workflow_template, workflow_instance)
+
+
+def find_workflow_instance_step_or_404(
+    workflow_instance: WorkflowInstanceModel, workflow_instance_step_id: str
+) -> WorkflowInstanceStepModel:
+    """
+    Find a workflow instance step or raise a 404 error if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    step = workflow_instance.get_instance_step(workflow_instance_step_id)
+    if step is None:
+        abort_not_found(
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
+        )
+    return step

@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 import data
 import data.db_operations as crud
-from data import marshal
+from data import orm_serializer
 from manage import get_username_from_email
 from models import (
     AssessmentSchema,
@@ -15,6 +15,7 @@ from models import (
     PregnancySchema,
     ReadingOrm,
     ReferralSchema,
+    UserOrm,
 )
 
 
@@ -120,7 +121,7 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        readingModel = marshal.unmarshal(ReadingOrm, dict(**kwargs))
+        readingModel = orm_serializer.unmarshal(ReadingOrm, dict(**kwargs))
         crud.create(readingModel, refresh=True)
 
         return readingModel
@@ -188,10 +189,16 @@ class UserFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        # from config import flask_bcrypt
-        from models import UserOrm
-
         d = dict(**kwargs)
+
+        # Check if user with this ID already exists to prevent accidental overwrites
+        if "id" in d:
+            existing_user = crud.read(UserOrm, id=d["id"])
+            if existing_user:
+                raise ValueError(
+                    f"User with id={d['id']} already exists (username='{existing_user.username}'). "
+                )
+
         email = d.get("email")
         username = d.get("username")
         if username is None and email is not None:
@@ -204,7 +211,7 @@ class UserFactory(ModelFactory):
             d["email"] = "user@email.com"
             d["username"] = "user"
 
-        user = marshal.unmarshal(UserOrm, d)
+        user = orm_serializer.unmarshal(UserOrm, d)
         crud.create(user)
         data.db_session.commit()
         return user

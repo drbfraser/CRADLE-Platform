@@ -1,6 +1,7 @@
 from typing import Optional
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
+from service.workflow.evaluate.rule_evaluator import RuleEvaluator
 from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
@@ -19,30 +20,12 @@ from validation.workflow_models import (
     CompleteWorkflowActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
-    VariableResolution,
     WorkflowActionModel,
     WorkflowBranchEvaluation,
     WorkflowInstanceStepModel,
     WorkflowStepEvaluation,
     WorkflowTemplateStepBranchModel,
 )
-
-
-# NOTE: This class may not belong here since it's not inherently workflow-specific.
-# Once implemented, it could be moved to service/evaluate or a more relevant location.
-class RuleEvaluator:
-    """
-    Evaluates a rule.
-
-    For now, this is a stub that always returns TRUE and an empty list for variable resolutions.
-    TODO: Implement evaluate_rule by integrating the variable resolver and rule engine.
-    """
-
-    @staticmethod
-    def evaluate_rule(
-        rule: Optional[str],  # noqa: ARG004
-    ) -> tuple[RuleStatus, list[VariableResolution]]:
-        return (RuleStatus.TRUE, [])
 
 
 class WorkflowPlanner:
@@ -54,12 +37,18 @@ class WorkflowPlanner:
     @staticmethod
     def _evaluate_branch(
         branch: WorkflowTemplateStepBranchModel,
+        patient_id: str,
     ) -> WorkflowBranchEvaluation:
         """
         Evaluates the rule of a workflow step's branch.
+
+        :param branch: The branch to evaluate
+        :param patient_id: Patient ID for data resolution
+        :returns: WorkflowBranchEvaluation with rule status and variable resolutions
         """
         rule = branch.condition.rule if branch.condition else None
-        rule_status, var_resolutions = RuleEvaluator.evaluate_rule(rule)
+        evaluator = RuleEvaluator()
+        rule_status, var_resolutions = evaluator.evaluate_rule(rule, patient_id)
 
         branch_evaluation = WorkflowBranchEvaluation(
             branch_id=branch.id,
@@ -77,14 +66,28 @@ class WorkflowPlanner:
         """
         Evaluates all branches of a workflow step and determines the selected branch
         based on rule evaluations.
+
+        :param ctx: WorkflowView providing access to template and instance
+        :param step: The workflow instance step to evaluate
+        :returns: WorkflowStepEvaluation with branch evaluations and selected branch
         """
         branch_evaluations = []
         selected_branch_id = None
 
+        # Get patient_id from the workflow instance
+        # TODO: Currently only patient_id is supported for data resolution.
+        # Need to decide on ID resolution strategy for other object types.
+        patient_id = ctx.instance.patient_id
+        if not patient_id:
+            raise ValueError(
+                "Workflow instance must have a patient_id to evaluate rules"
+            )
+
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         for branch in branches:
-            branch_evaluation = WorkflowPlanner._evaluate_branch(branch)
+            branch_evaluation = WorkflowPlanner._evaluate_branch(branch, patient_id)
+
             branch_evaluations.append(branch_evaluation)
 
             if (
@@ -210,10 +213,10 @@ class WorkflowPlanner:
     def advance(ctx: WorkflowView) -> list[WorkflowOp]:
         if (
             ctx.instance.current_step_id is None
-            and ctx.instance.status == WorkflowStepStatusEnum.ACTIVE
+            and ctx.instance.status == WorkflowStatusEnum.ACTIVE
         ):
-            starting_step = ctx.get_starting_step()
-            return [UpdateCurrentStepOp(starting_step.id)]
+            starting_instance_step = ctx.get_starting_step()
+            return [UpdateCurrentStepOp(starting_instance_step.id)]
 
         current_step = ctx.get_current_step()
         if current_step and current_step.status == WorkflowStepStatusEnum.COMPLETED:

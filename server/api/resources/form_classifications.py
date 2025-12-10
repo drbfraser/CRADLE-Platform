@@ -7,7 +7,7 @@ from api.decorator import roles_required
 from common.api_utils import (
     FormClassificationIdPath,
 )
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from validation.formClassifications import (
@@ -31,7 +31,7 @@ api_form_classifications = APIBlueprint(
 def get_all_form_classifications():
     """Get All Form Classifications"""
     form_classifications = crud.read_all(FormClassificationOrm)
-    return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
+    return [orm_serializer.marshal(f, shallow=True) for f in form_classifications], 200
 
 
 # /api/forms/classifications [POST]
@@ -41,7 +41,7 @@ def create_form_classification(body: FormClassificationOptionalId):
     """Create Form Classification"""
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id) is not None:
-            print(marshal.marshal(crud.read(FormClassificationOrm, id=body.id)))
+            print(orm_serializer.marshal(crud.read(FormClassificationOrm, id=body.id)))
             return abort(
                 409,
                 description=f"Form Classification with id=({body.id}) already exists.",
@@ -52,9 +52,11 @@ def create_form_classification(body: FormClassificationOptionalId):
             description=f"Form Classification with name=({body.name}) already exists.",
         )
 
-    form_classification = marshal.unmarshal(FormClassificationOrm, body.model_dump())
+    form_classification = orm_serializer.unmarshal(
+        FormClassificationOrm, body.model_dump()
+    )
     crud.create(form_classification, refresh=True)
-    return marshal.marshal(form_classification, shallow=True), 201
+    return orm_serializer.marshal(form_classification, shallow=True), 201
 
 
 # /api/forms/classifications/<string:form_classification_id> [GET]
@@ -70,7 +72,7 @@ def get_form_classification(path: FormClassificationIdPath):
             description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
-    return marshal.marshal(form_classification), 200
+    return orm_serializer.marshal(form_classification), 200
 
 
 # /api/forms/classifications/<string:form_classification_id> [PUT]
@@ -98,7 +100,7 @@ def edit_form_classification_name(
     crud.db_session.commit()
     crud.db_session.refresh(form_classification)
 
-    return marshal.marshal(form_classification, True), 201
+    return orm_serializer.marshal(form_classification, True), 201
 
 
 # /api/forms/classifications/summary [GET]
@@ -141,7 +143,7 @@ def get_form_classification_summary():
     marshaled_templates = []
     for template in valid_templates:
         marshaled_templates.append(
-            marshal.marshal(template, shallow=False, if_include_versions=True)
+            orm_serializer.marshal(template, shallow=False, if_include_versions=True)
         )
     return marshaled_templates, 200
 
@@ -159,4 +161,4 @@ def get_form_classification_templates(path: FormClassificationIdPath):
         FormTemplateOrm,
         form_classification_id=path.form_classification_id,
     )
-    return [marshal.marshal(f, shallow=True) for f in form_templates], 200
+    return [orm_serializer.marshal(f, shallow=True) for f in form_templates], 200

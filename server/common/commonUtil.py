@@ -5,6 +5,7 @@ import uuid
 from typing import Any
 
 import phonenumbers
+from flask import abort
 
 from common.constants import EMAIL_REGEX_PATTERN
 
@@ -157,3 +158,12 @@ def hex2bytes(key):
 
 def bytes2hex(key: bytes):
     return key.hex()
+
+
+# NOTE: May be better in api_utils.py, but currently causes circular import
+#       error because api_utils imports user_utils
+def abort_not_found(message: str):
+    """
+    Abort the request with a 404 Not Found error and a message.
+    """
+    abort(404, description=message)

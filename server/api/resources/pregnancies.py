@@ -8,7 +8,7 @@ import data.db_operations as crud
 from api.decorator import patient_association_required
 from api.resources.patients import api_patients
 from common.api_utils import PatientIdPath, PregnancyIdPath, SearchFilterQueryParams
-from data import marshal
+from data import orm_serializer
 from models import PregnancyOrm
 from service import view
 from validation.pregnancies import (
@@ -24,7 +24,7 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
     """Get Patient's Pregnancies"""
     params = query.model_dump()
     pregnancies = view.pregnancy_view(path.patient_id, **params)
-    return [marshal.marshal(p) for p in pregnancies]
+    return [orm_serializer.marshal(p) for p in pregnancies]
 
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
@@ -43,10 +43,10 @@ def create_new_pregnancy(path: PatientIdPath, body: PregnancyModel):
     _check_conflicts(body.start_date, body.end_date, path.patient_id)
 
     body.patient_id = path.patient_id
-    new_pregnancy = marshal.unmarshal(PregnancyOrm, body.model_dump())
+    new_pregnancy = orm_serializer.unmarshal(PregnancyOrm, body.model_dump())
     crud.create(new_pregnancy, refresh=True)
 
-    return marshal.marshal(new_pregnancy), 201
+    return orm_serializer.marshal(new_pregnancy), 201
 
 
 api_pregnancies = APIBlueprint(
@@ -63,7 +63,7 @@ api_pregnancies = APIBlueprint(
 def get_pregnancy(path: PregnancyIdPath):
     """Get Pregnancy"""
     pregnancy = _get_pregnancy(path.pregnancy_id)
-    return marshal.marshal(pregnancy)
+    return orm_serializer.marshal(pregnancy)
 
 
 # /api/pregnancies/<string:pregnancy_id> [PUT]
@@ -85,7 +85,7 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
     crud.update(PregnancyOrm, pregnancy_model_dump, id=path.pregnancy_id)
     new_pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
 
-    return marshal.marshal(new_pregnancy)
+    return orm_serializer.marshal(new_pregnancy)
 
 
 # /api/pregnancies/<string:pregnancy_id> [DELETE]

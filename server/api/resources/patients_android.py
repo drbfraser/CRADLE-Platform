@@ -9,7 +9,7 @@ import data.db_operations as crud
 import service.FilterHelper as filter
 from api.resources.patients import api_patients
 from common import user_utils
-from data import marshal
+from data import orm_serializer
 from enums import TrafficLightEnum
 from models import (
     FormOrm,
@@ -49,7 +49,7 @@ def to_global_search_patient(patient):
                 "date_referred": None,
             }
 
-            reading_data = marshal.model_to_dict(
+            reading_data = orm_serializer.model_to_dict(
                 crud.read(ReadingOrm, id=reading),
                 ReadingSchema,
             )
@@ -71,7 +71,7 @@ def to_global_search_patient(patient):
 
 def get_global_search_patients(current_user, search):
     def __make_gs_patient_dict(p: PatientOrm, is_added: bool) -> dict:
-        patient_dict = marshal.model_to_dict(p, PatientSchema)
+        patient_dict = orm_serializer.model_to_dict(p, PatientSchema)
         patient_dict["state"] = "Added" if is_added else "Add"
         return patient_dict
 
@@ -223,4 +223,4 @@ def get_form_mobile(path: GetFormMobilePath):
             description=f"No forms for Patient with ID: {path.patient_id} and Form Template with ID: {path.form_template_id}",
         )
 
-    return marshal.marshal(form, False)
+    return orm_serializer.marshal(form, False)

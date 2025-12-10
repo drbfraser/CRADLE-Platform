@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import FormOrm
 
 
@@ -101,7 +101,7 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
         ],
     )
 
-    unmarshal_form = unmarshal(FormOrm, form_payload)
+    unmarshal_form = orm_serializer.unmarshal(FormOrm, form_payload)
 
     assert unmarshal_form.id == "f-001"
     assert hasattr(unmarshal_form, "questions")
@@ -139,7 +139,7 @@ def test_unmarshal_form_questions_empty_list_keeps_attribute_empty():
     correctly leaves the questions attribute empty.
     """
     form_payload = _create_form(id="f-002", questions=[])
-    form = unmarshal(FormOrm, form_payload)
+    form = orm_serializer.unmarshal(FormOrm, form_payload)
     assert hasattr(form, "questions") and form.questions == []
 
 
@@ -149,7 +149,7 @@ def test_unmarshal_form_without_questions_attribute_is_absent():
     removes the 'questions' attribute from the resulting FormOrm object.
     """
     form_payload = _create_form(id="f-003")
-    form = unmarshal(FormOrm, form_payload)
+    form = orm_serializer.unmarshal(FormOrm, form_payload)
     assert not getattr(form, "questions", None)
 
 
@@ -184,7 +184,7 @@ def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
         ],
     )
 
-    unmarshal_form = unmarshal(FormOrm, form_payload)
+    unmarshal_form = orm_serializer.unmarshal(FormOrm, form_payload)
 
     assert hasattr(unmarshal_form, "questions") and len(unmarshal_form.questions) == 1
     question = unmarshal_form.questions[0]
@@ -230,7 +230,7 @@ def test_unmarshal_form_mixed_mc_options_list_and_string_pass_through():
         ],
     )
 
-    form = unmarshal(FormOrm, form_payload)
+    form = orm_serializer.unmarshal(FormOrm, form_payload)
     q1, q2 = sorted(form.questions, key=lambda x: x.question_index)
 
     assert q1.id == "q-str"

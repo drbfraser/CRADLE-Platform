@@ -10,7 +10,7 @@ from common.api_utils import (
     FormIdPath,
 )
 from common.commonUtil import get_current_time
-from data import marshal
+from data import orm_serializer
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from validation.forms import FormModel, UpdateFormRequestBody
 
@@ -59,14 +59,14 @@ def submit_form(body: FormModel):
 
     form_utils.assign_form_or_template_ids(FormOrm, new_form_dict)
 
-    form = marshal.unmarshal(FormOrm, new_form_dict)
+    form = orm_serializer.unmarshal(FormOrm, new_form_dict)
 
     form.date_created = get_current_time()
     form.last_edited = form.date_created
 
     crud.create(form, refresh=True)
 
-    return marshal.marshal(form, shallow=True), 201
+    return orm_serializer.marshal(form, shallow=True), 201
 
 
 # /api/forms/responses/<string:form_id> [GET]
@@ -77,7 +77,7 @@ def get_form(path: FormIdPath):
     if form is None:
         return abort(404, description=f"No form with ID: {path.form_id}.")
 
-    return marshal.marshal(form, False)
+    return orm_serializer.marshal(form, False)
 
 
 # /api/forms/responses/<string:form_id> [PUT]
@@ -113,4 +113,4 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     crud.db_session.commit()
     crud.db_session.refresh(form)
 
-    return marshal.marshal(form, True), 201
+    return orm_serializer.marshal(form, True), 201

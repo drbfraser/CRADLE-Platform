@@ -5,17 +5,14 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from common import patient_utils, workflow_utils
 from common.api_utils import (
-    WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
 )
-from common.commonUtil import get_current_time
-from data import marshal
+from data import orm_serializer
 from models import (
-    PatientOrm,
     WorkflowInstanceOrm,
-    WorkflowTemplateOrm,
 )
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService, WorkflowView
@@ -28,7 +25,6 @@ from validation.workflow_api_models import (
 )
 from validation.workflow_models import (
     WorkflowInstanceModel,
-    WorkflowStepEvaluation,
 )
 
 
@@ -46,10 +42,6 @@ api_workflow_instances = APIBlueprint(
     abp_security=[{"jwt": []}],
 )
 
-WORKFLOW_INSTANCE_NOT_FOUND_MSG = "Workflow instance with ID: ({}) not found."
-WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
-WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not found."
-
 
 class CreateWorkflowInstanceRequest(CradleBaseModel):
     workflow_template_id: str
@@ -58,69 +50,15 @@ class CreateWorkflowInstanceRequest(CradleBaseModel):
     description: str
 
 
-def get_workflow_view(workflow_instance_id: str) -> WorkflowView:
-    """
-    Fetches a workflow instance and its template.
-    Raises a 404 error (via Flask's `abort`) if either the workflow instance
-    or template is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
-    """
-    workflow_instance = WorkflowService.get_workflow_instance(workflow_instance_id)
-    if workflow_instance is None:
-        abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id),
-        )
-
-    workflow_template = WorkflowService.get_workflow_template(
-        workflow_instance.workflow_template_id
-    )
-    if workflow_template is None:
-        abort(
-            code=404,
-            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
-                workflow_template.workflow_template_id
-            ),
-        )
-
-    return WorkflowView(workflow_template, workflow_instance)
-
-
-def check_instance_step(workflow_view: WorkflowView, workflow_instance_step_id: str):
-    """
-    Checks if the workflow instance has an instance step with this step ID.
-    Raises a 404 error (via Flask's `abort`) if either the workflow instance
-    step is not found.
-
-    Intended as a helper function used within Flask API endpoint functions.
-    """
-    if not workflow_view.has_instance_step(workflow_instance_step_id):
-        abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
-                workflow_instance_step_id
-            ),
-        )
-
-
 # /api/workflow/instances [POST]
 @api_workflow_instances.post("", responses={201: WorkflowInstanceModel})
 def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     """Create Workflow Instance"""
-    workflow_template = WorkflowService.get_workflow_template(body.workflow_template_id)
-    if workflow_template is None:
-        return abort(
-            code=404,
-            description=f"Workflow template with ID '{body.workflow_template_id}' not found.",
-        )
+    workflow_template = workflow_utils.fetch_workflow_template_or_404(
+        body.workflow_template_id
+    )
 
-    patient = crud.read(PatientOrm, id=body.patient_id)
-    if patient is None:
-        return abort(
-            code=404,
-            description=f"Patient with ID '{body.patient_id}' not found.",
-        )
+    patient_utils.fetch_patient_or_404(body.patient_id)
 
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
@@ -160,7 +98,7 @@ def get_workflow_instances():
 
     response_data = []
     for instance in workflow_instances:
-        data = marshal.marshal(instance, shallow=False)
+        data = orm_serializer.marshal(instance, shallow=False)
         if not with_steps:
             del data["steps"]
         response_data.append(data)
@@ -183,69 +121,15 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     if workflow_instance is None:
         return abort(
             code=404,
-            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
+            description=workflow_utils.WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
                 path.workflow_instance_id
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_instance, shallow=False)
+    response_data = orm_serializer.marshal(obj=workflow_instance, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
-
-    return response_data, 200
-
-
-# /api/workflow/instances/<string:workflow_instance_id> [PUT]
-@api_workflow_instances.put(
-    "/<string:workflow_instance_id>", responses={200: WorkflowInstanceModel}
-)
-def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanceModel):
-    """Update Workflow Instance"""
-    workflow_instance = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-
-    if workflow_instance is None:
-        return abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
-                path.workflow_instance_id
-            ),
-        )
-
-    workflow_instance_changes = body.model_dump()
-
-    # Auto-update last_edited if not explicitly provided
-    if "last_edited" not in workflow_instance_changes:
-        workflow_instance_changes["last_edited"] = get_current_time()
-
-    # Validate that the workflow template exists (if being updated)
-    if workflow_instance_changes.get("workflow_template_id") is not None:
-        workflow_template = crud.read(
-            WorkflowTemplateOrm, id=workflow_instance_changes["workflow_template_id"]
-        )
-        if workflow_template is None:
-            return abort(
-                code=404,
-                description=f"Workflow template with ID: ({workflow_instance_changes['workflow_template_id']}) not found.",
-            )
-
-    # Validate that the patient exists (if being updated)
-    if workflow_instance_changes.get("patient_id") is not None:
-        patient = crud.read(PatientOrm, id=workflow_instance_changes["patient_id"])
-        if patient is None:
-            return abort(
-                code=404,
-                description=f"Patient with ID: ({workflow_instance_changes['patient_id']}) not found.",
-            )
-
-    crud.update(
-        WorkflowInstanceOrm,
-        changes=workflow_instance_changes,
-        id=path.workflow_instance_id,
-    )
-
-    response_data = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-    response_data = marshal.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -258,75 +142,26 @@ def patch_workflow_instance(
     path: WorkflowInstanceIdPath, body: WorkflowInstancePatchModel
 ):
     """Partially (PATCH) Update Workflow Instance"""
-    workflow_instance = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-
-    if workflow_instance is None:
-        return abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
-                path.workflow_instance_id
-            ),
-        )
-
-    # Get only the fields that were provided (exclude None values)
-    workflow_instance_changes = body.model_dump(exclude_none=True)
-
-    # If no changes were provided, return the current instance
-    if not workflow_instance_changes:
-        response_data = marshal.marshal(workflow_instance, shallow=True)
-        return response_data, 200
-
-    # Auto-update last_edited if not explicitly provided
-    if "last_edited" not in workflow_instance_changes:
-        workflow_instance_changes["last_edited"] = get_current_time()
-
-    # Validate that the workflow template exists (if being updated)
-    if workflow_instance_changes.get("workflow_template_id") is not None:
-        workflow_template = crud.read(
-            WorkflowTemplateOrm, id=workflow_instance_changes["workflow_template_id"]
-        )
-        if workflow_template is None:
-            return abort(
-                code=404,
-                description=f"Workflow template with ID: ({workflow_instance_changes['workflow_template_id']}) not found.",
-            )
-
-    # Validate that the patient exists (if being updated)
-    if workflow_instance_changes.get("patient_id") is not None:
-        patient = crud.read(PatientOrm, id=workflow_instance_changes["patient_id"])
-        if patient is None:
-            return abort(
-                code=404,
-                description=f"Patient with ID: ({workflow_instance_changes['patient_id']}) not found.",
-            )
-
-    # Apply the partial update
-    crud.update(
-        WorkflowInstanceOrm,
-        changes=workflow_instance_changes,
-        id=path.workflow_instance_id,
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        path.workflow_instance_id
     )
 
-    # Return the updated instance
-    response_data = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-    response_data = marshal.marshal(response_data, shallow=True)
+    if body.patient_id is not None and body.patient_id != workflow_instance.patient_id:
+        patient_utils.fetch_patient_or_404(body.patient_id)
 
-    return response_data, 200
+    WorkflowService.apply_workflow_instance_patch(workflow_instance, body)
+
+    WorkflowService.upsert_workflow_instance(workflow_instance)
+    updated_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
+
+    return updated_instance.model_dump(), 200
 
 
 # /api/workflow/instances/<string:workflow_instance_id> [DELETE]
 @api_workflow_instances.delete("/<string:workflow_instance_id>", responses={204: None})
 def delete_workflow_instance(path: WorkflowInstanceIdPath):
     """Delete Workflow Instance"""
-    workflow_instance = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
-
-    if workflow_instance is None:
-        return abort(
-            code=404,
-            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
-                path.workflow_instance_id
-            ),
-        )
+    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
 
     crud.delete_workflow(WorkflowInstanceOrm, id=path.workflow_instance_id)
 
@@ -340,7 +175,7 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
 )
 def get_available_actions(path: WorkflowInstanceIdPath):
     """Get Available Workflow Actions"""
-    workflow_view = get_workflow_view(path.workflow_instance_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
     actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     response = GetAvailableActionsResponse(actions=actions)
@@ -353,7 +188,7 @@ def get_available_actions(path: WorkflowInstanceIdPath):
 )
 def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     """Apply a Workflow Action"""
-    workflow_view = get_workflow_view(path.workflow_instance_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
 
     try:
         WorkflowService.apply_workflow_action(body.action, workflow_view)
@@ -365,23 +200,6 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     return workflow_view.instance.model_dump(), 200
 
 
-# /api/workflow/instances/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate [GET]
-@api_workflow_instances.get(
-    "/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/evaluate",
-    responses={200: WorkflowStepEvaluation},
-)
-def evaluate_step(path: WorkflowInstanceAndStepIdPath):
-    """Evaluate a Workflow Instance Step"""
-    workflow_view = get_workflow_view(path.workflow_instance_id)
-    check_instance_step(workflow_view, path.workflow_instance_step_id)
-
-    step_evaluation = WorkflowService.evaluate_workflow_step(
-        workflow_view, path.workflow_instance_step_id
-    )
-
-    return step_evaluation.model_dump(), 200
-
-
 # /api/workflow/instances/<string:workflow_instance_id>/advance [POST]
 @api_workflow_instances.post(
     "/<string:workflow_instance_id>/advance",
@@ -389,7 +207,7 @@ def evaluate_step(path: WorkflowInstanceAndStepIdPath):
 )
 def advance(path: WorkflowInstanceIdPath):
     """Advance the workflow to the next step, if possible"""
-    workflow_view = get_workflow_view(path.workflow_instance_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
     WorkflowService.advance_workflow(workflow_view)
 
     WorkflowService.upsert_workflow_instance(workflow_view.instance)
@@ -407,8 +225,10 @@ def override_current_step(
     path: WorkflowInstanceIdPath, body: OverrideCurrentStepRequest
 ):
     """Override the current step of a workflow"""
-    workflow_view = get_workflow_view(path.workflow_instance_id)
-    check_instance_step(workflow_view, body.workflow_instance_step_id)
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    workflow_utils.find_workflow_instance_step_or_404(
+        workflow_view.instance, body.workflow_instance_step_id
+    )
 
     WorkflowService.override_current_step(workflow_view, body.workflow_instance_step_id)
 

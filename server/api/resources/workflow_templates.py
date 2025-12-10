@@ -14,13 +14,16 @@ from api.resources.workflow_template_steps import WorkflowTemplateStepListRespon
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
-    apply_changes_to_model,
     assign_workflow_template_or_instance_ids,
+    generate_updated_workflow_template,
     validate_workflow_template_step,
 )
-from data import marshal
+from data import orm_serializer
 from enums import RoleEnum
-from models import WorkflowClassificationOrm, WorkflowTemplateOrm
+from models import (
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+)
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.workflow_api_models import (
@@ -103,7 +106,7 @@ def get_workflow_classification_from_dict(
 
     if workflow_classification_orm is None and workflow_classification_dict is not None:
         # If this workflow classification is completely new, then it will be returned
-        workflow_classification_orm = marshal.unmarshal(
+        workflow_classification_orm = orm_serializer.unmarshal(
             WorkflowClassificationOrm, workflow_classification_dict
         )
 
@@ -152,7 +155,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         for workflow_template_step in workflow_template_dict["steps"]:
             validate_workflow_template_step(workflow_template_step)
 
-    workflow_template_orm = marshal.unmarshal(
+    workflow_template_orm = orm_serializer.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
 
@@ -179,7 +182,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
     crud.create(model=workflow_template_orm, refresh=True)
 
-    return marshal.marshal(obj=workflow_template_orm, shallow=True)
+    return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
 
 
 # /api/workflow/templates [POST] - File upload (like form templates)
@@ -233,7 +236,8 @@ def get_workflow_templates():
     )
 
     response_data = [
-        marshal.marshal(template, shallow=True) for template in workflow_templates
+        orm_serializer.marshal(template, shallow=True)
+        for template in workflow_templates
     ]
 
     return {"items": response_data}, 200
@@ -261,7 +265,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_template, shallow=False)
+    response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
@@ -297,7 +301,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
         workflow_template_id=path.workflow_template_id
     )
     template_steps = [
-        marshal.marshal(template_step) for template_step in template_steps
+        orm_serializer.marshal(template_step) for template_step in template_steps
     ]
 
     return {"items": template_steps}, 200
@@ -337,7 +341,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
     response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -356,9 +360,7 @@ def update_workflow_template_patch(
     Because workflow templates are large objects, this endpoint allows only the necessary attributes to be sent
     from the frontend to the backend, instead of the entire object itself
     """
-    body = body.model_dump(
-        exclude_unset=True
-    )  # Only include the fields that are set in the request body
+    body_dict = body.model_dump(exclude_unset=True)
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
@@ -370,44 +372,42 @@ def update_workflow_template_patch(
             ),
         )
 
-    # Create an entirely new workflow template with the new attributes
-    copy_workflow_template_dict = marshal.marshal(workflow_template)
-    assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=True
-    )
-    new_workflow_template = marshal.unmarshal(
-        WorkflowTemplateOrm, copy_workflow_template_dict
-    )
-
     # If the request body includes a new workflow classification, process it
-    if body.get("classification", None):
-        assign_workflow_template_or_instance_ids(
-            m=WorkflowTemplateOrm, workflow=body["classification"]
+    if body_dict.get("classification") is not None:
+        # Use the existing classification_id as a fallback if one isn't provided
+        classification_context = {
+            "classification_id": body_dict.get(
+                "classification_id", workflow_template.classification_id
+            )
+        }
+        get_workflow_classification_from_dict(
+            classification_context, body_dict["classification"]
         )
-        body["classification"] = get_workflow_classification_from_dict(
-            body, body["classification"]
-        )
+        body_dict["classification_id"] = classification_context["classification_id"]
+        # Avoid passing nested classification dict into template generator
+        del body_dict["classification"]
 
-    # This assumes that the request body has every step in the workflow template, all old steps will be overwritten
-    # If the request body includes any new/modified steps, process it
-    if body.get("steps", None):
-        for step in body["steps"]:
-            validate_workflow_template_step(step)
-
-    check_for_existing_template_version(
-        body.get("classification_id"), body.get("version")
+    classification_id = (
+        body_dict.get("classification_id") or workflow_template.classification_id
     )
 
-    # Archive the old workflow template
-    find_and_archive_previous_workflow_template(workflow_template.classification_id)
+    if classification_id is not None:
+        check_for_existing_template_version(
+            classification_id,
+            body_dict.get("version"),
+        )
 
-    apply_changes_to_model(new_workflow_template, body)
+    new_workflow_template = generate_updated_workflow_template(
+        existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
+    )
+
+    find_and_archive_previous_workflow_template(workflow_template.classification_id)
 
     crud.create(model=new_workflow_template, refresh=True)
 
-    response_data = crud.read(WorkflowTemplateOrm, id=copy_workflow_template_dict["id"])
+    response_data = crud.read(WorkflowTemplateOrm, id=new_workflow_template.id)
 
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -466,7 +466,7 @@ def archive_workflow_template(
     )
 
     updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
-    return marshal.marshal(updated_template, shallow=True), 200
+    return orm_serializer.marshal(updated_template, shallow=True), 200
 
 
 # /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]

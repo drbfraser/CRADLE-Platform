@@ -78,3 +78,11 @@ export type WorkflowInfoRow = {
   stepsCount: number;
   currentStepLabel: string;
 };
+
+export type WorkflowNextStepOption = {
+  branchId: string;
+  stepId: string;
+  title: string;
+  isRecommended: boolean;
+  ruleDetails: string[];
+};
