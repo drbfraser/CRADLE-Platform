@@ -158,7 +158,7 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     __pre_process(d)
 
     if wis.form is not None:
-        d["formId"] = wis.form.id
+        d["form_id"] = wis.form.id
         d["form"] = __marshal_form(wis.form, shallow=True)
     else:
         d["form"] = None
@@ -265,6 +265,16 @@ def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
     if d.get("form") is not None:
         form = __unmarshal_form(d.get("form"))
         del d["form"]
+
+    # __unmarshal filters out keys with value None. This is tricky because form_id
+    # can be set to None. We need to include it so crud.merge() can see the field
+    # is set to None, and set it to None, otherwise it will incorrectly keep the
+    # original value.
+    # Should be safe if __marshal is called with a dictionary created from a
+    # WorkflowInstanceStepModel, which only has form_id set to None if the form_id
+    # is truely None.
+    if "form_id" not in d:
+        d["form_id"] = None
 
     workflow_instance_step_orm = __load(WorkflowInstanceStepOrm, d)
     workflow_instance_step_orm.form = form
