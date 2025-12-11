@@ -14,6 +14,7 @@ import {
   WorkflowTemplateStepWithFormAndIndex,
   WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
+import { BranchConditionEditor } from './BranchConditionEditor';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -21,6 +22,11 @@ interface StepDetailsProps {
   isInstance?: boolean;
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
+  onBranchChange?: (
+    stepId: string,
+    branchIndex: number,
+    conditionRule: string
+  ) => void;
 }
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
@@ -29,6 +35,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   isInstance = false,
   isEditMode = false,
   onStepChange,
+  onBranchChange,
 }) => {
   // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
@@ -142,17 +149,6 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               </Typography>
             )}
           </Box>
-
-          {selectedStep.expectedCompletion && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Expected Completion
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {new Date(selectedStep.expectedCompletion).toLocaleDateString()}
-              </Typography>
-            </Box>
-          )}
         </Stack>
       </Box>
 
@@ -161,29 +157,22 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           <Typography variant="subtitle1" gutterBottom>
             Branches
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={2}>
             {selectedStep.branches.map(
               (branch: WorkflowTemplateStepBranch, index: number) => {
                 const targetStep = steps.find(
                   (s) => s.id === branch.targetStepId
                 );
                 return (
-                  <Box
+                  <BranchConditionEditor
                     key={index}
-                    sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Branch {index + 1}
-                    </Typography>
-                    <Typography variant="body1">
-                      → {targetStep?.name || 'Unknown Step'}
-                    </Typography>
-                    {branch.condition && (
-                      <Typography variant="caption" color="text.secondary">
-                        {/*TODO: parse the raw condition string into a readable format*/}
-                        Condition: {JSON.stringify(branch.condition)}
-                      </Typography>
-                    )}
-                  </Box>
+                    branch={branch}
+                    branchIndex={index}
+                    stepId={selectedStep.id}
+                    targetStepName={targetStep?.name}
+                    isEditMode={isEditMode}
+                    onChange={onBranchChange}
+                  />
                 );
               }
             )}
