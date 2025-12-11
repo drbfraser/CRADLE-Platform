@@ -1,33 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
-
 from data import orm_serializer
 from models import RuleGroupOrm, WorkflowTemplateStepBranchOrm
-
-
-def _create_branch(
-    *,
-    id: str = "wtsb-001",
-    step_id: str = "wts-123",
-    target_step_id: str | None = "wts-456",
-    condition: Any | None = None,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {"id": id, "step_id": step_id, **extras}
-    if target_step_id is not None:
-        d["target_step_id"] = target_step_id
-
-    if condition is None:
-        pass
-    elif isinstance(condition, str):
-        d["condition"] = {"id": condition}
-    elif isinstance(condition, dict):
-        d["condition"] = {"id": condition["id"]} if "id" in condition else {}
-    else:
-        raise TypeError("condition must be str | dict | None")
-
-    return d
+from tests.helpers import make_workflow_template_branch
 
 
 def test_unmarshal_branch_with_condition_str_id_attaches_relation():
@@ -36,11 +11,11 @@ def test_unmarshal_branch_with_condition_str_id_attaches_relation():
       - unmarshal should load the condition as a RuleGroupOrm object
       - the resulting object should have a condition with the correct id
     """
-    payload = _create_branch(
+    payload = make_workflow_template_branch(
         id="wtsb-B",
         step_id="wts-30",
         target_step_id="wts-40",
-        condition="rg-777",
+        condition={"id": "rg-777"},
     )
 
     obj = orm_serializer.unmarshal(WorkflowTemplateStepBranchOrm, payload)
@@ -62,7 +37,7 @@ def test_unmarshal_branch_without_condition_leaves_relation_none():
       - the resulting object should have condition=None
       - no RuleGroupOrm loads should occur
     """
-    payload = _create_branch(
+    payload = make_workflow_template_branch(
         id="wtsb-C",
         step_id="wts-50",
         target_step_id="wts-60",

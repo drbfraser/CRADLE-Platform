@@ -4,9 +4,16 @@ import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from data import orm_serializer
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
-from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
+from models.workflows import (
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+)
 from service.workflow.workflow_planner import WorkflowPlanner
 from service.workflow.workflow_view import WorkflowView
+from validation.workflow_api_models import (
+    WorkflowInstancePatchModel,
+)
 from validation.workflow_models import (
     StartStepActionModel,
     StartWorkflowActionModel,
@@ -115,6 +122,23 @@ class WorkflowService:
         return workflow_instance
 
     @classmethod
+    def get_workflow_instance_step(
+        cls, workflow_instance_step_id: str
+    ) -> Optional[WorkflowInstanceModel]:
+        workflow_instance_step_orm = crud.read(
+            WorkflowInstanceStepOrm, id=workflow_instance_step_id
+        )
+
+        if not workflow_instance_step_orm:
+            return None
+
+        workflow_instance_step_dict = orm_serializer.marshal(workflow_instance_step_orm)
+        workflow_instance_step = WorkflowInstanceStepModel(
+            **workflow_instance_step_dict
+        )
+        return workflow_instance_step
+
+    @classmethod
     def get_workflow_template(
         cls, workflow_template_id: str
     ) -> Optional[WorkflowTemplateModel]:
@@ -188,6 +212,22 @@ class WorkflowService:
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions and isinstance(actions[0], StartStepActionModel)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
+
+    @staticmethod
+    def apply_workflow_instance_patch(
+        workflow_instance: WorkflowInstanceModel, patch: WorkflowInstancePatchModel
+    ) -> None:
+        """
+        Apply a PATCH to a workflow instance. Assumes patient exists.
+        """
+        if patch.name is not None:
+            workflow_instance.name = patch.name
+
+        if patch.description is not None:
+            workflow_instance.description = patch.description
+
+        if patch.patient_id is not None:
+            workflow_instance.patient_id = patch.patient_id
 
     @staticmethod
     def _check_last_edited_and_start_date(

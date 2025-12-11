@@ -4,13 +4,11 @@ from pydantic import Field, model_validator
 from typing_extensions import Self
 
 from common.commonUtil import get_current_time
-from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
 from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
     WorkflowCollectionModel,
-    WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
@@ -58,53 +56,39 @@ class WorkflowTemplateStepUploadModel(WorkflowTemplateStepModel):
     id: Optional[str] = None
 
 
-class WorkflowInstanceUploadModel(WorkflowInstanceModel):
-    id: Optional[str] = None
-
-
 class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
-    id: Optional[str] = None
+    """
+    Patch model for updating a workflow instance.
+
+    Defines the fields that clients may update. Fields managed by the
+    backend are intentionally excluded to prevent clients from putting
+    the workflow into an inconsistent state.
+    """
+
     name: Optional[str] = None
     description: Optional[str] = None
-    start_date: Optional[int] = None
-    current_step_id: Optional[str] = None
-    last_edited: Optional[int] = None
-    completion_date: Optional[int] = None
-    status: Optional[WorkflowStatusEnum] = None
-    workflow_template_id: Optional[str] = None
     patient_id: Optional[str] = None
-    steps: Optional[list[WorkflowInstanceStepModel]] = None
-
-    @model_validator(mode="after")
-    def validate_dates(self) -> Self:
-        if (
-            self.last_edited is not None
-            and self.start_date is not None
-            and self.last_edited < self.start_date
-        ):
-            raise ValueError("last_edited cannot be before start_date")
-
-        if (
-            self.completion_date is not None
-            and self.start_date is not None
-            and self.completion_date < self.start_date
-        ):
-            raise ValueError("completion_date cannot be before start_date")
-
-        return self
 
 
-class WorkflowInstanceStepUploadModel(WorkflowInstanceStepModel):
-    id: Optional[str] = None
+class WorkflowInstanceStepPatchModel(CradleBaseModel, extra="forbid"):
+    """
+    Patch model for updating a single workflow instance step.
 
+    Defines the fields that clients may update. Fields managed by the
+    backend are intentionally excluded to prevent clients from putting
+    the workflow into an inconsistent state.
+    """
 
-class WorkflowInstanceStepUpdateModel(CradleBaseModel, extra="forbid"):
-    status: Optional[str] = None
-    completion_date: Optional[str] = None
     assigned_to: Optional[str] = None
-    data: Optional[dict] = None
-    last_updated_by: Optional[str] = None
     form_id: Optional[str] = None
+
+
+class GetWorkflowInstanceStepsRequest(CradleBaseModel, extra="forbid"):
+    workflow_instance_id: str
+
+
+class GetWorkflowInstanceStepsResponse(CradleBaseModel, extra="forbid"):
+    items: list[WorkflowInstanceStepModel]
 
 
 class GetAvailableActionsResponse(CradleBaseModel):

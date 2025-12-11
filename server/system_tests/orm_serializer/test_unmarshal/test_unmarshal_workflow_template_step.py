@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from data import orm_serializer
 from models import (
     FormTemplateOrm,
@@ -9,54 +7,11 @@ from models import (
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
-
-
-def _form_payload(*, id: str = "ft-001") -> dict:
-    return {"id": id}
-
-
-def _create_branch(
-    *,
-    id: str,
-    step_id: str,
-    target_step_id: str | None = None,
-    condition: dict[str, Any] | str | None = None,
-) -> dict:
-    d: dict[str, Any] = {"id": id, "step_id": step_id}
-    if target_step_id is not None:
-        d["target_step_id"] = target_step_id
-    if condition is not None:
-        if isinstance(condition, str):
-            d["condition"] = {"id": condition}
-        elif isinstance(condition, dict):
-            d["condition"] = {"id": condition.get("id")}
-    return d
-
-
-def _create_step(
-    *,
-    id: str,
-    name: str,
-    description: str,
-    workflow_template_id: str,
-    form: dict[str, Any] | None = None,
-    branches: list[dict[str, Any]] | None = None,
-    expected_completion: int | None = 86_400,
-    last_edited: int = 1_700_000_000,
-) -> dict:
-    d: dict[str, Any] = {
-        "id": id,
-        "name": name,
-        "description": description,
-        "workflow_template_id": workflow_template_id,
-        "expected_completion": expected_completion,
-        "last_edited": last_edited,
-    }
-    if form is not None:
-        d["form"] = form
-    if branches is not None:
-        d["branches"] = branches
-    return d
+from tests.helpers import (
+    make_form_template,
+    make_workflow_template_branch,
+    make_workflow_template_step,
+)
 
 
 def test_unmarshal_step_with_form_and_branches():
@@ -68,27 +23,31 @@ def test_unmarshal_step_with_form_and_branches():
         - attach them back to the returned Step object.
     """
     step_id = "wts-100"
-    form = _form_payload(id="ft-123")
-    branches = [
-        _create_branch(
+
+    form_payload = make_form_template(id="ft-123")
+
+    branches_payload = [
+        make_workflow_template_branch(
             id="wtsb-1",
             step_id=step_id,
             target_step_id="wts-200",
             condition={"id": "rg-555"},
         ),
-        _create_branch(
+        make_workflow_template_branch(
             id="wtsb-2",
             step_id=step_id,
             target_step_id="wts-150",
+            condition=None,
         ),
     ]
-    payload = _create_step(
+
+    payload = make_workflow_template_step(
         id=step_id,
         name="Registration",
         description="Capture intake details and vitals",
         workflow_template_id="wt-42",
-        form=form,
-        branches=branches,
+        form=form_payload,
+        branches=branches_payload,
         expected_completion=3_600,
         last_edited=1_700_100_000,
     )
@@ -134,7 +93,7 @@ def test_unmarshal_step_without_form_or_branches():
     The test case verifies that the unmarshalled object has the correct fields and that
     form=None and branches=[] are set correctly.
     """
-    payload = _create_step(
+    payload = make_workflow_template_step(
         id="wts-200",
         name="Review",
         description="Supervisor reviews intake form",
@@ -164,7 +123,7 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
     Also checks that no nested loads occur (i.e. no WorkflowTemplateStepBranchOrm loads),
     and that the resulting object has form=None and branches=[], and no expected_completion attribute.
     """
-    payload = _create_step(
+    payload = make_workflow_template_step(
         id="wts-300",
         name="Counseling",
         description="Provide counseling and education",
@@ -185,5 +144,4 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
 
     assert obj.form is None
     assert obj.branches == []
-
     assert getattr(obj, "expected_completion", None) is None

@@ -64,7 +64,10 @@ class TestPatientResolution:
 class TestReadingResolution:
     """System tests for reading data resolution"""
 
-    def test_resolve_reading_vitals(self, patient_factory, reading_factory):
+    def test_resolve_reading_vitals(
+        self, user_factory, patient_factory, reading_factory
+    ):
+        user_factory.create(id=150, username="test_user")
         patient_factory.create(id="patient_003", name="BP Test Patient")
         reading_factory.create(
             id="reading_001",
@@ -111,7 +114,10 @@ class TestReadingResolution:
 class TestAssessmentResolution:
     """System tests for assessment data resolution"""
 
-    def test_resolve_assessment_fields(self, patient_factory, followup_factory):
+    def test_resolve_assessment_fields(
+        self, user_factory, patient_factory, followup_factory
+    ):
+        user_factory.create(id=160, username="test_user")
         patient_factory.create(id="patient_005", name="Assessment Patient")
         followup_factory.create(
             id="assessment_001",
@@ -167,8 +173,9 @@ class TestMultiObjectResolution:
     """System tests for resolving multiple object types together"""
 
     def test_resolve_patient_and_reading_together(
-        self, patient_factory, reading_factory
+        self, user_factory, patient_factory, reading_factory
     ):
+        user_factory.create(id=170, username="test_user")
         patient_factory.create(
             id="patient_007", name="Multi Test", sex="FEMALE", is_pregnant=True
         )

@@ -1,38 +1,18 @@
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from data import orm_serializer
 from models import RelayServerPhoneNumberOrm
+from tests.helpers import make_relay_phone_server_number
 
 
-def _create_relay_phone(
-    *,
-    id: str = "rpn-001",
-    phone_number: str = "+15551234567",
-    description: str = "Nairobi triage line",
-    last_received: int | None = 1_699_999_999,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {
-        "id": id,
-        "phone_number": phone_number,
-        "description": description,
-        **extras,
-    }
-    if last_received is not None:
-        d["last_received"] = last_received
-    return d
-
-
-def test_unmarshal_relay_phone_number_sets_attrs_and_does_not_rename_field(monkeypatch):
+def test_unmarshal_relay_phone_number_sets_attrs_and_does_not_rename_field():
     """
     Test that orm_serializer.unmarshal(RelayServerPhoneNumberOrm, payload) sets the appropriate
     attributes on the returned object and does not rename the "phone" field.
     """
-    payload = _create_relay_phone(
+    payload = make_relay_phone_server_number(
         id="rpn-qa",
         phone_number="+254700000001",
         description="Main relay line (KE1)",
@@ -51,11 +31,11 @@ def test_unmarshal_relay_phone_number_sets_attrs_and_does_not_rename_field(monke
     assert not hasattr(obj, "region")
 
 
-def test_unmarshal_relay_phone_number_without_last_received_is_none(monkeypatch):
+def test_unmarshal_relay_phone_number_without_last_received_is_none():
     """
     Test that orm_serializer.unmarshal(RelayServerPhoneNumberOrm, payload) sets last_received to None if the key is missing from the payload.
     """
-    payload = _create_relay_phone(
+    payload = make_relay_phone_server_number(
         id="rpn-002",
         phone_number="+15550000002",
         description="US relay #2",
@@ -71,9 +51,7 @@ def test_unmarshal_relay_phone_number_without_last_received_is_none(monkeypatch)
     assert obj.last_received is None
 
 
-def test_unmarshal_relay_phone_number_missing_required_keys_raises_keyerror(
-    monkeypatch,
-):
+def test_unmarshal_relay_phone_number_missing_required_keys_raises_keyerror():
     """
     Test that orm_serializer.unmarshal(RelayServerPhoneNumberOrm, payload) raises a KeyError
     if either phone or description are missing from the payload.

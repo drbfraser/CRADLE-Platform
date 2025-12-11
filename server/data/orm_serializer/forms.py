@@ -108,6 +108,28 @@ def __marshal_form(f: FormOrm, shallow: bool) -> dict:
     return d
 
 
+def __marshal_form_classification_v2(fc: FormClassificationOrmV2, shallow=True) -> dict:
+    """
+    Serialize a ``FormClassificationOrmV2`` translation entry.
+
+    :param fc: Language version instance to serialize.
+    :param shallow: If ``True``, omit templates.
+    :return: Form classification dictionary with id, name_string_id, and optionally templates.
+    """
+    d = vars(fc).copy()
+    __pre_process(d)
+
+    if shallow:
+        if d.get("templates"):
+            del d["templates"]
+    else:
+        d["templates"] = [
+            __marshal_form_template_v2(ft, shallow=True) for ft in fc.templates
+        ]
+
+    return d
+
+
 def __marshal_form_template_v2(
     ft: FormTemplateOrmV2,
     shallow: bool = False,

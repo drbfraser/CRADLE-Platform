@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 
 import data.db_operations as crud
 from authentication import cognito, get_username_from_jwt
-from common import health_facility_utils, phone_number_utils
+from common import commonUtil, health_facility_utils, phone_number_utils
 from common.constants import EMAIL_REGEX_PATTERN, MAX_SMS_RELAY_REQUEST_NUMBER
 from common.date_utils import get_future_date, is_date_passed
 from config import db
@@ -28,6 +28,8 @@ else:
 
 logger = logging.getLogger(__name__)
 
+
+USER_NOT_FOUND_MSG = "User with ID: ({}) not found."
 
 supported_roles = [supported_role.value for supported_role in RoleEnum]
 
@@ -606,3 +608,15 @@ def get_user_roles(user_id):
     if user_orm is None:
         raise ValueError(f"No user with id ({user_id}) was found.")
     return user_orm.role
+
+
+def fetch_user_or_404(user_id: int) -> UserOrm:
+    """
+    Fetch a user or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    user = crud.read(UserOrm, id=user_id)
+    if user is None:
+        commonUtil.abort_not_found(USER_NOT_FOUND_MSG.format(user_id))
+
+    return user

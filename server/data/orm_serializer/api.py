@@ -34,6 +34,7 @@ from models import (
 from .forms import (
     __marshal_form,
     __marshal_form_answer_v2,
+    __marshal_form_classification_v2,
     __marshal_form_question_template_v2,
     __marshal_form_submission_v2,
     __marshal_form_template,
@@ -106,6 +107,8 @@ def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) 
         return __marshal_lang_version_v2(obj)
     if isinstance(obj, FormTemplateOrmV2):
         return __marshal_form_template_v2(obj, shallow)
+    if isinstance(obj, FormClassificationOrmV2):
+        return __marshal_form_classification_v2(obj, shallow)
     if isinstance(obj, FormQuestionTemplateOrmV2):
         return __marshal_form_question_template_v2(obj)
     if isinstance(obj, FormSubmissionOrmV2):
@@ -251,6 +254,10 @@ def marshal_with_type(obj: Any, shallow: bool = False) -> dict:
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
+    if isinstance(obj, FormSubmissionOrmV2):
+        form_dict = __marshal_form_submission_v2(obj, True)
+        form_dict["type"] = "form"
+        return form_dict
     if isinstance(obj, FormOrm):
         form_dict = __marshal_form(obj, True)
         form_dict["type"] = "form"
