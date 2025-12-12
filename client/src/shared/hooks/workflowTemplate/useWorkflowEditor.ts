@@ -2,39 +2,10 @@ import { useState } from 'react';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 
-/**
- * Helper function to extract data sources (var fields) from a condition rule JSON
- * Example: {"<": [{"var": "patient.age"}, 32]} => '["patient.age"]'
- * TODO: Replace with a more generic function that can handle all condition types
- */
-const extractDataSources = (ruleJSON: string): string => {
-  try {
-    const rule = JSON.parse(ruleJSON);
-    const dataSources: string[] = [];
-
-    // Recursive function to find all "var" properties
-    const findVars = (obj: any) => {
-      if (typeof obj === 'object' && obj !== null) {
-        if ('var' in obj && typeof obj.var === 'string') {
-          dataSources.push(obj.var);
-        }
-        // Recursively search in nested objects and arrays
-        Object.values(obj).forEach((value) => {
-          if (typeof value === 'object') {
-            findVars(value);
-          }
-        });
-      }
-    };
-
-    findVars(rule);
-    // Return JSON string representation of the array
-    return JSON.stringify(dataSources);
-  } catch (error) {
-    console.error('Failed to extract data sources from rule:', error);
-    return '[]';
-  }
-};
+// Default values for new workflow steps
+const DEFAULT_STEP_NAME = 'New Step';
+const DEFAULT_BRANCH_STEP_NAME = 'New Branch Step';
+const DEFAULT_STEP_DESCRIPTION = 'Add description here';
 
 export interface UseWorkflowEditorOptions {
   initialWorkflow: WorkflowTemplate | null;
@@ -113,9 +84,6 @@ export const useWorkflowEditor = ({
   ) => {
     if (!editedWorkflow) return;
 
-    // Extract data sources from the condition rule as a JSON string
-    const dataSourcesJSON = extractDataSources(conditionRule);
-
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
 
@@ -128,7 +96,6 @@ export const useWorkflowEditor = ({
                 condition: {
                   id: branch.condition?.id || `condition-${Date.now()}`,
                   rule: conditionRule,
-                  data_sources: dataSourcesJSON,
                 },
               };
             }
@@ -173,8 +140,8 @@ export const useWorkflowEditor = ({
     // Create a new step
     const newStep = {
       id: newStepId,
-      name: 'New Step',
-      description: 'Add description here',
+      name: DEFAULT_STEP_NAME,
+      description: DEFAULT_STEP_DESCRIPTION,
       lastEdited: Date.now(),
       workflowTemplateId: editedWorkflow.id,
       branches: newStepBranches,
@@ -241,8 +208,8 @@ export const useWorkflowEditor = ({
     // Create a new step that will be the target of the new branch
     const newStep = {
       id: newStepId,
-      name: 'New Branch Step',
-      description: 'Add description here',
+      name: DEFAULT_BRANCH_STEP_NAME,
+      description: DEFAULT_STEP_DESCRIPTION,
       lastEdited: Date.now(),
       workflowTemplateId: editedWorkflow.id,
       branches: [],
