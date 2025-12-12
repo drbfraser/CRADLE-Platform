@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from data import orm_serializer
 from models import (
     FormTemplateOrm,
@@ -11,101 +9,12 @@ from models import (
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
-
-
-def _create_form_template(*, id: str, **extras: Any) -> dict:
-    d: dict[str, Any] = {"id": id}
-    d.update(extras)
-    return d
-
-
-def _create_rule_group(*, id: str, **extras: Any) -> dict:
-    d: dict[str, Any] = {"id": id}
-    d.update(extras)
-    return d
-
-
-def _create_branch(
-    *,
-    id: str,
-    step_id: str,
-    target_step_id: str | None,
-    condition: dict[str, Any] | None = None,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {"id": id, "step_id": step_id}
-    if target_step_id is not None:
-        d["target_step_id"] = target_step_id
-    if condition is not None:
-        d["condition"] = condition
-    d.update(extras)
-    return d
-
-
-def _create_step(
-    *,
-    id: str,
-    name: str,
-    description: str,
-    workflow_template_id: str,
-    form: dict[str, Any] | None = None,
-    branches: list[dict[str, Any]] | None = None,
-    expected_completion: int | None = 3600,
-    last_edited: int = 1_700_000_000,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {
-        "id": id,
-        "name": name,
-        "description": description,
-        "workflow_template_id": workflow_template_id,
-        "expected_completion": expected_completion,
-        "last_edited": last_edited,
-        **extras,
-    }
-    if form is not None:
-        d["form"] = form
-    if branches is not None:
-        d["branches"] = branches
-    return d
-
-
-def _classification_payload(*, id: str, name: str = "ANC", **extras: Any) -> dict:
-    d: dict[str, Any] = {"id": id, "name": name}
-    d.update(extras)
-    return d
-
-
-def _template_payload(
-    *,
-    id: str,
-    name: str,
-    description: str,
-    version: str,
-    archived: bool = False,
-    date_created: int = 1_699_999_999,
-    last_edited: int = 1_700_123_456,
-    starting_step_id: str | None = None,
-    steps: list[dict[str, Any]] | None = None,
-    classification: dict[str, Any] | None = None,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {
-        "id": id,
-        "name": name,
-        "description": description,
-        "archived": archived,
-        "date_created": date_created,
-        "starting_step_id": starting_step_id,
-        "last_edited": last_edited,
-        "version": version,
-        **extras,
-    }
-    if steps is not None:
-        d["steps"] = steps
-    if classification is not None:
-        d["classification"] = classification
-    return d
+from tests.helpers import (
+    make_form_template,
+    make_workflow_template,
+    make_workflow_template_branch,
+    make_workflow_template_step,
+)
 
 
 def test_unmarshal_workflow_template_with_steps_and_classification():
@@ -116,28 +25,30 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     wt_id = "wt-42"
     step1_id, step2_id = "wts-100", "wts-200"
 
-    form1 = _create_form_template(id="ft-001")
-    cond = _create_rule_group(id="rg-900")
-
+    # Branches for step 1
     branches1 = [
-        _create_branch(
+        make_workflow_template_branch(
             id="wtsb-1",
             step_id=step1_id,
             target_step_id=step2_id,
-            condition=cond,
+            condition={"id": "rg-900"},
         )
     ]
-    step1 = _create_step(
+
+    # Step 1 with form + branch
+    step1 = make_workflow_template_step(
         id=step1_id,
         name="Registration",
         description="Capture intake details",
         workflow_template_id=wt_id,
-        form=form1,
+        form=make_form_template(id="ft-001"),
         branches=branches1,
         expected_completion=3_600,
         last_edited=1_700_200_001,
     )
-    step2 = _create_step(
+
+    # Step 2 without form/branches
+    step2 = make_workflow_template_step(
         id=step2_id,
         name="Review",
         description="Supervisor review",
@@ -145,9 +56,12 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
         expected_completion=7_200,
         last_edited=1_700_200_002,
     )
-    classification = _classification_payload(id="wc-007", name="ANC")
 
-    payload = _template_payload(
+    # Classification payload
+    classification_payload = {"id": "wc-007", "name": "ANC"}
+
+    # Top-level workflow template payload
+    payload = make_workflow_template(
         id=wt_id,
         name="ANC Workflow v1",
         description="Standard ANC flow",
@@ -157,7 +71,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
         last_edited=1_700_123_456,
         starting_step_id=step1_id,
         steps=[step1, step2],
-        classification=classification,
+        classification=classification_payload,
     )
 
     obj = orm_serializer.unmarshal(WorkflowTemplateOrm, payload)
@@ -207,7 +121,7 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
     forwards the payload as-is to WorkflowTemplateOrm.load(), and that no nested
     loads occur.
     """
-    payload = _template_payload(
+    payload = make_workflow_template(
         id="wt-2",
         name="Simple Flow",
         description="A very small template",
@@ -216,7 +130,9 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
         date_created=1_700_000_000,
         last_edited=1_700_000_010,
     )
+
     payload.pop("starting_step_id", None)
+    payload.pop("steps", None)
 
     obj = orm_serializer.unmarshal(WorkflowTemplateOrm, payload)
 
@@ -241,7 +157,7 @@ def test_unmarshal_workflow_template_strips_none_and_handles_empty_steps():
     should result in an object with starting_step_id=None and steps=[].
     No classification is expected.
     """
-    payload = _template_payload(
+    payload = make_workflow_template(
         id="wt-3",
         name="Nulls Example",
         description="Demonstrates stripping of None",

@@ -1,32 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from data import orm_serializer
 from models import QuestionLangVersionOrm
-
-
-def _create_lang_version(
-    *,
-    id: int | None = None,
-    lang: str = "en",
-    question_text: str = "How are you?",
-    mc_options: list[str] | str | None = None,
-    question_id: str = "q-001",
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {
-        "lang": lang,
-        "question_text": question_text,
-        "question_id": question_id,
-        **extras,
-    }
-    if id is not None:
-        d["id"] = id
-    if mc_options is not None:
-        d["mc_options"] = mc_options
-    return d
+from tests.helpers import make_question_lang_version
 
 
 def test_unmarshal_lang_version_encodes_list_mc_options_to_json_string():
@@ -36,7 +14,7 @@ def test_unmarshal_lang_version_encodes_list_mc_options_to_json_string():
     to schema().load(...), and that the unmarshalled object has the same semantic content
     as the original payload.
     """
-    payload = _create_lang_version(
+    payload = make_question_lang_version(
         id=10,
         lang="fr",
         question_text="Ça va ?",
@@ -60,7 +38,7 @@ def test_unmarshal_lang_version_leaves_json_string_mc_options_unchanged():
     a JSON string of multiple choice options will result in the same JSON string being
     passed to schema().load(...).
     """
-    payload = _create_lang_version(
+    payload = make_question_lang_version(
         id=11,
         lang="en",
         question_text="Pick one",
@@ -84,7 +62,7 @@ def test_unmarshal_lang_version_omits_mc_options_when_absent():
     missing 'mc_options' key results in a None value for the mc_options field of the
     returned object.
     """
-    payload = _create_lang_version(
+    payload = make_question_lang_version(
         lang="sw", question_text="Habari?", question_id="q-222"
     )
 

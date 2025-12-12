@@ -1,41 +1,7 @@
 from __future__ import annotations
 
-import types
-
 from data.orm_serializer import marshal_patient_pregnancy_summary
-
-
-def _Create_pregnancy(
-    id: str,
-    start: int,
-    end: int | None,
-    outcome: str | None,
-    patient_id: str = "pat-1",
-    last_edited: int = 1_700_000_999,
-):
-    """
-    Create a PregnancyOrm-like object with given attributes.
-
-    Args:
-        id: str
-        start: int
-        end: int | None
-        outcome: str | None
-        patient_id: str, default="pat-1"
-        last_edited: int, default=1_700_000_999
-
-    Returns:
-        types.SimpleNamespace: PregnancyOrm-like object with given attributes
-
-    """
-    return types.SimpleNamespace(
-        id=id,
-        start_date=start,
-        end_date=end,
-        outcome=outcome,
-        patient_id=patient_id,
-        last_edited=last_edited,
-    )
+from tests.orm_helpers import make_pregnancy_orm
 
 
 def test_empty_list_returns_default_summary():
@@ -57,8 +23,8 @@ def test_only_current_pregnancy_sets_flag_and_fields():
       - set pregnancy_id and pregnancy_start_date
       - produce an empty past_pregnancies list
     """
-    current = _Create_pregnancy(
-        id="pg-100", start=1_700_001_000, end=None, outcome=None
+    current = make_pregnancy_orm(
+        id="pg-100", start_date=1_700_001_000, end_date=None, outcome=None
     )
     records = [current]
 
@@ -77,10 +43,10 @@ def test_only_past_pregnancy_lists_one_past_entry():
       - include one past_pregnancy with id, outcome, pregnancy_start_date, and pregnancy_end_date
       - not include any current-pregnancy keys
     """
-    completed = _Create_pregnancy(
+    completed = make_pregnancy_orm(
         id="pg-200",
-        start=1_690_000_000,
-        end=1_690_500_000,
+        start_date=1_690_000_000,
+        end_date=1_690_500_000,
         outcome="Live birth",
     )
     records = [completed]
@@ -113,14 +79,20 @@ def test_current_then_multiple_past_preserves_order_and_fields():
       - include a list of past_pregnancies with id, outcome, pregnancy_start_date, and pregnancy_end_date
       - preserve the order of the input records (i.e. current pregnancy first, then completed pregnancies in the order they were passed)
     """
-    current = _Create_pregnancy(
-        id="pg-300", start=1_700_100_000, end=None, outcome=None
+    current = make_pregnancy_orm(
+        id="pg-300", start_date=1_700_100_000, end_date=None, outcome=None
     )
-    past1 = _Create_pregnancy(
-        id="pg-250", start=1_699_000_000, end=1_699_500_000, outcome="Live birth"
+    past1 = make_pregnancy_orm(
+        id="pg-250",
+        start_date=1_699_000_000,
+        end_date=1_699_500_000,
+        outcome="Live birth",
     )
-    past2 = _Create_pregnancy(
-        id="pg-150", start=1_680_000_000, end=1_681_000_000, outcome="Miscarriage"
+    past2 = make_pregnancy_orm(
+        id="pg-150",
+        start_date=1_680_000_000,
+        end_date=1_681_000_000,
+        outcome="Miscarriage",
     )
     records = [current, past1, past2]
 
@@ -156,11 +128,14 @@ def test_function_mutates_input_list_when_current_present():
 
     This test ensures that the marshal_patient_pregnancy_summary function does not leave any ongoing pregnancies in the input list.
     """
-    current = _Create_pregnancy(
-        id="pg-400", start=1_701_000_000, end=None, outcome=None
+    current = make_pregnancy_orm(
+        id="pg-400", start_date=1_701_000_000, end_date=None, outcome=None
     )
-    pastX = _Create_pregnancy(
-        id="pg-350", start=1_700_000_000, end=1_700_100_000, outcome="Live birth"
+    pastX = make_pregnancy_orm(
+        id="pg-350",
+        start_date=1_700_000_000,
+        end_date=1_700_100_000,
+        outcome="Live birth",
     )
     records = [current, pastX]
 
