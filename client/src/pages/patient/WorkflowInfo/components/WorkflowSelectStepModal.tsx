@@ -64,33 +64,37 @@ export default function WorkflowSelectStepModal({
           }}>
           <Paper
             sx={{
-              minHeight: '15vw',
-              maxHeight: '50vw',
+              minHeight: '15vh',
+              maxHeight: '70vh',
               minWidth: '50vw',
               maxWidth: '90vw',
-              p: 8,
-              pt: 6,
+              p: 6,
+              // pt: 6,
               borderRadius: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 2,
             }}>
             {options.length > 0 ? (
-              <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
+              <>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
                   Select next step
                 </Typography>
 
-                <NextStepSelector
-                  selectedId={selectedId}
-                  setSelectedId={setSelectedId}
-                  // setNextStep={setNextStep}
-                  options={options}
-                />
+                <Box
+                  sx={{
+                    overflowY: 'auto',
+                    flexGrow: 1,
+                    pr: 2,
+                  }}>
+                  <NextStepSelector
+                    selectedId={selectedId}
+                    setSelectedId={setSelectedId}
+                    options={options}
+                  />
+                </Box>
 
                 <Box
                   sx={{
@@ -110,7 +114,7 @@ export default function WorkflowSelectStepModal({
                     Confirm
                   </Button>
                 </Box>
-              </Box>
+              </>
             ) : (
               <Box
                 sx={{
