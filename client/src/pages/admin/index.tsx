@@ -51,7 +51,10 @@ export const AdminPage = () => {
   return (
     <Routes>
       <Route path={`form-templates/new`} element={<CustomFormTemplate />} />
-      <Route path={`workflow-templates/new`} element={<CreateWorkflowTemplate />}/>
+      <Route
+        path={`workflow-templates/new`}
+        element={<CreateWorkflowTemplate />}
+      />
       <Route
         path={`workflow-templates/view`}
         element={<ViewWorkflowTemplate />}

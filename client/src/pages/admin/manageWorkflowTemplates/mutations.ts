@@ -6,7 +6,10 @@ import {
   archiveWorkflowTemplateAsync,
   createTemplate,
 } from 'src/shared/api';
-import { WorkflowTemplate, TemplateInput } from 'src/shared/types/workflow/workflowApiTypes';
+import {
+  WorkflowTemplate,
+  TemplateInput,
+} from 'src/shared/types/workflow/workflowApiTypes';
 
 export const useCreateWorkflowTemplate = () => {
   const queryClient = useQueryClient();
