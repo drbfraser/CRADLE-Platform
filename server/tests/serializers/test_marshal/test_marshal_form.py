@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     FormClassificationOrm,
     FormOrm,
@@ -151,7 +151,7 @@ def test_form_shallow_includes_core_fields_and_classification_but_omits_question
         questions=[make_question(id_="q-x", question_index=2)],
     )
 
-    marshalled = m.marshal(form, shallow=True)
+    marshalled = orm_seralizer.marshal(form, shallow=True)
 
     # core scalar fields
     assert marshalled["id"] == "f-shallow"
@@ -208,7 +208,7 @@ def test_form_deep_includes_sorted_questions_and_parses_question_fields():
         questions=[q2, q1],  # deliberately unsorted on input
     )
 
-    marshalled = m.marshal(form, shallow=False)
+    marshalled = orm_seralizer.marshal(form, shallow=False)
 
     assert "questions" in marshalled and isinstance(marshalled["questions"], list)
     idxs = [q["question_index"] for q in marshalled["questions"]]
@@ -249,7 +249,7 @@ def test_form_deep_does_not_mutate_source_objects_and_strips_privates_everywhere
     # Snapshot original question order to prove non-mutation
     original_order = [question.id for question in form.questions]
 
-    marshalled = m.marshal(form, shallow=False)
+    marshalled = orm_seralizer.marshal(form, shallow=False)
 
     # Private attributes shouldn't appear
     assert "_secret" not in marshalled
@@ -270,7 +270,7 @@ def test_form_classification_backrefs_do_not_leak_templates():
     form_classification = make_classification("form_classification-noleak")
     form = make_form(id_="f-noleak", classification=form_classification)
 
-    marshalled = m.marshal(form, shallow=True)
+    marshalled = orm_seralizer.marshal(form, shallow=True)
     assert "templates" not in marshalled["classification"]
 
 
@@ -287,7 +287,7 @@ def test_form_marshal_with_type_uses_shallow_and_sets_type():
         questions=[make_question(id_="q-1", question_index=1)],
     )
 
-    marshalled = m.marshal_with_type(form, shallow=False)
+    marshalled = orm_seralizer.marshal_with_type(form, shallow=False)
 
     assert marshalled["type"] == "form"
     assert marshalled["id"] == "f-type"

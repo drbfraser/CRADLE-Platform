@@ -33,7 +33,7 @@ from data.db_operations.helper_utils import (
 )
 from models import (
     AssessmentOrm,
-    FormOrm,
+    FormSubmissionOrmV2,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
@@ -296,9 +296,9 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     form_required = kwargs.get("forms")
     if form_required:
         form_list = (
-            db_session.query(FormOrm)
+            db_session.query(FormSubmissionOrmV2)
             .filter_by(patient_id=patient_id)
-            .order_by(FormOrm.date_created.desc())
+            .order_by(FormSubmissionOrmV2.date_submitted.desc())
             .all()
         )
 
@@ -331,7 +331,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
             else -1
         )
         cur_form_t = (
-            form_list[form_pos].date_created if form_pos < len(form_list) else -1
+            form_list[form_pos].date_submitted if form_pos < len(form_list) else -1
         )
 
         # get most recent record across the lists and append to final list

@@ -1,7 +1,7 @@
 # ruff: noqa: SLF001
 from __future__ import annotations
 
-import data.marshal as m
+import data.orm_serializer as orm_seralizer
 from models import (
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -80,7 +80,7 @@ def test_workflow_collection_marshal_full_includes_classifications_and_cleans_ne
     # Attach to the collection using the ORM backref list
     coll.workflow_classifications = [c1, c2]
 
-    marshalled = m.marshal(coll)
+    marshalled = orm_seralizer.marshal(coll)
 
     # preserved fields
     assert marshalled["id"] == "wfc-001"
@@ -138,7 +138,7 @@ def test_workflow_collection_marshal_shallow_omits_classifications_and_strips_pr
         _make_classification("wc-IMCI", "IMCI", collection_id=coll.id)
     ]
 
-    marshalled = m.marshal(coll, shallow=True)
+    marshalled = orm_seralizer.marshal(coll, shallow=True)
 
     # Preserved
     assert marshalled["id"] == "wfc-010"

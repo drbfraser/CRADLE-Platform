@@ -2,7 +2,7 @@ import datetime as dt
 
 import pytest
 
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from enums import SexEnum
 from models import PatientOrm, ReadingOrm
 
@@ -53,7 +53,7 @@ def test_patient_shallow_sets_base_and_converts_types(patient_orm):
 
     :param patient_orm: A PatientOrm object with specific attributes.
     """
-    marshalled = m.marshal(patient_orm, shallow=True)
+    marshalled = orm_seralizer.marshal(patient_orm, shallow=True)
     assert marshalled["id"] == "p-1"
     assert marshalled["name"] == "Mary Brown"
     assert marshalled["date_of_birth"] == "1998-01-01"
@@ -82,6 +82,6 @@ def test_patient_non_shallow_includes_nested_lists(patient_orm):
     reading.id = 1
     reading.symptoms = None
     patient_orm.readings = [reading]
-    marshalled = m.marshal(patient_orm, shallow=False)
+    marshalled = orm_seralizer.marshal(patient_orm, shallow=False)
     assert "readings" in marshalled and isinstance(marshalled["readings"], list)
     assert marshalled["readings"][0]["id"] == 1

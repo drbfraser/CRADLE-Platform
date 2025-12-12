@@ -243,6 +243,10 @@ class FormSubmissionOrmV2(db.Model):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    patient = db.relationship(
+        "PatientOrm",
+        backref=db.backref("form_submissions", cascade="all, delete", lazy=True),
+    )
 
 
 class FormAnswerOrmV2(db.Model):

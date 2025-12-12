@@ -33,7 +33,7 @@ def without_model_key():
 @pytest.fixture(scope="session")
 def marshal_mod():
     """Late-import the marshal module after env is set."""
-    return importlib.import_module("data.marshal")
+    return importlib.import_module("data.orm_serializer")
 
 
 @pytest.fixture(autouse=True)

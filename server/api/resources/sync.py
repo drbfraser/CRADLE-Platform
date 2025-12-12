@@ -8,7 +8,7 @@ from pydantic import Field, RootModel
 
 import data.db_operations as crud
 from common import user_utils
-from data import marshal
+from data import orm_serializer
 from models import (
     MedicalRecordOrm,
     PatientAssociationsOrm,
@@ -201,7 +201,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             # Why is a PatientAssociation being assigned to a variable called
             # assessment_to_create
             if crud.read(PatientAssociationsOrm, **association) is None:
-                assessment_to_create = marshal.unmarshal(
+                assessment_to_create = orm_serializer.unmarshal(
                     PatientAssociationsOrm, association
                 )
 
@@ -281,7 +281,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
                 ReadingModel(**mobile_reading_dict)
             except ValidationError as e:
                 return abort(422, description=str(e))
-            reading = marshal.unmarshal(ReadingOrm, mobile_reading_dict)
+            reading = orm_serializer.unmarshal(ReadingOrm, mobile_reading_dict)
             invariant.resolve_reading_invariants(reading)
             crud.create(reading, refresh=True)
 
@@ -320,7 +320,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
             continue
         ReferralModel(**mobile_referral_dict)
 
-        referral = marshal.unmarshal(ReferralOrm, mobile_referral_dict)
+        referral = orm_serializer.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)
 
     # Read all referrals that have been created or updated since last sync

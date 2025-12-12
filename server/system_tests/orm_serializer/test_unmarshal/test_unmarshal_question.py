@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from data.marshal import unmarshal
+from data import orm_serializer
 from models import QuestionOrm
 
 
@@ -112,7 +112,7 @@ def test_unmarshal_question_encodes_json_fields_and_detaches_lang_versions():
         ],
     )
 
-    obj = unmarshal(QuestionOrm, payload)
+    obj = orm_serializer.unmarshal(QuestionOrm, payload)
 
     assert isinstance(obj, QuestionOrm)
     assert obj.id == "q-enc"
@@ -160,7 +160,7 @@ def test_unmarshal_question_leaves_string_mc_options_and_handles_empty_versions(
         lang_versions=[],
     )
 
-    obj = unmarshal(QuestionOrm, payload)
+    obj = orm_serializer.unmarshal(QuestionOrm, payload)
 
     assert isinstance(obj, QuestionOrm)
     assert obj.id == "q-pre"
@@ -186,7 +186,7 @@ def test_unmarshal_question_strips_or_ignores_none_fields_and_encodes_other_fiel
         answers={"number": 37.5},
     )
 
-    obj = unmarshal(QuestionOrm, payload)
+    obj = orm_serializer.unmarshal(QuestionOrm, payload)
 
     assert isinstance(obj, QuestionOrm)
     assert obj.question_type == "DECIMAL"

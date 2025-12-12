@@ -4,6 +4,7 @@ import { Patient } from 'src/shared/types/patientTypes';
 import {
   WorkflowInstance,
   WorkflowInstanceStep,
+  WorkflowInstanceStepEvaluation,
   WorkflowTemplate,
   WorkflowTemplateStep,
 } from 'src/shared/types/workflow/workflowApiTypes';
@@ -12,6 +13,7 @@ import {
   InstanceDetails,
   InstanceStep,
   WorkflowInfoRow,
+  WorkflowNextStepOption,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatISODateNumber } from 'src/shared/utils';
 
@@ -169,6 +171,14 @@ export function getWorkflowCurrentStep(instance: InstanceDetails) {
   return currentStep;
 }
 
+export function getWorkflowStepWithId(
+  stepId: string,
+  instanceDetails: InstanceDetails
+): InstanceStep | null {
+  const step = instanceDetails.steps.find((step) => step.id === stepId);
+  return step ?? null;
+}
+
 export const buildWorkflowInstanceRowList = async (
   instances: WorkflowInstance[]
 ) => {
@@ -193,4 +203,73 @@ export const buildWorkflowInstanceRowList = async (
     })
   );
   return workflowInfoRows;
+};
+
+export const getTargetTemplateStepFromBranchId = (
+  instance: InstanceDetails,
+  template: WorkflowTemplate,
+  currentStepId: string,
+  branchId: string
+): InstanceStep | undefined => {
+  const templateStepId = instance.steps.find(
+    (step) => step.id === currentStepId
+  )?.workflowTemplateStepId;
+
+  if (!templateStepId) return undefined;
+
+  const templateStep = template.steps.find(
+    (step) => step.id === templateStepId
+  );
+
+  const targetTemplateStepId = templateStep?.branches?.find(
+    (branch) => branch.id === branchId
+  )?.targetStepId;
+
+  return instance.steps.find(
+    (step) => step.workflowTemplateStepId === targetTemplateStepId
+  );
+};
+
+export const getWorkflowNextStepOptions = (
+  instance: InstanceDetails,
+  template: WorkflowTemplate,
+  stepEval: WorkflowInstanceStepEvaluation,
+  currentStepId: string
+) => {
+  const branchEvals = stepEval.branchEvaluations;
+  const selectedBranchId = stepEval.selectedBranchId;
+  const nextOptions: WorkflowNextStepOption[] = [];
+
+  branchEvals.forEach((branchEval) => {
+    const targetInstanceStep = getTargetTemplateStepFromBranchId(
+      instance,
+      template,
+      currentStepId,
+      branchEval.branchId
+    );
+    if (!targetInstanceStep) {
+      return;
+    }
+
+    const nextOption: WorkflowNextStepOption = {
+      branchId: branchEval.branchId,
+      stepId: targetInstanceStep.id,
+      title: targetInstanceStep.title,
+      isRecommended: selectedBranchId === branchEval.branchId,
+      ruleDetails: [
+        `Rule: ${branchEval.rule}`,
+        `Status: ${branchEval.ruleStatus}`,
+        ...(branchEval.varResolutions.length
+          ? branchEval.varResolutions.map((vr) => {
+              const displayValue = vr.value ?? 'N/A';
+              return `Resolved: ${vr.var} = ${displayValue}, status: ${vr.status}`;
+            })
+          : ['No data found']),
+      ],
+    };
+
+    nextOptions.push(nextOption);
+  });
+
+  return nextOptions;
 };

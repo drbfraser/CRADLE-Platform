@@ -7,10 +7,10 @@ from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
+from service.workflow.datasourcing.data_sourcing import VariableResolution
 from service.workflow.evaluate.rules_engine import RuleStatus
 from validation import CradleBaseModel
-from validation.forms import FormModel
-from validation.rule_groups import RuleGroupModel, VariableResolution
+from validation.rule_groups import RuleGroupModel
 
 
 class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
@@ -96,7 +96,9 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     data: Optional[str] = None
     triggered_by: Optional[str] = None
     form_id: Optional[str] = None
-    form: Optional[FormModel] = None
+    form: Optional[dict] = (
+        None  # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
+    )
 
     @field_validator("data", mode="after")
     @classmethod
@@ -157,6 +159,12 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
             raise ValueError("completion_date cannot be before start_date")
 
         return self
+
+    def get_instance_step(self, step_id: str) -> Optional[WorkflowInstanceStepModel]:
+        for step in self.steps:
+            if step.id == step_id:
+                return step
+        return None
 
 
 class StartWorkflowActionModel(CradleBaseModel):
