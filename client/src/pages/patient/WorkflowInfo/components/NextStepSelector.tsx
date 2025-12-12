@@ -45,7 +45,7 @@ export default function NextStepSelector({
         );
       case WorkflowBranchEvaluationStatus.FALSE:
         return (
-          <Cancel fontSize="inherit" sx={{ color: 'error.main', mr: 0.5 }} />
+          <Cancel fontSize="inherit" sx={{ color: 'text.disabled', mr: 0.5 }} />
         );
       case WorkflowBranchEvaluationStatus.NOT_ENOUGH_DATA:
       default:
@@ -63,7 +63,7 @@ export default function NextStepSelector({
       case WorkflowBranchEvaluationStatus.TRUE:
         return 'success.main';
       case WorkflowBranchEvaluationStatus.FALSE:
-        return 'error.main';
+        return 'text.disabled';
       case WorkflowBranchEvaluationStatus.NOT_ENOUGH_DATA:
       default:
         return 'warning.main';
