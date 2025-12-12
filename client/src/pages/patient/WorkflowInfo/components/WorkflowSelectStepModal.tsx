@@ -69,7 +69,6 @@ export default function WorkflowSelectStepModal({
               minWidth: '50vw',
               maxWidth: '90vw',
               p: 6,
-              // pt: 6,
               borderRadius: 3,
               display: 'flex',
               flexDirection: 'column',
