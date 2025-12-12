@@ -178,10 +178,9 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             check_for_existing_template_version(
                 workflow_classification_orm.id, workflow_template_dict["version"]
             )
-            workflow_template_orm.classification = workflow_classification_orm
 
-    if workflow_classification_orm is not None:
-        archive_templates_in_classification(workflow_classification_orm.id)
+            archive_templates_in_classification(workflow_classification_orm.id)
+            workflow_template_orm.classification = workflow_classification_orm
 
     crud.create(model=workflow_template_orm, refresh=True)
 
