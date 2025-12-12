@@ -10,7 +10,7 @@ import { EndpointEnum } from 'src/shared/enums';
 export const editFormTemplateAsync = async (template: FormTemplate) =>
   axiosFetch({
     method: 'PUT',
-    url: EndpointEnum.FORM_TEMPLATES + '/' + template.id,
+    url: `${EndpointEnum.FORM_TEMPLATES}/${template.id}?archived=${template.archived}`,
     data: template,
   });
 

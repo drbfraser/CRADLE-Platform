@@ -138,7 +138,7 @@ export const useEditField = ({
 
   // Rehydrate visible conditions when opening the edit modal
   useEffect(() => {
-    if (categoryIndex !== null) {
+    if (categoryIndex !== null && questionsArr[categoryIndex]) {
       setVisibleCondition(questionsArr[categoryIndex].visibleCondition ?? []);
     } else {
       setVisibleCondition([]);

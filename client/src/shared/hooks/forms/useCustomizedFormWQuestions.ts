@@ -266,7 +266,7 @@ export const useCustomizedFormWQuestions = (
 
   const getEmptyLanguages = (question: TQuestion) => {
     const emptyLangs = Object.entries(question.questionText)
-      .filter(([_, text]) => text.trim() === '')
+      .filter(([_, text]) => text?.trim() === '')
       .map(([lang]) => lang);
 
     return emptyLangs.join(', ');
