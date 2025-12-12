@@ -164,6 +164,7 @@ describe('workflowTemplates API', () => {
         version: 'V1',
         classificationId: 'classification-1',
         steps: [],
+        archived: false,
         classification: {
           id: 'classification-1',
           name: 'Test Classification',
@@ -180,7 +181,7 @@ describe('workflowTemplates API', () => {
 
       mockServer.use(
         http.post(
-          API_URL + EndpointEnum.WORKFLOW_TEMPLATES,
+          API_URL + EndpointEnum.WORKFLOW_TEMPLATES + '/body',
           async ({ request }) => {
             const body = await request.json();
             expect(body).toEqual(templateInput);
@@ -205,6 +206,7 @@ describe('workflowTemplates API', () => {
         version: 'V2',
         classificationId: 'classification-1',
         steps: [],
+        archived: false,
         classification: {
           id: 'classification-1',
           name: 'Updated Classification',
@@ -645,6 +647,7 @@ describe('workflowTemplates API', () => {
         version: 'V1',
         classificationId: 'classification-1',
         steps: [],
+        archived: false,
         classification: {
           id: 'classification-1',
           name: 'Test Classification',
@@ -652,7 +655,7 @@ describe('workflowTemplates API', () => {
       };
 
       mockServer.use(
-        http.post(API_URL + EndpointEnum.WORKFLOW_TEMPLATES, () => {
+        http.post(API_URL + EndpointEnum.WORKFLOW_TEMPLATES + '/body', () => {
           return HttpResponse.json(
             { description: 'Validation Error' },
             { status: 400 }
