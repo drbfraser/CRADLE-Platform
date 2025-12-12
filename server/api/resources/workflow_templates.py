@@ -56,17 +56,15 @@ api_workflow_templates = APIBlueprint(
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
 
 
-def find_and_archive_previous_workflow_template(
-    workflow_classification_id: str,
-) -> None:
-    previous_template = crud.read(
+def archive_templates_in_classification(workflow_classification_id: str) -> None:
+
+    previous_templates = crud.read_all(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,
         archived=False,
     )
 
-    if previous_template:
-        # Update the existing template
+    for previous_template in previous_templates:
         changes = {
             "archived": True,
             "last_edited": get_current_time(),
@@ -75,8 +73,20 @@ def find_and_archive_previous_workflow_template(
             m=WorkflowTemplateOrm,
             changes=changes,
             id=previous_template.id,
-            classification_id=workflow_classification_id,
         )
+
+
+def archive_template_by_id(template_id: str) -> None:
+
+    changes = {
+        "archived": True,
+        "last_edited": get_current_time(),
+    }
+    crud.update(
+        m=WorkflowTemplateOrm,
+        changes=changes,
+        id=template_id,
+    )
 
 
 def get_workflow_classification_from_dict(
@@ -170,15 +180,8 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
-            """
-            There should only be one unarchived version of the workflow template, so this
-            checks if a previously unarchived version of the workflow template exists and
-            archives it
-            """
-            # Check if a previously existing version of this template exists, if so, archive it
-            find_and_archive_previous_workflow_template(
-                workflow_classification_orm.id,
-            )
+    if workflow_classification_orm is not None:
+        archive_templates_in_classification(workflow_classification_orm.id)
 
     crud.create(model=workflow_template_orm, refresh=True)
 
@@ -401,7 +404,8 @@ def update_workflow_template_patch(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
 
-    find_and_archive_previous_workflow_template(workflow_template.classification_id)
+
+    archive_template_by_id(workflow_template.id)
 
     crud.create(model=new_workflow_template, refresh=True)
 
