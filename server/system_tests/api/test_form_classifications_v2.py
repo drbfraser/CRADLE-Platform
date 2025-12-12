@@ -1,12 +1,8 @@
-import logging
-
 import pytest
 from humps import decamelize
 
 import data.db_operations as crud
 from models import FormClassificationOrmV2, FormTemplateOrmV2, LangVersionOrmV2
-
-logger = logging.getLogger(__name__)
 
 
 def test_create_form_classification_v2(
