@@ -57,7 +57,6 @@ workflow_template_not_found_message = "Workflow template with ID: ({}) not found
 
 
 def archive_templates_in_classification(workflow_classification_id: str) -> None:
-
     previous_templates = crud.read_all(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,
@@ -77,7 +76,6 @@ def archive_templates_in_classification(workflow_classification_id: str) -> None
 
 
 def archive_template_by_id(template_id: str) -> None:
-
     changes = {
         "archived": True,
         "last_edited": get_current_time(),
@@ -402,7 +400,6 @@ def update_workflow_template_patch(
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
-
 
     archive_template_by_id(workflow_template.id)
 
