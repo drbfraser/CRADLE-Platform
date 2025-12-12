@@ -1,5 +1,3 @@
-import logging
-
 from humps import decamelize
 
 import data.db_operations as crud
@@ -10,8 +8,6 @@ from models import (
     LangVersionOrmV2,
 )
 
-logger = logging.getLogger(__name__)
-
 
 def test_create_form_template_v2(database, form_template_v2_payload, api_post):
     created_classification_ids = []
@@ -20,7 +16,8 @@ def test_create_form_template_v2(database, form_template_v2_payload, api_post):
 
     try:
         # Create template
-        r = api_post("/api/forms/v2/templates/body", json=form_template_v2_payload)
+        payload = form_template_v2_payload()
+        r = api_post("/api/forms/v2/templates/body", json=payload)
         assert r.status_code == 201
 
         database.session.flush()
@@ -33,7 +30,7 @@ def test_create_form_template_v2(database, form_template_v2_payload, api_post):
         # Verify template exists in DB
         template = crud.read(FormTemplateOrmV2, id=body["id"])
         assert template is not None
-        assert template.version == form_template_v2_payload["version"]
+        assert template.version == payload["version"]
 
         classification = crud.read(
             FormClassificationOrmV2, id=body["form_classification_id"]
@@ -65,7 +62,8 @@ def test_form_template_duplicate_version_rejected(
 
     try:
         # First create
-        r1 = api_post("/api/forms/v2/templates/body", json=form_template_v2_payload)
+        payload = form_template_v2_payload()
+        r1 = api_post("/api/forms/v2/templates/body", json=payload)
         assert r1.status_code == 201
 
         database.session.flush()
@@ -85,7 +83,7 @@ def test_form_template_duplicate_version_rejected(
             created_lang_versions.append(ques.question_string_id)
 
         # Try creating same version again
-        r2 = api_post("/api/forms/v2/templates/body", json=form_template_v2_payload)
+        r2 = api_post("/api/forms/v2/templates/body", json=payload)
         assert r2.status_code == 409
 
     finally:
@@ -109,7 +107,8 @@ def test_archive_form_template_v2(
 
     try:
         # Create template
-        r1 = api_post("/api/forms/v2/templates/body", json=form_template_v2_payload)
+        payload = form_template_v2_payload()
+        r1 = api_post("/api/forms/v2/templates/body", json=payload)
         assert r1.status_code == 201
 
         database.session.flush()

@@ -624,6 +624,9 @@ def validate_form_answers(
             case QuestionTypeEnum.DATE | QuestionTypeEnum.DATETIME:
                 val = answer.answer.date
 
+                if isinstance(val, str):
+                    val = int(val)
+
                 now = commonUtil.get_current_time()
                 if (
                     question.allow_past_dates is not None

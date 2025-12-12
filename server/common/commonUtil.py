@@ -130,6 +130,14 @@ def get_current_time():
     return int(time.time())
 
 
+def get_future_date(days_after=1):
+    return int(time.time()) + (days_after * 24 * 60 * 60)
+
+
+def get_past_date(days_before=1):
+    return int(time.time()) - (days_before * 24 * 60 * 60)
+
+
 def get_uuid():
     return str(uuid.uuid4())
 
