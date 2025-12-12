@@ -2,7 +2,7 @@ import pytest
 
 import data.db_operations as crud
 from common.commonUtil import get_uuid
-from enums import SexEnum
+from enums import QuestionTypeEnum, SexEnum
 from models import (
     FormClassificationOrm,
     FormOrm,
@@ -167,6 +167,36 @@ def form_template(database, form_classification):
         crud.delete_all(FormOrm, form_template_id=ft_id)
         crud.delete_all(FormTemplateOrm, id=ft_id)
         database.session.commit()
+
+
+@pytest.fixture
+def form_template_v2_payload():
+    return {
+        "version": 1,
+        "classification": {
+            "name": {"english": "Vitals Form"},
+        },
+        "questions": [
+            {
+                "question_type": QuestionTypeEnum.CATEGORY.value,
+                "order": 0,
+                "required": False,
+                "question_text": {"english": "Vitals"},
+                "mc_options": [],
+            },
+            {
+                "question_type": QuestionTypeEnum.INTEGER.value,
+                "order": 1,
+                "required": True,
+                "question_text": {"english": "Heart rate"},
+                "num_min": 0,
+                "num_max": 300,
+                "category_index": 0,
+                "user_question_id": "heart_rate",
+                "mc_options": [],
+            },
+        ],
+    }
 
 
 @pytest.fixture

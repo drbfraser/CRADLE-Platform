@@ -1,10 +1,8 @@
 import logging
 
-import pytest
 from humps import decamelize
 
 import data.db_operations as crud
-from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrmV2,
     FormQuestionTemplateOrmV2,
@@ -149,33 +147,3 @@ def test_archive_form_template_v2(
 
         for lvid in created_lang_versions:
             crud.delete_all(LangVersionOrmV2, string_id=lvid)
-
-
-@pytest.fixture
-def form_template_v2_payload():
-    return {
-        "version": 1,
-        "classification": {
-            "name": {"english": "Vitals Form"},
-        },
-        "questions": [
-            {
-                "question_type": QuestionTypeEnum.CATEGORY.value,
-                "order": 0,
-                "required": True,
-                "question_text": {"english": "Vitals"},
-                "mc_options": [],
-            },
-            {
-                "question_type": QuestionTypeEnum.INTEGER.value,
-                "order": 1,
-                "required": True,
-                "question_text": {"english": "Heart rate"},
-                "num_min": 0,
-                "num_max": 300,
-                "category_index": 0,
-                "user_question_id": "heart_rate",
-                "mc_options": [],
-            },
-        ],
-    }
