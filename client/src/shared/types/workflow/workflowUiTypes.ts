@@ -1,12 +1,7 @@
 import { ISODate, Nullable } from 'src/shared/constants';
-import {
-  InstanceStatus,
-  StepStatus,
-  WorkflowBranchEvaluationStatus,
-} from './workflowEnums';
+import { InstanceStatus, StepStatus } from './workflowEnums';
 import { CForm } from '../form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { WorkflowBranchVarResolution } from './workflowApiTypes';
 
 export type InstanceStep = {
   id: string;
@@ -89,7 +84,5 @@ export type WorkflowNextStepOption = {
   stepId: string;
   title: string;
   isRecommended: boolean;
-  rule: string;
-  ruleStatus: WorkflowBranchEvaluationStatus;
-  varResolutions: WorkflowBranchVarResolution[];
+  ruleDetails: string[];
 };

@@ -250,14 +250,22 @@ export const getWorkflowNextStepOptions = (
     if (!targetInstanceStep) {
       return;
     }
+
     const nextOption: WorkflowNextStepOption = {
       branchId: branchEval.branchId,
       stepId: targetInstanceStep.id,
       title: targetInstanceStep.title,
       isRecommended: selectedBranchId === branchEval.branchId,
-      rule: branchEval.rule ?? 'N/A',
-      ruleStatus: branchEval.ruleStatus,
-      varResolutions: branchEval.varResolutions,
+      ruleDetails: [
+        `Rule: ${branchEval.rule}`,
+        `Status: ${branchEval.ruleStatus}`,
+        ...(branchEval.varResolutions.length
+          ? branchEval.varResolutions.map((vr) => {
+              const displayValue = vr.value ?? 'N/A';
+              return `Resolved: ${vr.var} = ${displayValue}, status: ${vr.status}`;
+            })
+          : ['No data found']),
+      ],
     };
 
     nextOptions.push(nextOption);
