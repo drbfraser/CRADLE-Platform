@@ -103,7 +103,7 @@ export const TransferQAnswerToPostBody = (
         id,
         answers: answer.answer,
       };
-    }) as any; // TODO: update this type when form submissions v2 are integrated
+    }) as unknown as ApiAnswerForEdit[]; // TODO: update this type when form submissions v2 are integrated
   } else {
     //create(/fill in) a new form
     //deep copy
@@ -118,7 +118,8 @@ export const TransferQAnswerToPostBody = (
       const ques = questions.find((q) => q.order === apiAnswer.qidx);
       const question = ques ? ques : ({} as Question);
       // TODO: update answers in new format, answers live in a seperate table now
-      // question.answers = apiAnswer.answer;
+      if (question && "answers" in question)
+        question.answers = apiAnswer.answer;
 
       //isBlank
       switch (question.questionType) {
@@ -128,7 +129,8 @@ export const TransferQAnswerToPostBody = (
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
           // TODO: update this to use new answers format
-          // question.isBlank = apiAnswer.answer.mcIdArray!.length === 0;
+          if (question && "isBlank" in question)
+            question.isBlank = apiAnswer.answer.mcIdArray!.length === 0;
           
           break;
         case QuestionTypeEnum.STRING:
@@ -136,7 +138,8 @@ export const TransferQAnswerToPostBody = (
         case QuestionTypeEnum.DATE:
         case QuestionTypeEnum.DATETIME:
           // TODO: update this to use new answers format
-          // question.isBlank = !apiAnswer.answer;
+          if (question && "isBlank" in question) 
+            question.isBlank = !apiAnswer.answer;
           break;
 
         default:
@@ -156,10 +159,11 @@ export const TransferQAnswerToPostBody = (
         }
       }
       // TODO: update this to use new answers format
-      // question.shouldHidden = undefined;
+      if (question && "shouldHidden" in question) 
+        question.shouldHidden = undefined;
 
       return question;
-    }) as any;
+    }) as TQuestion[];
 
     postBody.create = newForm;
   }
@@ -167,7 +171,7 @@ export const TransferQAnswerToPostBody = (
 };
 
 export const areMcResponsesValid = (
-  questions: TQuestion[],
+  questions: Question[] | TQuestion[],
   answers: QAnswer[]
 ) =>
   //check multi-selection while when clicking the submit button
@@ -181,12 +185,13 @@ export const areMcResponsesValid = (
       const qidx = answer.questionIndex;
       
       // TODO: update this to use new answers format
-      // const isHidden = questions[qidx].shouldHidden;
+      const isHidden = 'shouldHidden' in questions[qidx] 
+      ? questions[qidx].shouldHidden
+      : false;
       const required = questions[qidx].required;
 
       return (
-        (required ? answer.val && answer.val.length > 0 : true)
-        // isHidden || (required ? answer.val && answer.val.length > 0 : true)
+        isHidden || (required ? answer.val && answer.val.length > 0 : true)
       );
     });
 

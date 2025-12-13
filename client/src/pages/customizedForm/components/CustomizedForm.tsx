@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
 import { Divider, Grid, SxProps } from '@mui/material';
 
-import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
+import { CForm, QAnswer, Question } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';
@@ -55,14 +55,16 @@ export const CustomizedForm = ({
     }
 
     //2 number-range validation
-    if (!areNumberResponsesValid(form.questions as any, answers)) {
-      // TODO: update this any type when form submissions v2 are integrated
+    if (
+      !areNumberResponsesValid(form.questions as unknown as Question[], answers)
+    ) {
+      // TODO: update this type when form submissions v2 are integrated
       return;
     }
 
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
       answers,
-      form.questions as any // TODO: update this type when form submissions v2 are integrated
+      form.questions as unknown as Question[] // TODO: update this type when form submissions v2 are integrated
     );
     const postBody: PostBody = TransferQAnswerToPostBody(
       anss,
