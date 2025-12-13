@@ -6,7 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
 import Link from '@mui/material/Link';
 import SearchIcon from '@mui/icons-material/Search';
-import { getPrettyDate } from 'src/shared/utils';
+import { formatISODateNumber } from 'src/shared/utils';
 import { Toast } from 'src/shared/components/toast';
 import {
   Box,
@@ -196,13 +196,12 @@ export const WorkflowInfo: React.FC = () => {
     {
       field: 'lastEdited',
       headerName: 'Last Edited',
-      type: 'date',
+      type: 'string',
       width: 130,
-      valueGetter: (_value: unknown, row: WorkflowInfoRow) =>
-        new Date(row.lastEdited),
+      valueGetter: (_value: unknown, row: WorkflowInfoRow) => row.lastEdited,
       renderCell: (params: GridRenderCellParams) => {
-        const d = params.value as Date | undefined;
-        return <>{d ? getPrettyDate(d.getTime() / 1000) : '-'}</>;
+        const d = params.value as number | undefined;
+        return <>{d ? formatISODateNumber(d) : '-'}</>;
       },
     },
     { field: 'stepsCount', headerName: 'Steps', type: 'number', width: 105 },

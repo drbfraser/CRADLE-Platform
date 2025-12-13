@@ -59,8 +59,9 @@ export function useWorkflowFormModal(
           return;
         }
 
-        const formResponse = formResponseQuery.data;
-        if (!formResponse) {
+        const formResponse = await formResponseQuery.refetch();
+        const formData = formResponse.data;
+        if (!formData) {
           console.error(`Error in getting form id: ${currentStep.formId}`);
           return;
         }
@@ -68,7 +69,7 @@ export function useWorkflowFormModal(
         setFormModalState({
           open: true,
           renderState: formRenderState,
-          form: formResponse,
+          form: formData,
         });
 
         return;

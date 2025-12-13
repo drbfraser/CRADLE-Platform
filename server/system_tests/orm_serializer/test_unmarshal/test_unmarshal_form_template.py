@@ -1,75 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from data import orm_serializer
 from models import FormTemplateOrm
-
-
-def _create_lang_version(
-    *,
-    lang: str,
-    question_text: str = "LV text",
-    mc_options: list | None = None,
-    question_id: str | None = None,
-    **extras: Any,
-) -> dict:
-    d = {"lang": lang, "question_text": question_text, **extras}
-    if mc_options is not None:
-        d["mc_options"] = mc_options
-    if question_id is not None:
-        d["question_id"] = question_id
-    return d
-
-
-def _create_question(
-    *,
-    id: str = "q-001",
-    question_index: int = 0,
-    question_text: str = "Q?",
-    question_type: str = "MULTIPLE_CHOICE",
-    visible_condition: dict | str | None = None,
-    mc_options: list | str | None = None,
-    answers: dict | None = None,
-    lang_versions: list[dict] | None = None,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {
-        "id": id,
-        "question_index": question_index,
-        "question_text": question_text,
-        "question_type": question_type,
-        **extras,
-    }
-    if visible_condition is not None:
-        d["visible_condition"] = visible_condition
-    if mc_options is not None:
-        d["mc_options"] = mc_options
-    if answers is not None:
-        d["answers"] = answers
-    if lang_versions is not None:
-        d["lang_versions"] = lang_versions
-    return d
-
-
-def _create_form_template(
-    *,
-    id: str = "t-001",
-    version: str | None = "v1",
-    archived: bool = False,
-    form_classification_id: str | None = "fc-001",
-    questions: list[dict] | None = None,
-    **extras: Any,
-) -> dict:
-    d: dict[str, Any] = {"id": id, "archived": archived, **extras}
-    if version is not None:
-        d["version"] = version
-    if form_classification_id is not None:
-        d["form_classification_id"] = form_classification_id
-    if questions is not None:
-        d["questions"] = questions
-    return d
+from tests.helpers import make_form_template, make_question, make_question_lang_version
 
 
 def test_unmarshal_form_template_with_questions_attaches_and_encodes_nested_fields():
@@ -77,13 +12,13 @@ def test_unmarshal_form_template_with_questions_attaches_and_encodes_nested_fiel
     Test that unmarshalling a form template payload with questions and lang versions
     correctly attaches the questions and encodes nested fields.
     """
-    payload = _create_form_template(
+    payload = make_form_template(
         id="t-qa",
         version="v2",
         archived=False,
         form_classification_id="fc-99",
         questions=[
-            _create_question(
+            make_question(
                 id="q-1",
                 question_index=2,
                 question_text="Headache?",
@@ -91,13 +26,13 @@ def test_unmarshal_form_template_with_questions_attaches_and_encodes_nested_fiel
                 mc_options=["yes", "no"],
                 answers={"value": None},
                 lang_versions=[
-                    _create_lang_version(
+                    make_question_lang_version(
                         lang="en",
                         question_text="Headache?",
                         mc_options=["yes", "no"],
                         question_id="q-1",
                     ),
-                    _create_lang_version(
+                    make_question_lang_version(
                         lang="fr",
                         question_text="Maux de tête?",
                         mc_options=["oui", "non"],
@@ -105,7 +40,7 @@ def test_unmarshal_form_template_with_questions_attaches_and_encodes_nested_fiel
                     ),
                 ],
             ),
-            _create_question(
+            make_question(
                 id="q-0",
                 question_index=0,
                 question_text="Dizziness?",
@@ -113,7 +48,7 @@ def test_unmarshal_form_template_with_questions_attaches_and_encodes_nested_fiel
                 mc_options=["mild", "severe"],
                 answers={"value": "mild"},
                 lang_versions=[
-                    _create_lang_version(
+                    make_question_lang_version(
                         lang="en",
                         question_text="Dizziness?",
                         question_id="q-0",
@@ -173,7 +108,7 @@ def test_unmarshal_form_template_with_empty_questions_sets_empty_attr():
     Test that unmarshalling a form template payload with an empty questions list
     correctly sets the questions attribute to an empty list.
     """
-    payload = _create_form_template(id="t-empty", questions=[])
+    payload = make_form_template(id="t-empty", questions=[])
 
     tmpl = orm_serializer.unmarshal(FormTemplateOrm, payload)
     assert hasattr(tmpl, "questions") and tmpl.questions == []
@@ -184,7 +119,7 @@ def test_unmarshal_form_template_without_questions_key_sets_empty_attr():
     Test that unmarshalling a form template payload without a 'questions' key
     correctly sets the questions attribute to an empty list.
     """
-    payload = _create_form_template(id="t-absent")  # no 'questions' key
+    payload = make_form_template(id="t-absent")  # no 'questions' key
 
     tmpl = orm_serializer.unmarshal(FormTemplateOrm, payload)
     assert hasattr(tmpl, "questions") and tmpl.questions == []

@@ -1,5 +1,5 @@
 from data.orm_serializer import marshal_question_to_single_version
-from tests.helpers import make_question_lang_version_orm, make_question_orm
+from tests.orm_helpers import make_question_lang_version_orm, make_question_orm
 
 
 def test_marshal_question_to_single_version_no_versions_returns_base():

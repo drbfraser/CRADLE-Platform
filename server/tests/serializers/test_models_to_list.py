@@ -1,5 +1,5 @@
 from data import orm_serializer
-from tests.helpers import DummyModel, DummyModelSchema
+from tests.orm_helpers import DummyModel, DummyModelSchema
 
 
 def test_models_to_list_empty_list_returns_empty_list():

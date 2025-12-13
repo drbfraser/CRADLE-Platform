@@ -18,10 +18,10 @@ interface WorkflowMetadataProps {
   name?: string;
   description?: string;
   collectionName?: string;
-  version?: number;
-  lastEdited?: string;
+  version?: string;
+  lastEdited?: number;
   archived?: boolean;
-  dateCreated?: string;
+  dateCreated?: number;
   isEditMode?: boolean;
   onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
 }

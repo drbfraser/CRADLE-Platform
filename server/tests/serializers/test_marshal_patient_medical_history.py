@@ -1,5 +1,5 @@
 from data import orm_serializer
-from tests.helpers import make_medical_record_orm
+from tests.orm_helpers import make_medical_record_orm
 
 
 def test_marshal_patient_medical_history_returns_empty_dict_when_no_records():

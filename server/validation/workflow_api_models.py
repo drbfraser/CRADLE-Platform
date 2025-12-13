@@ -9,6 +9,7 @@ from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
     WorkflowCollectionModel,
+    WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
@@ -79,7 +80,7 @@ class WorkflowInstanceStepPatchModel(CradleBaseModel, extra="forbid"):
     the workflow into an inconsistent state.
     """
 
-    assigned_to: Optional[str] = None
+    assigned_to: Optional[int] = None
     form_id: Optional[str] = None
 
 
@@ -89,6 +90,17 @@ class GetWorkflowInstanceStepsRequest(CradleBaseModel, extra="forbid"):
 
 class GetWorkflowInstanceStepsResponse(CradleBaseModel, extra="forbid"):
     items: list[WorkflowInstanceStepModel]
+
+
+class GetWorkflowInstancesResponse(CradleBaseModel, extra="forbid"):
+    items: list[WorkflowInstanceModel]
+
+
+class CreateWorkflowInstanceRequest(CradleBaseModel, extra="forbid"):
+    workflow_template_id: str
+    patient_id: str
+    name: str
+    description: str
 
 
 class GetAvailableActionsResponse(CradleBaseModel):

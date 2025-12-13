@@ -1,18 +1,11 @@
-from flask import abort, request
+from flask import request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils, user_utils, workflow_utils
 from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
-from common.commonUtil import get_current_time
-from data import orm_serializer
 from enums import RoleEnum
-from models import (
-    FormOrm,
-    WorkflowInstanceStepOrm,
-)
 from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
     GetWorkflowInstanceStepsRequest,
@@ -55,24 +48,14 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     with_form = request.args.get("with_form", default=False)
     with_form = convert_query_parameter_to_bool(with_form)
 
-    workflow_instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    step = workflow_utils.fetch_workflow_instance_step_or_404(
+        path.workflow_instance_step_id
     )
 
-    if workflow_instance_step is None:
-        return abort(
-            code=404,
-            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
-                path.workflow_instance_step_id
-            ),
-        )
-
-    response_data = orm_serializer.marshal(workflow_instance_step, shallow=False)
-
     if not with_form:
-        del response_data["form"]
+        step.form = None
 
-    return response_data, 200
+    return step.model_dump(), 200
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id> [PATCH]
@@ -83,37 +66,23 @@ def update_workflow_instance_step(
     path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepPatchModel
 ):
     """Update Workflow Instance Step"""
-    instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    step = workflow_utils.fetch_workflow_instance_step_or_404(
+        path.workflow_instance_step_id
     )
 
-    if instance_step is None:
-        return abort(
-            code=404,
-            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
-                path.workflow_instance_step_id
-            ),
-        )
-
-    if body.form_id is not None and body.form_id != instance_step.form_id:
+    if body.form_id is not None and body.form_id != step.form_id:
         form_utils.fetch_form_or_404(body.form_id)
-        instance_step.form_id = body.form_id
 
-    if body.assigned_to is not None and body.assigned_to != instance_step.assigned_to:
+    if body.assigned_to is not None and body.assigned_to != step.assigned_to:
         user_utils.fetch_user_or_404(body.assigned_to)
-        instance_step.assigned_to = body.assigned_to
 
-    crud.common_crud.merge(instance_step)
+    WorkflowService.apply_workflow_instance_step_patch(step, body)
+    WorkflowService.upsert_workflow_instance_step(step)
 
-    updated_instance_step_orm = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    updated_step = WorkflowService.get_workflow_instance_step(
+        path.workflow_instance_step_id
     )
-
-    updated_instance_step = orm_serializer.marshal(
-        updated_instance_step_orm, shallow=True
-    )
-
-    return updated_instance_step, 200
+    return updated_step.model_dump(), 200
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>/archive_form [PATCH]
@@ -121,47 +90,21 @@ def update_workflow_instance_step(
 @api_workflow_instance_steps.patch("/<string:workflow_instance_step_id>/archive_form")
 def archive_form(path: WorkflowInstanceStepIdPath):
     """Archive submitted form associated with workflow instance step"""
-    instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    step = workflow_utils.fetch_workflow_instance_step_or_404(
+        path.workflow_instance_step_id
     )
 
-    if instance_step is None:
-        return abort(
-            code=404,
-            description=workflow_utils.WORKFLOW_INSTANCE_STEP_NOT_FOUND.format(
-                path.workflow_instance_step_id
-            ),
-        )
-
-    if instance_step.form_id is None:
-        return abort(
-            code=404, description="Workflow instance step has no associated form."
-        )
-
-    form = crud.read(FormOrm, id=instance_step.form_id)
-
-    if form is None:
-        return abort(404, description=f"No form with ID: {instance_step.form_id}")
-
-    instance_step.form_id = None
-    form.archived = True
+    form_utils.fetch_form_or_404(step.form_id)
 
     current_user = user_utils.get_current_user_from_jwt()
     user_id = int(current_user["id"])
-    form.last_edited_by = user_id
-    form.last_edited = get_current_time()
 
-    crud.db_session.commit()
-    crud.db_session.refresh(instance_step)
-    crud.db_session.refresh(form)
+    WorkflowService.archive_form(step, user_id)
 
-    updated_instance_step = crud.read(
-        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    updated_step = WorkflowService.get_workflow_instance_step(
+        path.workflow_instance_step_id
     )
-
-    updated_instance_step = orm_serializer.marshal(updated_instance_step, shallow=True)
-
-    return updated_instance_step, 200
+    return updated_step.model_dump(), 200
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>/evaluate [GET]
