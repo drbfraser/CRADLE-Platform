@@ -17,23 +17,23 @@ from models import (
 
 
 def _clean_up(
-    created_template_ids=[],
-    created_classification_ids=[],
-    created_lang_versions=[],
-    created_submission_ids=[],
+    created_template_ids=None,
+    created_classification_ids=None,
+    created_lang_versions=None,
+    created_submission_ids=None,
 ):
-    for sid in created_submission_ids:
+    for sid in created_submission_ids or []:
         crud.delete_all(FormAnswerOrmV2, form_submission_id=sid)
         crud.delete_all(FormSubmissionOrmV2, id=sid)
 
-    for tid in created_template_ids:
+    for tid in created_template_ids or []:
         crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=tid)
         crud.delete_all(FormTemplateOrmV2, id=tid)
 
-    for cid in created_classification_ids:
+    for cid in created_classification_ids or []:
         crud.delete_all(FormClassificationOrmV2, id=cid)
 
-    for lvid in created_lang_versions:
+    for lvid in created_lang_versions or []:
         crud.delete_all(LangVersionOrmV2, string_id=lvid)
 
 
@@ -382,6 +382,3 @@ def test_invalid_form_answers_v2(
             created_lang_versions=created_lang_versions,
             created_submission_ids=created_submission_ids,
         )
-
-
-# python -m pytest -s --log-cli-level=DEBUG system_tests/api/test_form_submissions_v2.py
