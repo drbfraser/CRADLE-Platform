@@ -15,6 +15,13 @@ from models import (
     LangVersionOrmV2,
 )
 
+# TODO: Refactor to use fixtures for setup/teardown
+#   Create fixtures to handle:
+#   - form_classification_v2_with_db: Create/cleanup classifications + lang versions
+#   - form_template_v2_with_db: Create/cleanup templates (depends on classification fixture)
+#   - form_submission_v2_with_db: Create/cleanup submissions (depends on template fixture)
+#   This would eliminate manual cleanup code and make tests more composable.
+
 
 def _clean_up(
     created_template_ids=None,
