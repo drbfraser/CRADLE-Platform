@@ -2,7 +2,7 @@ import pytest
 
 import data.db_operations as crud
 from common.commonUtil import get_uuid
-from enums import SexEnum
+from enums import QuestionTypeEnum, SexEnum
 from models import (
     FormClassificationOrm,
     FormOrm,
@@ -215,6 +215,74 @@ def form(patient_id, form_template, form_classification):
             },
         ],
     }
+
+
+@pytest.fixture
+def form_template_v2_payload():
+    def _make(extra_questions=None, overrides=None):
+        base = {
+            "version": 1,
+            "classification": {
+                "name": {"english": "Vitals Form"},
+            },
+            "questions": [
+                {
+                    "question_type": QuestionTypeEnum.CATEGORY.value,
+                    "order": 0,
+                    "required": False,
+                    "question_text": {"english": "Vitals"},
+                    "mc_options": [],
+                },
+                {
+                    "question_type": QuestionTypeEnum.INTEGER.value,
+                    "order": 1,
+                    "required": True,
+                    "question_text": {"english": "Heart rate"},
+                    "num_min": 0,
+                    "num_max": 300,
+                    "category_index": 0,
+                    "user_question_id": "heart_rate",
+                    "mc_options": [],
+                },
+            ],
+        }
+
+        # Add new questions if provided
+        if extra_questions:
+            base["questions"].extend(extra_questions)
+
+        # Apply overrides to any top-level field
+        if overrides:
+            base.update(overrides)
+
+        return base
+
+    return _make
+
+
+@pytest.fixture
+def form_submission_v2(patient_id, vht_user_id):
+    def _make(template_id, template_question_id, extra_answers=None):
+        base = {
+            "patient_id": patient_id,
+            "user_id": vht_user_id,
+            "lang": "English",
+            "form_template_id": template_id,
+            "answers": [
+                {
+                    "question_id": template_question_id,
+                    "answer": {"number": 90},
+                }
+            ],
+        }
+
+        # Add new answers if provided
+        if extra_answers:
+            base["answers"].extend(extra_answers)
+
+        return base
+
+    return _make
 
 
 # TODO: Same as fixture in tests/service/workflow/conftest.py. May want to put unit tests
