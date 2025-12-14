@@ -2,11 +2,18 @@ import { QuestionTypeEnum } from 'src/shared/enums';
 import { OrNull } from '../types';
 import { QCondition } from './formTypes';
 
-export interface IFormClassification {
+export interface IFormClassificationV2 {
   id?: string;
   name: Record<string, string>;
   nameStringId?: string;
 }
+
+// TODO: delete this type once forms v2 are integrated fully
+export interface IFormClassification {
+  id: string | undefined;
+  name: string;
+}
+
 
 export interface FormTemplates {
   templates: FormTemplateList[];
@@ -29,6 +36,14 @@ export interface FormTemplate {
   version: string;
 }
 
+export interface FormTemplateWithQuestionsV2 {
+  id?: string | undefined;
+  classification: IFormClassificationV2;
+  version: string;
+  questions: TQuestion[];
+}
+
+// TODO: delete this type once forms v2 are integrated fully
 export interface FormTemplateWithQuestions {
   id?: string | undefined;
   classification: IFormClassification;

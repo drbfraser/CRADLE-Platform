@@ -1,5 +1,5 @@
 import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
 import {
@@ -14,10 +14,10 @@ import { QuestionTypeEnum } from 'src/shared/enums';
 import { capitalize } from 'src/shared/utils';
 
 export const useCustomizedFormWQuestions = (
-  fm: FormTemplateWithQuestions,
+  fm: FormTemplateWithQuestionsV2,
   languages: string[],
   versionError: boolean,
-  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>,
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>,
   setCurrentLanguage: Dispatch<SetStateAction<string>>
 ) => {
   const questions = fm.questions;

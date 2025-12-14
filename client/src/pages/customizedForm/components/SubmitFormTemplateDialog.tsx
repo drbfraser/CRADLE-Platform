@@ -9,10 +9,10 @@ import {
 } from '@mui/material';
 
 import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
-import { saveFormTemplateAsync } from 'src/shared/api';
+import { saveFormTemplateAsyncV2 } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ import { useState } from 'react';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  form?: FormTemplateWithQuestions;
+  form?: FormTemplateWithQuestionsV2;
 }
 
 interface FormTemplatePayload {
@@ -35,7 +35,7 @@ interface FormTemplatePayload {
 }
 
 export function buildFormTemplatePayload(
-  form: FormTemplateWithQuestions
+  form: FormTemplateWithQuestionsV2
 ): FormTemplatePayload {
   return {
     id: form.id,
@@ -43,7 +43,6 @@ export function buildFormTemplatePayload(
     version: form.version,
     questions: form.questions.map((q, i) => ({
       id: q.id,
-      questionIndex: i,
       questionType: q.questionType,
       required: q.required,
       allowPastDates: q.allowPastDates,
@@ -77,7 +76,7 @@ const SubmitFormTemplateDialog = ({
   const [errorMessage, setErrorMessage] = useState('');
 
   const saveFormTemplate = useMutation({
-    mutationFn: saveFormTemplateAsync,
+    mutationFn: saveFormTemplateAsyncV2,
   });
 
   const handleSubmit = () => {

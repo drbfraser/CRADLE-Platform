@@ -1,9 +1,9 @@
 import { useState, useEffect, Dispatch, SetStateAction, useMemo } from 'react';
 import {
   TQuestion,
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
 } from 'src/shared/types/form/formTemplateTypes';
-import { QCondition, McOption } from 'src/shared/types/form/formTypes';
+import { QCondition, McOptionV2 } from 'src/shared/types/form/formTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface FieldTypes {
@@ -18,7 +18,7 @@ interface FieldTypes {
 interface UseEditFieldProps {
   question: TQuestion | undefined;
   visibilityToggle: boolean;
-  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>> | undefined;
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>> | undefined;
   fieldTypes: FieldTypes;
   open: boolean;
   setVisibilityToggle: Dispatch<SetStateAction<boolean>>;
@@ -53,7 +53,7 @@ export const useEditField = ({
     }
   );
 
-  const [mcOptions, setMcOptions] = useState<McOption[]>(
+  const [mcOptions, setMcOptions] = useState<McOptionV2[]>(
     question?.mcOptions ?? []
   );
 
@@ -223,7 +223,7 @@ export const useEditField = ({
     setQuestionTextChanged(true);
   };
 
-  // Update mcOption for a specific language
+  // Update McOptionV2 for a specific language
   const updateMcOption = (index: number, language: string, value: string) => {
     setMcOptions((prev) => {
       const updated = [...prev];

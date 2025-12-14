@@ -22,7 +22,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction } from 'react';
 import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
@@ -38,7 +38,7 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityDisabled: boolean;

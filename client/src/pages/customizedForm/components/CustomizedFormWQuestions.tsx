@@ -1,4 +1,4 @@
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
+import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';
 import { Field, Formik } from 'formik';
 import { Dispatch, Fragment, SetStateAction } from 'react';
 import { initialState, validationSchema } from '../state';
@@ -25,10 +25,10 @@ import DeleteCategoryDialog from './DeleteCategoryDialog';
 import { useCustomizedFormWQuestions } from 'src/shared/hooks/forms/useCustomizedFormWQuestions';
 import { capitalize } from 'src/shared/utils';
 interface IProps {
-  fm: FormTemplateWithQuestions;
+  fm: FormTemplateWithQuestionsV2;
   languages: string[];
   renderState: FormRenderStateEnum;
-  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   versionError: boolean;
   setCurrentLanguage: Dispatch<SetStateAction<string>>;
 }

@@ -21,7 +21,7 @@ import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { QCondition } from 'src/shared/types/form/formTypes';
 import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
@@ -33,7 +33,7 @@ interface IProps {
   onClose: () => void;
   visibilityDisabled: boolean;
   inputLanguages: string[];
-  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityToggle: boolean;

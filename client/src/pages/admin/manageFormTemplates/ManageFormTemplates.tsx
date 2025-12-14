@@ -10,7 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
 import { getPrettyDate } from 'src/shared/utils';
-import { useFormTemplatesQuery } from 'src/shared/queries';
+import { useFormTemplatesQueryV2 } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -24,7 +24,7 @@ import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
-import { useDownloadTemplateAsCSV } from './mutations';
+import { useDownloadTemplateAsCSVv2 } from './mutations';
 
 type FormTemplateWithIndex = FormTemplate & {
   index: number;
@@ -41,9 +41,9 @@ export const ManageFormTemplates = () => {
 
   const navigate = useNavigate();
 
-  const formTemplatesQuery = useFormTemplatesQuery(showArchivedTemplates);
+  const formTemplatesQuery = useFormTemplatesQueryV2(showArchivedTemplates);
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
-    useDownloadTemplateAsCSV();
+    useDownloadTemplateAsCSVv2();
 
   const TableRowActions = useCallback(
     ({ formTemplate }: { formTemplate?: FormTemplateWithIndex }) => {

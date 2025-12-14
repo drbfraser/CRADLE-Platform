@@ -16,16 +16,19 @@ import InfoIcon from '@mui/icons-material/Info';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import moment from 'moment';
 
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
+import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
   useFormTemplateQuery,
+  useFormTemplateQueryV2,
   usePreviousFormVersionsQuery,
+  usePreviousFormVersionsQueryV2,
 } from 'src/pages/customizedForm/queries';
 import LanguageModal from './LanguageModal';
 import { getDefaultLanguage } from './utils';
 import { capitalize } from 'src/shared/utils';
+import { useFormTemplatesQueryV2 } from 'src/shared/queries';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -50,7 +53,7 @@ export const CustomFormTemplate = () => {
       .format('YYYY-MM-DD HH:mm:ss z');
   };
 
-  const [form, setForm] = useState<FormTemplateWithQuestions>({
+  const [form, setForm] = useState<FormTemplateWithQuestionsV2>({
     classification: {
       name: {
         english: 'Template',
@@ -68,8 +71,8 @@ export const CustomFormTemplate = () => {
   const [currentLanguage, setCurrentLanguage] =
     useState<string>(browserLanguage);
 
-  const formTemplateQuery = useFormTemplateQuery(editFormId);
-  const previousVersionsQuery = usePreviousFormVersionsQuery(
+  const formTemplateQuery = useFormTemplateQueryV2(editFormId);
+  const previousVersionsQuery = usePreviousFormVersionsQueryV2(
     formTemplateQuery.data
   );
 

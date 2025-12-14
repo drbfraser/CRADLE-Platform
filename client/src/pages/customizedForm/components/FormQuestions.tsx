@@ -1,7 +1,7 @@
 import { QuestionTypeEnum } from 'src/shared/enums';
 import { QAnswer } from 'src/shared/types/form/formTypes';
 import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
 import { Field } from 'formik';
@@ -31,7 +31,7 @@ interface IProps {
   renderState: FormRenderStateEnum;
   language: string;
   handleAnswers: (answers: QAnswer[]) => void;
-  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   multiSelectValidationFailed?: boolean;
   setDisableSubmit?: (disableSubmit: boolean) => void;
 }

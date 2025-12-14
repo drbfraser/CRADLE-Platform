@@ -79,11 +79,9 @@ export const useFormQuestions = (
     ): string[] => {
       const res: string[] = [];
 
-      // TODO: update this logic for new form question type
       const mcOptions: McOption[] = question.mcOptions ?? [];
       mcIdArray?.forEach((optionIndex) => {
-        res.push('');
-        // res.push(mcOptions[optionIndex]);
+        res.push(mcOptions[optionIndex].opt);
       });
 
       return res;

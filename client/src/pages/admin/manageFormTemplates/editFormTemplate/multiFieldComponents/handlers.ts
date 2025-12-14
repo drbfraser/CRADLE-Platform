@@ -1,17 +1,17 @@
 import { Dispatch, SetStateAction } from 'react';
-import { McOption } from 'src/shared/types/form/formTypes';
+import { McOptionV2 } from 'src/shared/types/form/formTypes';
 
 export const handleAddChoice = (
   numChoices: number,
   inputLanguages: string[],
   setNumChoices: React.Dispatch<React.SetStateAction<number>>,
-  mcOptions: McOption[],
-  setMcOptions: Dispatch<SetStateAction<McOption[]>>
+  mcOptions: McOptionV2[],
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>
 ) => {
   const newNumChoices = numChoices + 1;
 
   // Create a new option with empty translations for all languages
-  const newOption: McOption = {
+  const newOption: McOptionV2 = {
     translations: {},
   };
 
@@ -26,10 +26,10 @@ export const handleAddChoice = (
 export const handleRemoveMultiChoice = (
   index: number,
   numChoices: number,
-  mcOptions: McOption[],
+  mcOptions: McOptionV2[],
   inputLanguages: string[],
   setNumChoices: React.Dispatch<React.SetStateAction<number>>,
-  setMcOptions: Dispatch<SetStateAction<McOption[]>>
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>
 ) => {
   // Remove the option at the specified index
   const updatedOptions = mcOptions.filter((_, idx) => idx !== index);
@@ -43,8 +43,8 @@ export const handleMultiChoiceOptionChange = (
   language: string,
   option: string,
   index: number,
-  mcOptions: McOption[],
-  setMcOptions: Dispatch<SetStateAction<McOption[]>>
+  mcOptions: McOptionV2[],
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>
 ) => {
   const updatedOptions = [...mcOptions];
 

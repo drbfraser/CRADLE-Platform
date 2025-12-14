@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction } from 'react';
-import { McOption } from 'src/shared/types/form/formTypes';
+import { McOptionV2 } from 'src/shared/types/form/formTypes';
 import * as handlers from './handlers';
 import { capitalize } from 'src/shared/utils';
 
@@ -12,11 +12,11 @@ interface IProps {
   numChoices: number;
   inputLanguages: string[];
   fieldChanged: boolean;
-  mcOptions: McOption[];
+  mcOptions: McOptionV2[];
   setNumChoices: Dispatch<SetStateAction<number>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
   setFormDirty: Dispatch<SetStateAction<boolean>>;
-  setMcOptions: Dispatch<SetStateAction<McOption[]>>;
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>;
   getMcOptionValue: (language: string, index: number) => string;
   updateMcOption?: (index: number, language: string, value: string) => void;
 }
