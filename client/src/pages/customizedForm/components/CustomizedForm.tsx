@@ -18,6 +18,7 @@ import {
 } from '../handlers';
 import { initialState, validationSchema } from '../state';
 import { useSubmitCustomForm } from '../mutations';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 
 const BUTTON_SX: SxProps = {
   display: 'flex',
@@ -127,7 +128,7 @@ export const CustomizedForm = ({
 
             <Grid container spacing={3}>
               {FormQuestions({
-                questions: form.questions,
+                questions: form.questions as unknown as TQuestion[],
                 renderState,
                 language: '',
                 handleAnswers: (answers) => {
