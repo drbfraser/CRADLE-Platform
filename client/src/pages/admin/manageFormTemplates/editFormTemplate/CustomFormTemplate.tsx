@@ -14,21 +14,17 @@ import {
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import moment from 'moment';
 
 import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
-  useFormTemplateQuery,
   useFormTemplateQueryV2,
-  usePreviousFormVersionsQuery,
   usePreviousFormVersionsQueryV2,
 } from 'src/pages/customizedForm/queries';
 import LanguageModal from './LanguageModal';
 import { getDefaultLanguage } from './utils';
 import { capitalize } from 'src/shared/utils';
-import { useFormTemplatesQueryV2 } from 'src/shared/queries';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -48,9 +44,7 @@ export const CustomFormTemplate = () => {
   const editFormId = location.state?.editFormId as string | undefined;
 
   const generateDefaultVersion = () => {
-    return moment
-      .utc(new Date(Date.now()).toUTCString())
-      .format('YYYY-MM-DD HH:mm:ss z');
+    return Number(new Date(Date.now()));
   };
 
   const [form, setForm] = useState<FormTemplateWithQuestionsV2>({
@@ -83,7 +77,7 @@ export const CustomFormTemplate = () => {
       setForm({
         id,
         classification,
-        version: version.toString(),
+        version,
         questions,
       });
 
@@ -178,10 +172,6 @@ export const CustomFormTemplate = () => {
                           ...prev,
                           classification: {
                             ...prev.classification,
-                            // Only clear IDs if English name is being changed - so that backend can check for name conflicts and create a new classification
-                            id: isEnglishLanguage
-                              ? undefined
-                              : prev.classification.id,
                             name: {
                               ...prev.classification.name,
                               [currentLanguage.toLowerCase()]: e.target.value,
@@ -190,8 +180,7 @@ export const CustomFormTemplate = () => {
                               ? undefined
                               : prev.classification.nameStringId,
                           },
-                          // Only clear form ID if English name is being changed
-                          id: isEnglishLanguage ? undefined : prev.id,
+                          id: editFormId ? prev.id : undefined,
                         }));
                       }}
                       InputProps={{
@@ -227,12 +216,15 @@ export const CustomFormTemplate = () => {
                         maxLength: 30,
                       }}
                       onChange={(e: any) => {
-                        setForm({
-                          ...form,
-                          version: e.target.value,
-                        });
+                        const newVersion = e.target.value;
+
+                        setForm((prev) => ({
+                          ...prev,
+                          version: newVersion,
+                        }));
+
                         setVersionError(
-                          previousVersionsQuery.data?.includes(form.version) ??
+                          previousVersionsQuery.data?.includes(newVersion) ??
                             false
                         );
                       }}

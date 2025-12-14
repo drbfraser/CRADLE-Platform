@@ -1,6 +1,7 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
 import {
   getFormClassificationTemplates,
+  getFormClassificationTemplatesV2,
   getFormResponseAsync,
   getFormTemplateAsync,
   getFormTemplateAsyncV2,
@@ -87,7 +88,7 @@ export const usePreviousFormVersionsQueryV2 = (
     queryKey: ['formVersions', formTemplate?.classification.id],
     queryFn: async () => {
       if (formTemplate?.classification?.id) {
-        const previousTemplates = await getFormClassificationTemplates(
+        const previousTemplates = await getFormClassificationTemplatesV2(
           formTemplate.classification.id
         );
         return previousTemplates.map((template) => template.version);

@@ -30,7 +30,7 @@ interface FormTemplatePayload {
     name: Record<string, string>;
     nameStringId?: string;
   };
-  version: string;
+  version: number;
   questions: TQuestion[];
 }
 

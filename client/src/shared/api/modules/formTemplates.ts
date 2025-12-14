@@ -54,11 +54,21 @@ export const saveFormTemplateAsyncV2 = async (
   });
 };
 
+// TODO: delete this one once the new forms have been integrated in workflows
 export const getFormClassificationTemplates = async (
   formClassificationId: string
 ): Promise<FormTemplateWithQuestions[]> => {
   const response = await axiosFetch.get(
     `${EndpointEnum.FORM_CLASSIFICATIONS}/${formClassificationId}/templates`
+  );
+  return response.data;
+};
+
+export const getFormClassificationTemplatesV2 = async (
+  formClassificationId: string
+): Promise<FormTemplateWithQuestions[]> => {
+  const response = await axiosFetch.get(
+    `${EndpointEnum.FORM_CLASSIFICATIONS_V2}/${formClassificationId}/templates`
   );
   return response.data;
 };

@@ -14,7 +14,6 @@ export interface IFormClassification {
   name: string;
 }
 
-
 export interface FormTemplates {
   templates: FormTemplateList[];
 }
@@ -24,7 +23,7 @@ export interface FormTemplateList {
   name: string;
   dateCreated: number;
   id: string;
-  version: string;
+  version: number;
   classification?: IFormClassification;
 }
 
@@ -39,7 +38,7 @@ export interface FormTemplate {
 export interface FormTemplateWithQuestionsV2 {
   id?: string | undefined;
   classification: IFormClassificationV2;
-  version: string;
+  version: number;
   questions: TQuestion[];
 }
 
