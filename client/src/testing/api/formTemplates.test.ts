@@ -90,14 +90,14 @@ describe('buildFormTemplatePayload', () => {
     const payload = buildFormTemplatePayload({
       id: 'form-1',
       classification: { id: 'c1', name: { en: 'Name' } },
-      version: 'v1',
+      version: 1,
       questions: [],
     });
 
     expect(payload).toEqual({
       id: 'form-1',
       classification: { id: 'c1', name: { en: 'Name' } },
-      version: 'v1',
+      version: 1,
       questions: [],
     });
   });
