@@ -96,7 +96,7 @@ export interface QuestionLangVersion {
 export type McOption = {
   mcId: number;
   opt: string;
-}
+};
 
 export type McOptionV2 = {
   stringId?: string | undefined;

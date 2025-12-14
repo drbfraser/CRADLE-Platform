@@ -34,7 +34,7 @@ describe('buildFormTemplatePayload', () => {
 
     expect(payload.questions[0]).toMatchObject({
       id: 'q1',
-      order: 10,                
+      order: 10,
       isBlank: true,
       formTemplateId: 'form-1',
     });

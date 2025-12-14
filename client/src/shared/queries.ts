@@ -3,7 +3,7 @@ import {
   getAllFormTemplatesAsync,
   getHealthFacilitiesAsync,
   getSecretKeyAsync,
-  getAllFormTemplatesAsyncV2
+  getAllFormTemplatesAsyncV2,
 } from './api';
 import { SecretKey } from './types/types';
 
