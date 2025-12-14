@@ -69,7 +69,7 @@ export const useEditField = ({
   const [allowFutureDates, setAllowFutureDates] = useState(
     question?.allowFutureDates ?? true
   );
-  
+
   // TODO: handle editing of visible condition
   const [_, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
