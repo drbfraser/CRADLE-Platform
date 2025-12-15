@@ -35,12 +35,14 @@ class WorkflowView:
         }
 
     def get_instance_step(self, step_id: str) -> WorkflowInstanceStepModel:
+        assert step_id in self._instance_steps_by_id
         return self._instance_steps_by_id[step_id]
 
     def has_instance_step(self, step_id: str) -> bool:
         return step_id in self._instance_steps_by_id
 
     def get_template_step(self, step_id: str) -> WorkflowTemplateStepModel:
+        assert step_id in self._template_steps_by_id
         return self._template_steps_by_id[step_id]
 
     def get_template_step_branch(
@@ -64,5 +66,5 @@ class WorkflowView:
 
     def get_current_step(self) -> Optional[WorkflowInstanceStepModel]:
         if self.instance.current_step_id:
-            return self._instance_steps_by_id[self.instance.current_step_id]
+            return self.get_instance_step(self.instance.current_step_id)
         return None
