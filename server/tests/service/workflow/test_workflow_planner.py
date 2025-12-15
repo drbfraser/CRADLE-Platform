@@ -1,20 +1,9 @@
-from dataclasses import dataclass
-from typing import TypeAlias, Union
+from typing import Optional
 from unittest.mock import patch
 
 import pytest
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
-from service.workflow.workflow_operations import (
-    UpdateCurrentStepOp,
-    UpdateStepStatusOp,
-    UpdateWorkflowCompletionDate,
-    UpdateWorkflowStartDate,
-    UpdateWorkflowStatusOp,
-    UpdateWorkflowStepCompletionDate,
-    UpdateWorkflowStepStartDate,
-    WorkflowOp,
-)
 from service.workflow.workflow_planner import (
     InvalidWorkflowActionError,
     RuleStatus,
@@ -25,82 +14,28 @@ from validation.workflow_models import (
     CompleteWorkflowActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
-    WorkflowActionModel,
     WorkflowBranchEvaluation,
+    WorkflowInstanceModel,
     WorkflowStepEvaluation,
 )
 
 
-@dataclass
-class DoAdvance:
-    expected_ops: list[WorkflowOp]
+def check_workflow_instance_state(
+    workflow_instance: WorkflowInstanceModel,
+    status: WorkflowStatusEnum,
+    current_step_id: Optional[str],
+    step_status: dict[str, WorkflowStepStatusEnum],
+):
+    assert workflow_instance.status == status
+
+    assert workflow_instance.current_step_id == current_step_id
+
+    for step in workflow_instance.steps:
+        assert step.id in step_status
+        assert step.status == step_status[step.id]
 
 
-@dataclass
-class DoOverride:
-    step_id: str
-    expected_ops: list[WorkflowOp]
-
-
-@dataclass
-class GetActions:
-    expected_actions: WorkflowActionModel
-
-
-@dataclass
-class GetOps:
-    action: WorkflowActionModel
-    expected_ops: list[WorkflowOp]
-
-
-@dataclass
-class ApplyAction:
-    action: WorkflowActionModel
-    expected_ops: list[WorkflowOp]
-
-
-TestStep: TypeAlias = Union[DoAdvance, DoOverride, ApplyAction]
-
-
-def run_test_step(workflow_view, test_step: TestStep):
-    def assert_ops(ops, expected_ops):
-        assert ops == expected_ops, f"Assert failed at test step {test_step}"
-
-    def assert_and_apply_ops(ops, expected_ops):
-        assert_ops(ops, expected_ops)
-        for op in ops:
-            op.apply(workflow_view)
-
-    def assert_actions(expected_actions):
-        actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
-        assert actions == expected_actions, f"Assert failed at test step {test_step}"
-
-    if isinstance(test_step, DoAdvance):
-        ops = WorkflowPlanner.advance(workflow_view)
-        assert_and_apply_ops(ops, test_step.expected_ops)
-
-    elif isinstance(test_step, DoOverride):
-        ops = WorkflowPlanner.override_current_step(workflow_view, test_step.step_id)
-        assert_and_apply_ops(ops, test_step.expected_ops)
-
-    elif isinstance(test_step, GetActions):
-        assert_actions(test_step.expected_actions)
-
-    elif isinstance(test_step, GetOps):
-        ops = WorkflowPlanner.get_operations(workflow_view, test_step.action)
-        assert_ops(ops, test_step.expected_ops)
-
-    elif isinstance(test_step, ApplyAction):
-        ops = WorkflowPlanner.get_operations(workflow_view, test_step.action)
-        assert_and_apply_ops(ops, test_step.expected_ops)
-
-
-def run_test_sequence(workflow_view, sequence: list[TestStep]):
-    for test_step in sequence:
-        run_test_step(workflow_view, test_step)
-
-
-def test_sequential_workflow__in_order(sequential_workflow_view):
+def test_progress_linear_workflow_in_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
 
@@ -108,69 +43,100 @@ def test_sequential_workflow__in_order(sequential_workflow_view):
         "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
         return_value=(RuleStatus.TRUE, []),
     ):
-        sequence = [
-            DoAdvance(expected_ops=[]),
-            GetActions(expected_actions=[StartWorkflowActionModel()]),
-            ApplyAction(
-                action=StartWorkflowActionModel(),
-                expected_ops=[
-                    UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
-                    UpdateWorkflowStartDate(),
-                ],
-            ),
-            DoAdvance(expected_ops=[UpdateCurrentStepOp("si-1")]),
-            GetActions(expected_actions=[StartStepActionModel(step_id="si-1")]),
-            ApplyAction(
-                action=StartStepActionModel(step_id="si-1"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-1", WorkflowStepStatusEnum.ACTIVE),
-                    UpdateWorkflowStepStartDate("si-1"),
-                ],
-            ),
-            DoAdvance(
-                expected_ops=[]
-            ),  # Should do nothing, current step isn't COMPLETED
-            GetActions(expected_actions=[CompleteStepActionModel(step_id="si-1")]),
-            ApplyAction(
-                action=CompleteStepActionModel(step_id="si-1"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-1", WorkflowStepStatusEnum.COMPLETED),
-                    UpdateWorkflowStepCompletionDate("si-1"),
-                ],
-            ),
-            DoAdvance(expected_ops=[UpdateCurrentStepOp("si-2")]),
-            GetActions(expected_actions=[StartStepActionModel(step_id="si-2")]),
-            ApplyAction(
-                action=StartStepActionModel(step_id="si-2"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-2", WorkflowStepStatusEnum.ACTIVE),
-                    UpdateWorkflowStepStartDate("si-2"),
-                ],
-            ),
-            GetActions(expected_actions=[CompleteStepActionModel(step_id="si-2")]),
-            ApplyAction(
-                action=CompleteStepActionModel(step_id="si-2"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-2", WorkflowStepStatusEnum.COMPLETED),
-                    UpdateWorkflowStepCompletionDate("si-2"),
-                ],
-            ),
-            GetActions(expected_actions=[CompleteWorkflowActionModel()]),
-            ApplyAction(
-                action=CompleteWorkflowActionModel(),
-                expected_ops=[
-                    UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
-                    UpdateWorkflowCompletionDate(),
-                ],
-            ),
-            # No steps left! current_step_id left at "si-2"
-            DoAdvance(expected_ops=[]),
-        ]
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Pending",
+            current_step_id=None,
+            step_status={"si-1": "Pending", "si-2": "Pending"},
+        )
 
-        run_test_sequence(workflow_view, sequence)
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [StartWorkflowActionModel()]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id=None,
+            step_status={"si-1": "Pending", "si-2": "Pending"},
+        )
+
+        WorkflowPlanner.advance(workflow_view)
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Pending", "si-2": "Pending"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [StartStepActionModel(step_id="si-1")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Active", "si-2": "Pending"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [CompleteStepActionModel(step_id="si-1")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Completed", "si-2": "Pending"},
+        )
+
+        WorkflowPlanner.advance(workflow_view)
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Completed", "si-2": "Pending"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [StartStepActionModel(step_id="si-2")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Completed", "si-2": "Active"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [CompleteStepActionModel(step_id="si-2")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Completed", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [CompleteWorkflowActionModel()]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Completed",
+            current_step_id="si-2",
+            step_status={"si-1": "Completed", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == []
 
 
-def test_sequential_workflow__out_of_order(sequential_workflow_view):
+def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
 
@@ -178,115 +144,156 @@ def test_sequential_workflow__out_of_order(sequential_workflow_view):
         "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
         return_value=(RuleStatus.TRUE, []),
     ):
-        sequence = [
-            DoAdvance(expected_ops=[]),
-            GetActions(expected_actions=[StartWorkflowActionModel()]),
-            ApplyAction(
-                action=StartWorkflowActionModel(),
-                expected_ops=[
-                    UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
-                    UpdateWorkflowStartDate(),
-                ],
-            ),
-            # Instead of advancing to si-1, go to si-2. NOTE: si-1 has status PENDING
-            # and has not already started.
-            DoOverride(step_id="si-2", expected_ops=[UpdateCurrentStepOp("si-2")]),
-            DoAdvance(
-                expected_ops=[]
-            ),  # Should do nothing, current step isn't COMPLETED
-            GetActions(expected_actions=[StartStepActionModel(step_id="si-2")]),
-            ApplyAction(
-                action=StartStepActionModel(step_id="si-2"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-2", WorkflowStepStatusEnum.ACTIVE),
-                    UpdateWorkflowStepStartDate("si-2"),
-                ],
-            ),
-            GetActions(expected_actions=[CompleteStepActionModel(step_id="si-2")]),
-            ApplyAction(
-                action=CompleteStepActionModel(step_id="si-2"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-2", WorkflowStepStatusEnum.COMPLETED),
-                    UpdateWorkflowStepCompletionDate("si-2"),
-                ],
-            ),
-            DoAdvance(expected_ops=[]),  # Should do nothing, current step is terminal
-            # Go back to si-1 and start and complete it
-            DoOverride(step_id="si-1", expected_ops=[UpdateCurrentStepOp("si-1")]),
-            DoAdvance(
-                expected_ops=[]
-            ),  # Should do nothing, current step isn't COMPLETED
-            GetActions(expected_actions=[StartStepActionModel(step_id="si-1")]),
-            ApplyAction(
-                action=StartStepActionModel(step_id="si-1"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-1", WorkflowStepStatusEnum.ACTIVE),
-                    UpdateWorkflowStepStartDate("si-1"),
-                ],
-            ),
-            DoAdvance(
-                expected_ops=[]
-            ),  # Should do nothing, current step isn't COMPLETED
-            GetActions(expected_actions=[CompleteStepActionModel(step_id="si-1")]),
-            ApplyAction(
-                action=CompleteStepActionModel(step_id="si-1"),
-                expected_ops=[
-                    UpdateStepStatusOp("si-1", WorkflowStepStatusEnum.COMPLETED),
-                    UpdateWorkflowStepCompletionDate("si-1"),
-                ],
-            ),
-            # Can't complete workflow yet, not on terminal step
-            GetActions(expected_actions=[]),
-            DoAdvance(expected_ops=[UpdateCurrentStepOp("si-2")]),
-            GetActions(expected_actions=[CompleteWorkflowActionModel()]),
-            ApplyAction(
-                action=CompleteWorkflowActionModel(),
-                expected_ops=[
-                    UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
-                    UpdateWorkflowCompletionDate(),
-                ],
-            ),
-            # No steps left! current_step_id left at "si-2"
-            DoAdvance(expected_ops=[]),
-        ]
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Pending",
+            current_step_id=None,
+            step_status={"si-1": "Pending", "si-2": "Pending"},
+        )
 
-        run_test_sequence(workflow_view, sequence)
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [StartWorkflowActionModel()]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id=None,
+            step_status={"si-1": "Pending", "si-2": "Pending"},
+        )
+
+        # Instead of advancing to si-1, go to si-2
+        WorkflowPlanner.override_current_step(workflow_view, "si-2")
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Pending", "si-2": "Pending"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [StartStepActionModel(step_id="si-2")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Pending", "si-2": "Active"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [CompleteStepActionModel(step_id="si-2")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Pending", "si-2": "Completed"},
+        )
+
+        # Go back to si-1 and start and complete it
+        WorkflowPlanner.override_current_step(workflow_view, "si-1")
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Pending", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [StartStepActionModel(step_id="si-1")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Active", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [CompleteStepActionModel(step_id="si-1")]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Completed", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == []  # Can't complete workflow yet, not on terminal step
+
+        # Can advance or override to get to si-2 (the terminal step)
+        WorkflowPlanner.advance(workflow_view)
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-2",
+            step_status={"si-1": "Completed", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == [CompleteWorkflowActionModel()]
+
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Completed",
+            current_step_id="si-2",
+            step_status={"si-1": "Completed", "si-2": "Completed"},
+        )
+
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        assert actions == []
 
 
-def test_invalid_action_throws_error(sequential_workflow_view):
+def test_current_step_does_not_advance_if_not_completed(sequential_workflow_view):
+    workflow_view = sequential_workflow_view
+    workflow_view.instance.patient_id = "test-patient-123"
+
+    with patch(
+        "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
+        return_value=(RuleStatus.TRUE, []),
+    ):
+        # Start the workflow
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+        WorkflowPlanner.advance(workflow_view)
+
+        # Start the first step (si-1)
+        actions = WorkflowPlanner.get_available_actions(workflow_view)
+        WorkflowPlanner.apply_action(workflow_view, actions[0])
+
+        # Current step should still be si-1
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Active", "si-2": "Pending"},
+        )
+
+        # Advancing now should not change current step yet
+        WorkflowPlanner.advance(workflow_view)
+        check_workflow_instance_state(
+            workflow_view.instance,
+            status="Active",
+            current_step_id="si-1",
+            step_status={"si-1": "Active", "si-2": "Pending"},
+        )
+
+
+def test_apply_invalid_action_throws_error(sequential_workflow_view):
     with pytest.raises(InvalidWorkflowActionError) as e:
-        WorkflowPlanner.get_operations(
+        WorkflowPlanner.apply_action(
             ctx=sequential_workflow_view, action=CompleteStepActionModel(step_id="si-1")
         )
 
     assert e.value.action == CompleteStepActionModel(step_id="si-1")
     assert e.value.available_actions == [StartWorkflowActionModel()]
-
-
-def test_get_operations_is_stateless(sequential_workflow_view):
-    workflow_view = sequential_workflow_view
-
-    sequence = [
-        DoAdvance(expected_ops=[]),
-        GetActions(expected_actions=[StartWorkflowActionModel()]),
-        GetOps(
-            action=StartWorkflowActionModel(),
-            expected_ops=[
-                UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
-                UpdateWorkflowStartDate(),
-            ],
-        ),
-        # Ops haven't been applied, next `get_operations` will produce the same ops
-        GetOps(
-            action=StartWorkflowActionModel(),
-            expected_ops=[
-                UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
-                UpdateWorkflowStartDate(),
-            ],
-        ),
-    ]
-
-    run_test_sequence(workflow_view, sequence)
 
 
 def test_evaluate_step(sequential_workflow_view):

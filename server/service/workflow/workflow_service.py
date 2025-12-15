@@ -229,9 +229,7 @@ class WorkflowService:
     def apply_workflow_action(
         action: WorkflowActionModel, workflow_view: WorkflowView
     ) -> None:
-        ops = WorkflowPlanner.get_operations(ctx=workflow_view, action=action)
-        for op in ops:
-            op.apply(workflow_view)
+        WorkflowPlanner.apply_action(ctx=workflow_view, action=action)
 
     @staticmethod
     def evaluate_workflow_step(
@@ -246,20 +244,16 @@ class WorkflowService:
 
     @staticmethod
     def advance_workflow(workflow_view: WorkflowView) -> None:
-        ops = WorkflowPlanner.advance(ctx=workflow_view)
-        for op in ops:
-            op.apply(workflow_view)
+        WorkflowPlanner.advance(ctx=workflow_view)
 
     @staticmethod
     def override_current_step(
         workflow_view: WorkflowView, instance_step_id: str
     ) -> None:
         assert workflow_view.has_instance_step(instance_step_id)
-        ops = WorkflowPlanner.override_current_step(
+        WorkflowPlanner.override_current_step(
             ctx=workflow_view, step_id=instance_step_id
         )
-        for op in ops:
-            op.apply(workflow_view)
 
     @staticmethod
     def start_workflow(workflow_view: WorkflowView) -> None:

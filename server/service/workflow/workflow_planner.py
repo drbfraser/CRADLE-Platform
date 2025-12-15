@@ -1,19 +1,10 @@
 from typing import Optional
 
+from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from service.workflow.evaluate.rule_evaluator import RuleEvaluator
 from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
-from service.workflow.workflow_operations import (
-    UpdateCurrentStepOp,
-    UpdateStepStatusOp,
-    UpdateWorkflowCompletionDate,
-    UpdateWorkflowStartDate,
-    UpdateWorkflowStatusOp,
-    UpdateWorkflowStepCompletionDate,
-    UpdateWorkflowStepStartDate,
-    WorkflowOp,
-)
 from service.workflow.workflow_view import WorkflowView
 from validation.workflow_models import (
     CompleteStepActionModel,
@@ -30,9 +21,18 @@ from validation.workflow_models import (
 
 class WorkflowPlanner:
     """
-    Stateless planner that decides *what* operations should be performed next on
-    a workflow. Doesn't mutate any workflow state.
+    TODO: Update documentation
     """
+
+    @staticmethod
+    def _select_branch_id(
+        branch_evaluations: list[WorkflowBranchEvaluation],
+    ) -> Optional[str]:
+        for branch_evaluation in branch_evaluations:
+            if branch_evaluation.rule_status == RuleStatus.TRUE:
+                return branch_evaluation.branch_id
+
+        return None
 
     @staticmethod
     def _evaluate_branch(
@@ -85,16 +85,10 @@ class WorkflowPlanner:
 
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
-        for branch in branches:
-            branch_evaluation = WorkflowPlanner._evaluate_branch(branch, patient_id)
-
-            branch_evaluations.append(branch_evaluation)
-
-            if (
-                not selected_branch_id
-                and branch_evaluation.rule_status == RuleStatus.TRUE
-            ):
-                selected_branch_id = branch.id
+        branch_evaluations = [
+            WorkflowPlanner._evaluate_branch(branch, patient_id) for branch in branches
+        ]
+        selected_branch_id = WorkflowPlanner._select_branch_id(branch_evaluations)
 
         step_evaluation = WorkflowStepEvaluation(
             branch_evaluations=branch_evaluations, selected_branch_id=selected_branch_id
@@ -152,12 +146,9 @@ class WorkflowPlanner:
         return []
 
     @staticmethod
-    def get_operations(
-        ctx: WorkflowView, action: WorkflowActionModel
-    ) -> list[WorkflowOp]:
+    def apply_action(ctx: WorkflowView, action: WorkflowActionModel):
         """
-        Translate an action into the workflow operations that should all be applied to
-        the workflow instance to apply that action.
+        Apply a workflow action to the workflow instance. Modifies the instance state.
         """
         valid_actions = WorkflowPlanner.get_available_actions(ctx)
 
@@ -165,30 +156,25 @@ class WorkflowPlanner:
             raise InvalidWorkflowActionError(action, valid_actions)
 
         if isinstance(action, StartWorkflowActionModel):
-            return [
-                UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
-                UpdateWorkflowStartDate(),
-            ]
+            ctx.instance.status = WorkflowStatusEnum.ACTIVE
+            ctx.instance.start_date = get_current_time()
 
-        if isinstance(action, StartStepActionModel):
-            return [
-                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE),
-                UpdateWorkflowStepStartDate(action.step_id),
-            ]
+        elif isinstance(action, StartStepActionModel):
+            step = ctx.get_instance_step(action.step_id)
+            step.status = WorkflowStepStatusEnum.ACTIVE
+            step.start_date = get_current_time()
 
-        if isinstance(action, CompleteStepActionModel):
-            return [
-                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED),
-                UpdateWorkflowStepCompletionDate(action.step_id),
-            ]
+        elif isinstance(action, CompleteStepActionModel):
+            step = ctx.get_instance_step(action.step_id)
+            step.status = WorkflowStepStatusEnum.COMPLETED
+            step.completion_date = get_current_time()
 
-        if isinstance(action, CompleteWorkflowActionModel):
-            return [
-                UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
-                UpdateWorkflowCompletionDate(),
-            ]
+        elif isinstance(action, CompleteWorkflowActionModel):
+            ctx.instance.status = WorkflowStatusEnum.COMPLETED
+            ctx.instance.completion_date = get_current_time()
 
-        raise ValueError(f"Action '{action}' is not supported")
+        else:
+            raise ValueError(f"Action '{action}' is not supported")
 
     @staticmethod
     def _find_next_step(
@@ -210,26 +196,26 @@ class WorkflowPlanner:
         return WorkflowPlanner._find_next_step(ctx, next_step)
 
     @staticmethod
-    def advance(ctx: WorkflowView) -> list[WorkflowOp]:
+    def advance(ctx: WorkflowView) -> None:
         if (
             ctx.instance.current_step_id is None
             and ctx.instance.status == WorkflowStatusEnum.ACTIVE
         ):
             starting_instance_step = ctx.get_starting_step()
-            return [UpdateCurrentStepOp(starting_instance_step.id)]
+            ctx.instance.current_step_id = starting_instance_step.id
 
         current_step = ctx.get_current_step()
         if current_step and current_step.status == WorkflowStepStatusEnum.COMPLETED:
             next_step = WorkflowPlanner._find_next_step(ctx, current_step)
             if next_step.id != current_step.id:
-                return [UpdateCurrentStepOp(next_step.id)]
+                ctx.instance.current_step_id = next_step.id
 
         return []
 
     @staticmethod
-    def override_current_step(ctx: WorkflowView, step_id: str) -> list[WorkflowOp]:
+    def override_current_step(ctx: WorkflowView, step_id: str) -> None:
         """
         Override the workflow's current step.
         """
         assert ctx.has_instance_step(step_id)
-        return [UpdateCurrentStepOp(step_id)]
+        ctx.instance.current_step_id = step_id

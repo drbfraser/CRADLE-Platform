@@ -8,7 +8,6 @@ from service.workflow.datasourcing.data_sourcing import (
     VariableResolutionStatus,
     resolve_variables,
 )
-from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
 from service.workflow.evaluate.rules_engine import RulesEngineFacade, RuleStatus
 
@@ -31,7 +30,6 @@ class RuleEvaluator:
                          If None, uses the default catalogue.
         """
         self.catalogue = catalogue or get_catalogue()
-        self.resolver = WorkflowDataResolver(self.catalogue)
 
     def evaluate_rule(
         self, rule: Optional[str], patient_id: str

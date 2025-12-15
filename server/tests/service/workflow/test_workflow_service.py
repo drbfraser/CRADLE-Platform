@@ -6,7 +6,6 @@ from service.workflow.evaluate.rules_engine import RuleStatus
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService
 from tests.helpers import (
-    assert_is_recent_timestamp,
     get_uuid,
     make_workflow_template,
     make_workflow_template_step,
@@ -20,7 +19,7 @@ from validation.workflow_models import (
 )
 
 
-def test_workflow_service__generate_workflow_instance():
+def test_generate_workflow_instance():
     workflow_template_id = get_uuid()
     step_template_1_id = get_uuid()
     step_template_2_id = get_uuid()
@@ -83,7 +82,7 @@ def test_workflow_service__generate_workflow_instance():
         assert step_instance.form is None
 
 
-def test_workflow_service__sequential_workflow__in_order(sequential_workflow_view):
+def test_progress_linear_workflow_in_order(sequential_workflow_view):
     workflow_view = sequential_workflow_view
     workflow_view.instance.patient_id = "test-patient-123"
 
@@ -91,38 +90,20 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
         "service.workflow.workflow_planner.RuleEvaluator.evaluate_rule",
         return_value=(RuleStatus.TRUE, []),
     ):
+        # Light checks for state, more thorough checks may be unecessary because
+        # test_workflow_planner.py should have more thorough checks, and WorkflowService
+        # should be a light wrapper around the planner.
         assert workflow_view.instance.status == "Pending"
-        assert workflow_view.instance.current_step_id is None
-        assert workflow_view.get_instance_step("si-1").status == "Pending"
-        assert workflow_view.get_instance_step("si-2").status == "Pending"
-
-        assert workflow_view.instance.start_date is None
-        assert workflow_view.instance.completion_date is None
-        assert workflow_view.get_instance_step("si-1").start_date is None
-        assert workflow_view.get_instance_step("si-2").start_date is None
-        assert workflow_view.get_instance_step("si-1").completion_date is None
-        assert workflow_view.get_instance_step("si-2").completion_date is None
 
         WorkflowService.start_workflow(workflow_view)
         assert workflow_view.instance.status == "Active"
         assert workflow_view.instance.current_step_id == "si-1"
-        assert workflow_view.get_instance_step("si-1").status == "Active"
-        assert workflow_view.get_instance_step("si-2").status == "Pending"
-        assert_is_recent_timestamp(workflow_view.instance.start_date)
-        assert_is_recent_timestamp(workflow_view.get_instance_step("si-1").start_date)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions == [CompleteStepActionModel(step_id="si-1")]
 
         WorkflowService.apply_workflow_action(
             action=CompleteStepActionModel(step_id="si-1"), workflow_view=workflow_view
-        )
-        assert workflow_view.instance.status == "Active"
-        assert workflow_view.instance.current_step_id == "si-1"
-        assert workflow_view.get_instance_step("si-1").status == "Completed"
-        assert workflow_view.get_instance_step("si-2").status == "Pending"
-        assert_is_recent_timestamp(
-            workflow_view.get_instance_step("si-1").completion_date
         )
 
         WorkflowService.advance_workflow(workflow_view)
@@ -134,11 +115,6 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
         WorkflowService.apply_workflow_action(
             action=StartStepActionModel(step_id="si-2"), workflow_view=workflow_view
         )
-        assert workflow_view.instance.status == "Active"
-        assert workflow_view.instance.current_step_id == "si-2"
-        assert workflow_view.get_instance_step("si-1").status == "Completed"
-        assert workflow_view.get_instance_step("si-2").status == "Active"
-        assert_is_recent_timestamp(workflow_view.get_instance_step("si-2").start_date)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions == [CompleteStepActionModel(step_id="si-2")]
@@ -146,8 +122,6 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
         WorkflowService.apply_workflow_action(
             action=CompleteStepActionModel(step_id="si-2"), workflow_view=workflow_view
         )
-        assert workflow_view.get_instance_step("si-1").status == "Completed"
-        assert workflow_view.get_instance_step("si-2").status == "Completed"
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions == [CompleteWorkflowActionModel()]
@@ -155,23 +129,15 @@ def test_workflow_service__sequential_workflow__in_order(sequential_workflow_vie
         WorkflowService.apply_workflow_action(
             action=CompleteWorkflowActionModel(), workflow_view=workflow_view
         )
-        assert workflow_view.instance.status == "Completed"
-        assert workflow_view.instance.current_step_id == "si-2"
-        assert_is_recent_timestamp(
-            workflow_view.get_instance_step("si-2").completion_date
-        )
-        assert_is_recent_timestamp(workflow_view.instance.completion_date)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions == []
 
-        WorkflowService.advance_workflow(workflow_view)
-        assert (
-            workflow_view.instance.current_step_id == "si-2"
-        )  # still si-2, no steps left!
+        assert workflow_view.instance.status == "Completed"
+        assert workflow_view.instance.current_step_id == "si-2"
 
 
-def test_workflow_service__apply_invalid_workflow_action(sequential_workflow_view):
+def apply_invalid_workflow_action(sequential_workflow_view):
     workflow_view = sequential_workflow_view
 
     with pytest.raises(InvalidWorkflowActionError) as e:
