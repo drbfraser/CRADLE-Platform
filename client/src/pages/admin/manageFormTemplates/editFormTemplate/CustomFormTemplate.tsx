@@ -43,10 +43,6 @@ export const CustomFormTemplate = () => {
   const location = useLocation();
   const editFormId = location.state?.editFormId as string | undefined;
 
-  const generateDefaultVersion = () => {
-    return Number(new Date(Date.now()));
-  };
-
   const [form, setForm] = useState<FormTemplateWithQuestionsV2>({
     classification: {
       name: {
@@ -55,7 +51,7 @@ export const CustomFormTemplate = () => {
       id: undefined,
       nameStringId: undefined,
     },
-    version: generateDefaultVersion(),
+    version: 1,
     questions: [],
     id: 'temp',
   });
