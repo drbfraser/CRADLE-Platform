@@ -84,11 +84,9 @@ def get_workflow_classification_from_dict(
 ) -> WorkflowClassificationOrm:
     """
     Retrieves or creates a WorkflowClassificationOrm object
-
     :param workflow_template_dict: Dictionary consisting of attributes for a workflow template that belongs
     to this classification
     :param workflow_classification_dict: Dictionary consisting of attributes for a workflow classification
-
     :return: A WorkflowClassificationOrm object
     """
     # Find workflow classification in DB, if it exists
@@ -121,7 +119,6 @@ def check_for_existing_template_version(
 ) -> None:
     """
     Checks if a workflow template with the same version under the same classification already exists
-
     :param workflow_classification_id: ID of the workflow classification
     :param workflow_template_dict: Dictionary consisting of attributes for a workflow template
     """
@@ -356,7 +353,6 @@ def update_workflow_template_patch(
 ):
     """
     Update Workflow Template with only specific fields
-
     Because workflow templates are large objects, this endpoint allows only the necessary attributes to be sent
     from the frontend to the backend, instead of the entire object itself
     """
@@ -401,7 +397,7 @@ def update_workflow_template_patch(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
 
-    find_and_archive_previous_workflow_template(workflow_template.classification_id)
+    workflow_template.archived = True
 
     crud.create(model=new_workflow_template, refresh=True)
 

@@ -4,8 +4,22 @@ import {
   getWorkflowTemplateCsvAsync,
   unarchiveWorkflowTemplateAsync,
   archiveWorkflowTemplateAsync,
+  createTemplate,
 } from 'src/shared/api';
-import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
+import {
+  WorkflowTemplate,
+  TemplateInput,
+} from 'src/shared/types/workflow/workflowApiTypes';
+
+export const useCreateWorkflowTemplate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (template: TemplateInput) => createTemplate(template),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] });
+    },
+  });
+};
 
 export const useEditWorkflowTemplate = () => {
   const queryClient = useQueryClient();

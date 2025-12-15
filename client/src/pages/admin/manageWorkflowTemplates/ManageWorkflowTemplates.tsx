@@ -201,8 +201,7 @@ export const ManageWorkflowTemplates = () => {
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
-            // onClick={() => navigate('/admin/workflow-templates/new')}
-          >
+            onClick={() => navigate('/admin/workflow-templates/new')}>
             {'New Workflow'}
           </Button>
           <Button

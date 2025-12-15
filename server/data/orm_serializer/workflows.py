@@ -222,7 +222,9 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
 
     workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
     workflow_template_step_orm.branches = branches
-    workflow_template_step_orm.form = form
+
+    if form is not None:
+        workflow_template_step_orm.form = form
 
     return workflow_template_step_orm
 
