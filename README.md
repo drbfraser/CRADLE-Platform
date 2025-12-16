@@ -107,3 +107,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Elton Zhen          | ehz2@sfu.ca          |
 | Ellie Neufeld       | ena31@sfu.ca         |
 | Maria Zaman         | mza114@sfu.ca        |
+| Ilia Fatemi         | ifa6@sfu.ca          |
