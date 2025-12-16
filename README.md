@@ -109,3 +109,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Maria Zaman         | mza114@sfu.ca        |
 | Ilia Fatemi         | ifa6@sfu.ca          |
 | Poorvi Bhatia       | pba49@sfu.ca         |
+| Simone Motwani      | svm4@sfu.ca          |
