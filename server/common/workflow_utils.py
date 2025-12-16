@@ -37,6 +37,20 @@ WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
 WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not found."
 
 
+# NOTE: Consider moving workflow mutation and validation logic
+#       (e.g., assign_*_ids, generate_updated_workflow_template)
+#       into WorkflowService.
+#       Pros:
+#         - This file could focus purely on REST concerns
+#           (request validation, 404 handling, response shaping).
+#         - Decoupling from Flask and ORM interfaces could simplify
+#           usage and testing.
+#         - Operating on Pydantic models may improve clarity and type safety.
+#       Cons:
+#         - Non-trivial refactor with risk of subtle bugs.
+#           Mitigated by adding isolated unit tests around these operations.
+
+
 def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -> None:
     """
     Assigns an ID and step ID to a workflow step branch if none has been provided, if the branch has a condition that
@@ -100,6 +114,8 @@ def assign_step_ids(
             assign_branch_id(branch, step_id, auto_assign_id)
 
 
+# NOTE: It may not make sense anymore to handle assigning instance IDs, as the
+#       IDs are generated once in WorkflowService.generate_workflow_instance
 def assign_workflow_template_or_instance_ids(
     m: Type[M], workflow: dict, auto_assign_id: bool = False
 ) -> None:

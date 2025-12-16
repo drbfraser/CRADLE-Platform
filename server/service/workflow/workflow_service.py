@@ -28,10 +28,23 @@ from validation.workflow_models import (
 
 
 class WorkflowService:
+    """
+    Provides a uniform interface for all high-level operations on workflow
+    instances and templates.
+
+    The boundary of the methods in this class are intended to be lightweight
+    Pydantic models. The class abstracts away the ORM/database operations to
+    let callers, like the REST API, work at a higher level, simplifying usage.
+    """
+
     @staticmethod
     def generate_workflow_instance(
         workflow_template: WorkflowTemplateModel,
     ) -> WorkflowInstanceModel:
+        """
+        Create a new workflow instance from a workflow template, populated
+        with initial values for progression and default values.
+        """
         workflow_instance = {}
 
         workflow_instance["id"] = get_uuid()
@@ -61,6 +74,9 @@ class WorkflowService:
         workflow_template_step: WorkflowTemplateStepModel,
         workflow_instance_id: str,
     ) -> WorkflowInstanceStepModel:
+        """
+        Create a new workflow instance step from a workflow template step.
+        """
         step = {}
 
         step["id"] = get_uuid()
@@ -158,8 +174,7 @@ class WorkflowService:
         workflow_template_id: Optional[str] = None,
     ) -> list[WorkflowInstanceModel]:
         """
-        Fetch a list of workflow instances, optionally filtered by user, patient, status
-        or workflow template.
+        Fetch workflow instances with optional filters.
         """
         workflow_instance_orms = crud.read_workflow_instances(
             user_id, patient_id, status, workflow_template_id
@@ -222,6 +237,9 @@ class WorkflowService:
     def get_available_workflow_actions(
         workflow_view: WorkflowView,
     ) -> list[WorkflowActionModel]:
+        """
+        Get the next valid workflow actions for a workflow instance.
+        """
         available_actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
         return available_actions
 
@@ -229,12 +247,23 @@ class WorkflowService:
     def apply_workflow_action(
         action: WorkflowActionModel, workflow_view: WorkflowView
     ) -> None:
+        """
+        Apply a workflow action to the workflow instance.
+        Raises InvalidWorkflowActionError if the action is invalid.
+        """
         WorkflowPlanner.apply_action(ctx=workflow_view, action=action)
 
     @staticmethod
     def evaluate_workflow_step(
         workflow_view: WorkflowView, instance_step_id: str
     ) -> WorkflowStepEvaluation:
+        """
+        Evaluate a workflow step and its branches.
+
+        :param workflow_view: Workflow view
+        :param instance_step_id: ID of the step to evaluate
+        :returns: Step evaluation result
+        """
         assert workflow_view.has_instance_step(instance_step_id)
 
         step_evaluation = WorkflowPlanner.evaluate_step(
@@ -244,12 +273,18 @@ class WorkflowService:
 
     @staticmethod
     def advance_workflow(workflow_view: WorkflowView) -> None:
+        """
+        Advance the workflow to the next step if conditions are met.
+        """
         WorkflowPlanner.advance(ctx=workflow_view)
 
     @staticmethod
     def override_current_step(
         workflow_view: WorkflowView, instance_step_id: str
     ) -> None:
+        """
+        Override the current step in the workflow.
+        """
         assert workflow_view.has_instance_step(instance_step_id)
         WorkflowPlanner.override_current_step(
             ctx=workflow_view, step_id=instance_step_id
@@ -258,8 +293,14 @@ class WorkflowService:
     @staticmethod
     def start_workflow(workflow_view: WorkflowView) -> None:
         """
-        Starting the workflow is a special case. Start the workflow, advance to
-        the first step, and start the first step.
+        Start a workflow and its first step.
+
+        This method:
+        1. Starts the workflow instance
+        2. Advances the workflow to the first step
+        3. Starts the first step
+
+        Assertions ensure actions are available and applied in the expected order.
         """
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
@@ -331,6 +372,7 @@ class WorkflowService:
     ) -> None:
         """
         Validate that last_edited >= start_date.
+        Raises ValueError if the check fails.
         """
         if (
             last_edited is not None
@@ -349,7 +391,7 @@ class WorkflowService:
         This check isn't enforced at the model level to allow us to set start_date to
         the current time, otherwise last_edited becomes < start_date.
 
-        If this error is thrown, it indicates a programming error on the backend.
+        If an error is thrown, it indicates a programming error on the backend.
         """
         WorkflowService._validate_start_date_and_last_edited(
             workflow_instance.start_date, workflow_instance.last_edited
