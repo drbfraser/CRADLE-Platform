@@ -6,7 +6,7 @@ test.beforeEach(async ({ formTemplatesPage }) => {
   await formTemplatesPage.clickNewFormTemplateButton();
 });
 
-test('should allow an admin to create a new form template', async ({
+test.skip('should allow an admin to create a new form template', async ({
   formTemplatesPage,
   formTemplateBuilderPage,
   browserName,

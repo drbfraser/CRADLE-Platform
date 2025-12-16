@@ -4,6 +4,7 @@ import {
   QRelationEnum,
 } from 'src/shared/enums';
 import { OrNull } from '../types';
+import { TQuestion } from './formTemplateTypes';
 
 export type Form = {
   formTemplateId: number;
@@ -23,6 +24,18 @@ export interface CForm {
   name: string;
   lang: string;
   questions: Question[];
+  patientId: string | undefined; //this is only used in client when we need to do the 'form creating' net post
+}
+
+export interface CFormV2 {
+  dateCreated: number;
+  category: string;
+  id: string | undefined; //when doing form creating,from ;
+  lastEdited: number;
+  version: string | undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
+  name: string;
+  lang: string;
+  questions: TQuestion[];
   patientId: string | undefined; //this is only used in client when we need to do the 'form creating' net post
 }
 
@@ -83,4 +96,9 @@ export interface QuestionLangVersion {
 export type McOption = {
   mcId: number;
   opt: string;
+};
+
+export type McOptionV2 = {
+  stringId?: string | undefined;
+  translations: Record<string, string>;
 };

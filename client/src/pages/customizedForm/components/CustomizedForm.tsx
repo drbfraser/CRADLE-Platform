@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
 import { Divider, Grid, SxProps } from '@mui/material';
 
-import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
+import { CForm, QAnswer, Question } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';
@@ -18,6 +18,7 @@ import {
 } from '../handlers';
 import { initialState, validationSchema } from '../state';
 import { useSubmitCustomForm } from '../mutations';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 
 const BUTTON_SX: SxProps = {
   display: 'flex',
@@ -55,13 +56,16 @@ export const CustomizedForm = ({
     }
 
     //2 number-range validation
-    if (!areNumberResponsesValid(form.questions, answers)) {
+    if (
+      !areNumberResponsesValid(form.questions as unknown as Question[], answers)
+    ) {
+      // TODO: update this type when form submissions v2 are integrated
       return;
     }
 
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
       answers,
-      form.questions
+      form.questions as unknown as Question[] // TODO: update this type when form submissions v2 are integrated
     );
     const postBody: PostBody = TransferQAnswerToPostBody(
       anss,
@@ -124,7 +128,7 @@ export const CustomizedForm = ({
 
             <Grid container spacing={3}>
               {FormQuestions({
-                questions: form.questions,
+                questions: form.questions as unknown as TQuestion[],
                 renderState,
                 language: '',
                 handleAnswers: (answers) => {

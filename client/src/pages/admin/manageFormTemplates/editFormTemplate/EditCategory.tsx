@@ -19,24 +19,21 @@ import InfoIcon from '@mui/icons-material/Info';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { QCondition } from 'src/shared/types/form/formTypes';
 import {
-  McOption,
-  QCondition,
-  QuestionLangVersion,
-} from 'src/shared/types/form/formTypes';
-import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
+import { capitalize } from 'src/shared/utils';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
   visibilityDisabled: boolean;
   inputLanguages: string[];
-  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityToggle: boolean;
@@ -54,9 +51,8 @@ const EditCategory = ({
   visibilityToggle,
   categoryIndex,
 }: IProps) => {
-  const [questionLangVersions, setQuestionLangversions] = useState<
-    QuestionLangVersion[]
-  >([] as QuestionLangVersion[]);
+  // Store as object with language keys
+  const [questionText, setQuestionText] = useState<Record<string, string>>({});
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
@@ -70,14 +66,20 @@ const EditCategory = ({
       setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
-        setQuestionLangversions(getQlvCopy(question.langVersions));
+        // Convert questionText to object format
+        if (
+          question.questionText &&
+          typeof question.questionText === 'object'
+        ) {
+          setQuestionText(question.questionText as Record<string, string>);
+        }
         setEnableVisiblity(
           enableVisibility || question.visibleCondition.length > 0
         );
       }
       // create new field
       else {
-        setQuestionLangversions([]);
+        setQuestionText({});
         setEnableVisiblity(false);
       }
     }
@@ -88,62 +90,26 @@ const EditCategory = ({
     setIsVisCondAnswered(!enableVisibility);
   }, [enableVisibility]);
 
-  const getQlvCopy = (
-    questionLangVersions: QuestionLangVersion[]
-  ): QuestionLangVersion[] => {
-    const qlvCopy = [] as QuestionLangVersion[];
-    questionLangVersions.forEach((qlv) => {
-      qlvCopy.push({
-        lang: qlv.lang,
-        mcOptions: [],
-        questionText: qlv.questionText,
-      });
-    });
-    return qlvCopy;
-  };
-
   const getFieldName = (language: string) => {
-    let fName = '';
-    if (question) {
-      const qLangVersion = question.langVersions.find(
-        (version) => version.lang === language
-      );
-      if (qLangVersion) {
-        fName = qLangVersion.questionText;
-      }
-    }
-    return fName;
+    return questionText[language.toLowerCase()] ?? '';
   };
 
   const fieldFilled = () => {
-    let areAllNamesFilled = questionLangVersions.length === 0 ? false : true;
-    questionLangVersions.forEach((qLangVersion) => {
-      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
+    // All languages must have non-empty strings
+    return inputLanguages.every((lang) => {
+      const text = questionText[lang.toLowerCase()];
+      return typeof text === 'string' && text.trim().length > 0;
     });
-    return areAllNamesFilled;
   };
 
   const addFieldToQuestionLangVersions = (
     language: string,
     fieldName: string
   ) => {
-    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-    const newQLangVersion = {
-      lang: language,
-      mcOptions: [] as McOption[],
-      questionText: fieldName,
-    };
-
-    const qLangVersion = qLangVersions.find((q) => q.lang === language);
-
-    if (!qLangVersion) {
-      qLangVersions.push(newQLangVersion);
-    } else {
-      const i = qLangVersions.indexOf(qLangVersion);
-      qLangVersions[i].questionText = fieldName;
-    }
-    setQuestionLangversions(qLangVersions);
+    setQuestionText((prev) => ({
+      ...prev,
+      [language.toLowerCase()]: fieldName,
+    }));
   };
 
   return (
@@ -162,12 +128,12 @@ const EditCategory = ({
               <Grid item xs={12} key={lang + '-category-name'}>
                 <TextField
                   key={lang + '-field-text'}
-                  label={lang + ' Category Name'}
+                  label={capitalize(lang) + ' Category Name'}
                   required={true}
                   variant="outlined"
                   fullWidth
                   size="small"
-                  defaultValue={getFieldName(lang)}
+                  value={getFieldName(lang)}
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
@@ -197,7 +163,7 @@ const EditCategory = ({
                   currCatIndex !== null &&
                   questionsArr[currCatIndex] !== undefined
                 ) {
-                  if (currCatIndex === question.questionIndex) return false;
+                  if (currCatIndex === question.order) return false;
                   currCatIndex = questionsArr[currCatIndex].categoryIndex;
                 }
                 return true;
@@ -264,8 +230,7 @@ const EditCategory = ({
                           return true;
                         let currCatIndex = q.categoryIndex;
                         while (currCatIndex !== null) {
-                          if (currCatIndex === question.questionIndex)
-                            return false;
+                          if (currCatIndex === question.order) return false;
                           currCatIndex =
                             questionsArr[currCatIndex].categoryIndex;
                         }
@@ -303,10 +268,10 @@ const EditCategory = ({
                   // edit field
                   if (question) {
                     const questionToUpdate = form.questions.find(
-                      (q) => q.questionIndex === question.questionIndex
+                      (q) => q.order === question.order
                     );
                     if (questionToUpdate) {
-                      questionToUpdate.langVersions = questionLangVersions;
+                      questionToUpdate.questionText = questionText;
                       questionToUpdate.visibleCondition = enableVisibility
                         ? visibleCondition
                         : [];
@@ -314,9 +279,7 @@ const EditCategory = ({
                       const visCondsToUpdate: TQuestion[] = [];
                       form.questions.forEach((q) => {
                         if (q.categoryIndex === null) return;
-                        if (
-                          q.categoryIndex === questionToUpdate.questionIndex
-                        ) {
+                        if (q.categoryIndex === questionToUpdate.order) {
                           visCondsToUpdate.push(q);
                           return;
                         }
@@ -326,21 +289,19 @@ const EditCategory = ({
                           form.questions[rootCatIndex] !== undefined &&
                           form.questions[rootCatIndex].categoryIndex !== null
                         ) {
-                          if (
-                            q.categoryIndex === questionToUpdate.questionIndex
-                          ) {
+                          if (q.categoryIndex === questionToUpdate.order) {
                             visCondsToUpdate.push(q);
                             return;
                           }
                           rootCatIndex =
                             form.questions[rootCatIndex]?.categoryIndex ?? null;
                         }
-                        if (rootCatIndex === questionToUpdate.questionIndex) {
+                        if (rootCatIndex === questionToUpdate.order) {
                           visCondsToUpdate.push(q);
                         }
                       });
                       visCondsToUpdate.forEach((q) => {
-                        form.questions[q.questionIndex].visibleCondition =
+                        form.questions[q.order].visibleCondition =
                           enableVisibility ? visibleCondition : [];
                       });
                     }
@@ -348,8 +309,8 @@ const EditCategory = ({
                   // create new field
                   else {
                     form.questions.push({
-                      questionIndex: form.questions.length,
-                      langVersions: questionLangVersions,
+                      order: form.questions.length,
+                      questionText: questionText,
                       questionType: QuestionTypeEnum.CATEGORY,
                       required: false,
                       allowFutureDates: true,
@@ -361,6 +322,9 @@ const EditCategory = ({
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
                       id: undefined,
+                      hasCommentAttached: false,
+                      questionStringId: undefined,
+                      userQuestionId: undefined,
                     });
                   }
                   setVisibleCondition([]);

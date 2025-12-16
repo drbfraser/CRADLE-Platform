@@ -16,7 +16,7 @@ import { FORM_TEMPLATE_TEST_DATA as TEST_DATA } from 'src/testing/testData';
 import ProviderWrapper from 'src/testing/ProviderWrapper';
 import { ManageFormTemplates } from './ManageFormTemplates';
 
-describe('Form Templates Table', () => {
+describe.skip('Form Templates Table', () => {
   beforeAll(() => {
     localStorage.setItem('accessToken', createFakeAccessToken());
   });

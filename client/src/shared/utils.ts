@@ -309,3 +309,8 @@ export const formatPhoneNumber = (phoneNumber: string) => {
 export const formatPhoneNumbers = (phoneNumbers: string[]) => {
   return phoneNumbers.map(formatPhoneNumber);
 };
+
+export const capitalize = (word: string) => {
+  if (!word) return word;
+  return word[0].toUpperCase() + word.substr(1).toLowerCase();
+};

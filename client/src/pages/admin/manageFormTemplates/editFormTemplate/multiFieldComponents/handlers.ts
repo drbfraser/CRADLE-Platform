@@ -1,102 +1,76 @@
 import { Dispatch, SetStateAction } from 'react';
-import { McOption, QuestionLangVersion } from 'src/shared/types/form/formTypes';
+import { McOptionV2 } from 'src/shared/types/form/formTypes';
 
 export const handleAddChoice = (
   numChoices: number,
   inputLanguages: string[],
-  setNumChoices: React.Dispatch<React.SetStateAction<any>>,
-  questionLangVersions: QuestionLangVersion[],
-  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>
+  setNumChoices: React.Dispatch<React.SetStateAction<number>>,
+  mcOptions: McOptionV2[],
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>
 ) => {
   const newNumChoices = numChoices + 1;
-  inputLanguages.map((lang) => {
-    handleMultiChoiceOptionChange(
-      lang,
-      '',
-      numChoices,
-      questionLangVersions,
-      setQuestionLangversions
-    );
+
+  // Create a new option with empty translations for all languages
+  const newOption: McOptionV2 = {
+    translations: {},
+  };
+
+  inputLanguages.forEach((lang) => {
+    newOption.translations[lang.toLowerCase()] = '';
   });
+
+  setMcOptions([...mcOptions, newOption]);
   setNumChoices(newNumChoices);
 };
 
 export const handleRemoveMultiChoice = (
   index: number,
   numChoices: number,
-  questionLangVersions: QuestionLangVersion[],
+  mcOptions: McOptionV2[],
   inputLanguages: string[],
-  setNumChoices: React.Dispatch<React.SetStateAction<any>>,
-  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>
+  setNumChoices: React.Dispatch<React.SetStateAction<number>>,
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>
 ) => {
-  const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-  inputLanguages.forEach((lang) => {
-    const qLangVersion = qLangVersions.find((qlv) => qlv.lang == lang);
-    if (qLangVersion) {
-      const i = qLangVersions.indexOf(qLangVersion);
-      if (i >= 0) {
-        // remove option
-        qLangVersions[i].mcOptions.splice(index, 1);
-
-        // reset indices for options
-        qLangVersions[i].mcOptions.forEach((mcOption, mci) => {
-          mcOption.mcId = mci;
-        });
-      }
-    }
-  });
+  // Remove the option at the specified index
+  const updatedOptions = mcOptions.filter((_, idx) => idx !== index);
 
   const newNumChoices = numChoices - 1;
   setNumChoices(newNumChoices);
-  setQuestionLangversions(qLangVersions);
+  setMcOptions(updatedOptions);
 };
 
 export const handleMultiChoiceOptionChange = (
   language: string,
   option: string,
   index: number,
-  /*Added for helper*/
-  questionLangVersions: QuestionLangVersion[],
-  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>
+  mcOptions: McOptionV2[],
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>
 ) => {
-  const qLangVersions: QuestionLangVersion[] = questionLangVersions;
+  const updatedOptions = [...mcOptions];
 
-  const newQLangVersion = {
-    lang: language,
-    mcOptions: [] as McOption[],
-    questionText: '',
-  };
-
-  const qLangVersion = qLangVersions.find((q) => q.lang === language);
-
-  if (!qLangVersion) {
-    newQLangVersion.mcOptions.push({
-      mcId: index,
-      opt: option,
-    });
-    qLangVersions.push(newQLangVersion);
-  } else {
-    const i = qLangVersions.indexOf(qLangVersion);
-    if (index < qLangVersions[i].mcOptions.length) {
-      qLangVersions[i].mcOptions[index].opt = option;
-    } else {
-      qLangVersions[i].mcOptions.push({
-        mcId: index,
-        opt: option,
-      });
-    }
+  // Ensure the option exists at this index
+  if (!updatedOptions[index]) {
+    updatedOptions[index] = { translations: {} };
   }
-  setQuestionLangversions(qLangVersions);
+
+  // Ensure translations object exists
+  if (!updatedOptions[index].translations) {
+    updatedOptions[index].translations = {};
+  }
+
+  // Update the translation for this language
+  updatedOptions[index].translations[language.toLowerCase()] = option;
+
+  setMcOptions(updatedOptions);
 };
 
 export const handleRadioChange = (
   event: {
     target: { value: SetStateAction<string> };
   },
-  setFieldType: React.Dispatch<React.SetStateAction<any>>,
-  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
-  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
+  setFieldType: React.Dispatch<React.SetStateAction<string>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
   fieldChanged: boolean
 ) => {
   setFieldType(event.target.value);
@@ -106,9 +80,9 @@ export const handleRadioChange = (
 
 export const handleVisibilityChange = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setEnableVisiblity: React.Dispatch<React.SetStateAction<any>>,
-  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
-  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  setEnableVisiblity: React.Dispatch<React.SetStateAction<boolean>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
   fieldChanged: boolean
 ) => {
   setEnableVisiblity(event.target.checked);
@@ -118,9 +92,9 @@ export const handleVisibilityChange = (
 
 export const handleRequiredChange = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setIsRequired: React.Dispatch<React.SetStateAction<any>>,
-  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
-  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  setIsRequired: React.Dispatch<React.SetStateAction<boolean>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
   fieldChanged: boolean
 ) => {
   setIsRequired(event.target.checked);
@@ -130,9 +104,9 @@ export const handleRequiredChange = (
 
 export const handleAllowPastDatesChange = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setAllowPastDates: React.Dispatch<React.SetStateAction<any>>,
-  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
-  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  setAllowPastDates: React.Dispatch<React.SetStateAction<boolean>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
   fieldChanged: boolean
 ) => {
   setAllowPastDates(event.target.checked);
@@ -142,9 +116,9 @@ export const handleAllowPastDatesChange = (
 
 export const handleAllowFutureDatesChange = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setAllowFutureDates: React.Dispatch<React.SetStateAction<any>>,
-  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
-  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  setAllowFutureDates: React.Dispatch<React.SetStateAction<boolean>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
   fieldChanged: boolean
 ) => {
   setAllowFutureDates(event.target.checked);
@@ -154,10 +128,12 @@ export const handleAllowFutureDatesChange = (
 
 export const handleIsNumOfLinesRestrictedChange = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setIsNumOfLinesRestricted: React.Dispatch<React.SetStateAction<any>>,
-  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
-  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
-  setStringMaxLines: React.Dispatch<React.SetStateAction<any>>,
+  setIsNumOfLinesRestricted: React.Dispatch<React.SetStateAction<boolean>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<boolean>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<boolean>>,
+  setStringMaxLines: React.Dispatch<
+    React.SetStateAction<number | string | null>
+  >,
   fieldChanged: boolean
 ) => {
   setIsNumOfLinesRestricted(event.target.checked);

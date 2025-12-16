@@ -8,8 +8,11 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
-import { saveFormTemplateAsync } from 'src/shared/api';
+import {
+  FormTemplateWithQuestionsV2,
+  TQuestion,
+} from 'src/shared/types/form/formTemplateTypes';
+import { saveFormTemplateAsyncV2 } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import { useState } from 'react';
@@ -17,16 +20,29 @@ import { useState } from 'react';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  form?: FormTemplateWithQuestions;
+  form?: FormTemplateWithQuestionsV2;
 }
 
-export function buildFormTemplatePayload(form: FormTemplateWithQuestions) {
+interface FormTemplatePayload {
+  id?: string | undefined;
+  classification: {
+    id?: string;
+    name: Record<string, string>;
+    nameStringId?: string;
+  };
+  version: number;
+  questions: TQuestion[];
+}
+
+export function buildFormTemplatePayload(
+  form: FormTemplateWithQuestionsV2
+): FormTemplatePayload {
   return {
+    id: form.id,
     classification: { ...form.classification },
     version: form.version,
     questions: form.questions.map((q, i) => ({
       id: q.id,
-      questionIndex: i,
       questionType: q.questionType,
       required: q.required,
       allowPastDates: q.allowPastDates,
@@ -38,12 +54,14 @@ export function buildFormTemplatePayload(form: FormTemplateWithQuestions) {
       stringMaxLength: q.stringMaxLength,
       stringMaxLines: q.stringMaxLines,
       visibleCondition: q.visibleCondition || [],
-      langVersions: q.langVersions.map((lv) => ({
-        lang: lv.lang,
-        questionText: lv.questionText,
-        mcOptions: lv.mcOptions || [],
-      })),
+      questionText: q.questionText || {},
+      mcOptions: q.mcOptions || [],
       isBlank: true,
+      order: q.order,
+      hasCommentAttached: q.hasCommentAttached,
+      questionStringId: q.questionStringId,
+      userQuestionId: q.userQuestionId,
+      formTemplateId: form.id,
     })),
   };
 }
@@ -58,7 +76,7 @@ const SubmitFormTemplateDialog = ({
   const [errorMessage, setErrorMessage] = useState('');
 
   const saveFormTemplate = useMutation({
-    mutationFn: saveFormTemplateAsync,
+    mutationFn: saveFormTemplateAsyncV2,
   });
 
   const handleSubmit = () => {
@@ -66,6 +84,7 @@ const SubmitFormTemplateDialog = ({
       return;
     }
     const payload = buildFormTemplatePayload(formTemplate);
+
     saveFormTemplate.mutate(payload, {
       onSuccess: () => {
         navigate('/admin/form-templates');

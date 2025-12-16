@@ -14,17 +14,17 @@ import {
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import moment from 'moment';
 
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
+import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
-  useFormTemplateQuery,
-  usePreviousFormVersionsQuery,
+  useFormTemplateQueryV2,
+  usePreviousFormVersionsQueryV2,
 } from 'src/pages/customizedForm/queries';
 import LanguageModal from './LanguageModal';
 import { getDefaultLanguage } from './utils';
+import { capitalize } from 'src/shared/utils';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -43,52 +43,53 @@ export const CustomFormTemplate = () => {
   const location = useLocation();
   const editFormId = location.state?.editFormId as string | undefined;
 
-  const generateDefaultVersion = () => {
-    return moment
-      .utc(new Date(Date.now()).toUTCString())
-      .format('YYYY-MM-DD HH:mm:ss z');
-  };
-
-  const [form, setForm] = useState<FormTemplateWithQuestions>({
-    classification: { name: 'string', id: undefined },
-    version: generateDefaultVersion(),
+  const [form, setForm] = useState<FormTemplateWithQuestionsV2>({
+    classification: {
+      name: {
+        english: 'Template',
+      },
+      id: undefined,
+      nameStringId: undefined,
+    },
+    version: 1,
     questions: [],
+    id: 'temp',
   });
   const [versionError, setVersionError] = useState<boolean>(false);
+  const browserLanguage = getDefaultLanguage() ?? 'English';
+  const [language, setLanguage] = useState<string[]>([browserLanguage]);
+  const [currentLanguage, setCurrentLanguage] =
+    useState<string>(browserLanguage);
 
-  const formTemplateQuery = useFormTemplateQuery(editFormId);
-  const previousVersionsQuery = usePreviousFormVersionsQuery(
+  const formTemplateQuery = useFormTemplateQueryV2(editFormId);
+  const previousVersionsQuery = usePreviousFormVersionsQueryV2(
     formTemplateQuery.data
   );
 
   useEffect(() => {
     if (formTemplateQuery.data) {
-      const { classification, questions } = formTemplateQuery.data;
+      const { id, classification, questions, version } = formTemplateQuery.data;
 
       setForm({
+        id,
         classification,
-        version: generateDefaultVersion(),
+        version,
         questions,
       });
 
-      const langs = questions[0]?.langVersions?.map((q) => q.lang) ?? [
-        browserLanguage,
-      ];
+      const langs = questions[0]?.questionText
+        ? Object.keys(questions[0].questionText)
+        : [browserLanguage];
+
       setLanguage(langs);
     }
   }, [formTemplateQuery.data]);
-
-  const browserLanguage = getDefaultLanguage() ?? 'English';
-  const [language, setLanguage] = useState<string[]>(
-    formTemplateQuery.data?.questions[0].langVersions?.map((q) => q.lang) ?? [
-      browserLanguage,
-    ]
-  );
 
   const isLoading =
     editFormId &&
     formTemplateQuery.isPending &&
     previousVersionsQuery.isPending;
+
   return (
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
@@ -101,7 +102,7 @@ export const CustomFormTemplate = () => {
         </Tooltip>
         <Typography variant={'h4'} component={'h4'}>
           {editFormId
-            ? `Editing Form: ${form.classification.name || 'Template'}`
+            ? `Editing Form: ${form.classification.name.english || 'Template'}`
             : 'Create New Template'}
         </Typography>
       </Box>
@@ -132,21 +133,50 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={
-                        formTemplateQuery.data?.classification?.name ?? ''
+                      value={
+                        form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ] ?? ''
                       }
                       fullWidth
                       inputProps={{
-                        // TODO: Determine what types of input restrictions we should have for title
                         maxLength: 100,
                       }}
+                      error={
+                        !form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ] ||
+                        form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ].trim() === ''
+                      }
+                      helperText={
+                        !form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ] ||
+                        form.classification.name[
+                          currentLanguage.toLowerCase()
+                        ].trim() === ''
+                          ? `${currentLanguage} title is required`
+                          : ''
+                      }
                       onChange={(e: any) => {
+                        const isEnglishLanguage =
+                          currentLanguage.toLowerCase() === 'english';
+
                         setForm((prev) => ({
                           ...prev,
                           classification: {
                             ...prev.classification,
-                            name: e.target.value,
+                            name: {
+                              ...prev.classification.name,
+                              [currentLanguage.toLowerCase()]: e.target.value,
+                            },
+                            nameStringId: isEnglishLanguage
+                              ? undefined
+                              : prev.classification.nameStringId,
                           },
+                          id: editFormId ? prev.id : undefined,
                         }));
                       }}
                       InputProps={{
@@ -172,7 +202,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={form.version}
+                      value={form.version}
                       error={versionError}
                       helperText={
                         versionError ? 'Must change version number' : ''
@@ -182,9 +212,15 @@ export const CustomFormTemplate = () => {
                         maxLength: 30,
                       }}
                       onChange={(e: any) => {
-                        form.version = e.target.value;
+                        const newVersion = e.target.value;
+
+                        setForm((prev) => ({
+                          ...prev,
+                          version: newVersion,
+                        }));
+
                         setVersionError(
-                          previousVersionsQuery.data?.includes(form.version) ??
+                          previousVersionsQuery.data?.includes(newVersion) ??
                             false
                         );
                       }}
@@ -212,7 +248,7 @@ export const CustomFormTemplate = () => {
 
                   <Grid item xs={12} md={4}>
                     <LanguageModal
-                      language={language}
+                      language={language.map((lang) => capitalize(lang))}
                       setLanguage={setLanguage}
                     />
                   </Grid>
@@ -225,6 +261,7 @@ export const CustomFormTemplate = () => {
                 renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
                 setForm={setForm}
                 versionError={versionError}
+                setCurrentLanguage={setCurrentLanguage}
               />
             </Form>
           )}
