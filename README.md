@@ -106,3 +106,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Jerry Deng Zhu      | jerrydngzh@gmail.com |
 | Elton Zhen          | ehz2@sfu.ca          |
 | Ellie Neufeld       | ena31@sfu.ca         |
+| Ilia Fatemi         | ifa6@sfu.ca          |
