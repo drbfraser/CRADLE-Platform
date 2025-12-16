@@ -21,13 +21,40 @@ from validation.workflow_models import (
 
 class WorkflowPlanner:
     """
-    TODO: Update documentation
+    Manages the workflow progression of a workflow instance.
+
+    Responsibilities:
+    - Evaluate workflow steps (NOTE: not rules, which are delegated to RuleEvaluator)
+    - Determine available actions
+    - Apply actions
+    - Advance to the next step
+
+    Notes:
+    - Workflow state fields related to progression should generally only be
+      modified through this class to help ensure predictable behaviour
+      (e.g. status fields).
+
+    - An action should generally do one thing. For example, starting a
+      workflow does not also start the first step. This keeps progression
+      predictable and flexible.
+
+    - Applying an action is separate from advancing. This decoupling allows
+      users to choose if and when to advance to the next step or override
+      to a different one.
+
     """
 
     @staticmethod
     def _select_branch_id(
         branch_evaluations: list[WorkflowBranchEvaluation],
     ) -> Optional[str]:
+        """
+        A branch selection strategy that selects the first branch whose rule
+        evaluated to TRUE.
+
+        :param branch_evaluations: Evaluated branches for a workflow step
+        :returns: The selected branch ID, or None if no branch applies
+        """
         for branch_evaluation in branch_evaluations:
             if branch_evaluation.rule_status == RuleStatus.TRUE:
                 return branch_evaluation.branch_id
@@ -40,11 +67,11 @@ class WorkflowPlanner:
         patient_id: str,
     ) -> WorkflowBranchEvaluation:
         """
-        Evaluates the rule of a workflow step's branch.
+        Evaluates a single workflow branch condition.
 
-        :param branch: The branch to evaluate
+        :param branch: Workflow template branch to evaluate
         :param patient_id: Patient ID for data resolution
-        :returns: WorkflowBranchEvaluation with rule status and variable resolutions
+        :returns: Evaluation result for the branch
         """
         rule = branch.condition.rule if branch.condition else None
         evaluator = RuleEvaluator()
@@ -64,12 +91,12 @@ class WorkflowPlanner:
         ctx: WorkflowView, step: WorkflowInstanceStepModel
     ) -> WorkflowStepEvaluation:
         """
-        Evaluates all branches of a workflow step and determines the selected branch
-        based on rule evaluations.
+        Evaluates all branches of a workflow step and determines which branch
+        (if any) should be selected.
 
-        :param ctx: WorkflowView providing access to template and instance
-        :param step: The workflow instance step to evaluate
-        :returns: WorkflowStepEvaluation with branch evaluations and selected branch
+        :param ctx: Workflow view
+        :param step: Workflow instance step to evaluate
+        :returns: Evaluation result for the step
         """
         branch_evaluations = []
         selected_branch_id = None
@@ -96,16 +123,23 @@ class WorkflowPlanner:
         return step_evaluation
 
     @staticmethod
-    def _is_terminal_step(ctx: WorkflowView, step: WorkflowInstanceStepModel):
+    def _is_terminal_step(ctx: WorkflowView, step: WorkflowInstanceStepModel) -> bool:
+        """
+        Returns True if the step is terminal (i.e., has no outgoing branches),
+        False otherwise.
+        """
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
-        return branches == []  # A terminal step should not have any branches.
+        return branches == []
 
     @staticmethod
-    def _get_next_step(
+    def _get_immediate_next_step(
         ctx: WorkflowView, step: WorkflowInstanceStepModel
     ) -> Optional[WorkflowInstanceStepModel]:
         """
-        Evaluate the next step to go to from this step.
+        Determines the next workflow step after the given step based on step evaluation.
+        At most one branch is selected.
+
+        :returns: The next workflow instance step, or None if no transition is possible
         """
         step_evaluation = WorkflowPlanner.evaluate_step(ctx, step)
 
@@ -124,6 +158,8 @@ class WorkflowPlanner:
     def get_available_actions(ctx: WorkflowView) -> list[WorkflowActionModel]:
         """
         Returns the actions available to take as the next action in the workflow.
+
+        Available actions depend on workflow and current step state.
         """
         current_step = ctx.get_current_step()
 
@@ -148,7 +184,14 @@ class WorkflowPlanner:
     @staticmethod
     def apply_action(ctx: WorkflowView, action: WorkflowActionModel):
         """
-        Apply a workflow action to the workflow instance. Modifies the instance state.
+        Apply a single workflow action to the workflow instance.
+
+        This method mutates workflow instance state as required by the action
+        (e.g. status, timestamps).
+
+        :param ctx: Workflow view
+        :param action: Action to apply
+        :raises InvalidWorkflowActionError: if the action is not valid
         """
         valid_actions = WorkflowPlanner.get_available_actions(ctx)
 
@@ -177,14 +220,19 @@ class WorkflowPlanner:
             raise ValueError(f"Action '{action}' is not supported")
 
     @staticmethod
-    def _find_next_step(
+    def _get_next_step_to_advance_to(
         ctx: WorkflowView, step: WorkflowInstanceStepModel
     ) -> WorkflowInstanceStepModel:
         """
-        Walk forward from `step` until we find an incomplete step, or the next step is None.
+        Walk forward from a completed step until an incomplete step is found,
+        or no next step is available.
+
+        :param ctx: Workflow view
+        :param step: Completed step to advance from
+        :returns: The next step to do
         """
         assert step.status == WorkflowStepStatusEnum.COMPLETED
-        next_step = WorkflowPlanner._get_next_step(ctx, step)
+        next_step = WorkflowPlanner._get_immediate_next_step(ctx, step)
 
         if next_step is None:
             # Reached the end OR no branch was selected
@@ -193,10 +241,17 @@ class WorkflowPlanner:
         if next_step.status != WorkflowStepStatusEnum.COMPLETED:
             return next_step
 
-        return WorkflowPlanner._find_next_step(ctx, next_step)
+        return WorkflowPlanner._get_next_step_to_advance_to(ctx, next_step)
 
     @staticmethod
     def advance(ctx: WorkflowView) -> None:
+        """
+        Advances the workflow's current step pointer if possible.
+
+        - If the workflow is starting: advances to the first step
+        - If the current step is completed: advances until it reaches the next
+          incomplete step or until there is no next step
+        """
         if (
             ctx.instance.current_step_id is None
             and ctx.instance.status == WorkflowStatusEnum.ACTIVE
@@ -206,16 +261,17 @@ class WorkflowPlanner:
 
         current_step = ctx.get_current_step()
         if current_step and current_step.status == WorkflowStepStatusEnum.COMPLETED:
-            next_step = WorkflowPlanner._find_next_step(ctx, current_step)
+            next_step = WorkflowPlanner._get_next_step_to_advance_to(ctx, current_step)
             if next_step.id != current_step.id:
                 ctx.instance.current_step_id = next_step.id
-
-        return []
 
     @staticmethod
     def override_current_step(ctx: WorkflowView, step_id: str) -> None:
         """
         Override the workflow's current step.
+
+        :param ctx: Workflow view
+        :param step_id: ID of the step to set as current
         """
         assert ctx.has_instance_step(step_id)
         ctx.instance.current_step_id = step_id
