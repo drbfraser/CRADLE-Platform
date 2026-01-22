@@ -26,7 +26,7 @@ export const formatWorkflowStepStatusText = (s: InstanceStep) => {
       s.startedOn ? `, Started on: ${s.startedOn}` : ''
     }`;
   }
-  return 'Status: Pending';
+  return 'Status: Possible future step';
 };
 
 export function parseYMD(d?: Nullable<string>) {
