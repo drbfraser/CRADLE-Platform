@@ -70,7 +70,7 @@ export const WorkflowStep = ({
           {step.conditions && (
             <Typography>
               <Box component="b">Conditions: </Box>{' '}
-              {step.conditions.data_sources}
+              {step.conditions.rule}
             </Typography>
           )}
           {step.branchIndices && step.branchIndices.length > 0 && (

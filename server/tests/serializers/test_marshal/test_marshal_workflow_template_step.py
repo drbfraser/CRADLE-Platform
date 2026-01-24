@@ -31,19 +31,17 @@ def _make_min_form_template(
     return form
 
 
-def _make_condition(rule_group_id: str, rule=None, data_sources=None) -> RuleGroupOrm:
+def _make_condition(rule_group_id: str, rule=None) -> RuleGroupOrm:
     """
     Construct a minimal RuleGroupOrm instance with the given parameters.
 
     :param rule_group_id: ID of the RuleGroupOrm to create.
     :param rule: JSON-serializable rule associated with the rule group.
-    :param data_sources: List of data sources associated with the rule group.
     :return: Minimal RuleGroupOrm instance with the given parameters.
     """
     rule_group = RuleGroupOrm()
     rule_group.id = rule_group_id
     rule_group.rule = {"all": []} if rule is None else rule
-    rule_group.data_sources = [] if data_sources is None else data_sources
     return rule_group
 
 

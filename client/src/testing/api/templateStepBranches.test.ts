@@ -24,7 +24,7 @@ describe('templateStepBranches placeholder', () => {
 //       const mockBranches = [
 //         {
 //           targetStepId: 'step2',
-//           condition: { id: 'rule1', rule: '{}', data_sources: '[]' },
+//           condition: { id: 'rule1', rule: '{}' },
 //         },
 //         {
 //           targetStepId: 'step3',
@@ -47,7 +47,7 @@ describe('templateStepBranches placeholder', () => {
 //     it('should create a new step branch', async () => {
 //       const branchData = {
 //         targetStepId: 'step2',
-//         condition: { id: 'rule1', rule: '{}' as const, data_sources: '[]' },
+//         condition: { id: 'rule1', rule: '{}' as const },
 //       };
 //       const createdBranch = { id: 'branch1', ...branchData };
 

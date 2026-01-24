@@ -53,15 +53,15 @@ class RuleGroupOrm(db.Model):
     """
     Stores conditional logic rules for workflow automation.
 
-    Contains JSON-based rule definitions and data sources for determining
-    workflow behavior. Structure may change based on chosen rules engine.
+    Contains JSON-based rule definitions for determining workflow behavior.
+    Variables are extracted dynamically from the rule at evaluation time.
+    Structure may change based on chosen rules engine.
     """
 
     __tablename__ = "rule_group"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     # NOTE: These attributes may need to be altered or removed depending on what rules engine we choose
     rule = db.Column(db.JSON, nullable=True)
-    data_sources = db.Column(db.JSON, nullable=True)
 
 
 class WorkflowTemplateOrm(db.Model):

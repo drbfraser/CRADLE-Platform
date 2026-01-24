@@ -9,8 +9,7 @@
     "name": "Emergency Department Workflow"
   },
   "initial_condition": {
-    "rule": "{}",
-    "data_sources": "[]"
+    "rule": "{}"
   },
   "steps": [
     {
@@ -19,8 +18,7 @@
       "description": "Perform initial patient assessment",
       "step_type": "ASSESSMENT",
       "rule_group": {
-        "rule": "{}",
-        "data_sources": "[]"
+        "rule": "{}"
       },
       "next_step_id": "step_002"
     },
@@ -30,8 +28,7 @@
       "description": "Record patient vital signs",
       "step_type": "DATA_COLLECTION",
       "rule_group": {
-        "rule": "{}",
-        "data_sources": "[]"
+        "rule": "{}"
       },
       "next_step_id": null
     }

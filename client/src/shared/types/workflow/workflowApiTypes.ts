@@ -10,7 +10,6 @@ import {
 export interface RuleGroup {
   id: ID;
   rule: string; // JSON object representing a structured rule
-  data_sources?: string;
 }
 
 //   Template side
