@@ -30,7 +30,6 @@ export const createTemplateStepBranch = async (
     condition?: {
       id: ID;
       rule: string;
-      data_sources: string[];
     };
   }
 ): Promise<WorkflowTemplateStepBranch> => {
