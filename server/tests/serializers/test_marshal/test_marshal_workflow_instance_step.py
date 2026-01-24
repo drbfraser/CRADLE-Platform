@@ -40,7 +40,6 @@ def _make_condition(rg_id: str) -> RuleGroupOrm:
     rule_group = RuleGroupOrm()
     rule_group.id = rg_id
     rule_group.rule = {"any": []}
-    rule_group.data_sources = [{"type": "patient"}]
     rule_group._scratch = "do not leak"
     return rule_group
 

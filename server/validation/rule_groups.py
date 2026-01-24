@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 from pydantic import field_validator
 
@@ -11,18 +10,17 @@ class RuleGroupExample:
     rule = (
         '{"and": [{"<": [{"var": "patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
     )
-    data_sources = '["$patient.age"]'
 
-    example_01 = {"id": id, "rule": rule, "data_sources": data_sources}
+    example_01 = {"id": id, "rule": rule}
 
 
 class RuleGroupModel(CradleBaseModel, extra="forbid"):
     id: str
     rule: str
-    data_sources: Optional[str] = None
 
     """
-    Raises an error if the rule or data_sources attributes are present but not valid JSON strings.
+    Raises an error if the rule attribute is present but not a valid JSON string.
+    Variables are extracted dynamically from the rule at evaluation time.
     """
 
     @field_validator("rule", mode="after")
@@ -34,17 +32,4 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
             raise ValueError("rule attribute must be a JSON string")
         return rule
 
-    @field_validator("data_sources", mode="after")
-    @classmethod
-    def validate_datasources(cls, data_sources: Optional[str]) -> Optional[str]:
-        if data_sources in (None, ""):
-            return data_sources
-        try:
-            json.loads(data_sources)
-        except json.JSONDecodeError:
-            raise ValueError(
-                "data_sources attribute must be a JSON string when provided"
-            )
-        return data_sources
-
-    # TODO: Add validators to determine if rule and data_sources are in the correct format
+    # TODO: Add validators to determine if rule is in the correct format

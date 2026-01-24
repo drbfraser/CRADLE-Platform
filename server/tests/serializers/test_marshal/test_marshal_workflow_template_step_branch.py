@@ -6,7 +6,7 @@ def test_branch_marshal_with_condition_embeds_rule_group_and_fk_ids():
     """
     When a branch has a Condition:
       - result includes: id, step_id, target_step_id, condition_id, condition
-      - 'condition' is a dict with id, rule, data_sources (JSON preserved)
+      - 'condition' is a dict with id, rule (JSON preserved)
       - no relationship objects (like 'step') should leak
     """
     cond = RuleGroupOrm()
@@ -17,7 +17,6 @@ def test_branch_marshal_with_condition_embeds_rule_group_and_fk_ids():
             {"field": "bp_diastolic", "op": "<", "value": 90},
         ],
     }
-    cond.data_sources = {"type": "form", "fields": ["bp_systolic", "bp_diastolic"]}
 
     workflow_step_branch = WorkflowTemplateStepBranchOrm()
     workflow_step_branch.id = "br-001"
@@ -48,10 +47,6 @@ def test_branch_marshal_with_condition_embeds_rule_group_and_fk_ids():
             {"field": "bp_systolic", "op": ">", "value": 140},
             {"field": "bp_diastolic", "op": "<", "value": 90},
         ],
-    }
-    assert marshalled["condition"]["data_sources"] == {
-        "type": "form",
-        "fields": ["bp_systolic", "bp_diastolic"],
     }
 
     # Relationship objects should not leak
@@ -85,12 +80,11 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
 
     NOTE: __marshal_rule_group does not strip relationship fields, so the
     backref 'workflow_template_step_branches' may be present. We only require
-    that 'id', 'rule', and 'data_sources' exist and that private attrs are removed.
+    that 'id' and 'rule' exist and that private attrs are removed.
     """
     cond = RuleGroupOrm()
     cond.id = "rg-empty"
     cond.rule = {}
-    cond.data_sources = []
 
     workflow_step_branch = WorkflowTemplateStepBranchOrm()
     workflow_step_branch.id = "br-003"
@@ -111,12 +105,11 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
     condition = marshalled["condition"]
 
     # Required keys present
-    for key in ("id", "rule", "data_sources"):
+    for key in ("id", "rule"):
         assert key in condition
 
     assert condition["id"] == "rg-empty"
     assert condition["rule"] == {}
-    assert condition["data_sources"] == []
 
     # Private attrs stripped by __pre_process
     assert "_scratch" not in condition

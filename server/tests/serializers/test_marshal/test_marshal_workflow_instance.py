@@ -50,7 +50,6 @@ def _make_condition(rg_id: str) -> RuleGroupOrm:
     rule_groupg = RuleGroupOrm()
     rule_groupg.id = rg_id
     rule_groupg.rule = {"any": []}
-    rule_groupg.data_sources = [{"type": "patient"}]
     rule_groupg._scratch = "nope"
     return rule_groupg
 
