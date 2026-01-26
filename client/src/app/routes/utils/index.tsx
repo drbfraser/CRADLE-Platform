@@ -210,7 +210,7 @@ export const appRoutes: Array<AppRoute> = [
     exactPath: false,
     id: makeUniqueId(),
     inNavigation: false,
-    private: true,
+    private: false,
     to: `*`,
   },
 ];
