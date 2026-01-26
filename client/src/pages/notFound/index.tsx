@@ -36,7 +36,8 @@ export const NotFoundPage: React.FC = () => {
           variant="body1"
           color="text.secondary"
           sx={{ maxWidth: 400 }}>
-          The page you are looking for does not exist or has been moved.
+          The page you are looking for does not exist. Use one of the navigation
+          links on the left hand side.
         </Typography>
       </Box>
     </DashboardPaper>
