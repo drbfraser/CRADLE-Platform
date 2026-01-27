@@ -1,10 +1,8 @@
-import { Box, Typography, Grid, LinearProgress } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import ReplayIcon from '@mui/icons-material/Replay';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import { Tooltip } from '@mui/material';
-import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   WorkflowInstanceProgress,
