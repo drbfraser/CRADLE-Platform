@@ -143,7 +143,10 @@ export default function WorkflowStepHistory({
                 }}
               />
 
-              {workflowInstance.steps.map((step) => {
+              {workflowInstance.steps
+              .filter((step): step is InstanceStep & { completedOn: string } => step.completedOn !== null)
+              .sort((a, b) => (new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()))
+              .map((step) => {
                 const isExpanded = expandAll || expandedStep === step.id;
                 const statusIcon =
                   step.status === StepStatus.COMPLETED ? (
