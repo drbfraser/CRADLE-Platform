@@ -143,10 +143,11 @@ export default function WorkflowStepHistory({
                 }}
               />
 
-              {workflowInstance.steps
+              {[...workflowInstance.steps.filter(s => s.status === StepStatus.ACTIVE), // get active step(s)
+                ...workflowInstance.steps // append completed steps in reverse chronological order
               .filter((step): step is InstanceStep & { completedOn: string } => step.completedOn !== null)
               .sort((a, b) => (new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()))
-              .map((step) => {
+              ].map((step) => {
                 const isExpanded = expandAll || expandedStep === step.id;
                 const statusIcon =
                   step.status === StepStatus.COMPLETED ? (
@@ -156,7 +157,7 @@ export default function WorkflowStepHistory({
                     />
                   ) : step.status === StepStatus.ACTIVE ? (
                     <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
-                  ) : (
+                  ) : ( // TODO: remove if not showing possible steps in step history
                     <HourglassEmptyIcon
                       sx={{ color: 'grey.400', fontSize: 24 }}
                     />
