@@ -13,10 +13,10 @@ import globals from 'globals';
 // Eslint has globals v14 as a peer dependency and the issue is fixed there;
 // However, our babel installation uses globals v11. When we import globals here, it is
 // the older version and does not work with eslint as intended.
-const GLOBALS_BROWSER_FIX = Object.assign({}, globals.browser, {
-  AudioWorkletGlobalScope: globals.browser['AudioWorkletGlobalScope '],
-});
-delete GLOBALS_BROWSER_FIX['AudioWorkletGlobalScope '];
+//const GLOBALS_BROWSER_FIX = Object.assign({}, globals.browser, {
+//  AudioWorkletGlobalScope: globals.browser['AudioWorkletGlobalScope '],
+//});
+//delete GLOBALS_BROWSER_FIX['AudioWorkletGlobalScope '];
 
 export default [
   {
@@ -55,7 +55,7 @@ export default [
     languageOptions: {
       parser: typescriptParser,
       globals: {
-        ...GLOBALS_BROWSER_FIX,
+        ...globals.browser,
         ...globals.jest,
       },
     },
