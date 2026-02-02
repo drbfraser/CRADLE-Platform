@@ -159,7 +159,7 @@ export function buildInstanceDetails(
 
     // Steps
     steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
-    possibleSteps: [],
+    possibleSteps: instance.steps.filter(s => s.status == StepStatus.PENDING).map((step) => mapWorkflowStep(step, template)),
   };
 
   return instanceDetails;
