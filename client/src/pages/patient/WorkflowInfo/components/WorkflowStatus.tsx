@@ -58,7 +58,7 @@ export default function WorkflowStatus(props: {
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
                   {progressInfo.currentIndex + 1} of{' '}
-                  {workflowInstance.steps.length}
+                  {workflowInstance.steps.length} {/* TODO: change implementation to shortest path to completion, not just total steps */}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {workflowInstance.steps[progressInfo.currentIndex]?.title ||
@@ -69,7 +69,7 @@ export default function WorkflowStatus(props: {
 
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                <Box
+                {/* <Box
                   sx={{
                     position: 'relative',
                     display: 'inline-flex',
@@ -90,12 +90,19 @@ export default function WorkflowStatus(props: {
                     }}>
                     {progressInfo.percent}%
                   </Box>
-                </Box>
+                </Box> */}
+                <CalendarTodayOutlinedIcon
+                  color="disabled"
+                  sx={{ fontSize: 32, mb: 1 }}
+                />
                 <Typography variant="subtitle2" color="text.secondary">
-                  Progress
+                  Last Edited
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {progressInfo.completed} / {progressInfo.total} completed
+                  {workflowInstance.lastEditedOn}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  by {workflowInstance?.lastEditedBy || 'N/A'}
                 </Typography>
               </Box>
             </Grid>
