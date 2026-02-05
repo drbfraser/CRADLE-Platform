@@ -100,7 +100,7 @@ export default function WorkflowStatus(props: {
               </Box>
             </Grid>
 
-            <Grid item xs={12} md={3}>
+            {/* <Grid item xs={12} md={3}>
               <Box sx={{ textAlign: 'center' }}>
                 {workflowInstance.workflowCompletedOn ? (
                   <CheckCircleOutlineIcon
@@ -130,7 +130,7 @@ export default function WorkflowStatus(props: {
                   </Typography>
                 )}
               </Box>
-            </Grid>
+            </Grid> */}
           </Grid>
 
           {/* "Currently Working On" Section Details */}
