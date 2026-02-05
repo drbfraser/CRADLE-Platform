@@ -32,7 +32,7 @@ export default function WorkflowStatus(props: {
           }}>
           {/* Summary Row */}
           <Grid container spacing={3} sx={{ mb: 2 }}>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 <CalendarTodayOutlinedIcon
                   color="success"
@@ -50,7 +50,7 @@ export default function WorkflowStatus(props: {
               </Box>
             </Grid>
 
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 <ReplayIcon color="primary" sx={{ fontSize: 32, mb: 1 }} />
                 <Typography variant="subtitle2" color="text.secondary">
@@ -67,7 +67,7 @@ export default function WorkflowStatus(props: {
               </Box>
             </Grid>
 
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Box
                   sx={{
