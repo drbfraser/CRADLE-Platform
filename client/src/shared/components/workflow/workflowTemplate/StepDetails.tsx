@@ -12,9 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllFormTemplatesAsync } from 'src/shared/api/modules/formTemplates';
 import {
   WorkflowTemplateStepWithFormAndIndex,
-  WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
-import { BranchConditionEditor } from './BranchConditionEditor';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -151,34 +149,6 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           </Box>
         </Stack>
       </Box>
-
-      {selectedStep.branches && selectedStep.branches.length > 0 && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Branches
-          </Typography>
-          <Stack spacing={2}>
-            {selectedStep.branches.map(
-              (branch: WorkflowTemplateStepBranch, index: number) => {
-                const targetStep = steps.find(
-                  (s) => s.id === branch.targetStepId
-                );
-                return (
-                  <BranchConditionEditor
-                    key={index}
-                    branch={branch}
-                    branchIndex={index}
-                    stepId={selectedStep.id}
-                    targetStepName={targetStep?.name}
-                    isEditMode={isEditMode}
-                    onChange={onBranchChange}
-                  />
-                );
-              }
-            )}
-          </Stack>
-        </Box>
-      )}
     </Paper>
   );
 };
