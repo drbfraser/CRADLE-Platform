@@ -10,9 +10,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getAllFormTemplatesAsync } from 'src/shared/api/modules/formTemplates';
-import {
-  WorkflowTemplateStepWithFormAndIndex,
-} from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
