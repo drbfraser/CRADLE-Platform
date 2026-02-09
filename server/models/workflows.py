@@ -1,5 +1,6 @@
 from common.commonUtil import get_current_time, get_uuid
 
+from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowVariableTypeEnum
 from .base import db
 
 
@@ -278,4 +279,77 @@ class WorkflowInstanceStepOrm(db.Model):
     workflow_template_step = db.relationship(
         "WorkflowTemplateStepOrm",
         backref=db.backref("workflow_instance_steps", lazy=True),
+    )
+
+
+class WorkflowVariableCatalogueOrm(db.Model):
+    """
+    Metadata about available workflow variables for API discovery and documentation.
+
+    Used by rule builders to discover variable tags, types, and descriptions.
+    """
+
+    __tablename__ = "workflow_variable_catalogue"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    tag = db.Column(db.String(200), unique=True, nullable=False, index=True)
+    description = db.Column(db.Text, nullable=True)
+    variable_type = db.Column(
+        db.Enum(WorkflowVariableTypeEnum),
+        nullable=False,
+    )
+    namespace = db.Column(db.String(100), nullable=True, index=True)
+    container_name = db.Column(db.String(100), nullable=True)
+    field_path = db.Column(db.Text, nullable=True)  # JSON array e.g. ["systolic"]
+    is_computed = db.Column(db.Boolean, nullable=False, default=False)
+    is_dynamic = db.Column(db.Boolean, nullable=False, default=False)
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    last_edited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
+
+class WorkflowInstanceDataOrm(db.Model):
+    """
+    Dynamic data fields specific to a workflow instance (e.g. randomization group, custom fields).
+
+    Enables wf.* variable resolution from workflow_instance_data table.
+    """
+
+    __tablename__ = "workflow_instance_data"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    workflow_instance_id = db.Column(
+        db.String(50),
+        db.ForeignKey("workflow_instance.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    field_tag = db.Column(db.String(200), nullable=False, index=True)
+    field_value = db.Column(db.Text, nullable=True)  # JSON-encoded value
+    field_type = db.Column(
+        db.Enum(WorkflowInstanceDataFieldTypeEnum),
+        nullable=False,
+    )
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    last_edited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "workflow_instance_id",
+            "field_tag",
+            name="unique_instance_field",
+        ),
+    )
+
+    # RELATIONSHIPS
+    workflow_instance = db.relationship(
+        "WorkflowInstanceOrm",
+        backref=db.backref("instance_data", cascade="all, delete", lazy=True),
     )
