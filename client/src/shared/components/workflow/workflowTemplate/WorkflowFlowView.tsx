@@ -24,6 +24,11 @@ interface WorkflowFlowViewProps {
   onAddBranch?: (stepId: string) => void;
   onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode?: (stepId: string) => void;
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void;
   // props for undo redo
   canUndo?: boolean;
   canRedo?: boolean;
@@ -44,6 +49,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  onAddRule,
   canUndo = false,
   canRedo = false,
   onUndo,
@@ -130,6 +136,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 onAddBranch={onAddBranch}
                 onConnectionCreate={onConnectionCreate}
                 onDeleteNode={onDeleteNode}
+                onAddRule={onAddRule}
               />
             </Box>
           </Paper>

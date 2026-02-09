@@ -35,6 +35,11 @@ interface WorkflowEditorProps {
   onAddBranch: (stepId: string) => void;
   onConnectionCreate: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode: (stepId: string) => void;
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void;
   onSave: () => void;
   onCancel: () => void;
   canUndo: boolean;
@@ -61,6 +66,7 @@ export const WorkflowEditor = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  onAddRule,
   onSave,
   onCancel,
   canUndo,
@@ -182,6 +188,7 @@ export const WorkflowEditor = ({
           onAddBranch={onAddBranch}
           onConnectionCreate={onConnectionCreate}
           onDeleteNode={onDeleteNode}
+          onAddRule={onAddRule}
           canUndo={canUndo}
           canRedo={canRedo}
           onUndo={onUndo}

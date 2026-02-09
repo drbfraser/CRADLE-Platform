@@ -6,6 +6,7 @@ import {
   Node,
   Edge,
   NodeTypes,
+  EdgeTypes,
   useNodesState,
   useEdgesState,
   addEdge,
@@ -18,6 +19,7 @@ import {
   WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
 import { FlowNode } from './FlowNode';
+import { FlowEdge } from './FlowEdge';
 import { ID } from 'src/shared/constants';
 
 const HORIZONTAL_SPACING = 350; // Space between nodes at the same level
@@ -25,6 +27,10 @@ const VERTICAL_SPACING = 180; // Space between each level (top to bottom)
 
 const nodeTypes: NodeTypes = {
   flowNode: FlowNode,
+};
+
+const edgeTypes: EdgeTypes = {
+  flowEdge: FlowEdge,
 };
 
 type Position = { x: number; y: number };
@@ -233,7 +239,13 @@ function createFlowNodes(
  * Create ReactFlow edges from workflow step branches.
  */
 function createFlowEdges(
-  steps: WorkflowTemplateStepWithFormAndIndex[]
+  steps: WorkflowTemplateStepWithFormAndIndex[],
+  isEditMode: boolean,
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void
 ): Edge[] {
   const edges: Edge[] = [];
 
@@ -245,8 +257,16 @@ function createFlowEdges(
             id: `e-${step.id}-${branch.targetStepId}-${index}`,
             source: step.id,
             target: branch.targetStepId,
-            type: 'default',
+            type: 'flowEdge',
             animated: false,
+            data: {
+              hasCondition: !!branch.condition,
+              branchId: branch.id,
+              sourceStepId: step.id,
+              targetStepId: branch.targetStepId,
+              onAddRule,
+              isEditMode,
+            },
             style: {
               stroke: '#9e9e9e',
               strokeWidth: 2.5,
@@ -276,6 +296,11 @@ interface WorkflowFlowProps {
   onAddBranch?: (stepId: string) => void;
   onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode?: (stepId: string) => void;
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void;
 }
 
 export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
@@ -288,6 +313,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  onAddRule,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -316,7 +342,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
       onAddBranch,
       onDeleteNode
     );
-    const edges = createFlowEdges(steps);
+    const edges = createFlowEdges(steps, isEditMode, onAddRule);
 
     return { generatedNodes: nodes, generatedEdges: edges };
   }, [
@@ -328,6 +354,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     onInsertNode,
     onAddBranch,
     onDeleteNode,
+    onAddRule,
   ]);
 
   // Update nodes and edges when generated data changes
@@ -415,6 +442,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         onConnect={isEditMode ? onConnect : undefined}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         nodesDraggable={false}
         nodesConnectable={isEditMode}
         elementsSelectable={isEditMode}

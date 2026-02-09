@@ -429,6 +429,22 @@ export const useWorkflowEditor = ({
     onCancel?.();
   };
 
+  const handleAddRule = (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => {
+    // For now, just show a message that rule editor is not yet implemented
+    // In the future, this will open a rule editor modal/dialog
+    setToastMsg(
+      'Rule editor is not yet implemented. This will allow you to add conditions to branches.'
+    );
+    setToastOpen(true);
+
+    // Select the source step to show the branch details
+    setSelectedStepId(sourceStepId);
+  };
+
   return {
     editedWorkflow,
     hasChanges,
@@ -445,6 +461,7 @@ export const useWorkflowEditor = ({
     handleAddBranch,
     handleConnectionCreate,
     handleDeleteNode,
+    handleAddRule,
     handleSave,
     handleCancel,
     initializeEditor,
