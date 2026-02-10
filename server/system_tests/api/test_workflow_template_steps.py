@@ -233,7 +233,6 @@ def example_workflow_template():
     classification_id = get_uuid()
     return {
         "id": template_id,
-        "name": "workflow_example1",
         "description": "workflow_example1",
         "archived": False,
         "starting_step_id": None,
@@ -243,7 +242,7 @@ def example_workflow_template():
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example 1",
+            "name": {"English": "Workflow Classification example 1"},
         },
         "steps": [],
     }
@@ -259,7 +258,7 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
     form_template["classification"]["id"] = form_template["form_classification_id"]
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step1",
+        "name": {"English": "valid_workflow_template_step1"},
         "description": "valid_workflow_template_step1",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
@@ -285,7 +284,7 @@ def valid_workflow_template_step2(
 
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step2",
+        "name": {"English": "valid_workflow_template_step2"},
         "description": "valid_workflow_template_step2",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
@@ -320,7 +319,7 @@ def valid_workflow_template_step3(example_workflow_template, form_template):
 
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step3",
+        "name": {"English": "valid_workflow_template_step3"},
         "description": "valid_workflow_template_step3",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
@@ -355,7 +354,7 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
 
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step4",
+        "name": {"English": "valid_workflow_template_step4"},
         "description": "valid_workflow_template_step4",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
@@ -396,7 +395,7 @@ def valid_workflow_template_step5(
     ft = copy.deepcopy(valid_workflow_template_step1["form"])
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step5_duplicate",
+        "name": {"English": "valid_workflow_template_step5_duplicate"},
         "description": "duplicate version of step1",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
@@ -414,7 +413,7 @@ def invalid_workflow_template_step1(form_template):
     branch_condition_id = get_uuid()
     return {
         "id": step_id,
-        "name": "invalid_workflow_template_step1",
+        "name": {"English": "invalid_workflow_template_step1"},
         "description": "invalid_workflow_template_step1",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
@@ -442,7 +441,7 @@ def invalid_workflow_template_step2(example_workflow_template, form_template):
     branch_id = get_uuid()
     return {
         "id": step_id,
-        "name": "invalid_workflow_template_step2",
+        "name": {"English": "invalid_workflow_template_step2"},
         "description": "invalid_workflow_template_step2",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),

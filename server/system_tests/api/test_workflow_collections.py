@@ -34,7 +34,8 @@ def test_workflow_collections_post(
 
     finally:
         crud.delete_by(WorkflowCollectionOrm, id=workflow_collection1["id"])
-        crud.delete_by(WorkflowClassificationOrm, id=invalid_workflow_collection1["id"])
+        crud.delete_by(WorkflowClassificationOrm,
+                       id=invalid_workflow_collection1["id"])
 
 
 def test_workflow_collections_get(
@@ -88,13 +89,16 @@ def test_workflow_collections_get(
         pretty_print(response_body)
 
         assert (
-            response.status_code == 200 and len(response_body["classifications"]) == 2
+            response.status_code == 200 and len(
+                response_body["classifications"]) == 2
         )
 
     finally:
         crud.delete_by(WorkflowCollectionOrm, id=workflow_collection1["id"])
-        crud.delete_by(WorkflowClassificationOrm, id=workflow_classification1["id"])
-        crud.delete_by(WorkflowClassificationOrm, id=workflow_classification2["id"])
+        crud.delete_by(WorkflowClassificationOrm,
+                       id=workflow_classification1["id"])
+        crud.delete_by(WorkflowClassificationOrm,
+                       id=workflow_classification2["id"])
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Example workflow collections for testing ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -122,11 +126,11 @@ def invalid_workflow_collection1():
 def workflow_classification1():
     classification_id = get_uuid()
 
-    return {"id": classification_id, "name": "Workflow Classification 1"}
+    return {"id": classification_id, "name": {"English": "Workflow Classification 1"}}
 
 
 @pytest.fixture
 def workflow_classification2():
     classification_id = get_uuid()
 
-    return {"id": classification_id, "name": "Workflow Classification 2"}
+    return {"id": classification_id, "name": {"English": "Workflow Classification 2"}}

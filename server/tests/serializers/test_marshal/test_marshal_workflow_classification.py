@@ -46,7 +46,7 @@ def _make_workflow_template_step(
     """
     workflow_tem_step = WorkflowTemplateStepOrm()
     workflow_tem_step.id = step_id
-    workflow_tem_step.name = f"Step {step_id}"
+    workflow_tem_step.name_string_id = f"ns-{step_id}"
     workflow_tem_step.description = "Collect vitals"
     workflow_tem_step.expected_completion = 3600
     workflow_tem_step.last_edited = 1_700_000_000
@@ -78,7 +78,6 @@ def _make_workflow_template(
     """
     workflow_template = WorkflowTemplateOrm()
     workflow_template.id = wt_id
-    workflow_template.name = f"Template {wt_id}"
     workflow_template.description = "Routine antenatal care"
     workflow_template.archived = False
     workflow_template.date_created = 1_690_000_000
@@ -113,14 +112,14 @@ def test_workflow_classification_marshal_basic_omits_backrefs_and_privates():
     """
     workflow_classification = WorkflowClassificationOrm()
     workflow_classification.id = "wc-1"
-    workflow_classification.name = "Antenatal"
+    workflow_classification.name_string_id = "ns-antenatal"
     workflow_classification.collection_id = "coll-1"
     workflow_classification._secret = "nope"
 
     marshalled = orm_seralizer.marshal(workflow_classification)
 
     assert marshalled["id"] == "wc-1"
-    assert marshalled["name"] == "Antenatal"
+    assert marshalled["name_string_id"] == "ns-antenatal"
     assert marshalled["collection_id"] == "coll-1"
     assert "_secret" not in marshalled
     assert "workflow_templates" not in marshalled
@@ -137,11 +136,13 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     """
     workflow_classification = WorkflowClassificationOrm()
     workflow_classification.id = "wc-2"
-    workflow_classification.name = "Postnatal"
+    workflow_classification.name_string_id = "ns-postnatal"
 
     # Two templates, one without
-    wt1 = _make_workflow_template("wt-A", workflow_classification, with_one_step=True)
-    wt2 = _make_workflow_template("wt-B", workflow_classification, with_one_step=False)
+    wt1 = _make_workflow_template(
+        "wt-A", workflow_classification, with_one_step=True)
+    wt2 = _make_workflow_template(
+        "wt-B", workflow_classification, with_one_step=False)
 
     workflow_classification.workflow_templates = [wt1, wt2]
     workflow_classification.templates = [wt1, wt2]
@@ -152,18 +153,18 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
 
     # Top-level checks
     assert marshalled["id"] == "wc-2"
-    assert marshalled["name"] == "Postnatal"
+    assert marshalled["name_string_id"] == "ns-postnatal"
     assert "collection_id" not in marshalled
     assert "workflow_templates" in marshalled and isinstance(
         marshalled["workflow_templates"], list
     )
-    assert {t["id"] for t in marshalled["workflow_templates"]} == {"wt-A", "wt-B"}
+    assert {t["id"]
+            for t in marshalled["workflow_templates"]} == {"wt-A", "wt-B"}
 
     # Template A (steps omitted due to shallow=True)
     tA = next(t for t in marshalled["workflow_templates"] if t["id"] == "wt-A")
     for k in (
         "id",
-        "name",
         "description",
         "archived",
         "date_created",

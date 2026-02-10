@@ -27,12 +27,12 @@ def test_generate_workflow_instance():
     step_templates = [
         make_workflow_template_step(
             id=step_template_1_id,
-            name="Step 1",
+            name={"English": "Step 1"},
             workflow_template_id=workflow_template_id,
         ),
         make_workflow_template_step(
             id=step_template_2_id,
-            name="Step 2",
+            name={"English": "Step 2"},
             workflow_template_id=workflow_template_id,
         ),
     ]
@@ -43,10 +43,12 @@ def test_generate_workflow_instance():
 
     workflow_template = WorkflowTemplateModel(**workflow_template_dict)
 
-    workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
+    workflow_instance = WorkflowService.generate_workflow_instance(
+        workflow_template)
 
     assert workflow_instance.id is not None
-    assert workflow_instance.name == workflow_template_dict["name"]
+    # Instance name is not copied from template
+    assert workflow_instance.name is None
     assert workflow_instance.description == workflow_template_dict["description"]
     assert workflow_instance.status == "Pending"
     assert workflow_instance.workflow_template_id == workflow_template_dict["id"]
@@ -58,15 +60,17 @@ def test_generate_workflow_instance():
 
     assert len(workflow_instance.steps) == 2
 
-    actual_step_names = {step.name for step in workflow_instance.steps}
-    expected_step_names = {"Step 1", "Step 2"}
-    assert actual_step_names == expected_step_names
+    # Instance step names are None (template step names are multilingual)
+    for step_instance in workflow_instance.steps:
+        assert step_instance.name is None
+
+    actual_step_template_ids = {
+        step.workflow_template_step_id for step in workflow_instance.steps
+    }
+    expected_step_template_ids = {step_template_1_id, step_template_2_id}
+    assert actual_step_template_ids == expected_step_template_ids
 
     for step_instance in workflow_instance.steps:
-        if step_instance.name == "Step 1":
-            assert step_instance.workflow_template_step_id == step_template_1_id
-        else:
-            assert step_instance.workflow_template_step_id == step_template_2_id
 
         assert step_instance.id is not None
         assert step_instance.workflow_instance_id == workflow_instance.id

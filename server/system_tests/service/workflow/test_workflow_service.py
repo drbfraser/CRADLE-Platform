@@ -86,7 +86,7 @@ def conditional_workflow_template():
     workflow_id = "conditional-wf-1"
     step1 = WorkflowTemplateStepModel(
         id="age-check-step",
-        name="Age Check",
+        name={"English": "Age Check"},
         description="Check patient age for care pathway",
         workflow_template_id=workflow_id,
         branches=[
@@ -111,7 +111,7 @@ def conditional_workflow_template():
 
     step2 = WorkflowTemplateStepModel(
         id="senior-care-step",
-        name="Senior Care",
+        name={"English": "Senior Care"},
         description="Care pathway for seniors",
         workflow_template_id=workflow_id,
         branches=[
@@ -126,7 +126,7 @@ def conditional_workflow_template():
 
     step3 = WorkflowTemplateStepModel(
         id="adult-care-step",
-        name="Adult Care",
+        name={"English": "Adult Care"},
         description="Care pathway for adults",
         workflow_template_id=workflow_id,
         branches=[
@@ -141,7 +141,7 @@ def conditional_workflow_template():
 
     step4 = WorkflowTemplateStepModel(
         id="bp-check-step",
-        name="Blood Pressure Check",
+        name={"English": "Blood Pressure Check"},
         description="Check blood pressure for treatment pathway",
         workflow_template_id=workflow_id,
         branches=[
@@ -168,7 +168,7 @@ def conditional_workflow_template():
 
     step5 = WorkflowTemplateStepModel(
         id="high-bp-treatment-step",
-        name="High BP Treatment",
+        name={"English": "High BP Treatment"},
         description="Treatment for high blood pressure",
         workflow_template_id=workflow_id,
         branches=[],
@@ -176,7 +176,7 @@ def conditional_workflow_template():
 
     step6 = WorkflowTemplateStepModel(
         id="normal-bp-treatment-step",
-        name="Normal BP Treatment",
+        name={"English": "Normal BP Treatment"},
         description="Treatment for normal blood pressure",
         workflow_template_id=workflow_id,
         branches=[],
@@ -184,7 +184,6 @@ def conditional_workflow_template():
 
     template = WorkflowTemplateModel(
         id=workflow_id,
-        name="Conditional Care Workflow",
         description="Workflow with age and BP based conditional branching",
         archived=False,
         starting_step_id="age-check-step",
@@ -227,7 +226,8 @@ class TestConditionalWorkflow:
             conditional_workflow_template
         )
         workflow_instance.patient_id = "patient-senior-high-bp"
-        workflow_view = WorkflowView(conditional_workflow_template, workflow_instance)
+        workflow_view = WorkflowView(
+            conditional_workflow_template, workflow_instance)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert len(actions) == 1
@@ -333,7 +333,8 @@ class TestConditionalWorkflow:
             conditional_workflow_template
         )
         workflow_instance.patient_id = "patient-adult-normal-bp"
-        workflow_view = WorkflowView(conditional_workflow_template, workflow_instance)
+        workflow_view = WorkflowView(
+            conditional_workflow_template, workflow_instance)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         WorkflowService.apply_workflow_action(actions[0], workflow_view)
@@ -407,9 +408,11 @@ class TestConditionalWorkflow:
             conditional_workflow_template
         )
         workflow_instance.patient_id = "patient-no-reading"
-        workflow_view = WorkflowView(conditional_workflow_template, workflow_instance)
+        workflow_view = WorkflowView(
+            conditional_workflow_template, workflow_instance)
 
-        WorkflowService.apply_workflow_action(StartWorkflowActionModel(), workflow_view)
+        WorkflowService.apply_workflow_action(
+            StartWorkflowActionModel(), workflow_view)
 
         WorkflowService.advance_workflow(workflow_view)
         actions = WorkflowService.get_available_workflow_actions(workflow_view)

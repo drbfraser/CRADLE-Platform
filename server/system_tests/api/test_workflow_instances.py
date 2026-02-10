@@ -58,7 +58,8 @@ def test_create_workflow_instance__success(
         assert response_body["patient_id"] == patient_id
 
         # check instance actually persisted
-        workflow_instance = WorkflowService.get_workflow_instance(response_body["id"])
+        workflow_instance = WorkflowService.get_workflow_instance(
+            response_body["id"])
         assert workflow_instance.status == "Active"
         assert workflow_instance.patient_id == patient_id
 
@@ -186,7 +187,8 @@ def test_getting_workflow_instance(
 
         # Get with patient_id
         patient_id = workflow_instance1["patient_id"]
-        response = api_get(endpoint=f"/api/workflow/instances?patient_id={patient_id}")
+        response = api_get(
+            endpoint=f"/api/workflow/instances?patient_id={patient_id}")
         response_body = decamelize(response.json())
         pretty_print(response_body)
 
@@ -409,7 +411,8 @@ def test_sequential_workflow_progression__in_order(
 
     # Complete workflow
     resp = api_get_actions(api_get, workflow_instance_id_path)
-    expected_resp = GetAvailableActionsResponse(actions=[CompleteWorkflowActionModel()])
+    expected_resp = GetAvailableActionsResponse(
+        actions=[CompleteWorkflowActionModel()])
     assert resp == expected_resp
 
     resp = api_apply_action(
@@ -494,7 +497,6 @@ def workflow_template1(vht_user_id):
     classification_id = get_uuid()
     return {
         "id": template_id,
-        "name": "workflow_example1",
         "description": "workflow_example1",
         "archived": False,
         "date_created": get_current_time(),
@@ -503,7 +505,7 @@ def workflow_template1(vht_user_id):
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example 1",
+            "name": {"English": "Workflow Classification example 1"},
         },
         "steps": [],
     }

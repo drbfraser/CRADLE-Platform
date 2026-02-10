@@ -47,7 +47,7 @@ def _make_step(
     """
     workflow_step = WorkflowTemplateStepOrm()
     workflow_step.id = step_id
-    workflow_step.name = f"Step {step_id}"
+    workflow_step.name_string_id = f"ns-{step_id}"
     workflow_step.description = f"Description for {step_id}"
     workflow_step.expected_completion = 3600
     workflow_step.last_edited = 1_700_000_000
@@ -83,7 +83,6 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     """
     workflow_template = WorkflowTemplateOrm()
     workflow_template.id = "wt-001"
-    workflow_template.name = "ANC Workflow"
     workflow_template.description = "Routine antenatal care"
     workflow_template.archived = False
     workflow_template.date_created = 1_690_000_000
@@ -95,7 +94,7 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     # template classification
     wc = WorkflowClassificationOrm()
     wc.id = "wc-1"
-    wc.name = "Antenatal"
+    wc.name_string_id = "ns-antenatal"
     wc._hidden = "strip-me"
     workflow_template.classification_id = wc.id
     workflow_template.classification = wc
@@ -119,7 +118,6 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
 
     for key in (
         "id",
-        "name",
         "description",
         "archived",
         "date_created",
@@ -129,7 +127,6 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     ):
         assert key in marshalled
     assert marshalled["id"] == workflow_template.id
-    assert marshalled["name"] == "ANC Workflow"
     assert marshalled["archived"] is False
     assert marshalled["date_created"] == 1_690_000_000
     assert marshalled["version"] == "v1"
@@ -141,7 +138,7 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
         marshalled["classification"], dict
     )
     assert marshalled["classification"]["id"] == "wc-1"
-    assert marshalled["classification"]["name"] == "Antenatal"
+    assert marshalled["classification"]["name_string_id"] == "ns-antenatal"
     assert "_hidden" not in marshalled["classification"]
 
     # steps present and sorted order is not guaranteed by __marshal_workflow_template,
@@ -152,7 +149,7 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     step1 = steps["wts-1"]
     for k in (
         "id",
-        "name",
+        "name_string_id",
         "description",
         "last_edited",
         "workflow_template_id",
@@ -194,18 +191,18 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
     """
     workflow_template = WorkflowTemplateOrm()
     workflow_template.id = "wt-002"
-    workflow_template.name = "Postnatal Workflow"
     workflow_template.description = "Postnatal follow-up"
     workflow_template.archived = True
     workflow_template.date_created = 1_700_000_001
     workflow_template.last_edited = 1_700_000_002
     workflow_template.version = "v2"
-    workflow_template.starting_step_id = None  # should be stripped in shallow output
+    # should be stripped in shallow output
+    workflow_template.starting_step_id = None
     workflow_template._private = "strip-me"
 
     wc = WorkflowClassificationOrm()
     wc.id = "wc-2"
-    wc.name = "Postnatal"
+    wc.name_string_id = "ns-postnatal"
     workflow_template.classification = wc
     workflow_template.classification_id = wc.id
 
@@ -213,7 +210,6 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
 
     for k in (
         "id",
-        "name",
         "description",
         "archived",
         "date_created",
