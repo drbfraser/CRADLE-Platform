@@ -115,7 +115,8 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
         )
 
     if not shallow:
-        d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
+        d["steps"] = [__marshal_workflow_template_step(
+            wts=wts) for wts in wt.steps]
     elif "steps" in d:
         del d["steps"]
 
@@ -178,7 +179,8 @@ def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) 
     __pre_process(d)
 
     if not shallow:
-        d["steps"] = [__marshal_workflow_instance_step(wis) for wis in wi.steps]
+        d["steps"] = [__marshal_workflow_instance_step(
+            wis) for wis in wi.steps]
     elif "steps" in d:
         del d["steps"]
 
@@ -195,7 +197,8 @@ def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBr
     template_step_branch_orm = __load(WorkflowTemplateStepBranchOrm, d)
 
     if d.get("condition") is not None:
-        template_step_branch_orm.condition = __load(RuleGroupOrm, d.get("condition"))
+        template_step_branch_orm.condition = __load(
+            RuleGroupOrm, d.get("condition"))
 
     return template_step_branch_orm
 
@@ -220,6 +223,10 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
         form = __unmarshal_form_template(d.get("form"))
         del d["form"]
 
+    # Strip "name" (MultiLangText) – it's a virtual field handled by the API layer
+    # via workflow_utils_v2, not a DB column on WorkflowTemplateStepOrm.
+    d.pop("name", None)
+
     workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
     workflow_template_step_orm.branches = branches
 
@@ -241,12 +248,20 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
         classification = None
 
         if d.get("steps") is not None:
-            steps = [__unmarshal_workflow_template_step(s) for s in d.get("steps")]
+            steps = [__unmarshal_workflow_template_step(
+                s) for s in d.get("steps")]
             del d["steps"]
 
         if d.get("classification") is not None:
-            classification = __load(WorkflowClassificationOrm, d.get("classification"))
+            classification_dict = d.get("classification")
+            # Strip "name" (MultiLangText) – handled by the API layer
+            classification_dict.pop("name", None)
+            classification = __load(
+                WorkflowClassificationOrm, classification_dict)
             del d["classification"]
+
+        # Strip "name" from template dict – WorkflowTemplateOrm no longer has name
+        d.pop("name", None)
 
         workflow_template_orm = __load(WorkflowTemplateOrm, d)
         workflow_template_orm.steps = steps

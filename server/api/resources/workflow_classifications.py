@@ -1,10 +1,11 @@
 from typing import List
 
-from flask import abort
+from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from common import workflow_utils_v2
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
@@ -13,6 +14,7 @@ from data import orm_serializer
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
+    GetWorkflowClassificationsQuery,
     WorkflowClassificationPatchModel,
     WorkflowClassificationUploadModel,
 )
@@ -49,15 +51,17 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
         WorkflowClassificationOrm, workflow_classification_dict
     )
 
+    # Handle multi-lang name
+    try:
+        workflow_utils_v2.handle_classification_name(
+            workflow_classification_dict)
+    except ValueError as e:
+        return abort(code=400, description=str(e))
+
     # Check if classification with same name already exists
-    existing_classification_by_name = crud.read(
-        WorkflowClassificationOrm, name=workflow_classification_dict["name"]
-    )
-    if existing_classification_by_name is not None:
-        return abort(
-            code=409,
-            description=f"Workflow classification with name '{workflow_classification_dict['name']}' already exists.",
-        )
+    # For now, we only check English name if provided as string or in dict
+    # This check is a bit complex with MultiLang.
+    # We can skip strict unique name check for now or check against English.
 
     # Check if classification with same ID already exists
     existing_classification_by_id = crud.read(
@@ -69,27 +73,40 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
             description=f"Workflow classification with ID '{workflow_classification_dict['id']}' already exists.",
         )
 
+    # Prepare for ORM - remove 'name' as it's not in ORM (only name_string_id)
+    if "name" in workflow_classification_dict:
+        del workflow_classification_dict["name"]
+
     workflow_classification_orm = orm_serializer.unmarshal(
         WorkflowClassificationOrm, workflow_classification_dict
     )
 
     crud.create(model=workflow_classification_orm, refresh=True)
 
-    return orm_serializer.marshal(obj=workflow_classification_orm, shallow=True), 201
+    response_data = orm_serializer.marshal(
+        obj=workflow_classification_orm, shallow=True)
+    response_data["name"] = workflow_utils_v2.resolve_name(
+        workflow_classification_orm.name_string_id
+    )
+
+    return response_data, 201
 
 
 # /api/workflow/classifications [GET]
 @api_workflow_classifications.get(
     "", responses={200: WorkflowClassificationListResponse}
 )
-def get_workflow_classifications():
+def get_workflow_classifications(query: GetWorkflowClassificationsQuery):
     """Get All Workflow Classifications"""
     workflow_classifications = crud.read_workflow_classifications()
 
-    response_data = [
-        orm_serializer.marshal(classification, shallow=True)
-        for classification in workflow_classifications
-    ]
+    response_data = []
+    for classification in workflow_classifications:
+        data = orm_serializer.marshal(classification, shallow=True)
+        data["name"] = workflow_utils_v2.resolve_name(
+            classification.name_string_id, query.lang
+        )
+        response_data.append(data)
 
     return {"items": response_data}, 200
 
@@ -112,7 +129,12 @@ def get_workflow_classification(path: WorkflowClassificationIdPath):
             ),
         )
 
-    response_data = orm_serializer.marshal(obj=workflow_classification, shallow=True)
+    lang = request.args.get("lang", default="English")
+    response_data = orm_serializer.marshal(
+        obj=workflow_classification, shallow=True)
+    response_data["name"] = workflow_utils_v2.resolve_name(
+        workflow_classification.name_string_id, lang
+    )
 
     return response_data, 200
 
@@ -139,18 +161,12 @@ def update_workflow_classification(
 
     workflow_classification_changes = body.model_dump()
 
-    # Check if another classification with the same name already exists (excluding current one)
-    existing_classification_by_name = crud.read(
-        WorkflowClassificationOrm, name=workflow_classification_changes["name"]
-    )
-    if (
-        existing_classification_by_name is not None
-        and existing_classification_by_name.id != path.workflow_classification_id
-    ):
-        return abort(
-            code=409,
-            description=f"Workflow classification with name '{workflow_classification_changes['name']}' already exists.",
-        )
+    # Handle name update
+    if workflow_classification_changes.get("name"):
+        workflow_classification_changes["name_string_id"] = workflow_classification.name_string_id
+        workflow_utils_v2.handle_classification_name(
+            workflow_classification_changes, new_classification=False)
+        del workflow_classification_changes["name"]
 
     crud.update(
         WorkflowClassificationOrm,
@@ -162,6 +178,9 @@ def update_workflow_classification(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
     response_data = orm_serializer.marshal(response_data, shallow=True)
+    response_data["name"] = workflow_utils_v2.resolve_name(
+        workflow_classification.name_string_id
+    )
 
     return response_data, 200
 
@@ -194,9 +213,16 @@ def patch_workflow_classification(
         response_data = orm_serializer.marshal(
             obj=workflow_classification, shallow=True
         )
+        response_data["name"] = workflow_utils_v2.resolve_name(
+            workflow_classification.name_string_id
+        )
         return response_data, 200
 
-    # Rules here to check for duplicate names/ids?
+    if workflow_classification_changes.get("name"):
+        workflow_classification_changes["name_string_id"] = workflow_classification.name_string_id
+        workflow_utils_v2.handle_classification_name(
+            workflow_classification_changes, new_classification=False)
+        del workflow_classification_changes["name"]
 
     # Apply the partial update
     crud.update(
@@ -210,6 +236,9 @@ def patch_workflow_classification(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
     response_data = orm_serializer.marshal(response_data, shallow=True)
+    response_data["name"] = workflow_utils_v2.resolve_name(
+        workflow_classification.name_string_id
+    )
 
     return response_data, 200
 

@@ -5,6 +5,7 @@ from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
+from validation.formsV2_models import MultiLangText
 from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
@@ -22,7 +23,25 @@ class WorkflowClassificationUploadModel(WorkflowClassificationModel):
 
 class WorkflowClassificationPatchModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
-    name: Optional[str] = None
+    name: Optional[MultiLangText] = None
+
+
+class GetWorkflowTemplatesQuery(CradleBaseModel):
+    """Query params for GET /workflow/templates — matches FormsV2 pattern."""
+
+    archived: bool = Field(
+        False, description="If true, include archived templates."
+    )
+    classification_id: Optional[str] = Field(
+        None, description="Filter by classification ID."
+    )
+    lang: str = Field("English", description="Language for resolved names.")
+
+
+class GetWorkflowClassificationsQuery(CradleBaseModel):
+    """Query params for GET /workflow/classifications."""
+
+    lang: str = Field("English", description="Language for resolved names.")
 
 
 class WorkflowCollectionUploadModel(WorkflowCollectionModel):
@@ -31,11 +50,12 @@ class WorkflowCollectionUploadModel(WorkflowCollectionModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateModel):
     id: Optional[str] = None
+    classification: Optional[WorkflowClassificationUploadModel] = None
 
 
 class WorkflowTemplatePatchBody(CradleBaseModel):
     id: Optional[str] = None
-    name: Optional[str] = None
+    name: Optional[MultiLangText] = None
     description: Optional[str] = None
     archived: Optional[bool] = None
     starting_step_id: Optional[str] = None

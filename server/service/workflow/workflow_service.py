@@ -1,6 +1,7 @@
 from typing import Optional
 
 import data.db_operations as crud
+from common import workflow_utils_v2
 from common.commonUtil import get_current_time, get_uuid
 from data import orm_serializer
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
@@ -48,7 +49,8 @@ class WorkflowService:
         workflow_instance = {}
 
         workflow_instance["id"] = get_uuid()
-        workflow_instance["name"] = workflow_template.name
+        # Instance name is optional; set via API if needed
+        workflow_instance["name"] = None
         workflow_instance["description"] = workflow_template.description
         workflow_instance["start_date"] = None
         workflow_instance["current_step_id"] = None
@@ -80,7 +82,8 @@ class WorkflowService:
         step = {}
 
         step["id"] = get_uuid()
-        step["name"] = workflow_template_step.name
+        # Instance step name is optional; template step name is multilingual
+        step["name"] = None
         step["description"] = workflow_template_step.description
         step["start_date"] = None
         step["last_edited"] = None
@@ -138,14 +141,27 @@ class WorkflowService:
     def upsert_workflow_template(workflow_template: WorkflowTemplateModel):
         """
         Insert or update a workflow template in the database.
+
+        Handles MultiLangText-to-name_string_id conversion for classification
+        and step names before writing to the DB.
         """
         workflow_template.last_edited = get_current_time()
 
-        for template_step in workflow_template.steps:
-            template_step.last_edited = get_current_time()
+        template_dict = workflow_template.model_dump()
+
+        # Handle classification multilang name → name_string_id
+        if template_dict.get("classification") is not None:
+            workflow_utils_v2.handle_classification_name(
+                template_dict["classification"], new_classification=True
+            )
+
+        # Handle step multilang names → name_string_id
+        for step_dict in template_dict.get("steps", []):
+            step_dict["last_edited"] = get_current_time()
+            workflow_utils_v2.handle_template_step_name(step_dict)
 
         workflow_template_orm = orm_serializer.unmarshal(
-            WorkflowTemplateOrm, workflow_template.model_dump()
+            WorkflowTemplateOrm, template_dict
         )
 
         crud.common_crud.merge(workflow_template_orm)
@@ -157,7 +173,8 @@ class WorkflowService:
         """
         Fetch a workflow instance by ID, returning None if it does not exist.
         """
-        workflow_instance_orm = crud.read(WorkflowInstanceOrm, id=workflow_instance_id)
+        workflow_instance_orm = crud.read(
+            WorkflowInstanceOrm, id=workflow_instance_id)
 
         if not workflow_instance_orm:
             return None
@@ -204,7 +221,8 @@ class WorkflowService:
         if not workflow_instance_step_orm:
             return None
 
-        workflow_instance_step_dict = orm_serializer.marshal(workflow_instance_step_orm)
+        workflow_instance_step_dict = orm_serializer.marshal(
+            workflow_instance_step_orm)
         workflow_instance_step = WorkflowInstanceStepModel(
             **workflow_instance_step_dict
         )
@@ -217,7 +235,8 @@ class WorkflowService:
         """
         Fetch a workflow template by ID, returning None if it does not exist.
         """
-        workflow_template_orm = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
+        workflow_template_orm = crud.read(
+            WorkflowTemplateOrm, id=workflow_template_id)
 
         if not workflow_template_orm:
             return None
@@ -240,7 +259,8 @@ class WorkflowService:
         """
         Get the next valid workflow actions for a workflow instance.
         """
-        available_actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
+        available_actions = WorkflowPlanner.get_available_actions(
+            ctx=workflow_view)
         return available_actions
 
     @staticmethod
@@ -267,7 +287,8 @@ class WorkflowService:
         assert workflow_view.has_instance_step(instance_step_id)
 
         step_evaluation = WorkflowPlanner.evaluate_step(
-            ctx=workflow_view, step=workflow_view.get_instance_step(instance_step_id)
+            ctx=workflow_view, step=workflow_view.get_instance_step(
+                instance_step_id)
         )
         return step_evaluation
 
