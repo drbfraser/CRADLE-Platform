@@ -60,31 +60,10 @@ export const FlowEdge: React.FC<EdgeProps> = ({
 
   const handleRuleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    console.log('FlowEdge handleRuleClick called', {
-      isEditMode,
-      hasOnAddRule: !!onAddRule,
-      branchId,
-      sourceStepId,
-      targetStepId,
-    });
     // Only allow editing in edit mode
     // branchId is optional - handleAddRule can find the branch using sourceStepId + targetStepId
     if (isEditMode && onAddRule && sourceStepId && targetStepId) {
-      console.log(
-        'Calling onAddRule with:',
-        branchId,
-        sourceStepId,
-        targetStepId
-      );
       onAddRule(branchId || '', sourceStepId, targetStepId);
-    } else {
-      console.log('onAddRule not called. Conditions:', {
-        isEditMode,
-        hasOnAddRule: !!onAddRule,
-        hasBranchId: !!branchId,
-        hasSourceStepId: !!sourceStepId,
-        hasTargetStepId: !!targetStepId,
-      });
     }
   };
 

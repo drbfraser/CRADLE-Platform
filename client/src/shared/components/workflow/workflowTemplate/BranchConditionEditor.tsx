@@ -76,37 +76,94 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 
   const [selectedValue, setSelectedValue] = useState<string>('');
 
-  // Initialize condition name from branch if it exists
+  // Initialize all fields from branch condition if it exists
   useEffect(() => {
     if (branch.condition?.rule) {
       try {
         const rule = JSON.parse(branch.condition.rule);
-        setConditionName(rule.name || '');
-      } catch {
-        setConditionName('');
-      }
-    }
-  }, [branch]);
 
-  // Clear input fields when a different step or branch is selected
-  useEffect(() => {
-    setSelectedField(null);
-    setSelectedOperator(null);
-    setSelectedValue('');
-  }, [stepId, branchIndex]);
+        // Restore condition name
+        setConditionName(rule.name || '');
+
+        // Find the operator and extract field and value
+        const operators = ['<', '>', '==', '<=', '>='];
+        let foundOperator = null;
+        let foundField = null;
+        let foundValue = '';
+
+        for (const op of operators) {
+          if (rule[op]) {
+            foundOperator = op;
+            // Rule structure: { "<": [{ "var": "patient.age" }, 18] }
+            const [fieldObj, value] = rule[op];
+            if (fieldObj?.var) {
+              foundField = fieldObj.var;
+              foundValue = String(value);
+            }
+            break;
+          }
+        }
+
+        // Match found field to CONDITION_OPTIONS
+        if (foundField) {
+          const matchedOption = CONDITION_OPTIONS.find(
+            (opt) => opt.value === foundField
+          );
+          if (matchedOption) {
+            setSelectedField(matchedOption);
+
+            // Match operator
+            if (foundOperator) {
+              const matchedOperator = matchedOption.operators.find(
+                (opObj) => opObj.op === foundOperator
+              );
+              if (matchedOperator) {
+                setSelectedOperator(matchedOperator);
+              }
+            }
+
+            // Set value
+            setSelectedValue(foundValue);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to parse branch condition rule:', error);
+        setConditionName('');
+        setSelectedField(null);
+        setSelectedOperator(null);
+        setSelectedValue('');
+      }
+    } else {
+      // Clear all fields if no condition exists
+      setConditionName('');
+      setSelectedField(null);
+      setSelectedOperator(null);
+      setSelectedValue('');
+    }
+  }, [branch, stepId, branchIndex]);
 
   // Generate and save condition JSON whenever inputs change
+  // Note: We exclude onChange from dependencies to avoid unnecessary re-saves
+  // when the callback reference changes
   useEffect(() => {
-    if (selectedField && selectedOperator && selectedValue) {
+    if (selectedField && selectedOperator && selectedValue && onChange) {
       const conditionJSON = generateConditionJSON(
         selectedField.value,
         selectedOperator.op,
         Number(selectedValue)
       );
 
-      onChange?.(stepId, branchIndex, conditionJSON, conditionName);
+      onChange(stepId, branchIndex, conditionJSON, conditionName);
     }
-  }, [selectedField, selectedOperator, selectedValue, conditionName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedField,
+    selectedOperator,
+    selectedValue,
+    conditionName,
+    stepId,
+    branchIndex,
+  ]);
 
   return (
     <Box

@@ -457,21 +457,11 @@ export const useWorkflowEditor = ({
     sourceStepId: string,
     targetStepId: string
   ) => {
-    console.log('useWorkflowEditor handleAddRule called', {
-      branchId,
-      sourceStepId,
-      targetStepId,
-      hasEditedWorkflow: !!editedWorkflow,
-    });
-
     if (!editedWorkflow) return;
 
     // Find the branch index for this specific branch
     const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
-    if (!sourceStep?.branches) {
-      console.log('Source step not found or has no branches');
-      return;
-    }
+    if (!sourceStep?.branches) return;
 
     const branchIndex = sourceStep.branches.findIndex(
       (b) =>
@@ -479,15 +469,9 @@ export const useWorkflowEditor = ({
         (b.stepId === sourceStepId && b.targetStepId === targetStepId)
     );
 
-    console.log('Found branchIndex:', branchIndex);
-
     if (branchIndex === -1) return;
 
     // Select the source step and the specific branch
-    console.log('Setting selectedStepId and selectedBranchIndex', {
-      sourceStepId,
-      branchIndex,
-    });
     setSelectedStepId(sourceStepId);
     setSelectedBranchIndex(branchIndex);
   };
