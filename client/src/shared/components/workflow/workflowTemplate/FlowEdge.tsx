@@ -5,11 +5,13 @@ import {
   EdgeProps,
   getBezierPath,
 } from '@xyflow/react';
-import { Box, IconButton } from '@mui/material';
+import { Box, IconButton, Chip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface FlowEdgeData {
   hasCondition: boolean;
+  conditionName?: string;
   branchId?: string;
   sourceStepId: string;
   targetStepId: string;
@@ -44,18 +46,22 @@ export const FlowEdge: React.FC<EdgeProps> = ({
 
   const edgeData = data as FlowEdgeData | undefined;
   const hasCondition = edgeData?.hasCondition ?? false;
+  const conditionName = edgeData?.conditionName;
   const isEditMode = edgeData?.isEditMode ?? false;
   const branchId = edgeData?.branchId;
   const sourceStepId = edgeData?.sourceStepId;
   const targetStepId = edgeData?.targetStepId;
   const onAddRule = edgeData?.onAddRule;
 
-  // Only show the '+' button if there's no condition and in edit mode
+  // Show '+' button if no condition and in edit mode
+  // Show rule name chip if condition exists (editable in edit mode, read-only otherwise)
   const showAddButton = !hasCondition && isEditMode;
+  const showRuleChip = hasCondition;
 
-  const handleAddRule = (event: React.MouseEvent) => {
+  const handleRuleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (onAddRule && branchId && sourceStepId && targetStepId) {
+    // Only allow editing in edit mode
+    if (isEditMode && onAddRule && branchId && sourceStepId && targetStepId) {
       onAddRule(branchId, sourceStepId, targetStepId);
     }
   };
@@ -63,7 +69,7 @@ export const FlowEdge: React.FC<EdgeProps> = ({
   return (
     <>
       <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
-      {showAddButton && (
+      {(showAddButton || showRuleChip) && (
         <EdgeLabelRenderer>
           <Box
             sx={{
@@ -72,25 +78,59 @@ export const FlowEdge: React.FC<EdgeProps> = ({
               pointerEvents: 'all',
             }}
             className="nodrag nopan">
-            <IconButton
-              size="small"
-              onClick={handleAddRule}
-              sx={{
-                backgroundColor: '#1976d2',
-                color: 'white',
-                width: 28,
-                height: 28,
-                border: '2px solid white',
-                boxShadow: '0 2px 8px rgba(25, 118, 210, 0.4)',
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
-                  backgroundColor: '#1565c0',
-                  transform: 'scale(1.1)',
-                  boxShadow: '0 4px 12px rgba(25, 118, 210, 0.6)',
-                },
-              }}>
-              <AddIcon sx={{ fontSize: '16px' }} />
-            </IconButton>
+            {showAddButton ? (
+              <IconButton
+                size="small"
+                onClick={handleRuleClick}
+                sx={{
+                  backgroundColor: '#1976d2',
+                  color: 'white',
+                  width: 28,
+                  height: 28,
+                  border: '2px solid white',
+                  boxShadow: '0 2px 8px rgba(25, 118, 210, 0.4)',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    backgroundColor: '#1565c0',
+                    transform: 'scale(1.1)',
+                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.6)',
+                  },
+                }}>
+                <AddIcon sx={{ fontSize: '16px' }} />
+              </IconButton>
+            ) : (
+              <Chip
+                label={conditionName || 'Rule'}
+                icon={
+                  isEditMode ? (
+                    <EditIcon sx={{ fontSize: '14px !important' }} />
+                  ) : undefined
+                }
+                onClick={isEditMode ? handleRuleClick : undefined}
+                size="small"
+                sx={{
+                  backgroundColor: '#4caf50',
+                  color: 'white',
+                  border: '2px solid white',
+                  boxShadow: '0 2px 8px rgba(76, 175, 80, 0.4)',
+                  cursor: isEditMode ? 'pointer' : 'default',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  maxWidth: '150px',
+                  '& .MuiChip-icon': {
+                    color: 'white',
+                  },
+                  ...(isEditMode && {
+                    '&:hover': {
+                      backgroundColor: '#45a049',
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 4px 12px rgba(76, 175, 80, 0.6)',
+                    },
+                  }),
+                }}
+              />
+            )}
           </Box>
         </EdgeLabelRenderer>
       )}

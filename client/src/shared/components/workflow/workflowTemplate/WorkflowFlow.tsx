@@ -253,6 +253,20 @@ function createFlowEdges(
     if (step.branches) {
       step.branches.forEach(
         (branch: WorkflowTemplateStepBranch, index: number) => {
+          // Extract condition name for display
+          let conditionName = 'Condition';
+          if (branch.condition) {
+            try {
+              const rule = JSON.parse(branch.condition.rule);
+              // Try to extract a meaningful name from the rule
+              conditionName =
+                rule.name || rule.label || `Condition ${index + 1}`;
+            } catch {
+              // If parsing fails, use a default name
+              conditionName = `Condition ${index + 1}`;
+            }
+          }
+
           edges.push({
             id: `e-${step.id}-${branch.targetStepId}-${index}`,
             source: step.id,
@@ -261,6 +275,7 @@ function createFlowEdges(
             animated: false,
             data: {
               hasCondition: !!branch.condition,
+              conditionName: branch.condition ? conditionName : undefined,
               branchId: branch.id,
               sourceStepId: step.id,
               targetStepId: branch.targetStepId,
