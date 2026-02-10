@@ -25,6 +25,9 @@ export const useWorkflowEditor = ({
   );
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
+  const [selectedBranchIndex, setSelectedBranchIndex] = useState<
+    number | undefined
+  >();
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string>('');
 
@@ -44,6 +47,12 @@ export const useWorkflowEditor = ({
     setEditedWorkflow({ ...workflow });
     setHasChanges(false);
     initHistory(workflow);
+  };
+
+  // Custom step selection that clears branch selection
+  const handleStepSelect = (stepId: string) => {
+    setSelectedStepId(stepId);
+    setSelectedBranchIndex(undefined); // Clear branch selection when selecting a step
   };
 
   const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
@@ -434,22 +443,32 @@ export const useWorkflowEditor = ({
     sourceStepId: string,
     targetStepId: string
   ) => {
-    // For now, just show a message that rule editor is not yet implemented
-    // In the future, this will open a rule editor modal/dialog
-    setToastMsg(
-      'Rule editor is not yet implemented. This will allow you to add conditions to branches.'
-    );
-    setToastOpen(true);
+    if (!editedWorkflow) return;
 
-    // Select the source step to show the branch details
+    // Find the branch index for this specific branch
+    const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
+    if (!sourceStep?.branches) return;
+
+    const branchIndex = sourceStep.branches.findIndex(
+      (b) =>
+        b.id === branchId ||
+        (b.stepId === sourceStepId && b.targetStepId === targetStepId)
+    );
+
+    if (branchIndex === -1) return;
+
+    // Select the source step and the specific branch
     setSelectedStepId(sourceStepId);
+    setSelectedBranchIndex(branchIndex);
   };
 
   return {
     editedWorkflow,
     hasChanges,
     selectedStepId,
-    setSelectedStepId,
+    setSelectedStepId: handleStepSelect,
+    selectedBranchIndex,
+    setSelectedBranchIndex,
     toastOpen,
     setToastOpen,
     toastMsg,

@@ -38,6 +38,7 @@ interface BranchConditionEditorProps {
   stepId: string;
   targetStepName?: string;
   isEditMode?: boolean;
+  isSelected?: boolean;
   onChange?: (
     stepId: string,
     branchIndex: number,
@@ -51,14 +52,15 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   stepId,
   targetStepName = 'Unknown Step',
   isEditMode = false,
+  isSelected = false,
   onChange,
 }) => {
   const [selectedField, setSelectedField] = useState<
-    typeof CONDITION_OPTIONS[number] | null
+    (typeof CONDITION_OPTIONS)[number] | null
   >(null);
 
   const [selectedOperator, setSelectedOperator] = useState<
-    typeof CONDITION_OPTIONS[0]['operators'][number] | null
+    (typeof CONDITION_OPTIONS)[0]['operators'][number] | null
   >(null);
 
   const [selectedValue, setSelectedValue] = useState<string>('');
@@ -84,7 +86,17 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   }, [selectedField, selectedOperator, selectedValue]);
 
   return (
-    <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+    <Box
+      sx={{
+        p: 2,
+        border: isSelected ? '2px solid #1976d2' : '1px solid #e0e0e0',
+        borderRadius: 1,
+        backgroundColor: isSelected
+          ? 'rgba(25, 118, 210, 0.05)'
+          : 'transparent',
+        transition: 'all 0.2s ease-in-out',
+        boxShadow: isSelected ? '0 2px 8px rgba(25, 118, 210, 0.2)' : 'none',
+      }}>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         Branch {branchIndex + 1} → {targetStepName}
       </Typography>

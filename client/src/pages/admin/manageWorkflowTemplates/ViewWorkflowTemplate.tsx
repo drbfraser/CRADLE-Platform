@@ -155,6 +155,7 @@ export const ViewWorkflowTemplate = () => {
             collectionName={collectionName}
             hasChanges={workflowEditor.hasChanges}
             selectedStepId={workflowEditor.selectedStepId}
+            selectedBranchIndex={workflowEditor.selectedBranchIndex}
             onStepSelect={workflowEditor.setSelectedStepId}
             onFieldChange={workflowEditor.handleFieldChange}
             onStepChange={workflowEditor.handleStepChange}

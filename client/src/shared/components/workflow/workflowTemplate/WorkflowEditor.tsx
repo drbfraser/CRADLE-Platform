@@ -23,6 +23,7 @@ interface WorkflowEditorProps {
   collectionName?: string;
   hasChanges: boolean;
   selectedStepId?: string;
+  selectedBranchIndex?: number;
   onStepSelect: (stepId: string) => void;
   onFieldChange: (field: keyof WorkflowTemplate, value: any) => void;
   onStepChange: (stepId: string, field: string, value: string) => void;
@@ -58,6 +59,7 @@ export const WorkflowEditor = ({
   collectionName,
   hasChanges,
   selectedStepId,
+  selectedBranchIndex,
   onStepSelect,
   onFieldChange,
   onStepChange,
@@ -181,6 +183,7 @@ export const WorkflowEditor = ({
           isInstance={false}
           isEditMode={true}
           selectedStepId={selectedStepId}
+          selectedBranchIndex={selectedBranchIndex}
           onStepSelect={onStepSelect}
           onStepChange={onStepChange}
           onBranchChange={onBranchChange}
