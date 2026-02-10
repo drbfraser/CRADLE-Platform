@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Stack, TextField, Autocomplete, Typography } from '@mui/material';
+import {
+  Box,
+  Stack,
+  TextField,
+  Autocomplete,
+  Typography,
+  Divider,
+} from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 
 // Hardcoded condition options
@@ -39,10 +46,12 @@ interface BranchConditionEditorProps {
   targetStepName?: string;
   isEditMode?: boolean;
   isSelected?: boolean;
+  showFullEditor?: boolean;
   onChange?: (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => void;
 }
 
@@ -53,8 +62,10 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   targetStepName = 'Unknown Step',
   isEditMode = false,
   isSelected = false,
+  showFullEditor = false,
   onChange,
 }) => {
+  const [conditionName, setConditionName] = useState<string>('');
   const [selectedField, setSelectedField] = useState<
     (typeof CONDITION_OPTIONS)[number] | null
   >(null);
@@ -64,6 +75,18 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   >(null);
 
   const [selectedValue, setSelectedValue] = useState<string>('');
+
+  // Initialize condition name from branch if it exists
+  useEffect(() => {
+    if (branch.condition?.rule) {
+      try {
+        const rule = JSON.parse(branch.condition.rule);
+        setConditionName(rule.name || '');
+      } catch {
+        setConditionName('');
+      }
+    }
+  }, [branch]);
 
   // Clear input fields when a different step or branch is selected
   useEffect(() => {
@@ -81,9 +104,9 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
         Number(selectedValue)
       );
 
-      onChange?.(stepId, branchIndex, conditionJSON);
+      onChange?.(stepId, branchIndex, conditionJSON, conditionName);
     }
-  }, [selectedField, selectedOperator, selectedValue]);
+  }, [selectedField, selectedOperator, selectedValue, conditionName]);
 
   return (
     <Box
@@ -97,12 +120,28 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
         transition: 'all 0.2s ease-in-out',
         boxShadow: isSelected ? '0 2px 8px rgba(25, 118, 210, 0.2)' : 'none',
       }}>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        Branch {branchIndex + 1} → {targetStepName}
-      </Typography>
+      {!showFullEditor && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Branch {branchIndex + 1} → {targetStepName}
+        </Typography>
+      )}
 
       {isEditMode ? (
         <Stack spacing={2}>
+          {showFullEditor && (
+            <>
+              <TextField
+                fullWidth
+                size="small"
+                label="Condition Name"
+                placeholder="Enter a name for this condition..."
+                value={conditionName}
+                onChange={(e) => setConditionName(e.target.value)}
+                helperText="This name will be displayed on the branch in the flow diagram"
+              />
+              <Divider sx={{ my: 1 }} />
+            </>
+          )}
           <Autocomplete
             fullWidth
             size="small"

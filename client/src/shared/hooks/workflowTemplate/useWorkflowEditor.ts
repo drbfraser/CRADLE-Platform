@@ -89,7 +89,8 @@ export const useWorkflowEditor = ({
   const handleBranchChange = (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => {
     if (!editedWorkflow) return;
 
@@ -100,11 +101,24 @@ export const useWorkflowEditor = ({
         if (step.id === stepId && step.branches) {
           const updatedBranches = step.branches.map((branch, idx) => {
             if (idx === branchIndex) {
+              // Parse the existing rule to merge with the name
+              let ruleWithName = conditionRule;
+              if (conditionName) {
+                try {
+                  const ruleObj = JSON.parse(conditionRule);
+                  ruleObj.name = conditionName;
+                  ruleWithName = JSON.stringify(ruleObj);
+                } catch {
+                  // If parsing fails, just use the original rule
+                  ruleWithName = conditionRule;
+                }
+              }
+
               return {
                 ...branch,
                 condition: {
                   id: branch.condition?.id || `condition-${Date.now()}`,
-                  rule: conditionRule,
+                  rule: ruleWithName,
                 },
               };
             }
@@ -443,11 +457,21 @@ export const useWorkflowEditor = ({
     sourceStepId: string,
     targetStepId: string
   ) => {
+    console.log('useWorkflowEditor handleAddRule called', {
+      branchId,
+      sourceStepId,
+      targetStepId,
+      hasEditedWorkflow: !!editedWorkflow,
+    });
+
     if (!editedWorkflow) return;
 
     // Find the branch index for this specific branch
     const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
-    if (!sourceStep?.branches) return;
+    if (!sourceStep?.branches) {
+      console.log('Source step not found or has no branches');
+      return;
+    }
 
     const branchIndex = sourceStep.branches.findIndex(
       (b) =>
@@ -455,9 +479,15 @@ export const useWorkflowEditor = ({
         (b.stepId === sourceStepId && b.targetStepId === targetStepId)
     );
 
+    console.log('Found branchIndex:', branchIndex);
+
     if (branchIndex === -1) return;
 
     // Select the source step and the specific branch
+    console.log('Setting selectedStepId and selectedBranchIndex', {
+      sourceStepId,
+      branchIndex,
+    });
     setSelectedStepId(sourceStepId);
     setSelectedBranchIndex(branchIndex);
   };

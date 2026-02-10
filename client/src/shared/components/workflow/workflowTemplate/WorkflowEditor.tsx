@@ -30,7 +30,8 @@ interface WorkflowEditorProps {
   onBranchChange: (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => void;
   onInsertNode: (stepId: string) => void;
   onAddBranch: (stepId: string) => void;
