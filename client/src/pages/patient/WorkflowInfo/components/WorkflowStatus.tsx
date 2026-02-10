@@ -124,11 +124,12 @@ export default function WorkflowStatus(props: {
                       ? progressInfo.etaDate.toISOString().slice(0, 10)
                       : 'TBD')}
                 </Typography>
-                {!workflowInstance.workflowCompletedOn && progressInfo.etaDate && (
-                  <Typography variant="caption" color="text.secondary">
-                    ~{progressInfo.estDaysRemaining} days remaining
-                  </Typography>
-                )}
+                {!workflowInstance.workflowCompletedOn &&
+                  progressInfo.etaDate && (
+                    <Typography variant="caption" color="text.secondary">
+                      ~{progressInfo.estDaysRemaining} days remaining
+                    </Typography>
+                  )}
               </Box>
             </Grid>
           </Grid>
