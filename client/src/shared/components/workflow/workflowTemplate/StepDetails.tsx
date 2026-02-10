@@ -12,7 +12,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
-import { BranchConditionEditor } from './BranchConditionEditor';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;

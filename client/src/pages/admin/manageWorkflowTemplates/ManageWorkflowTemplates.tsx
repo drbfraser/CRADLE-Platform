@@ -1,6 +1,13 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
+import {
+  Autocomplete,
+  Button,
+  FormControlLabel,
+  Stack,
+  Switch,
+  TextField,
+} from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { CloudDownloadOutlined, Visibility } from '@mui/icons-material';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -9,7 +16,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
-import { getPrettyDate } from 'src/shared/utils';
+import { getLanguages, getPrettyDate } from 'src/shared/utils';
 import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -33,6 +40,7 @@ type WorkflowTemplateWithIndex = WorkflowTemplate & {
 
 export const ManageWorkflowTemplates = () => {
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate>();
 
@@ -44,8 +52,9 @@ export const ManageWorkflowTemplates = () => {
   const queryClient = useQueryClient();
 
   const workflowTemplatesQuery = useQuery({
-    queryKey: ['workflowTemplates', showArchivedTemplates],
-    queryFn: () => getAllWorkflowTemplatesAsync(showArchivedTemplates),
+    queryKey: ['workflowTemplates', showArchivedTemplates, selectedLanguage],
+    queryFn: () =>
+      getAllWorkflowTemplatesAsync(showArchivedTemplates, selectedLanguage),
   });
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
     useDownloadTemplateAsCSV();
@@ -197,7 +206,26 @@ export const ManageWorkflowTemplates = () => {
       />
 
       <DataTableHeader title={'Workflow'}>
-        <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
+        <Stack
+          direction={'row'}
+          gap={'8px'}
+          flexWrap={'wrap'}
+          alignItems="center">
+          <Autocomplete
+            value={selectedLanguage}
+            onChange={(_event, newValue) => {
+              if (newValue) setSelectedLanguage(newValue);
+            }}
+            options={getLanguages().filter(
+              (lang): lang is string => typeof lang === 'string'
+            )}
+            disableClearable
+            size="small"
+            sx={{ minWidth: 180 }}
+            renderInput={(params) => (
+              <TextField {...params} label="Language" variant="outlined" />
+            )}
+          />
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}

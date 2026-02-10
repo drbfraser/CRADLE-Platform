@@ -37,6 +37,9 @@ export const ViewWorkflowTemplate = () => {
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
 
+  // Language for multilingual name support
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+
   // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
     WorkflowViewMode.FLOW
@@ -75,7 +78,14 @@ export const ViewWorkflowTemplate = () => {
       }
 
       await editWorkflowTemplateMutation.mutateAsync({
-        template: workflow,
+        template: {
+          ...workflow,
+          name: { [selectedLanguage]: workflow.name } as any,
+          steps: workflow.steps.map((step) => ({
+            ...step,
+            name: { [selectedLanguage]: step.name } as any,
+          })),
+        },
       });
 
       // Redirect to workflow templates page after successful save
@@ -170,6 +180,8 @@ export const ViewWorkflowTemplate = () => {
             onUndo={workflowEditor.undo}
             onRedo={workflowEditor.redo}
             isSaving={editWorkflowTemplateMutation.isPending}
+            selectedLanguage={selectedLanguage}
+            onLanguageChange={setSelectedLanguage}
           />
         ) : (
           <>
@@ -186,6 +198,9 @@ export const ViewWorkflowTemplate = () => {
               archived={currentWorkflow?.archived}
               dateCreated={currentWorkflow?.dateCreated}
               isEditMode={false}
+              availableLanguages={
+                workflowTemplateQuery.data?.availableLanguages
+              }
             />
 
             <Divider sx={{ my: 3 }} />
