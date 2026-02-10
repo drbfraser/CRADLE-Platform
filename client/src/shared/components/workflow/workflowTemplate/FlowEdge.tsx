@@ -110,23 +110,33 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                 onClick={isEditMode ? handleRuleClick : undefined}
                 size="small"
                 sx={{
-                  backgroundColor: '#4caf50',
+                  backgroundColor: '#1976d2',
                   color: 'white',
                   border: '2px solid white',
-                  boxShadow: '0 2px 8px rgba(76, 175, 80, 0.4)',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)',
                   cursor: isEditMode ? 'pointer' : 'default',
                   transition: 'all 0.2s ease-in-out',
-                  fontSize: '0.75rem',
+                  fontSize: '0.8125rem',
                   fontWeight: 500,
-                  maxWidth: '150px',
+                  height: '26px',
+                  maxWidth: '180px',
+                  '& .MuiChip-label': {
+                    px: 1.5,
+                    py: 0.5,
+                  },
                   '& .MuiChip-icon': {
                     color: 'white',
+                    marginLeft: '6px',
+                    marginRight: '-2px',
                   },
                   ...(isEditMode && {
                     '&:hover': {
-                      backgroundColor: '#45a049',
-                      transform: 'scale(1.05)',
-                      boxShadow: '0 4px 12px rgba(76, 175, 80, 0.6)',
+                      backgroundColor: '#1565c0',
+                      boxShadow: '0 3px 6px rgba(0, 0, 0, 0.2)',
+                      transform: 'translateY(-1px)',
+                    },
+                    '&:active': {
+                      transform: 'translateY(0)',
                     },
                   }),
                 }}
