@@ -107,7 +107,8 @@ export default function WorkflowStatus(props: {
           </Grid>
 
           {/* "Currently Working On" Section Details */}
-          {workflowInstance.steps[progressInfo.currentIndex] && (
+          {!workflowInstance.workflowCompletedOn && (
+            workflowInstance.steps[progressInfo.currentIndex] && (
             <Box
               sx={{
                 // backgroundColor: 'primary.50',
@@ -130,7 +131,7 @@ export default function WorkflowStatus(props: {
                   workflowInstance.steps[progressInfo.currentIndex]
                 )}
               </Typography>
-            </Box>
+            </Box>)
           )}
         </Box>
       </Box>
