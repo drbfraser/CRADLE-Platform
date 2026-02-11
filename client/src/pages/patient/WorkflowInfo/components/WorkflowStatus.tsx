@@ -34,19 +34,31 @@ export default function WorkflowStatus(props: {
           <Grid container spacing={3} sx={{ mb: 2 }}>
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                <CalendarTodayOutlinedIcon
-                  color="success"
-                  sx={{ fontSize: 32, mb: 1 }}
-                />
+                {workflowInstance.workflowCompletedOn ? (
+                  <CheckCircleOutlineIcon
+                    color="success"
+                    sx={{ fontSize: 32, mb: 1 }}
+                  />
+                ) : (
+                  <HourglassEmptyIcon
+                    color="disabled"
+                    sx={{ fontSize: 32, mb: 1 }}
+                  />
+                )}
                 <Typography variant="subtitle2" color="text.secondary">
-                  Started
+                  {workflowInstance.workflowCompletedOn
+                    ? 'Completed'
+                    : 'Last Edited'}
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {workflowInstance.workflowStartedOn}
+                  {workflowInstance.workflowCompletedOn ||
+                    workflowInstance.lastEditedOn}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  by {workflowInstance.workflowStartedBy}
-                </Typography>
+                {!workflowInstance.workflowCompletedOn && (
+                  <Typography variant="caption" color="text.secondary">
+                    by {workflowInstance?.lastEditedBy || 'N/A'}
+                  </Typography>
+                )}
               </Box>
             </Grid>
 
@@ -69,75 +81,21 @@ export default function WorkflowStatus(props: {
 
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                {/* <Box
-                  sx={{
-                    position: 'relative',
-                    display: 'inline-flex',
-                    mb: 1,
-                  }}>
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: 'primary.main',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: 14,
-                      fontWeight: 600,
-                    }}>
-                    {progressInfo.percent}%
-                  </Box>
-                </Box> */}
                 <CalendarTodayOutlinedIcon
-                  color="disabled"
+                  color="success"
                   sx={{ fontSize: 32, mb: 1 }}
                 />
                 <Typography variant="subtitle2" color="text.secondary">
-                  Last Edited
+                  Started
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {workflowInstance.lastEditedOn}
+                  {workflowInstance.workflowStartedOn}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  by {workflowInstance?.lastEditedBy || 'N/A'}
+                  by {workflowInstance.workflowStartedBy}
                 </Typography>
               </Box>
             </Grid>
-
-            {/* <Grid item xs={12} md={3}>
-              <Box sx={{ textAlign: 'center' }}>
-                {workflowInstance.workflowCompletedOn ? (
-                  <CheckCircleOutlineIcon
-                    color="success"
-                    sx={{ fontSize: 32, mb: 1 }}
-                  />
-                ) : (
-                  <HourglassEmptyIcon
-                    color="disabled"
-                    sx={{ fontSize: 32, mb: 1 }}
-                  />
-                )}
-                <Typography variant="subtitle2" color="text.secondary">
-                  {workflowInstance.workflowCompletedOn
-                    ? 'Completed'
-                    : 'Estimated Completion'}
-                </Typography>
-                <Typography variant="body1" fontWeight={600}>
-                  {workflowInstance.workflowCompletedOn ||
-                    (progressInfo.etaDate
-                      ? progressInfo.etaDate.toISOString().slice(0, 10)
-                      : 'TBD')}
-                </Typography>
-                {!workflowInstance.workflowCompletedOn && progressInfo.etaDate && (
-                  <Typography variant="caption" color="text.secondary">
-                    ~{progressInfo.estDaysRemaining} days remaining
-                  </Typography>
-                )}
-              </Box>
-            </Grid> */}
           </Grid>
 
           {/* "Currently Working On" Section Details */}
