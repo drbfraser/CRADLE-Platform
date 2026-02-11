@@ -64,17 +64,25 @@ export default function WorkflowStatus(props: {
 
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                <ReplayIcon color="primary" sx={{ fontSize: 32, mb: 1 }} />
+                <ReplayIcon 
+                  color={workflowInstance.workflowCompletedOn ? "success" : "primary"} 
+                  sx={{ fontSize: 32, mb: 1 }} />
                 <Typography variant="subtitle2" color="text.secondary">
-                  Current Step
+                  Progress
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {progressInfo.currentIndex + 1} of{' '}
-                  {workflowInstance.steps.length} {/* TODO: change implementation to shortest path to completion, not just total steps */}
+                  {progressInfo.completed} / {
+                    /* TODO: change implementation to shortest path to completion, not just total steps */
+                    workflowInstance.workflowCompletedOn ? progressInfo.completed : workflowInstance.steps.length}
+                    {workflowInstance.workflowCompletedOn ? "" : "+"}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {workflowInstance.steps[progressInfo.currentIndex]?.title ||
-                    'N/A'}
+                  {/*TODO: change implementation to shortest path to completion, not just total steps */}
+                  {workflowInstance.workflowCompletedOn ? "All steps completed": (
+                    "At least " + (workflowInstance.steps.length - progressInfo.completed) 
+                    + " more step" + (workflowInstance.steps.length - progressInfo.completed !== 1 ? "s" : "") 
+                    + " remaining"
+                  )}
                 </Typography>
               </Box>
             </Grid>
