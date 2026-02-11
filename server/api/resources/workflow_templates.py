@@ -313,6 +313,18 @@ def get_workflow_templates(query: GetWorkflowTemplatesQuery):
     for template in workflow_templates:
         data = orm_serializer.marshal(template, shallow=True)
         _resolve_template_names(data, template, lang=query.lang)
+
+        # Include the list of languages so the frontend can show one row per language.
+        name_sid = data.get("name_string_id") or (
+            template.classification.name_string_id
+            if template.classification else None
+        )
+        if name_sid:
+            multilang = workflow_utils_v2.resolve_multilang_name(name_sid)
+            data["available_languages"] = sorted(multilang.keys())
+        else:
+            data["available_languages"] = []
+
         response_data.append(data)
 
     return {"items": response_data}, 200
@@ -473,19 +485,8 @@ def update_workflow_template_patch(
             ),
         )
 
-    # Handle name update (update the template's own name_string_id)
-    if body_dict.get("name"):
-        template_name_update = {
-            "name": body_dict["name"],
-            "name_string_id": workflow_template.name_string_id,
-        }
-        workflow_utils_v2.handle_template_name(
-            template_name_update, new_template=False)
-        # Propagate the (possibly newly created) name_string_id into the patch
-        body_dict["name_string_id"] = template_name_update["name_string_id"]
-
-        # Remove name from body_dict so it doesn't try to update the template model directly
-        del body_dict["name"]
+    # ── Extract name payload (don't persist translations yet) ──
+    name_payload = body_dict.pop("name", None)
 
     # If the request body includes a new workflow classification, process it
     if body_dict.get("classification") is not None:
@@ -502,6 +503,7 @@ def update_workflow_template_patch(
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
 
+    # ── Validate version BEFORE any DB side-effects ──
     classification_id = (
         body_dict.get(
             "classification_id") or workflow_template.classification_id
@@ -512,6 +514,33 @@ def update_workflow_template_patch(
             classification_id,
             body_dict.get("version"),
         )
+
+    # ── Now safe to persist translations (validation passed) ──
+
+    # Handle template name update
+    if name_payload:
+        template_name_update = {
+            "name": name_payload,
+            "name_string_id": workflow_template.name_string_id,
+        }
+        workflow_utils_v2.handle_template_name(
+            template_name_update, new_template=False)
+        # Propagate the (possibly newly created) name_string_id into the patch
+        body_dict["name_string_id"] = template_name_update["name_string_id"]
+
+    # Handle step name translations
+    if body_dict.get("steps"):
+        for step in body_dict["steps"]:
+            workflow_utils_v2.handle_template_step_name(step)
+            # Remove name dict so ORM unmarshal doesn't choke
+            step.pop("name", None)
+
+    # Re-read the template: translation upserts above trigger db_session.commit()
+    # which expires all loaded ORM attributes. Without this refresh the subsequent
+    # marshal(existing_template) would produce an incomplete dict (missing
+    # description, version, etc.) and unmarshal would raise a ValidationError.
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
