@@ -24,7 +24,8 @@ export default function WorkflowPossibleSteps(props: {
     <>
       <Box sx={{ mx: 5, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <Typography variant="h6">Possible Steps</Typography> {/*TODO: only show possible next steps, not all possible steps*/}
+          <Typography variant="h6">Possible Steps</Typography>{' '}
+          {/*TODO: fix possible steps display order (group by branch?)*/}
           <Tooltip
             title="You may override the workflow order and skip to a new step."
             placement="top">

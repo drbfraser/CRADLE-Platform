@@ -250,7 +250,7 @@ export default function WorkflowInstanceDetailsPage() {
                 Description
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {instanceDetails?.description || "N/A"}
+                {instanceDetails?.description || 'N/A'}
               </Typography>
             </Box>
 

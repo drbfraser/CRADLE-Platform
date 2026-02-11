@@ -64,25 +64,38 @@ export default function WorkflowStatus(props: {
 
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                <ReplayIcon 
-                  color={workflowInstance.workflowCompletedOn ? "success" : "primary"} 
-                  sx={{ fontSize: 32, mb: 1 }} />
+                <ReplayIcon
+                  color={
+                    workflowInstance.workflowCompletedOn ? 'success' : 'primary'
+                  }
+                  sx={{ fontSize: 32, mb: 1 }}
+                />
                 <Typography variant="subtitle2" color="text.secondary">
                   Progress
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {progressInfo.completed} / {
+                  {progressInfo.completed} /{' '}
+                  {
                     /* TODO: change implementation to shortest path to completion, not just total steps */
-                    workflowInstance.workflowCompletedOn ? progressInfo.completed : workflowInstance.steps.length}
-                    {workflowInstance.workflowCompletedOn ? "" : "+"}
+                    workflowInstance.workflowCompletedOn
+                      ? progressInfo.completed
+                      : workflowInstance.steps.length
+                  }
+                  {workflowInstance.workflowCompletedOn ? '' : '+'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {/*TODO: change implementation to shortest path to completion, not just total steps */}
-                  {workflowInstance.workflowCompletedOn ? "All steps completed": (
-                    "At least " + (workflowInstance.steps.length - progressInfo.completed) 
-                    + " more step" + (workflowInstance.steps.length - progressInfo.completed !== 1 ? "s" : "") 
-                    + " remaining"
-                  )}
+                  {workflowInstance.workflowCompletedOn
+                    ? 'All steps completed'
+                    : 'At least ' +
+                      (workflowInstance.steps.length - progressInfo.completed) +
+                      ' more step' +
+                      (workflowInstance.steps.length -
+                        progressInfo.completed !==
+                      1
+                        ? 's'
+                        : '') +
+                      ' remaining'}
                 </Typography>
               </Box>
             </Grid>
@@ -107,32 +120,32 @@ export default function WorkflowStatus(props: {
           </Grid>
 
           {/* "Currently Working On" Section Details */}
-          {!workflowInstance.workflowCompletedOn && (
+          {!workflowInstance.workflowCompletedOn &&
             workflowInstance.steps[progressInfo.currentIndex] && (
-            <Box
-              sx={{
-                // backgroundColor: 'primary.50',
-                borderLeft: 4,
-                borderLeftColor: 'primary.main',
-                p: 2,
-                borderRadius: 4,
-              }}>
-              <Typography
-                variant="subtitle2"
-                color="primary.main"
-                sx={{ mb: 0.5 }}>
-                Currently Working On:
-              </Typography>
-              <Typography variant="body1" fontWeight={600}>
-                {workflowInstance.steps[progressInfo.currentIndex].title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {formatWorkflowStepStatusText(
-                  workflowInstance.steps[progressInfo.currentIndex]
-                )}
-              </Typography>
-            </Box>)
-          )}
+              <Box
+                sx={{
+                  // backgroundColor: 'primary.50',
+                  borderLeft: 4,
+                  borderLeftColor: 'primary.main',
+                  p: 2,
+                  borderRadius: 4,
+                }}>
+                <Typography
+                  variant="subtitle2"
+                  color="primary.main"
+                  sx={{ mb: 0.5 }}>
+                  Currently Working On:
+                </Typography>
+                <Typography variant="body1" fontWeight={600}>
+                  {workflowInstance.steps[progressInfo.currentIndex].title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {formatWorkflowStepStatusText(
+                    workflowInstance.steps[progressInfo.currentIndex]
+                  )}
+                </Typography>
+              </Box>
+            )}
         </Box>
       </Box>
     </>
