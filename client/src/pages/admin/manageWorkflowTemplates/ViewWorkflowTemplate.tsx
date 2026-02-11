@@ -33,12 +33,13 @@ export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const viewWorkflow = location.state?.viewWorkflow;
+  const initialLanguage: string = location.state?.language || 'English';
 
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Language for multilingual name support
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  // Language for multilingual name support — initialized from list page selection
+  const [selectedLanguage, setSelectedLanguage] = useState(initialLanguage);
 
   // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(

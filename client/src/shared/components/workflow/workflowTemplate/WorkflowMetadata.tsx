@@ -169,7 +169,7 @@ export const WorkflowMetadata = ({
           <Grid item xs={12} md={5}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
-                Language(s):
+                Language:
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 {availableLanguages.map((lang) => (

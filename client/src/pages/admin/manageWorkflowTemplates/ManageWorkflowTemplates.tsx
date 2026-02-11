@@ -1,13 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Autocomplete,
-  Button,
-  FormControlLabel,
-  Stack,
-  Switch,
-  TextField,
-} from '@mui/material';
+import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { CloudDownloadOutlined, Visibility } from '@mui/icons-material';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -16,7 +9,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
-import { getLanguages, getPrettyDate } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -38,9 +31,13 @@ type WorkflowTemplateWithIndex = WorkflowTemplate & {
   index: number;
 };
 
+// A single row in the templates table - one per (template, language) pair
+type TemplateRow = WorkflowTemplateWithIndex & {
+  language: string;
+};
+
 export const ManageWorkflowTemplates = () => {
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate>();
 
@@ -52,19 +49,14 @@ export const ManageWorkflowTemplates = () => {
   const queryClient = useQueryClient();
 
   const workflowTemplatesQuery = useQuery({
-    queryKey: ['workflowTemplates', showArchivedTemplates, selectedLanguage],
-    queryFn: () =>
-      getAllWorkflowTemplatesAsync(showArchivedTemplates, selectedLanguage),
+    queryKey: ['workflowTemplates', showArchivedTemplates],
+    queryFn: () => getAllWorkflowTemplatesAsync(showArchivedTemplates),
   });
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
     useDownloadTemplateAsCSV();
 
   const TableRowActions = useCallback(
-    ({
-      workflowTemplate,
-    }: {
-      workflowTemplate?: WorkflowTemplateWithIndex;
-    }) => {
+    ({ workflowTemplate }: { workflowTemplate?: TemplateRow }) => {
       if (!workflowTemplate) return null;
 
       const actions: TableAction[] = [];
@@ -76,6 +68,7 @@ export const ManageWorkflowTemplates = () => {
           navigate('/admin/workflow-templates/view', {
             state: {
               viewWorkflow: workflowTemplate,
+              language: workflowTemplate.language,
             },
           });
         },
@@ -135,31 +128,41 @@ export const ManageWorkflowTemplates = () => {
 
   const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Name' },
-    { flex: 1, field: 'classification', headerName: 'classification' },
-    { flex: 1, field: 'version', headerName: 'Version' },
+    { flex: 1, field: 'classification', headerName: 'Classification' },
+    { flex: 0.6, field: 'version', headerName: 'Version' },
+    { flex: 0.6, field: 'language', headerName: 'Language' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
-    { flex: 1, field: 'lastEdited', headerName: 'Last edit' },
+    { flex: 1, field: 'lastEdited', headerName: 'Last Edit' },
     {
       flex: 1,
       field: 'takeAction',
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (params: GridRenderCellParams<WorkflowTemplateWithIndex>) => (
+      renderCell: (params: GridRenderCellParams<TemplateRow>) => (
         <TableRowActions workflowTemplate={params.value} />
       ),
     },
   ];
-  const tableRows = workflowTemplatesQuery.data?.map(
-    (template: WorkflowTemplate, index: number) => ({
-      id: index,
-      name: template.name,
-      classification: template.classification?.name || 'N/A',
-      version: template.version,
-      dateCreated: getPrettyDate(template.dateCreated),
-      lastEdited: getPrettyDate(template.lastEdited),
-      takeAction: template,
-    })
+
+  // Expand each template into one row per available language.
+  const tableRows = workflowTemplatesQuery.data?.flatMap(
+    (template: WorkflowTemplate, index: number) => {
+      const langs =
+        template.availableLanguages && template.availableLanguages.length > 0
+          ? template.availableLanguages
+          : ['English'];
+      return langs.map((lang, langIdx) => ({
+        id: `${index}-${langIdx}`,
+        name: template.name,
+        classification: template.classification?.name || 'N/A',
+        version: template.version,
+        language: lang,
+        dateCreated: getPrettyDate(template.dateCreated),
+        lastEdited: getPrettyDate(template.lastEdited),
+        takeAction: { ...template, index, language: lang } as TemplateRow,
+      }));
+    }
   );
 
   const TableFooter = () => (
@@ -211,21 +214,6 @@ export const ManageWorkflowTemplates = () => {
           gap={'8px'}
           flexWrap={'wrap'}
           alignItems="center">
-          <Autocomplete
-            value={selectedLanguage}
-            onChange={(_event, newValue) => {
-              if (newValue) setSelectedLanguage(newValue);
-            }}
-            options={getLanguages().filter(
-              (lang): lang is string => typeof lang === 'string'
-            )}
-            disableClearable
-            size="small"
-            sx={{ minWidth: 180 }}
-            renderInput={(params) => (
-              <TextField {...params} label="Language" variant="outlined" />
-            )}
-          />
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
@@ -246,11 +234,9 @@ export const ManageWorkflowTemplates = () => {
         footer={TableFooter}
         loading={workflowTemplatesQuery.isLoading}
         getRowClassName={(params) => {
-          const index = params.row.id;
-          const workflowTemplate =
-            workflowTemplatesQuery.data?.at(index) ?? undefined;
-          if (!workflowTemplate) return '';
-          return workflowTemplate.archived ? 'row-archived' : '';
+          const takeAction = params.row.takeAction as TemplateRow | undefined;
+          if (!takeAction) return '';
+          return takeAction.archived ? 'row-archived' : '';
         }}
       />
     </>
