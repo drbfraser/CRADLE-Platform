@@ -48,11 +48,13 @@ from .schemas import (
     VillageSchema,
     WorkflowClassificationSchema,
     WorkflowCollectionSchema,
+    WorkflowInstanceDataSchema,
     WorkflowInstanceSchema,
     WorkflowInstanceStepSchema,
     WorkflowTemplateSchema,
     WorkflowTemplateStepBranchSchema,
     WorkflowTemplateStepSchema,
+    WorkflowVariableCatalogueSchema,
 )
 from .users import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
 from .workflows import (

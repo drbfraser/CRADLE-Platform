@@ -89,7 +89,9 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["workflow_instance_id"],
             ["workflow_instance.id"],
-            name=op.f("fk_workflow_instance_data_workflow_instance_id_workflow_instance"),
+            name=op.f(
+                "fk_workflow_instance_data_workflow_instance_id_workflow_instance"
+            ),
             ondelete="CASCADE",
         ),
         sa.UniqueConstraint(
