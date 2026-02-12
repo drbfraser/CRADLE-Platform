@@ -96,3 +96,20 @@ class WorkflowStepStatusEnum(StrEnum):
     ACTIVE = "Active"
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
+
+
+class WorkflowVariableTypeEnum(StrEnum):
+    INTEGER = "integer"
+    DOUBLE = "double"
+    STRING = "string"
+    DATE = "date"
+    BOOLEAN = "boolean"
+    CONTAINER = "container"
+
+
+class WorkflowInstanceDataFieldTypeEnum(StrEnum):
+    INTEGER = "integer"
+    DOUBLE = "double"
+    STRING = "string"
+    DATE = "date"
+    BOOLEAN = "boolean"
