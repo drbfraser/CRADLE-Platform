@@ -141,7 +141,7 @@ def test_get_workflow_classifications_with_data(database, api_get, api_post):
         assert classification2_data["id"] in classification_ids
         assert classification3_data["id"] in classification_ids
 
-        # Names are now plain strings (English by default, matching FormsV2)
+        # Names are now plain strings (English by default)
         for c_data in [classification1_data, classification2_data, classification3_data]:
             assert c_data["name"]["English"] in classification_names
 
