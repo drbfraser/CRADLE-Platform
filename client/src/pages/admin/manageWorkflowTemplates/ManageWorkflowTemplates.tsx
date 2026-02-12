@@ -152,16 +152,24 @@ export const ManageWorkflowTemplates = () => {
         template.availableLanguages && template.availableLanguages.length > 0
           ? template.availableLanguages
           : ['English'];
-      return langs.map((lang, langIdx) => ({
-        id: `${index}-${langIdx}`,
-        name: template.name,
-        classification: template.classification?.name || 'N/A',
-        version: template.version,
-        language: lang,
-        dateCreated: getPrettyDate(template.dateCreated),
-        lastEdited: getPrettyDate(template.lastEdited),
-        takeAction: { ...template, index, language: lang } as TemplateRow,
-      }));
+      return langs.map((lang, langIdx) => {
+        // Lookup the translated name for this language,
+        // fall back to default template name for missing translations
+        const translatedName =
+          template.nameTranslations?.[lang] ||
+          template.nameTranslations?.[lang.toLowerCase()] ||
+          template.name;
+        return {
+          id: `${index}-${langIdx}`,
+          name: translatedName,
+          classification: template.classification?.name || 'N/A',
+          version: template.version,
+          language: lang,
+          dateCreated: getPrettyDate(template.dateCreated),
+          lastEdited: getPrettyDate(template.lastEdited),
+          takeAction: { ...template, index, language: lang } as TemplateRow,
+        };
+      });
     }
   );
 

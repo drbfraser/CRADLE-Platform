@@ -52,6 +52,7 @@ export interface WorkflowTemplate {
 
   // multilingual
   availableLanguages?: string[];
+  nameTranslations?: Record<string, string>;
 
   // audit & soft-delete
   archived: boolean;

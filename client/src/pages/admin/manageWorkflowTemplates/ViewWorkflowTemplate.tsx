@@ -48,12 +48,13 @@ export const ViewWorkflowTemplate = () => {
 
   // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
-    queryKey: ['workflowTemplate', viewWorkflow?.id],
+    queryKey: ['workflowTemplate', viewWorkflow?.id, selectedLanguage],
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
       const result = await getTemplateWithStepsAndClassification(
-        viewWorkflow.id
+        viewWorkflow.id,
+        selectedLanguage
       );
       return result;
     },

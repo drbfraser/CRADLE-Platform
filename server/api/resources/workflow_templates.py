@@ -314,7 +314,7 @@ def get_workflow_templates(query: GetWorkflowTemplatesQuery):
         data = orm_serializer.marshal(template, shallow=True)
         _resolve_template_names(data, template, lang=query.lang)
 
-        # Include the list of languages so the frontend can show one row per language.
+        # Include all translations so the frontend can show the correct name per language row.
         name_sid = data.get("name_string_id") or (
             template.classification.name_string_id
             if template.classification else None
@@ -322,8 +322,10 @@ def get_workflow_templates(query: GetWorkflowTemplatesQuery):
         if name_sid:
             multilang = workflow_utils_v2.resolve_multilang_name(name_sid)
             data["available_languages"] = sorted(multilang.keys())
+            data["name_translations"] = multilang
         else:
             data["available_languages"] = []
+            data["name_translations"] = {}
 
         response_data.append(data)
 
@@ -546,6 +548,8 @@ def update_workflow_template_patch(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
 
+    # New versions must always be non-archived; archive only the old version
+    new_workflow_template.archived = False
     workflow_template.archived = True
 
     crud.create(model=new_workflow_template, refresh=True)
