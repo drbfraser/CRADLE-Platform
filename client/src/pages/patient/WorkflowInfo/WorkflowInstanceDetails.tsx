@@ -243,6 +243,17 @@ export default function WorkflowInstanceDetailsPage() {
                 </Box>
               </Box>
             </Collapse>
+
+            {/*Show Description*/}
+            <Box sx={{ mx: 5, mb: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Description
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {instanceDetails?.description || 'N/A'}
+              </Typography>
+            </Box>
+
             {/* Section 2: Workflow Status */}
             <WorkflowStatus
               workflowInstance={instanceDetails}
