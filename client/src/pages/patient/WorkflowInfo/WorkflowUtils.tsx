@@ -158,13 +158,38 @@ export function buildInstanceDetails(
       : null,
 
     // Steps
-    steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
+    steps: getWorkflowStepHistory(
+      instance.steps.map((step) => mapWorkflowStep(step, template))
+    ),
     possibleSteps: instance.steps
       .filter((s) => s.status == StepStatus.PENDING)
       .map((step) => mapWorkflowStep(step, template)),
   };
 
   return instanceDetails;
+}
+
+/**
+ * Returns steps in the order of:
+ *  - Active step(s) first (in case of parallel branches)
+ *  - Then completed steps in reverse chronological order (most recent first)
+ *  - Possible steps are not returned
+ */
+export function getWorkflowStepHistory(
+  instance: InstanceStep[]
+): InstanceStep[] {
+  return [
+    ...instance.filter((s) => s.status === StepStatus.ACTIVE), // get active step(s)
+    ...instance // append completed steps in reverse chronological order
+      .filter(
+        (step): step is InstanceStep & { completedOn: string } =>
+          step.completedOn !== null
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()
+      ),
+  ];
 }
 
 export function getWorkflowCurrentStep(instance: InstanceDetails) {
