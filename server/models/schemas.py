@@ -3,7 +3,13 @@ from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 
 from config import ma
-from enums import FacilityTypeEnum, SexEnum, TrafficLightEnum
+from enums import (
+    FacilityTypeEnum,
+    SexEnum,
+    TrafficLightEnum,
+    WorkflowInstanceDataFieldTypeEnum,
+    WorkflowVariableTypeEnum,
+)
 
 from .base import validate_timestamp
 from .communications import RelayServerPhoneNumberOrm
@@ -30,11 +36,13 @@ from .workflows import (
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
+    WorkflowInstanceDataOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    WorkflowVariableCatalogueOrm,
 )
 
 
@@ -312,5 +320,25 @@ class WorkflowInstanceStepSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = WorkflowInstanceStepOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowVariableCatalogueSchema(ma.SQLAlchemyAutoSchema):
+    variable_type = EnumField(WorkflowVariableTypeEnum, by_value=True)
+
+    class Meta:
+        include_fk = True
+        model = WorkflowVariableCatalogueOrm
+        load_instance = True
+        include_relationships = False
+
+
+class WorkflowInstanceDataSchema(ma.SQLAlchemyAutoSchema):
+    field_type = EnumField(WorkflowInstanceDataFieldTypeEnum, by_value=True)
+
+    class Meta:
+        include_fk = True
+        model = WorkflowInstanceDataOrm
         load_instance = True
         include_relationships = True
