@@ -1,6 +1,6 @@
 from common.commonUtil import get_current_time, get_uuid
-
 from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowVariableTypeEnum
+
 from .base import db
 
 
