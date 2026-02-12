@@ -117,77 +117,6 @@ export const WorkflowMetadata = ({
 
   return (
     <>
-      {/* Row 0: Language selector - shown in edit mode */}
-      {isEditMode && onLanguageChange && (
-        <Grid
-          container
-          columnSpacing={6}
-          rowSpacing={{ xs: 2, md: 0 }}
-          justifyContent="space-around"
-          alignItems="center"
-          sx={{ mb: 3 }}>
-          <Grid item xs={12} md={5}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
-                Language:
-              </Typography>
-              <Autocomplete
-                value={selectedLanguage || 'English'}
-                onChange={(_event, newValue) => {
-                  if (newValue) onLanguageChange(newValue);
-                }}
-                options={getLanguages().filter(
-                  (lang): lang is string => typeof lang === 'string'
-                )}
-                disableClearable
-                size="small"
-                sx={{ minWidth: 200, flex: 1 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Language"
-                    variant="outlined"
-                    size="small"
-                  />
-                )}
-              />
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={5} />
-        </Grid>
-      )}
-
-      {/* Row 0a: Read-only language display - shown in view mode */}
-      {!isEditMode && availableLanguages && availableLanguages.length > 0 && (
-        <Grid
-          container
-          columnSpacing={6}
-          rowSpacing={{ xs: 2, md: 0 }}
-          justifyContent="space-around"
-          alignItems="center"
-          sx={{ mb: 3 }}>
-          <Grid item xs={12} md={5}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
-                Language:
-              </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
-                {availableLanguages.map((lang) => (
-                  <Chip
-                    key={lang}
-                    label={lang}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                  />
-                ))}
-              </Stack>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={5} />
-        </Grid>
-      )}
-
       {/* Row 1: Left (Name + Description) | Right (Collection) */}
       <Grid
         container
@@ -240,7 +169,79 @@ export const WorkflowMetadata = ({
           </Stack>
         </Grid>
       </Grid>
-      {/* Row 2: Version | Last Edited */}
+
+      {/* Row 2a: Language selector (edit mode) */}
+      {isEditMode && onLanguageChange && (
+        <Grid
+          container
+          columnSpacing={6}
+          rowSpacing={{ xs: 2, md: 0 }}
+          justifyContent="space-around"
+          alignItems="center"
+          sx={{ mb: 3 }}>
+          <Grid item xs={12} md={5}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
+                Language:
+              </Typography>
+              <Autocomplete
+                value={selectedLanguage || 'English'}
+                onChange={(_event, newValue) => {
+                  if (newValue) onLanguageChange(newValue);
+                }}
+                options={getLanguages().filter(
+                  (lang): lang is string => typeof lang === 'string'
+                )}
+                disableClearable
+                size="small"
+                sx={{ minWidth: 200, flex: 1 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Language"
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={5} />
+        </Grid>
+      )}
+
+      {/* Row 2b: Language display (view mode, read only)*/}
+      {!isEditMode && availableLanguages && availableLanguages.length > 0 && (
+        <Grid
+          container
+          columnSpacing={6}
+          rowSpacing={{ xs: 2, md: 0 }}
+          justifyContent="space-around"
+          alignItems="center"
+          sx={{ mb: 3 }}>
+          <Grid item xs={12} md={5}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
+                Language:
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                {availableLanguages.map((lang) => (
+                  <Chip
+                    key={lang}
+                    label={lang}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                ))}
+              </Stack>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={5} />
+        </Grid>
+      )}
+
+      {/* Row 4: Version | Last Edited */}
       <Grid
         container
         columnSpacing={6}
@@ -273,7 +274,7 @@ export const WorkflowMetadata = ({
         </Grid>
       </Grid>
 
-      {/* Row 3: Archived | First Create */}
+      {/* Row 5: Archived | First Create */}
       <Grid
         container
         columnSpacing={6}
