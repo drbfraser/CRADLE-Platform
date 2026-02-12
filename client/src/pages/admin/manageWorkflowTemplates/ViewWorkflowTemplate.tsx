@@ -200,9 +200,7 @@ export const ViewWorkflowTemplate = () => {
               archived={currentWorkflow?.archived}
               dateCreated={currentWorkflow?.dateCreated}
               isEditMode={false}
-              availableLanguages={
-                workflowTemplateQuery.data?.availableLanguages
-              }
+              availableLanguages={[selectedLanguage]}
             />
 
             <Divider sx={{ my: 3 }} />

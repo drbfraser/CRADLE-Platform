@@ -167,12 +167,13 @@ def get_workflow_classification_from_dict(
 
 
 def check_for_existing_template_version(
-    workflow_classification_id: str, workflow_template_version: str
+    workflow_classification_id: str,
+    workflow_template_version: str,
 ) -> None:
     """
-    Checks if a workflow template with the same version under the same classification already exists
+    Checks if a workflow template with the same version under the same classification already exists.
     :param workflow_classification_id: ID of the workflow classification
-    :param workflow_template_dict: Dictionary consisting of attributes for a workflow template
+    :param workflow_template_version: Version string to check
     """
     existing_template_version = crud.read(
         WorkflowTemplateOrm,
@@ -511,10 +512,11 @@ def update_workflow_template_patch(
             "classification_id") or workflow_template.classification_id
     )
 
-    if classification_id is not None:
+    new_version = body_dict.get("version")
+    if new_version and classification_id:
         check_for_existing_template_version(
             classification_id,
-            body_dict.get("version"),
+            new_version,
         )
 
     # ── Now safe to persist translations (validation passed) ──
@@ -547,6 +549,18 @@ def update_workflow_template_patch(
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
+
+    # Ensure the new version keeps the same classification.
+    # generate_updated_workflow_template preserves classification_id in the dict,
+    # but unmarshal leaves the classification relationship as None.  SQLAlchemy
+    # syncs the None relationship back to the FK on commit, so we must set the
+    # actual relationship object.
+    if workflow_template.classification_id:
+        classification_orm = crud.read(
+            WorkflowClassificationOrm, id=workflow_template.classification_id
+        )
+        if classification_orm:
+            new_workflow_template.classification = classification_orm
 
     # New versions must always be non-archived; archive only the old version
     new_workflow_template.archived = False

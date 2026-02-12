@@ -277,6 +277,10 @@ def generate_updated_workflow_template(
     """
     copy_workflow_template_dict = orm_serializer.marshal(existing_template)
 
+    # Preserve the existing classification — new versions belong to the same one
+    preserved_classification_id = copy_workflow_template_dict.get("classification_id")
+    copy_workflow_template_dict.pop("classification", None)
+
     copy_workflow_template_dict.pop("steps", None)
     copy_workflow_template_dict["steps"] = []
 
@@ -285,6 +289,10 @@ def generate_updated_workflow_template(
         workflow=copy_workflow_template_dict,
         auto_assign_id=auto_assign_id,
     )
+
+    # Restore classification_id so the new version stays under the same classification
+    if preserved_classification_id:
+        copy_workflow_template_dict["classification_id"] = preserved_classification_id
 
     new_workflow_template = orm_serializer.unmarshal(
         WorkflowTemplateOrm, copy_workflow_template_dict
@@ -394,6 +402,6 @@ def find_workflow_instance_step_or_404(
     step = workflow_instance.get_instance_step(workflow_instance_step_id)
     if step is None:
         abort_not_found(
-            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id)
         )
     return step
