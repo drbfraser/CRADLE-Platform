@@ -48,22 +48,26 @@ from .schemas import (
     VillageSchema,
     WorkflowClassificationSchema,
     WorkflowCollectionSchema,
+    WorkflowInstanceDataSchema,
     WorkflowInstanceSchema,
     WorkflowInstanceStepSchema,
     WorkflowTemplateSchema,
     WorkflowTemplateStepBranchSchema,
     WorkflowTemplateStepSchema,
+    WorkflowVariableCatalogueSchema,
 )
 from .users import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
 from .workflows import (
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
+    WorkflowInstanceDataOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    WorkflowVariableCatalogueOrm,
 )
 
 SCHEMA_REGISTRY = {
@@ -77,8 +81,10 @@ SCHEMA_REGISTRY = {
     WorkflowTemplateOrm: WorkflowTemplateSchema,
     WorkflowTemplateStepOrm: WorkflowTemplateStepSchema,
     WorkflowTemplateStepBranchOrm: WorkflowTemplateStepBranchSchema,
+    WorkflowInstanceDataOrm: WorkflowInstanceDataSchema,
     WorkflowInstanceOrm: WorkflowInstanceSchema,
     WorkflowInstanceStepOrm: WorkflowInstanceStepSchema,
+    WorkflowVariableCatalogueOrm: WorkflowVariableCatalogueSchema,
     HealthFacilityOrm: HealthFacilitySchema,
     VillageOrm: VillageSchema,
     PatientOrm: PatientSchema,
