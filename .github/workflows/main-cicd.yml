@@ -351,13 +351,11 @@ jobs:
           npm install -g npm@$NPM_VERSION
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Install Prettier
-        run: npm install prettier@2.7.1 --global
       - name: Frontend Lint
         run: ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Frontend Format
-        run: prettier --check "src/**/*.{ts,tsx}"
+        run: ./node_modules/.bin/prettier --check "src/**/*.{ts,tsx}"
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
 
   backend_format:
