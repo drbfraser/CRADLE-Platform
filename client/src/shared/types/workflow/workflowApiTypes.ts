@@ -32,8 +32,7 @@ export interface WorkflowTemplateStep {
   workflowTemplateId?: ID;
 }
 
-export interface WorkflowTemplateStepWithFormAndIndex
-  extends WorkflowTemplateStep {
+export interface WorkflowTemplateStepWithFormAndIndex extends WorkflowTemplateStep {
   form?: FormTemplate;
   index: number;
   branchIndices?: number[];
