@@ -12,7 +12,7 @@ import {
   InstanceDetails,
   InstanceStep,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import { formatWorkflowStepStatusText } from '../WorkflowUtils';
+import { formatWorkflowStepStatusText, getWorkflowStepHistory } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CheckCircle } from '@mui/icons-material';
 import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
@@ -143,7 +143,10 @@ export default function WorkflowStepHistory({
                 }}
               />
 
-              {workflowInstance.steps.map((step) => {
+              {getWorkflowStepHistory(workflowInstance.steps).map((step) => { 
+                /* TODO: make workflow completion independent of workflow.step.length and move 
+                   getWorkflowStepHistory to WorkflowUtils.tsx when building workflow instance 
+                   to minimize rendering inefficiencies */
                 const isExpanded = expandAll || expandedStep === step.id;
                 const statusIcon =
                   step.status === StepStatus.COMPLETED ? (

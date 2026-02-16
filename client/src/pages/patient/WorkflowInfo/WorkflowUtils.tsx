@@ -158,12 +158,8 @@ export function buildInstanceDetails(
       : null,
 
     // Steps
-    steps: getWorkflowStepHistory(
-      instance.steps.map((step) => mapWorkflowStep(step, template))
-    ),
-    possibleSteps: instance.steps
-      .filter((s) => s.status == StepStatus.PENDING)
-      .map((step) => mapWorkflowStep(step, template)),
+    steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
+    possibleSteps: instance.steps.filter((s) => s.status === StepStatus.PENDING).map((step) => mapWorkflowStep(step, template)),
   };
 
   return instanceDetails;
@@ -176,11 +172,11 @@ export function buildInstanceDetails(
  *  - Possible steps are not returned
  */
 export function getWorkflowStepHistory(
-  instance: InstanceStep[]
+  steps: InstanceStep[]
 ): InstanceStep[] {
   return [
-    ...instance.filter((s) => s.status === StepStatus.ACTIVE), // get active step(s)
-    ...instance // append completed steps in reverse chronological order
+    ...steps.filter((s) => s.status === StepStatus.ACTIVE), // get active step(s)
+    ...steps // append completed steps in reverse chronological order
       .filter(
         (step): step is InstanceStep & { completedOn: string } =>
           step.completedOn !== null
