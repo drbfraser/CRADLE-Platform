@@ -24,6 +24,12 @@ export type InstanceStep = {
   workflowTemplateStepId: string;
 };
 
+export type WorkflowPath = {
+  branch: InstanceStep[];
+  length: number; 
+  hasCycle: boolean;
+}
+
 export type PossibleStep = {
   id: string;
   title: string;
@@ -54,7 +60,7 @@ export type InstanceDetails = {
 
   // Steps
   steps: InstanceStep[];
-  possibleSteps: PossibleStep[];
+  possibleSteps: WorkflowPath[];
 };
 
 export type WorkflowInstanceProgress = {

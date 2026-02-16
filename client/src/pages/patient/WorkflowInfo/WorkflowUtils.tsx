@@ -14,6 +14,7 @@ import {
   InstanceStep,
   WorkflowInfoRow,
   WorkflowNextStepOption,
+  WorkflowPath,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatISODateNumber } from 'src/shared/utils';
 
@@ -159,7 +160,10 @@ export function buildInstanceDetails(
 
     // Steps
     steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
-    possibleSteps: instance.steps.filter((s) => s.status === StepStatus.PENDING).map((step) => mapWorkflowStep(step, template)),
+    possibleSteps: getWorkflowPossibleSteps(
+      instance.steps.map((step) => mapWorkflowStep(step, template)),
+      template
+    ),
   };
 
   return instanceDetails;
@@ -186,6 +190,106 @@ export function getWorkflowStepHistory(
           new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()
       ),
   ];
+}
+
+/**
+ * Returns possible future steps in DFS order
+ * - For branches, the order is determined by the order in the template's branches array
+ * - Steps that are already completed or active are not included in the possible steps
+ * - Cycles are handled by keeping track of visited steps (for handling future cyclical workflow implementation)
+ */
+function getWorkflowPossibleSteps(
+  instance: InstanceStep[],
+  template: WorkflowTemplate
+): WorkflowPath[] {
+  const currentStep = instance.find((s) => s.status === StepStatus.ACTIVE);
+  const completedSteps = instance.filter((s) => s.status === StepStatus.COMPLETED);
+  const templateStepMap = Object.fromEntries( template.steps.map(s => [s.id, s]) );
+  const instanceStepMap = Object.fromEntries( instance.map(s => [s.workflowTemplateStepId, s]) );
+  const visited = new Set<string>();
+
+  for (const s of completedSteps) {
+    visited.add(s.workflowTemplateStepId);
+  }
+
+  /**
+   * Helper function: DFS to find all paths to end of workflow from current step
+   * - includes current step
+   * - repeated steps are also stored (for path length calculation and cycle detection)
+   *   - can probably be further optimized
+   */
+  function dfs(
+    stepId: string,
+    templateStepMap: Record<string, WorkflowTemplateStep>,
+    instanceStepMap: Record<string, InstanceStep>,
+    visited: Set<string>,
+  ): WorkflowPath[]{
+    const step = templateStepMap[stepId]; 
+    if (!step) return [];
+
+    // Account for cycles
+    if (visited.has(stepId)) {
+      return [ 
+        { 
+          branch: [instanceStepMap[stepId]], 
+          length: 1, 
+          hasCycle: true 
+        } 
+      ]; 
+    }
+
+    const nextVisited = new Set(visited); 
+    nextVisited.add(stepId);
+
+    // Leaf node (possible step)
+    if (!step.branches || step.branches.length === 0) { 
+      return [ 
+        { 
+          branch: [instanceStepMap[stepId]], 
+          length: 1, 
+          hasCycle: false 
+        } 
+      ]; 
+    }
+
+    const paths: WorkflowPath[] = []; 
+    for (const br of step.branches) { 
+      const subPaths = dfs(br.targetStepId, templateStepMap, instanceStepMap, nextVisited); 
+      
+      for (const sub of subPaths) { 
+        paths.push(
+          { 
+            branch: [instanceStepMap[stepId], ...sub.branch], 
+            length: sub.length + 1, 
+            hasCycle: sub.hasCycle 
+          }
+        ); 
+      } 
+    } 
+        
+    return paths;
+  }
+
+  const rawPaths = dfs( 
+    currentStep ? currentStep.workflowTemplateStepId : instance[0].workflowTemplateStepId, // TODO: better handling of no active step case
+    templateStepMap, 
+    instanceStepMap, 
+    visited ).sort((a, b) => a.length - b.length); 
+    
+    // Deduplicate steps that appear in multiple paths (e.g. due to cycles or converging/diverging branches)
+    const globallySeen = new Set<string>(); 
+    const deduped = rawPaths.map(path => { 
+      const newBranch: InstanceStep[] = []; 
+      for (const step of path.branch) { 
+        if (!globallySeen.has(step.id) && step.status !== StepStatus.ACTIVE) { 
+          globallySeen.add(step.id); 
+          newBranch.push(step); 
+        } 
+      }
+      return { ...path, branch: newBranch }; 
+    });
+
+  return deduped;
 }
 
 export function getWorkflowCurrentStep(instance: InstanceDetails) {

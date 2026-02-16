@@ -25,7 +25,6 @@ export default function WorkflowPossibleSteps(props: {
       <Box sx={{ mx: 5, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Typography variant="h6">Possible Steps</Typography>{' '}
-          {/*TODO: fix possible steps display order (group by branch?)*/}
           <Tooltip
             title="You may override the workflow order and skip to a new step."
             placement="top">
@@ -44,68 +43,55 @@ export default function WorkflowPossibleSteps(props: {
           ) : (
             <>
               <List disablePadding>
-                {workflowInstance.possibleSteps.map((step) => (
-                  <ListItem
-                    key={step.id}
-                    sx={{
-                      border: 1,
-                      borderColor: 'grey.300',
-                      borderRadius: '8px',
-                      mb: 1,
-                      '&:hover': { bgcolor: 'grey.50' },
-                    }}>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle1" fontWeight={600}>
-                          {step.title}
-                        </Typography>
-                      }
-                    />
-                    <Box
+                {workflowInstance.possibleSteps.map((path) => (
+                  path.branch.map((step) =>(
+                    <ListItem
+                      key={step.id}
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
+                        border: 1,
+                        borderColor: 'grey.300',
+                        borderRadius: '8px',
+                        mb: 1,
+                        '&:hover': { bgcolor: 'grey.50' },
                       }}>
-                      {step.estimate && (
-                        <Badge
-                          badgeContent={step.estimate}
-                          color="primary"
-                          sx={{
-                            '& .MuiBadge-badge': {
-                              position: 'static',
-                              transform: 'none',
-                              borderRadius: '12px',
-                              px: 1,
-                            },
-                          }}>
-                          <Box />
-                        </Badge>
-                      )}
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip
-                          title="Set this as current step"
-                          placement="top">
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              handleMakeCurrent(step.id, step.title)
-                            }>
-                            <PlayArrowIcon />
-                          </IconButton>
-                        </Tooltip>
-                        {step.hasForm && (
+                      <ListItemText
+                        primary={
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {step.title}
+                          </Typography>
+                        }
+                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                        }}>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
                           <Tooltip
-                            title="This step has an associated form"
+                            title="Set this as current step"
                             placement="top">
-                            <IconButton size="small" disabled>
-                              <ArticleIcon />
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                handleMakeCurrent(step.id, step.title)
+                              }>
+                              <PlayArrowIcon />
                             </IconButton>
                           </Tooltip>
-                        )}
+                          {step.form && (
+                            <Tooltip
+                              title="This step has an associated form"
+                              placement="top">
+                              <IconButton size="small" disabled>
+                                <ArticleIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  </ListItem>
+                    </ListItem>
+                  ))
                 ))}
               </List>
               <Typography
