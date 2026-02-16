@@ -1546,7 +1546,7 @@ def create_relay_nums():
 def create_simple_workflow_classification():
     classification_id = "wc-simple-1"
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
-        return None
+        return classification_id
 
     name_string_id = get_uuid()
 
