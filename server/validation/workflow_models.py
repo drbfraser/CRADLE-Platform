@@ -16,7 +16,7 @@ from validation.formsV2_models import MultiLangText
 
 class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[MultiLangText] = None
+    name: Optional[Union[str, MultiLangText]] = None
     name_string_id: Optional[str] = None
     collection_id: Optional[str] = None
 
@@ -44,7 +44,7 @@ class WorkflowTemplateStepBranchModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[MultiLangText] = None
+    name: Optional[Union[str, MultiLangText]] = None
     name_string_id: Optional[str] = None
     description: str
     # TODO: Should this be a relative time? e.g. 2 days?

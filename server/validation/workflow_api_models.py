@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import Field, model_validator
 from typing_extensions import Self
@@ -23,7 +23,7 @@ class WorkflowClassificationUploadModel(WorkflowClassificationModel):
 
 class WorkflowClassificationPatchModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
-    name: Optional[MultiLangText] = None
+    name: Optional[Union[str, MultiLangText]] = None
 
 
 class GetWorkflowTemplatesQuery(CradleBaseModel):
@@ -48,6 +48,7 @@ class WorkflowCollectionUploadModel(WorkflowCollectionModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateModel):
     id: Optional[str] = None
+    name: Optional[str] = None
     classification: Optional[WorkflowClassificationUploadModel] = None
 
 
