@@ -33,13 +33,9 @@ export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const viewWorkflow = location.state?.viewWorkflow;
-  const initialLanguage: string = location.state?.language || 'English';
 
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
-
-  // Language for multilingual name support — initialized from list page selection
-  const [selectedLanguage, setSelectedLanguage] = useState(initialLanguage);
 
   // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
@@ -48,13 +44,12 @@ export const ViewWorkflowTemplate = () => {
 
   // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
-    queryKey: ['workflowTemplate', viewWorkflow?.id, selectedLanguage],
+    queryKey: ['workflowTemplate', viewWorkflow?.id],
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
       const result = await getTemplateWithStepsAndClassification(
-        viewWorkflow.id,
-        selectedLanguage
+        viewWorkflow.id
       );
       return result;
     },
@@ -82,11 +77,6 @@ export const ViewWorkflowTemplate = () => {
       await editWorkflowTemplateMutation.mutateAsync({
         template: {
           ...workflow,
-          name: { [selectedLanguage]: workflow.name } as any,
-          steps: workflow.steps.map((step) => ({
-            ...step,
-            name: { [selectedLanguage]: step.name } as any,
-          })),
         },
       });
 
@@ -182,8 +172,6 @@ export const ViewWorkflowTemplate = () => {
             onUndo={workflowEditor.undo}
             onRedo={workflowEditor.redo}
             isSaving={editWorkflowTemplateMutation.isPending}
-            selectedLanguage={selectedLanguage}
-            onLanguageChange={setSelectedLanguage}
           />
         ) : (
           <>
@@ -200,7 +188,6 @@ export const ViewWorkflowTemplate = () => {
               archived={currentWorkflow?.archived}
               dateCreated={currentWorkflow?.dateCreated}
               isEditMode={false}
-              availableLanguages={[selectedLanguage]}
             />
 
             <Divider sx={{ my: 3 }} />

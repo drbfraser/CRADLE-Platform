@@ -49,13 +49,12 @@ export const listTemplates = async (params?: {
 
 // GET /workflow/templates with archived parameter
 export const getAllWorkflowTemplatesAsync = async (
-  includeArchived: boolean,
-  lang: string = 'English'
+  includeArchived: boolean
 ): Promise<WorkflowTemplate[]> => {
   try {
     const response = await axiosFetch.get<{ items: WorkflowTemplate[] }>(
       TEMPLATES,
-      { params: { archived: includeArchived, lang } }
+      { params: { archived: includeArchived } }
     );
     return response.data.items;
   } catch (e) {
@@ -117,7 +116,6 @@ export const getTemplate = async (
   params?: {
     with_steps?: boolean;
     with_classification?: boolean;
-    lang?: string;
   }
 ): Promise<WorkflowTemplate> => {
   const response = await axiosFetch.get<WorkflowTemplate>(
@@ -182,13 +180,11 @@ export const getTemplateWithSteps = async (
 };
 
 export const getTemplateWithStepsAndClassification = async (
-  templateId: ID,
-  lang?: string
+  templateId: ID
 ): Promise<WorkflowTemplate> => {
   return getTemplate(templateId, {
     with_steps: true,
     with_classification: true,
-    lang,
   });
 };
 

@@ -1,6 +1,6 @@
 from typing import List
 
-from flask import abort, request
+from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
@@ -14,7 +14,6 @@ from data import orm_serializer
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
-    GetWorkflowClassificationsQuery,
     WorkflowClassificationPatchModel,
     WorkflowClassificationUploadModel,
 )
@@ -96,7 +95,7 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
 @api_workflow_classifications.get(
     "", responses={200: WorkflowClassificationListResponse}
 )
-def get_workflow_classifications(query: GetWorkflowClassificationsQuery):
+def get_workflow_classifications():
     """Get All Workflow Classifications"""
     workflow_classifications = crud.read_workflow_classifications()
 
@@ -104,7 +103,7 @@ def get_workflow_classifications(query: GetWorkflowClassificationsQuery):
     for classification in workflow_classifications:
         data = orm_serializer.marshal(classification, shallow=True)
         data["name"] = workflow_utils_v2.resolve_name(
-            classification.name_string_id, query.lang
+            classification.name_string_id
         )
         response_data.append(data)
 
@@ -129,11 +128,10 @@ def get_workflow_classification(path: WorkflowClassificationIdPath):
             ),
         )
 
-    lang = request.args.get("lang", default="English")
     response_data = orm_serializer.marshal(
         obj=workflow_classification, shallow=True)
     response_data["name"] = workflow_utils_v2.resolve_name(
-        workflow_classification.name_string_id, lang
+        workflow_classification.name_string_id
     )
 
     return response_data, 200

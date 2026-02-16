@@ -50,9 +50,6 @@ const createEmptyTemplate = (): WorkflowTemplate => {
 export const CreateWorkflowTemplate = () => {
   const navigate = useNavigate();
 
-  // Language for multilingual name support
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
-
   // Create an empty template for initialization
   const [emptyTemplate] = useState<WorkflowTemplate>(createEmptyTemplate);
 
@@ -79,18 +76,18 @@ export const CreateWorkflowTemplate = () => {
       const tempTemplateId = workflow.id || `temp-${Date.now()}`;
 
       const payload = {
-        name: { [selectedLanguage]: workflow.name },
+        name: workflow.name,
         description: workflow.description || '',
         version: workflow.version,
         archived: false,
         // Auto-create a classification from the workflow name when none is
         // selected so the template is still grouped under a classification.
         classification: workflow.classification ?? {
-          name: { [selectedLanguage]: workflow.name },
+          name: workflow.name,
         },
         steps: workflow.steps.map((step) => ({
           id: step.id,
-          name: { [selectedLanguage]: step.name },
+          name: step.name,
           description: step.description,
           workflowTemplateId: step.workflowTemplateId || tempTemplateId,
           branches: step.branches || [],
@@ -166,8 +163,6 @@ export const CreateWorkflowTemplate = () => {
           onUndo={workflowEditor.undo}
           onRedo={workflowEditor.redo}
           isSaving={createWorkflowTemplateMutation.isPending}
-          selectedLanguage={selectedLanguage}
-          onLanguageChange={setSelectedLanguage}
         />
       </Paper>
 

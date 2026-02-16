@@ -50,10 +50,6 @@ export interface WorkflowTemplate {
   steps: WorkflowTemplateStep[];
   startingStepId?: ID;
 
-  // multilingual
-  availableLanguages?: string[];
-  nameTranslations?: Record<string, string>;
-
   // audit & soft-delete
   archived: boolean;
   dateCreated: number;
@@ -72,17 +68,8 @@ export interface ClassificationInput {
   name: string;
 }
 
-/**
- * A name that may be either a plain string (treated as English by the backend)
- * or a { language: text } dict for explicit multilingual support.
- */
-export type MultiLangText = string | Record<string, string>;
-
-/** Step payload that accepts multilang names for create/edit. */
-export interface WorkflowTemplateStepInput
-  extends Omit<WorkflowTemplateStep, 'name'> {
-  name: MultiLangText;
-}
+/** Step payload for create/edit. */
+export interface WorkflowTemplateStepInput extends WorkflowTemplateStep {}
 
 // Payload for POST /workflow/templates/body
 export interface TemplateInput
@@ -92,15 +79,13 @@ export interface TemplateInput
     | 'dateCreated'
     | 'lastEdited'
     | 'lastEditedBy'
-    | 'name'
     | 'steps'
     | 'classification'
   > {
-  name: MultiLangText;
   steps: WorkflowTemplateStepInput[];
   /** When creating, the classification may be auto-generated from the name and
    *  therefore won't have an id yet. */
-  classification?: { id?: ID; name: MultiLangText } | null;
+  classification?: { id?: ID; name: string } | null;
 }
 
 // Optional grouping structure used by listTemplates?groupBy=classification

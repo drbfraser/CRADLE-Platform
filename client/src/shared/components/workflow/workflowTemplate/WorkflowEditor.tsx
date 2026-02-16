@@ -46,8 +46,6 @@ interface WorkflowEditorProps {
   showViewToggle?: boolean;
   viewMode?: WorkflowViewMode;
   onViewModeChange?: (mode: WorkflowViewMode) => void;
-  selectedLanguage?: string;
-  onLanguageChange?: (lang: string) => void;
 }
 
 export const WorkflowEditor = ({
@@ -74,8 +72,6 @@ export const WorkflowEditor = ({
   showViewToggle = false,
   viewMode = WorkflowViewMode.FLOW,
   onViewModeChange,
-  selectedLanguage,
-  onLanguageChange,
 }: WorkflowEditorProps) => {
   if (!workflow) return null;
 
@@ -129,8 +125,6 @@ export const WorkflowEditor = ({
         dateCreated={workflow.dateCreated}
         isEditMode={true}
         onFieldChange={onFieldChange}
-        selectedLanguage={selectedLanguage}
-        onLanguageChange={onLanguageChange}
       />
 
       <Divider sx={{ my: 3 }} />

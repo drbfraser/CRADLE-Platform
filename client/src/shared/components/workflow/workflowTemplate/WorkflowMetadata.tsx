@@ -1,7 +1,5 @@
 import {
-  Autocomplete,
   Box,
-  Chip,
   Grid,
   Tooltip,
   FormControlLabel,
@@ -13,7 +11,7 @@ import {
 } from '@mui/material';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { ReactNode } from 'react';
-import { getLanguages, getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface WorkflowMetadataProps {
@@ -26,9 +24,6 @@ interface WorkflowMetadataProps {
   dateCreated?: number;
   isEditMode?: boolean;
   onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
-  selectedLanguage?: string;
-  onLanguageChange?: (lang: string) => void;
-  availableLanguages?: string[];
 }
 
 const InlineField = ({
@@ -102,9 +97,6 @@ export const WorkflowMetadata = ({
   dateCreated,
   isEditMode = false,
   onFieldChange,
-  selectedLanguage,
-  onLanguageChange,
-  availableLanguages,
 }: WorkflowMetadataProps) => {
   const versionText = `${version ?? ''}`;
   const lastEditedDate = lastEdited
@@ -169,77 +161,6 @@ export const WorkflowMetadata = ({
           </Stack>
         </Grid>
       </Grid>
-
-      {/* Row 2a: Language selector (edit mode) */}
-      {isEditMode && onLanguageChange && (
-        <Grid
-          container
-          columnSpacing={6}
-          rowSpacing={{ xs: 2, md: 0 }}
-          justifyContent="space-around"
-          alignItems="center"
-          sx={{ mb: 3 }}>
-          <Grid item xs={12} md={5}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
-                Language:
-              </Typography>
-              <Autocomplete
-                value={selectedLanguage || 'English'}
-                onChange={(_event, newValue) => {
-                  if (newValue) onLanguageChange(newValue);
-                }}
-                options={getLanguages().filter(
-                  (lang): lang is string => typeof lang === 'string'
-                )}
-                disableClearable
-                size="small"
-                sx={{ minWidth: 200, flex: 1 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Language"
-                    variant="outlined"
-                    size="small"
-                  />
-                )}
-              />
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={5} />
-        </Grid>
-      )}
-
-      {/* Row 2b: Language display (view mode, read only)*/}
-      {!isEditMode && availableLanguages && availableLanguages.length > 0 && (
-        <Grid
-          container
-          columnSpacing={6}
-          rowSpacing={{ xs: 2, md: 0 }}
-          justifyContent="space-around"
-          alignItems="center"
-          sx={{ mb: 3 }}>
-          <Grid item xs={12} md={5}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ minWidth: 108 }}>
-                Language:
-              </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
-                {availableLanguages.map((lang) => (
-                  <Chip
-                    key={lang}
-                    label={lang}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                  />
-                ))}
-              </Stack>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={5} />
-        </Grid>
-      )}
 
       {/* Row 4: Version | Last Edited */}
       <Grid

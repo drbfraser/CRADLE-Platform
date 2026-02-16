@@ -27,13 +27,8 @@ import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import { useDownloadTemplateAsCSV } from './mutations';
 
-type WorkflowTemplateWithIndex = WorkflowTemplate & {
+type TemplateRow = WorkflowTemplate & {
   index: number;
-};
-
-// A single row in the templates table - one per (template, language) pair
-type TemplateRow = WorkflowTemplateWithIndex & {
-  language: string;
 };
 
 export const ManageWorkflowTemplates = () => {
@@ -68,7 +63,6 @@ export const ManageWorkflowTemplates = () => {
           navigate('/admin/workflow-templates/view', {
             state: {
               viewWorkflow: workflowTemplate,
-              language: workflowTemplate.language,
             },
           });
         },
@@ -130,7 +124,6 @@ export const ManageWorkflowTemplates = () => {
     { flex: 1, field: 'name', headerName: 'Name' },
     { flex: 1, field: 'classification', headerName: 'Classification' },
     { flex: 0.6, field: 'version', headerName: 'Version' },
-    { flex: 0.6, field: 'language', headerName: 'Language' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
     { flex: 1, field: 'lastEdited', headerName: 'Last Edit' },
     {
@@ -145,32 +138,16 @@ export const ManageWorkflowTemplates = () => {
     },
   ];
 
-  // Expand each template into one row per available language.
-  const tableRows = workflowTemplatesQuery.data?.flatMap(
-    (template: WorkflowTemplate, index: number) => {
-      const langs =
-        template.availableLanguages && template.availableLanguages.length > 0
-          ? template.availableLanguages
-          : ['English'];
-      return langs.map((lang, langIdx) => {
-        // Lookup the translated name for this language,
-        // fall back to default template name for missing translations
-        const translatedName =
-          template.nameTranslations?.[lang] ||
-          template.nameTranslations?.[lang.toLowerCase()] ||
-          template.name;
-        return {
-          id: `${index}-${langIdx}`,
-          name: translatedName,
-          classification: template.classification?.name || 'N/A',
-          version: template.version,
-          language: lang,
-          dateCreated: getPrettyDate(template.dateCreated),
-          lastEdited: getPrettyDate(template.lastEdited),
-          takeAction: { ...template, index, language: lang } as TemplateRow,
-        };
-      });
-    }
+  const tableRows = workflowTemplatesQuery.data?.map(
+    (template: WorkflowTemplate, index: number) => ({
+      id: index,
+      name: template.name,
+      classification: template.classification?.name || 'N/A',
+      version: template.version,
+      dateCreated: getPrettyDate(template.dateCreated),
+      lastEdited: getPrettyDate(template.lastEdited),
+      takeAction: { ...template, index } as TemplateRow,
+    })
   );
 
   const TableFooter = () => (

@@ -60,7 +60,7 @@ workflow_template_not_found_message = "Workflow template with ID: ({}) not found
 
 
 def _resolve_template_names(
-    data: dict, template_orm: Optional[WorkflowTemplateOrm] = None, lang: str = "English"
+    data: dict, template_orm: Optional[WorkflowTemplateOrm] = None
 ) -> None:
     """
     Resolve ``name_string_id`` values to human-readable name strings
@@ -73,25 +73,25 @@ def _resolve_template_names(
     # Template name comes from classification
     if template_orm and template_orm.classification:
         data["name"] = workflow_utils_v2.resolve_name(
-            template_orm.classification.name_string_id, lang
+            template_orm.classification.name_string_id
         )
     elif data.get("classification") and data["classification"].get("name_string_id"):
         data["name"] = workflow_utils_v2.resolve_name(
-            data["classification"]["name_string_id"], lang
+            data["classification"]["name_string_id"]
         )
 
     # Classification sub-object
     classification = data.get("classification")
     if classification and classification.get("name_string_id"):
         classification["name"] = workflow_utils_v2.resolve_name(
-            classification["name_string_id"], lang
+            classification["name_string_id"]
         )
 
     # Step names
     for step in data.get("steps", []):
         if step.get("name_string_id"):
             step["name"] = workflow_utils_v2.resolve_name(
-                step["name_string_id"], lang)
+                step["name_string_id"])
 
 
 def find_and_archive_previous_workflow_template(
@@ -296,7 +296,7 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
     return result, 201
 
 
-# /api/workflow/templates?classification_id=<str>&archived=<bool>&lang=<str> [GET]
+# /api/workflow/templates?classification_id=<str>&archived=<bool> [GET]
 @api_workflow_templates.get("", responses={200: WorkflowTemplateListResponse})
 def get_workflow_templates(query: GetWorkflowTemplatesQuery):
     """Get All Workflow Templates"""
@@ -308,7 +308,7 @@ def get_workflow_templates(query: GetWorkflowTemplatesQuery):
     response_data = []
     for template in workflow_templates:
         data = orm_serializer.marshal(template, shallow=True)
-        _resolve_template_names(data, template, lang=query.lang)
+        _resolve_template_names(data, template)
         response_data.append(data)
 
     return {"items": response_data}, 200
@@ -326,7 +326,6 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     with_classification = request.args.get(
         "with_classification", default=False)
     with_classification = convert_query_parameter_to_bool(with_classification)
-    lang = request.args.get("lang", default="English")
 
     workflow_template = crud.read(
         WorkflowTemplateOrm, id=path.workflow_template_id)
@@ -341,7 +340,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
 
     response_data = orm_serializer.marshal(
         obj=workflow_template, shallow=False)
-    _resolve_template_names(response_data, workflow_template, lang=lang)
+    _resolve_template_names(response_data, workflow_template)
 
     if not with_steps:
         del response_data["steps"]

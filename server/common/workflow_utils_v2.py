@@ -97,4 +97,3 @@ def handle_template_step_name(
         step_dict["name_string_id"],
         name_map,
     )
-    )

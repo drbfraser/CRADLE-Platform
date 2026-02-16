@@ -27,7 +27,7 @@ class WorkflowClassificationPatchModel(CradleBaseModel, extra="forbid"):
 
 
 class GetWorkflowTemplatesQuery(CradleBaseModel):
-    """Query params for GET /workflow/templates — matches FormsV2 pattern."""
+    """Query params for GET /workflow/templates."""
 
     archived: bool = Field(
         False, description="If true, include archived templates."
@@ -35,13 +35,11 @@ class GetWorkflowTemplatesQuery(CradleBaseModel):
     classification_id: Optional[str] = Field(
         None, description="Filter by classification ID."
     )
-    lang: str = Field("English", description="Language for resolved names.")
 
 
 class GetWorkflowClassificationsQuery(CradleBaseModel):
     """Query params for GET /workflow/classifications."""
-
-    lang: str = Field("English", description="Language for resolved names.")
+    pass
 
 
 class WorkflowCollectionUploadModel(WorkflowCollectionModel):
