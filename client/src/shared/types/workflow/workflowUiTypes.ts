@@ -28,6 +28,7 @@ export type WorkflowPath = {
   branch: InstanceStep[];
   length: number; 
   hasCycle: boolean;
+  trimmed: boolean;
 }
 
 export type PossibleStep = {
