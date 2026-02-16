@@ -80,7 +80,6 @@ class WorkflowTemplateOrm(db.Model):
     __tablename__ = "workflow_template"
     id = db.Column(db.String(50), primary_key=True,
                    nullable=False, default=get_uuid)
-    name_string_id = db.Column(db.String(50), index=True, nullable=True)
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(

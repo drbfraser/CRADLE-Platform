@@ -1582,18 +1582,8 @@ def create_simple_workflow_template(
 
     classification_id = create_simple_workflow_classification()
 
-    template_name_string_id = get_uuid()
-    db.session.add(
-        LangVersionOrmV2(
-            string_id=template_name_string_id,
-            lang="English",
-            text="Simple Workflow Template",
-        )
-    )
-
     workflow_template = {
         "id": workflow_template_id,
-        "name_string_id": template_name_string_id,
         "description": "Collect name from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
@@ -1659,18 +1649,8 @@ def create_simple_workflow_template_with_branching(
 
     classification_id = create_simple_workflow_classification()
 
-    template_name_string_id = get_uuid()
-    db.session.add(
-        LangVersionOrmV2(
-            string_id=template_name_string_id,
-            lang="English",
-            text="Branching Workflow Template",
-        )
-    )
-
     workflow_template = {
         "id": workflow_template_id,
-        "name_string_id": template_name_string_id,
         "description": "Collect name from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
@@ -1865,17 +1845,8 @@ def create_complex_workflow_template():
 
     create_complex_workflow_classification()
 
-    db.session.add(
-        LangVersionOrmV2(
-            string_id="papagaio_template_name",
-            lang="English",
-            text="PAPAGAIO Research Study",
-        )
-    )
-
     papagaio_study_workflow_template = {
         "id": "papagaio_study_workflow_template",
-        "name_string_id": "papagaio_template_name",
         "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
         "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
         "archived": True,

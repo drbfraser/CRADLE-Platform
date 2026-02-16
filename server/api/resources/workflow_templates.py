@@ -66,22 +66,18 @@ def _resolve_template_names(
     Resolve ``name_string_id`` values to human-readable name strings
     in a marshalled template response dict.  Mutates *data* in place.
 
-    Follows the FormsV2 pattern: list / detail endpoints return
-    ``"name": "ANC"`` (a plain string) rather than a multilang dict.
-
-    Template name is resolved from its own ``name_string_id`` first;
-    falls back to the classification's name for legacy templates that
-    don't have their own name yet.
+    Follows the FormsV2 pattern: templates do NOT have their own name.
+    The display name is always derived from the classification's
+    ``name_string_id``.
     """
-    # Template "name" from its own name_string_id (preferred).
-    if data.get("name_string_id"):
-        data["name"] = workflow_utils_v2.resolve_name(
-            data["name_string_id"], lang
-        )
-    elif template_orm and template_orm.classification:
-        # Fallback: derive from classification for legacy templates.
+    # Template name comes from classification
+    if template_orm and template_orm.classification:
         data["name"] = workflow_utils_v2.resolve_name(
             template_orm.classification.name_string_id, lang
+        )
+    elif data.get("classification") and data["classification"].get("name_string_id"):
+        data["name"] = workflow_utils_v2.resolve_name(
+            data["classification"]["name_string_id"], lang
         )
 
     # Classification sub-object
@@ -227,9 +223,8 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
                 del workflow_template_step["name"]
 
     # Handle multi-lang name for the template itself
-    workflow_utils_v2.handle_template_name(workflow_template_dict)
-
-    # Remove transient 'name' key; name_string_id is what the ORM stores
+    # Templates don't have their own name — name comes from classification.
+    # Remove transient 'name' key so the ORM doesn't choke.
     if "name" in workflow_template_dict:
         del workflow_template_dict["name"]
 
@@ -314,20 +309,6 @@ def get_workflow_templates(query: GetWorkflowTemplatesQuery):
     for template in workflow_templates:
         data = orm_serializer.marshal(template, shallow=True)
         _resolve_template_names(data, template, lang=query.lang)
-
-        # Include all translations so the frontend can show the correct name per language row.
-        name_sid = data.get("name_string_id") or (
-            template.classification.name_string_id
-            if template.classification else None
-        )
-        if name_sid:
-            multilang = workflow_utils_v2.resolve_multilang_name(name_sid)
-            data["available_languages"] = sorted(multilang.keys())
-            data["name_translations"] = multilang
-        else:
-            data["available_languages"] = []
-            data["name_translations"] = {}
-
         response_data.append(data)
 
     return {"items": response_data}, 200
@@ -361,17 +342,6 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     response_data = orm_serializer.marshal(
         obj=workflow_template, shallow=False)
     _resolve_template_names(response_data, workflow_template, lang=lang)
-
-    # Include the list of languages the template name has been translated into.
-    name_sid = response_data.get("name_string_id") or (
-        workflow_template.classification.name_string_id
-        if workflow_template.classification else None
-    )
-    if name_sid:
-        multilang = workflow_utils_v2.resolve_multilang_name(name_sid)
-        response_data["available_languages"] = sorted(multilang.keys())
-    else:
-        response_data["available_languages"] = []
 
     if not with_steps:
         del response_data["steps"]
@@ -488,8 +458,8 @@ def update_workflow_template_patch(
             ),
         )
 
-    # ── Extract name payload (don't persist translations yet) ──
-    name_payload = body_dict.pop("name", None)
+    # ── Extract name payload (templates don't have their own name) ──
+    body_dict.pop("name", None)
 
     # If the request body includes a new workflow classification, process it
     if body_dict.get("classification") is not None:
@@ -520,17 +490,6 @@ def update_workflow_template_patch(
         )
 
     # ── Now safe to persist translations (validation passed) ──
-
-    # Handle template name update
-    if name_payload:
-        template_name_update = {
-            "name": name_payload,
-            "name_string_id": workflow_template.name_string_id,
-        }
-        workflow_utils_v2.handle_template_name(
-            template_name_update, new_template=False)
-        # Propagate the (possibly newly created) name_string_id into the patch
-        body_dict["name_string_id"] = template_name_update["name_string_id"]
 
     # Handle step name translations
     if body_dict.get("steps"):
@@ -673,13 +632,9 @@ def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
 
     # Write template data
     writer.writerow(["ID", workflow_template.id])
-    # Resolve template name from its own name_string_id, falling back to classification
+    # Resolve template name from classification
     template_name = ""
-    if workflow_template.name_string_id:
-        template_name = workflow_utils_v2.resolve_name(
-            workflow_template.name_string_id
-        ) or ""
-    elif (
+    if (
         workflow_template.classification
         and workflow_template.classification.name_string_id
     ):

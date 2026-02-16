@@ -97,34 +97,4 @@ def handle_template_step_name(
         step_dict["name_string_id"],
         name_map,
     )
-
-
-def handle_template_name(
-    template_dict: dict,
-    new_template: bool = True,
-) -> None:
-    """
-    Handles the name of a workflow template.
-
-    Accepts name as either:
-      - MultiLangText dict (e.g. {"English": "Prenatal Checkup"})
-      - Plain string (treated as English)
-      - None (no-op; name_string_id will remain as-is)
-
-    Upserts translations into lang_version_v2 via the shared FormsV2 utility.
-    """
-    from common import form_utils
-
-    if template_dict.get("name") is None:
-        return
-
-    if template_dict.get("name_string_id") is None:
-        template_dict["name_string_id"] = commonUtil.get_uuid()
-
-    name = template_dict["name"]
-    name_map = name if isinstance(name, dict) else {"English": name}
-
-    form_utils.upsert_multilang_versions(
-        template_dict["name_string_id"],
-        name_map,
     )
