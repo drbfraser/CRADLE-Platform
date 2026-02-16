@@ -223,8 +223,8 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
         form = __unmarshal_form_template(d.get("form"))
         del d["form"]
 
-    # Strip "name" (MultiLangText) – it's a virtual field handled by the API layer
-    # via workflow_utils_v2, not a DB column on WorkflowTemplateStepOrm.
+    # Strip "name" – it's a virtual API-input field (not a DB column).
+    # The API layer (workflow_utils_v2) converts it to name_string_id.
     d.pop("name", None)
 
     workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
@@ -254,7 +254,7 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
 
         if d.get("classification") is not None:
             classification_dict = d.get("classification")
-            # Strip "name" (MultiLangText) – handled by the API layer
+            # Strip "name" – handled by the API layer (workflow_utils_v2)
             classification_dict.pop("name", None)
             classification = __load(
                 WorkflowClassificationOrm, classification_dict)

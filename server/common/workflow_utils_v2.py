@@ -21,22 +21,6 @@ def resolve_name(string_id: str, lang: str = "English") -> str | None:
     return form_utils.resolve_string_text(string_id, lang)
 
 
-def resolve_multilang_name(string_id: str) -> dict[str, str]:
-    """
-    Resolve **all** language translations for a given string_id.
-
-    Returns ``{"English": "ANC", "French": "CPN", …}``.
-    Useful for edit / detail views that need every translation at once.
-    Most list endpoints should prefer :func:`resolve_name` instead.
-    """
-    from common import form_utils
-
-    if not string_id:
-        return {}
-    translations = form_utils.read_all_translations(string_id)
-    return {t.lang: t.text for t in translations}
-
-
 def handle_classification_name(
     classification_dict: dict,
     new_classification: bool = True,

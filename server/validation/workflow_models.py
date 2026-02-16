@@ -67,7 +67,6 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[MultiLangText] = None
     description: str
     archived: bool
     starting_step_id: Optional[str] = None

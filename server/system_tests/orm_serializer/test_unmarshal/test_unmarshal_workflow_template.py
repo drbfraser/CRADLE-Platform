@@ -45,7 +45,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
         expected_completion=3_600,
         last_edited=1_700_200_001,
     )
-    # Replace multilang name with ORM field
+    # Strip virtual "name" field; set the ORM column directly
     step1.pop("name", None)
     step1["name_string_id"] = "ns-registration"
 

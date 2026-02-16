@@ -50,7 +50,7 @@ def test_unmarshal_step_with_form_and_branches():
         expected_completion=3_600,
         last_edited=1_700_100_000,
     )
-    # Replace multilang name with ORM field
+    # Strip virtual "name" field; set the ORM column directly
     payload.pop("name", None)
     payload["name_string_id"] = "ns-registration"
 

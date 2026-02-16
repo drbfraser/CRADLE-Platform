@@ -142,20 +142,20 @@ class WorkflowService:
         """
         Insert or update a workflow template in the database.
 
-        Handles MultiLangText-to-name_string_id conversion for classification
-        and step names before writing to the DB.
+        Converts classification and step names to name_string_id
+        (via lang_version_v2) before writing to the DB.
         """
         workflow_template.last_edited = get_current_time()
 
         template_dict = workflow_template.model_dump()
 
-        # Handle classification multilang name → name_string_id
+        # Convert classification name → name_string_id
         if template_dict.get("classification") is not None:
             workflow_utils_v2.handle_classification_name(
                 template_dict["classification"], new_classification=True
             )
 
-        # Handle step multilang names → name_string_id
+        # Convert step names → name_string_id
         for step_dict in template_dict.get("steps", []):
             step_dict["last_edited"] = get_current_time()
             workflow_utils_v2.handle_template_step_name(step_dict)
