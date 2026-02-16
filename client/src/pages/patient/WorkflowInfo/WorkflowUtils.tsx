@@ -198,6 +198,7 @@ export function getWorkflowStepHistory(
  * - Steps that are already completed or active are not included in the possible steps
  * - Cycles are handled by keeping track of visited steps (for handling future cyclical workflow implementation)
  * - TODO: account for "trimmed" branches (branches not taken)
+ * - TODO: handle edge cases caused by overriding steps (e.g. skipping back and forth between branches)
  */
 function getWorkflowPossibleSteps(
   instance: InstanceStep[],
