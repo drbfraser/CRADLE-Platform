@@ -197,6 +197,7 @@ export function getWorkflowStepHistory(
  * - For branches, the order is determined by the order in the template's branches array
  * - Steps that are already completed or active are not included in the possible steps
  * - Cycles are handled by keeping track of visited steps (for handling future cyclical workflow implementation)
+ * - TODO: account for "trimmed" branches (branches not taken)
  */
 function getWorkflowPossibleSteps(
   instance: InstanceStep[],
@@ -227,11 +228,11 @@ function getWorkflowPossibleSteps(
     const step = templateStepMap[stepId]; 
     if (!step) return [];
 
-    // Account for cycles
+    // Possibly a cycle or a repeated step
     if (visited.has(stepId)) {
       return [ 
         { 
-          branch: [instanceStepMap[stepId]], 
+          branch: [], 
           length: 1, 
           hasCycle: true 
         } 
@@ -288,6 +289,11 @@ function getWorkflowPossibleSteps(
       }
       return { ...path, branch: newBranch }; 
     });
+
+    // TODO: also handle empty paths after deduplication (e.g. in cyclical workflows where all future steps are already seen/completed)
+    if (deduped.every(path => path.branch.length === 0)) {
+      return [];
+    }
 
   return deduped;
 }
