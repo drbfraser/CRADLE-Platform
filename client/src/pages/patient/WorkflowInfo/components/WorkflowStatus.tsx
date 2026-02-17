@@ -75,11 +75,10 @@ export default function WorkflowStatus(props: {
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
                   {progressInfo.completed} /{' '}
-                  {
-                    workflowInstance.workflowCompletedOn
-                      ? progressInfo.completed
-                      : progressInfo.completed + workflowInstance.possibleSteps[0]?.length || 0
-                  }
+                  {workflowInstance.workflowCompletedOn
+                    ? progressInfo.completed
+                    : progressInfo.completed +
+                        workflowInstance.possibleSteps[0]?.length || 0}
                   {workflowInstance.workflowCompletedOn ? '' : '+'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -87,10 +86,13 @@ export default function WorkflowStatus(props: {
                   {workflowInstance.workflowCompletedOn
                     ? 'All steps completed'
                     : 'At least ' +
-                      (workflowInstance.possibleSteps[0]?.length || workflowInstance.steps.length - progressInfo.completed) +
+                      (workflowInstance.possibleSteps[0]?.length ||
+                        workflowInstance.steps.length -
+                          progressInfo.completed) +
                       ' more step' +
-                      (workflowInstance.possibleSteps[0]?.length || workflowInstance.steps.length - progressInfo.completed !==
-                      1
+                      (workflowInstance.possibleSteps[0]?.length ||
+                      workflowInstance.steps.length - progressInfo.completed !==
+                        1
                         ? 's'
                         : '') +
                       ' remaining'}

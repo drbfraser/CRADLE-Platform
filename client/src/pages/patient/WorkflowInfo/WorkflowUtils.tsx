@@ -175,9 +175,7 @@ export function buildInstanceDetails(
  *  - Then completed steps in reverse chronological order (most recent first)
  *  - Possible steps are not returned
  */
-export function getWorkflowStepHistory(
-  steps: InstanceStep[]
-): InstanceStep[] {
+export function getWorkflowStepHistory(steps: InstanceStep[]): InstanceStep[] {
   return [
     ...steps.filter((s) => s.status === StepStatus.ACTIVE), // get active step(s)
     ...steps // append completed steps in reverse chronological order
@@ -205,10 +203,16 @@ function getWorkflowPossibleSteps(
   template: WorkflowTemplate
 ): WorkflowPath[] {
   const currentStep = instance.find((s) => s.status === StepStatus.ACTIVE);
-  const completedSteps = instance.filter((s) => s.status === StepStatus.COMPLETED);
+  const completedSteps = instance.filter(
+    (s) => s.status === StepStatus.COMPLETED
+  );
   const possibleSteps = instance.filter((s) => s.status === StepStatus.PENDING);
-  const templateStepMap = Object.fromEntries( template.steps.map(s => [s.id, s]) );
-  const instanceStepMap = Object.fromEntries( instance.map(s => [s.workflowTemplateStepId, s]) );
+  const templateStepMap = Object.fromEntries(
+    template.steps.map((s) => [s.id, s])
+  );
+  const instanceStepMap = Object.fromEntries(
+    instance.map((s) => [s.workflowTemplateStepId, s])
+  );
   const visited = new Set<string>();
 
   for (const s of completedSteps) {
@@ -224,95 +228,103 @@ function getWorkflowPossibleSteps(
     stepId: string,
     templateStepMap: Record<string, WorkflowTemplateStep>,
     instanceStepMap: Record<string, InstanceStep>,
-    visited: Set<string>,
-  ): WorkflowPath[]{
-    const step = templateStepMap[stepId]; 
+    visited: Set<string>
+  ): WorkflowPath[] {
+    const step = templateStepMap[stepId];
     if (!step) return [];
 
     // Possibly a cycle or a repeated step
     if (visited.has(stepId)) {
-      return [ 
-        { 
-          branch: [], 
-          length: 1, 
+      return [
+        {
+          branch: [],
+          length: 1,
           hasCycle: true,
-          trimmed: false
-        } 
-      ]; 
+          trimmed: false,
+        },
+      ];
     }
 
-    const nextVisited = new Set(visited); 
+    const nextVisited = new Set(visited);
     nextVisited.add(stepId);
 
     // Leaf node (possible step)
-    if (!step.branches || step.branches.length === 0) { 
-      return [ 
-        { 
-          branch: [instanceStepMap[stepId]], 
-          length: 1, 
+    if (!step.branches || step.branches.length === 0) {
+      return [
+        {
+          branch: [instanceStepMap[stepId]],
+          length: 1,
           hasCycle: false,
-          trimmed: false
-        } 
-      ]; 
+          trimmed: false,
+        },
+      ];
     }
 
-    const paths: WorkflowPath[] = []; 
-    for (const br of step.branches) { 
-      const subPaths = dfs(br.targetStepId, templateStepMap, instanceStepMap, nextVisited); 
-      
-      for (const sub of subPaths) { 
-        paths.push(
-          { 
-            branch: [instanceStepMap[stepId], ...sub.branch], 
-            length: sub.length + 1, 
-            hasCycle: sub.hasCycle,
-            trimmed: false
-          }
-        ); 
-      } 
-    } 
-        
+    const paths: WorkflowPath[] = [];
+    for (const br of step.branches) {
+      const subPaths = dfs(
+        br.targetStepId,
+        templateStepMap,
+        instanceStepMap,
+        nextVisited
+      );
+
+      for (const sub of subPaths) {
+        paths.push({
+          branch: [instanceStepMap[stepId], ...sub.branch],
+          length: sub.length + 1,
+          hasCycle: sub.hasCycle,
+          trimmed: false,
+        });
+      }
+    }
+
     return paths;
   }
 
-  const rawPaths = dfs( 
-    currentStep ? currentStep.workflowTemplateStepId : instance[0].workflowTemplateStepId, // TODO: better handling of no active step case
-    templateStepMap, 
-    instanceStepMap, 
-    visited ).sort((a, b) => a.length - b.length);
-    
-    // Deduplicate steps that appear in multiple paths (e.g. due to cycles or converging/diverging branches)
-    const globallySeen = new Set<string>(); 
-    const possibleStepsSeen = new Set<string>(); // for finding possible steps unseen in any path (e.g. due to trimming or skipping)
-    const deduped = rawPaths.map(path => { 
-      const newBranch: InstanceStep[] = []; 
-      for (const step of path.branch) { 
-        if (!possibleStepsSeen.has(step.id)) {
-          possibleStepsSeen.add(step.id);
-        }
-        if (!globallySeen.has(step.id) && step.status !== StepStatus.ACTIVE) { 
-          globallySeen.add(step.id); 
-          newBranch.push(step); 
-        } 
+  const rawPaths = dfs(
+    currentStep
+      ? currentStep.workflowTemplateStepId
+      : instance[0].workflowTemplateStepId, // TODO: better handling of no active step case
+    templateStepMap,
+    instanceStepMap,
+    visited
+  ).sort((a, b) => a.length - b.length);
+
+  // Deduplicate steps that appear in multiple paths (e.g. due to cycles or converging/diverging branches)
+  const globallySeen = new Set<string>();
+  const possibleStepsSeen = new Set<string>(); // for finding possible steps unseen in any path (e.g. due to trimming or skipping)
+  const deduped = rawPaths.map((path) => {
+    const newBranch: InstanceStep[] = [];
+    for (const step of path.branch) {
+      if (!possibleStepsSeen.has(step.id)) {
+        possibleStepsSeen.add(step.id);
       }
-      return { ...path, branch: newBranch }; 
+      if (!globallySeen.has(step.id) && step.status !== StepStatus.ACTIVE) {
+        globallySeen.add(step.id);
+        newBranch.push(step);
+      }
+    }
+    return { ...path, branch: newBranch };
+  });
+
+  const remainingPossibleSteps = possibleSteps.filter(
+    (step) => !possibleStepsSeen.has(step.id)
+  );
+
+  if (remainingPossibleSteps.length > 0) {
+    deduped.push({
+      branch: remainingPossibleSteps,
+      length: remainingPossibleSteps.length,
+      hasCycle: false,
+      trimmed: true,
     });
+  }
 
-    const remainingPossibleSteps = possibleSteps.filter(step => !possibleStepsSeen.has(step.id));
-
-    if (remainingPossibleSteps.length > 0) {
-      deduped.push({
-        branch: remainingPossibleSteps, 
-        length: remainingPossibleSteps.length,
-        hasCycle: false,
-        trimmed: true
-      });
-    }
-
-    // TODO: also handle partially empty paths after deduplication
-    if (deduped.every(path => path.branch.length === 0)) {
-      return [];
-    }
+  // TODO: also handle partially empty paths after deduplication
+  if (deduped.every((path) => path.branch.length === 0)) {
+    return [];
+  }
 
   return deduped;
 }

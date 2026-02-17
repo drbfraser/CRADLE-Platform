@@ -5,7 +5,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Badge,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -43,8 +42,8 @@ export default function WorkflowPossibleSteps(props: {
           ) : (
             <>
               <List disablePadding>
-                {workflowInstance.possibleSteps.map((path) => (
-                  path.branch.map((step) =>(
+                {workflowInstance.possibleSteps.map((path) =>
+                  path.branch.map((step) => (
                     <ListItem
                       key={step.id}
                       sx={{
@@ -92,7 +91,7 @@ export default function WorkflowPossibleSteps(props: {
                       </Box>
                     </ListItem>
                   ))
-                ))}
+                )}
               </List>
               <Typography
                 variant="caption"
