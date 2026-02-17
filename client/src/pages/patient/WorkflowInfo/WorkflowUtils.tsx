@@ -187,6 +187,7 @@ export function getWorkflowStepHistory(
       )
       .sort(
         (a, b) =>
+          // TODO: sort by completedOn date is inaccurate for steps completed on the same day - consider adding completedOn time to backend
           new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()
       ),
   ];
@@ -278,7 +279,7 @@ function getWorkflowPossibleSteps(
     currentStep ? currentStep.workflowTemplateStepId : instance[0].workflowTemplateStepId, // TODO: better handling of no active step case
     templateStepMap, 
     instanceStepMap, 
-    visited ); 
+    visited ).sort((a, b) => a.length - b.length);
     
     // Deduplicate steps that appear in multiple paths (e.g. due to cycles or converging/diverging branches)
     const globallySeen = new Set<string>(); 
