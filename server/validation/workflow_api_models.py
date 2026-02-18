@@ -123,7 +123,7 @@ class WorkflowVariableCatalogueItemModel(CradleBaseModel, extra="forbid"):
     description: Optional[str] = None
     type: str
     namespace: Optional[str] = None
-    container_name: Optional[str] = None
+    collection_name: Optional[str] = None
     field_path: Optional[List[str]] = None
     is_computed: bool = False
     is_dynamic: bool = False

@@ -1,7 +1,7 @@
 """
 Workflow variable catalogue API.
 
-GET /api/workflow/variables - List available variables (optional filters: namespace, type, container)
+GET /api/workflow/variables - List available variables (optional filters: namespace, type, collection)
 GET /api/workflow/variables/<variable_tag> - Get a single variable by tag
 """
 
@@ -46,20 +46,20 @@ def _orm_to_item_model(orm: WorkflowVariableCatalogueOrm) -> WorkflowVariableCat
         description=orm.description or None,
         type=orm.variable_type.value if hasattr(orm.variable_type, "value") else str(orm.variable_type),
         namespace=orm.namespace or None,
-        container_name=orm.container_name or None,
+        collection_name=orm.collection_name or None,
         field_path=field_path_list,
         is_computed=orm.is_computed or False,
         is_dynamic=orm.is_dynamic or False,
     )
 
 
-# GET /api/workflow/variables?namespace=&type=&container=
+# GET /api/workflow/variables?namespace=&type=&collection=
 @api_workflow_variables.get("", responses={200: GetWorkflowVariablesResponse})
 def get_workflow_variables():
     """List all available workflow variables with optional filters."""
     namespace = request.args.get("namespace", type=str) or None
     type_filter = request.args.get("type", type=str) or None
-    container = request.args.get("container", type=str) or None
+    collection = request.args.get("collection", type=str) or None
 
     query = WorkflowVariableCatalogueOrm.query
     if namespace is not None:
@@ -71,8 +71,8 @@ def get_workflow_variables():
             )
         except ValueError:
             query = query.filter(False)  # invalid type -> no matches
-    if container is not None:
-        query = query.filter(WorkflowVariableCatalogueOrm.container_name == container)
+    if collection is not None:
+        query = query.filter(WorkflowVariableCatalogueOrm.collection_name == collection)
 
     rows = query.all()
     variables = [_orm_to_item_model(row) for row in rows]

@@ -104,7 +104,7 @@ class WorkflowVariableTypeEnum(StrEnum):
     STRING = "string"
     DATE = "date"
     BOOLEAN = "boolean"
-    CONTAINER = "container"
+    COLLECTION = "collection"
 
 
 class WorkflowInstanceDataFieldTypeEnum(StrEnum):

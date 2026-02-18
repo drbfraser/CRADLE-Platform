@@ -298,7 +298,7 @@ class WorkflowVariableCatalogueOrm(db.Model):
         nullable=False,
     )
     namespace = db.Column(db.String(100), nullable=True, index=True)
-    container_name = db.Column(db.String(100), nullable=True)
+    collection_name = db.Column(db.String(100), nullable=True)
     field_path = db.Column(db.Text, nullable=True)  # JSON array e.g. ["systolic"]
     is_computed = db.Column(db.Boolean, nullable=False, default=False)
     is_dynamic = db.Column(db.Boolean, nullable=False, default=False)
