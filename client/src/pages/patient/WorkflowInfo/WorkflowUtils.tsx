@@ -16,15 +16,23 @@ import {
   WorkflowNextStepOption,
   WorkflowPath,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import { formatISODateNumber } from 'src/shared/utils';
+import {
+  formatISODateNumber,
+  formatISODateNumberWithTime,
+  getDateFromStringTimestamp,
+} from 'src/shared/utils';
 
 export const formatWorkflowStepStatusText = (s: InstanceStep) => {
   if (s.status === StepStatus.COMPLETED && s.completedOn) {
-    return `Status: Completed, Completed on: ${s.completedOn}`;
+    return `Status: Completed, Completed on: ${getDateFromStringTimestamp(
+      s.completedOn
+    )}`;
   }
   if (s.status === StepStatus.ACTIVE) {
     return `Status: In Progress${
-      s.startedOn ? `, Started on: ${s.startedOn}` : ''
+      s.startedOn
+        ? `, Started on: ${getDateFromStringTimestamp(s.startedOn)}`
+        : ''
     }`;
   }
   return 'Status: Possible future step';
@@ -114,9 +122,9 @@ export function mapWorkflowStep(
     id: apiStep.id,
     title: apiStep.name,
     status: apiStep.status,
-    startedOn: formatISODateNumber(apiStep.startDate),
+    startedOn: formatISODateNumberWithTime(apiStep.startDate),
     completedOn: apiStep.completionDate
-      ? formatISODateNumber(apiStep.completionDate)
+      ? formatISODateNumberWithTime(apiStep.completionDate)
       : null,
     description: apiStep.description,
     expectedCompletion: apiStep.expectedCompletion
@@ -184,9 +192,7 @@ export function getWorkflowStepHistory(steps: InstanceStep[]): InstanceStep[] {
           step.completedOn !== null
       )
       .sort(
-        (a, b) =>
-          // TODO: sort by completedOn date is inaccurate for steps completed on the same day - consider adding completedOn time to backend
-          new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()
+        (a, b) => b.completedOn.localeCompare(a.completedOn) // using string comparison since dates are string ISO format
       ),
   ];
 }
