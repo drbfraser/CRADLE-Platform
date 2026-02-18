@@ -114,7 +114,9 @@ class ApplyActionRequest(CradleBaseModel):
 class OverrideCurrentStepRequest(CradleBaseModel):
     workflow_instance_step_id: str
 
+
 # Workflow Variable Catalogue
+
 
 class WorkflowVariableCatalogueItemModel(CradleBaseModel, extra="forbid"):
     """Single variable entry in the catalogue"""

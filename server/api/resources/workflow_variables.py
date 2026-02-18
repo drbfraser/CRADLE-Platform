@@ -26,12 +26,19 @@ api_workflow_variables = APIBlueprint(
     name="workflow_variables",
     import_name=__name__,
     url_prefix="/workflow/variables",
-    abp_tags=[Tag(name="Workflow Variables", description="Variable catalogue for workflow rules")],
+    abp_tags=[
+        Tag(
+            name="Workflow Variables",
+            description="Variable catalogue for workflow rules",
+        )
+    ],
     abp_security=[{"jwt": []}],
 )
 
 
-def _orm_to_item_model(orm: WorkflowVariableCatalogueOrm) -> WorkflowVariableCatalogueItemModel:
+def _orm_to_item_model(
+    orm: WorkflowVariableCatalogueOrm,
+) -> WorkflowVariableCatalogueItemModel:
     """Build API model from ORM; parse field_path JSON if present."""
     field_path_list: Optional[list] = None
     if orm.field_path:
@@ -44,7 +51,9 @@ def _orm_to_item_model(orm: WorkflowVariableCatalogueOrm) -> WorkflowVariableCat
     return WorkflowVariableCatalogueItemModel(
         tag=orm.tag,
         description=orm.description or None,
-        type=orm.variable_type.value if hasattr(orm.variable_type, "value") else str(orm.variable_type),
+        type=orm.variable_type.value
+        if hasattr(orm.variable_type, "value")
+        else str(orm.variable_type),
         namespace=orm.namespace or None,
         collection_name=orm.collection_name or None,
         field_path=field_path_list,
@@ -67,7 +76,8 @@ def get_workflow_variables():
     if type_filter is not None:
         try:
             query = query.filter(
-                WorkflowVariableCatalogueOrm.variable_type == WorkflowVariableTypeEnum(type_filter)
+                WorkflowVariableCatalogueOrm.variable_type
+                == WorkflowVariableTypeEnum(type_filter)
             )
         except ValueError:
             query = query.filter(False)  # invalid type -> no matches
