@@ -3,7 +3,10 @@ import {
   WORKFLOW_INSTANCE_TEST_DATA,
   WORKFLOW_TEMPLATE_TEST_DATA,
 } from '../testData';
-import { formatISODateNumber, formatISODateNumberWithTime } from 'src/shared/utils';
+import {
+  formatISODateNumber,
+  formatISODateNumberWithTime,
+} from 'src/shared/utils';
 import { getPatientInfoAsync } from 'src/shared/api';
 import {
   buildInstanceDetails,
@@ -43,7 +46,9 @@ describe('mapWorkflowStep', () => {
       id: testWorkflowInstanceStep.id,
       title: testWorkflowInstanceStep.name,
       status: testWorkflowInstanceStep.status,
-      startedOn: formatISODateNumberWithTime(testWorkflowInstanceStep.startDate),
+      startedOn: formatISODateNumberWithTime(
+        testWorkflowInstanceStep.startDate
+      ),
       completedOn: formatISODateNumberWithTime(
         testWorkflowInstanceStep.completionDate!
       ),
