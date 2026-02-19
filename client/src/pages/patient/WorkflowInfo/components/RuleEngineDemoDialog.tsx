@@ -201,8 +201,8 @@ export default function RuleEngineDemoDialog({
                               branch.status === 'TRUE'
                                 ? 'success.light'
                                 : branch.status === 'FALSE'
-                                  ? 'error.light'
-                                  : 'warning.light',
+                                ? 'error.light'
+                                : 'warning.light',
                             opacity: branch.status === 'TRUE' ? 1 : 0.6,
                           }}>
                           <TableCell>

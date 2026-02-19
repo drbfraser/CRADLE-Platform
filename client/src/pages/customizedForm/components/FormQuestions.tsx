@@ -300,8 +300,8 @@ export const FormQuestions = ({
         const helperText = hook.stringMaxLinesError[question.order]
           ? 'Exceeds maximum number of lines'
           : question.stringMaxLines
-            ? `Maximum ${question.stringMaxLines} line(s) allowed`
-            : '';
+          ? `Maximum ${question.stringMaxLines} line(s) allowed`
+          : '';
         return (
           <Grid
             item
