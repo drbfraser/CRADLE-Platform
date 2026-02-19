@@ -125,8 +125,7 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
         assert key in b1_marshalled
     assert b1_marshalled["step_id"] == "wts-101"
     assert b1_marshalled["target_step_id"] == "wts-200"
-    assert "condition" in b1_marshalled and isinstance(
-        b1_marshalled["condition"], dict)
+    assert "condition" in b1_marshalled and isinstance(b1_marshalled["condition"], dict)
     assert b1_marshalled["condition"]["id"] == "rg-201"
     # We intentionally do NOT assert that extra relationship keys (like 'step') are absent.
 
@@ -181,5 +180,11 @@ def test_workflow_template_step_marshal_shallow_tolerates_existing_branches_attr
     assert "expected_completion" not in marshalled
 
     # core fields present
-    for key in ("id", "name_string_id", "description", "last_edited", "workflow_template_id"):
+    for key in (
+        "id",
+        "name_string_id",
+        "description",
+        "last_edited",
+        "workflow_template_id",
+    ):
         assert key in marshalled

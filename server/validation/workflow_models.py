@@ -45,8 +45,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     name: str
     description: str
     # TODO: Should this be a relative time? e.g. 2 days?
-    expected_completion: Optional[int] = Field(
-        default_factory=get_current_time)
+    expected_completion: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     form_id: Optional[str] = None
     workflow_template_id: str

@@ -1,13 +1,14 @@
-"""Drop workflow_template name column
+"""
+Drop workflow_template name column
 
 Revision ID: 29_drop_workflow_template_name
 Revises: 28_restore_workflow_names
 Create Date: 2026-02-19 10:10:00.000000
 
 """
-from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from alembic import op
 
 revision = "29_drop_workflow_template_name"
 down_revision = "28_restore_workflow_names"
@@ -30,8 +31,7 @@ def _column_exists(table: str, column: str) -> bool:
 
 def upgrade():
     if _column_exists("workflow_template", "name"):
-        op.drop_index(op.f("ix_workflow_template_name"),
-                      table_name="workflow_template")
+        op.drop_index(op.f("ix_workflow_template_name"), table_name="workflow_template")
         op.drop_column("workflow_template", "name")
 
 

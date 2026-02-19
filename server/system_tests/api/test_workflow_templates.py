@@ -133,16 +133,13 @@ def test_getting_workflow_templates(
 
         workflow_template4["archived"] = True
 
-        api_post(endpoint="/api/workflow/templates/body",
-                 json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates/body",
-                 json=workflow_template3)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template3)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates/body",
-                 json=workflow_template4)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template4)
         database.session.commit()
 
         classification_id = workflow_template1["classification_id"]
@@ -211,8 +208,7 @@ def test_workflow_template_patch_request(
 ):
     updated_workflow_template = None
     try:
-        api_post(endpoint="/api/workflow/templates/body",
-                 json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
 
         changes = {

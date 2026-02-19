@@ -1,13 +1,14 @@
-"""Restore workflow name columns for classification and step
+"""
+Restore workflow name columns for classification and step
 
 Revision ID: 28_restore_workflow_names
 Revises: 27_drop_name_string_id
 Create Date: 2026-02-19 08:50:00.000000
 
 """
-from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "28_restore_workflow_names"
@@ -63,17 +64,29 @@ def upgrade():
         )
     )
 
-    op.alter_column("workflow_classification", "name",
-                    existing_type=sa.String(length=200), nullable=False)
-    op.alter_column("workflow_template_step", "name",
-                    existing_type=sa.String(length=200), nullable=False)
+    op.alter_column(
+        "workflow_classification",
+        "name",
+        existing_type=sa.String(length=200),
+        nullable=False,
+    )
+    op.alter_column(
+        "workflow_template_step",
+        "name",
+        existing_type=sa.String(length=200),
+        nullable=False,
+    )
 
-    op.drop_index(op.f("ix_workflow_classification_name_string_id"),
-                  table_name="workflow_classification")
+    op.drop_index(
+        op.f("ix_workflow_classification_name_string_id"),
+        table_name="workflow_classification",
+    )
     op.drop_column("workflow_classification", "name_string_id")
 
-    op.drop_index(op.f("ix_workflow_template_step_name_string_id"),
-                  table_name="workflow_template_step")
+    op.drop_index(
+        op.f("ix_workflow_template_step_name_string_id"),
+        table_name="workflow_template_step",
+    )
     op.drop_column("workflow_template_step", "name_string_id")
 
 
@@ -100,10 +113,12 @@ def downgrade():
         unique=False,
     )
 
-    op.drop_index(op.f("ix_workflow_template_step_name"),
-                  table_name="workflow_template_step")
+    op.drop_index(
+        op.f("ix_workflow_template_step_name"), table_name="workflow_template_step"
+    )
     op.drop_column("workflow_template_step", "name")
 
-    op.drop_index(op.f("ix_workflow_classification_name"),
-                  table_name="workflow_classification")
+    op.drop_index(
+        op.f("ix_workflow_classification_name"), table_name="workflow_classification"
+    )
     op.drop_column("workflow_classification", "name")

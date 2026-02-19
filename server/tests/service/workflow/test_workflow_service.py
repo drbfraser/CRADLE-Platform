@@ -43,8 +43,7 @@ def test_generate_workflow_instance():
 
     workflow_template = WorkflowTemplateModel(**workflow_template_dict)
 
-    workflow_instance = WorkflowService.generate_workflow_instance(
-        workflow_template)
+    workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
 
     assert workflow_instance.id is not None
     assert workflow_instance.name == workflow_template_dict["name"]
@@ -70,7 +69,6 @@ def test_generate_workflow_instance():
     assert actual_step_template_ids == expected_step_template_ids
 
     for step_instance in workflow_instance.steps:
-
         assert step_instance.id is not None
         assert step_instance.workflow_instance_id == workflow_instance.id
         assert step_instance.description is not None  # Leniant check for convenience
