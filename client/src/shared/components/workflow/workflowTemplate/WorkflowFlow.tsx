@@ -80,8 +80,10 @@ function calculateStepPositions(
       nextXAtLevel.set(level, x + HORIZONTAL_SPACING);
     } else {
       // PARENT NODE: Layout all children first
-      const childXPositions = step.branches.map((b) => layout(b.targetStepId, level + 1));
-      
+      const childXPositions = step.branches.map((b) =>
+        layout(b.targetStepId, level + 1)
+      );
+
       // Center parent over its children
       const minChildX = Math.min(...childXPositions);
       const maxChildX = Math.max(...childXPositions);
@@ -155,7 +157,6 @@ function preventNodeOverlaps(
       stepPositions.set(stepId, { x: pos.x + offset, y: pos.y });
     });
 
-
     //Global Centering Logic
     const levelNodes = new Map<number, string[]>();
     stepLevels.forEach((level, stepId) => {
@@ -164,21 +165,21 @@ function preventNodeOverlaps(
     });
 
     levelNodes.forEach((nodeIds) => {
-    const positions = nodeIds.map(id => stepPositions.get(id)!.x);
-    const minX = Math.min(...positions);
-    const maxX = Math.max(...positions);
-    
-    // Center this specific level horizontally around 0
-    const levelCenterOffset = (minX + maxX) / 2;
-      
-    nodeIds.forEach((stepId) => {
-      const currentPos = stepPositions.get(stepId)!;
-      stepPositions.set(stepId, {
-        x: currentPos.x - levelCenterOffset, // Shift nodes so level is centered at 0
-        y: currentPos.y
+      const positions = nodeIds.map((id) => stepPositions.get(id)!.x);
+      const minX = Math.min(...positions);
+      const maxX = Math.max(...positions);
+
+      // Center this specific level horizontally around 0
+      const levelCenterOffset = (minX + maxX) / 2;
+
+      nodeIds.forEach((stepId) => {
+        const currentPos = stepPositions.get(stepId)!;
+        stepPositions.set(stepId, {
+          x: currentPos.x - levelCenterOffset, // Shift nodes so level is centered at 0
+          y: currentPos.y,
         });
       });
-    })
+    });
   });
 }
 
@@ -286,8 +287,11 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
 
     const stepLevels = calculateNodeLevels(steps, firstStepId);
 
-    const stepPositions = calculateStepPositions(steps, firstStepId, stepLevels);
-    
+    const stepPositions = calculateStepPositions(
+      steps,
+      firstStepId,
+      stepLevels
+    );
 
     preventNodeOverlaps(stepLevels, stepPositions);
 

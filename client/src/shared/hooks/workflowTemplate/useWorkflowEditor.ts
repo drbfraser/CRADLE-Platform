@@ -143,7 +143,11 @@ export const useWorkflowEditor = ({
       ...currentStep,
       branches: [
         ...(currentStep.branches || []),
-        { stepId: currentStep.id, targetStepId: newStepId, condition: undefined }
+        {
+          stepId: currentStep.id,
+          targetStepId: newStepId,
+          condition: undefined,
+        },
       ],
     };
 
