@@ -128,35 +128,23 @@ export const useWorkflowEditor = ({
       .toString(36)
       .substr(2, 9)}`;
 
-    // Determine the next step connections
-    const newStepBranches =
-      currentStep.branches && currentStep.branches.length > 0
-        ? currentStep.branches.map((branch) => ({
-            ...branch,
-            stepId: newStepId,
-          }))
-        : [];
-
-    // Create a new step
+    // Create the new node (it starts with no children of its own)
     const newStep = {
       id: newStepId,
       name: DEFAULT_STEP_NAME,
       description: DEFAULT_STEP_DESCRIPTION,
       lastEdited: Date.now(),
       workflowTemplateId: editedWorkflow.id,
-      branches: newStepBranches,
+      branches: [],
     };
 
-    // Update current step to point all its branches to the new step
+    //always append the new ID to the existing branches array
     const updatedCurrentStep = {
       ...currentStep,
-      branches:
-        currentStep.branches && currentStep.branches.length > 0
-          ? currentStep.branches.map((branch) => ({
-              ...branch,
-              targetStepId: newStepId,
-            }))
-          : [{ stepId: currentStep.id, targetStepId: newStepId }],
+      branches: [
+        ...(currentStep.branches || []),
+        { stepId: currentStep.id, targetStepId: newStepId, condition: undefined }
+      ],
     };
 
     // Capture the new workflow state
