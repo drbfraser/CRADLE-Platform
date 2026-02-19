@@ -53,6 +53,19 @@ vi.mock('./mutations', () => ({
 
 describe('Workflow Table', () => {
   beforeAll(() => {
+    // Mock localStorage for tests
+    const mockLocalStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      length: 0,
+      key: vi.fn(),
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+    });
     localStorage.setItem('accessToken', createFakeAccessToken());
   });
 

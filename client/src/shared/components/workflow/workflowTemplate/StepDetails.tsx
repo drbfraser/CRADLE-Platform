@@ -15,24 +15,16 @@ import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
-  steps: WorkflowTemplateStepWithFormAndIndex[];
   isInstance?: boolean;
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
-  onBranchChange?: (
-    stepId: string,
-    branchIndex: number,
-    conditionRule: string
-  ) => void;
 }
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
   selectedStep,
-  steps,
   isInstance = false,
   isEditMode = false,
   onStepChange,
-  onBranchChange,
 }) => {
   // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({

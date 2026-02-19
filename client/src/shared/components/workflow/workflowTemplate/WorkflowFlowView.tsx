@@ -6,6 +6,7 @@ import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/
 import { ID } from 'src/shared/constants';
 import { WorkflowFlow } from './WorkflowFlow';
 import { StepDetails } from './StepDetails';
+import { BranchDetails } from './BranchDetails';
 
 interface WorkflowFlowViewProps {
   steps: WorkflowTemplateStepWithFormAndIndex[];
@@ -13,17 +14,24 @@ interface WorkflowFlowViewProps {
   isInstance?: boolean;
   isEditMode?: boolean;
   selectedStepId?: string;
+  selectedBranchIndex?: number;
   onStepChange?: (stepId: string, field: string, value: string) => void;
   onBranchChange?: (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => void;
   onStepSelect?: (stepId: string) => void;
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
   onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode?: (stepId: string) => void;
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void;
   // props for undo redo
   canUndo?: boolean;
   canRedo?: boolean;
@@ -37,6 +45,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   isInstance = false,
   isEditMode = false,
   selectedStepId: controlledSelectedStepId,
+  selectedBranchIndex,
   onStepChange,
   onBranchChange,
   onStepSelect,
@@ -44,6 +53,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  onAddRule,
   canUndo = false,
   canRedo = false,
   onUndo,
@@ -130,12 +140,13 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 onAddBranch={onAddBranch}
                 onConnectionCreate={onConnectionCreate}
                 onDeleteNode={onDeleteNode}
+                onAddRule={onAddRule}
               />
             </Box>
           </Paper>
         </Grid>
 
-        {/* Right side - Step Details */}
+        {/* Right side - Step Details or Branch Details */}
         <Grid item xs={12} md={4} sx={{ height: '100%' }}>
           <Box
             sx={{
@@ -144,14 +155,22 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
               borderRadius: 1,
               overflow: 'hidden',
             }}>
-            <StepDetails
-              selectedStep={selectedStep}
-              steps={steps}
-              isInstance={isInstance}
-              isEditMode={isEditMode}
-              onStepChange={onStepChange}
-              onBranchChange={onBranchChange}
-            />
+            {selectedBranchIndex !== undefined ? (
+              <BranchDetails
+                selectedStep={selectedStep}
+                selectedBranchIndex={selectedBranchIndex}
+                steps={steps}
+                isEditMode={isEditMode}
+                onBranchChange={onBranchChange}
+              />
+            ) : (
+              <StepDetails
+                selectedStep={selectedStep}
+                isInstance={isInstance}
+                isEditMode={isEditMode}
+                onStepChange={onStepChange}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>

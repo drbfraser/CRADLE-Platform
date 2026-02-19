@@ -15,7 +15,7 @@ env:
   HUB_USER: "${{ secrets.HUB_USER }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
   HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
-  NPM_VERSION: "7.0.0"
+  NPM_VERSION: "10.0.0"
   CUSTOM_WORKSPACE: /isolated-build/repo
   EMULATOR_PHONE_NUMBER: "+15555215556"
   # Keep npm's cache out of home directory (mounted from host)
@@ -28,14 +28,14 @@ jobs:
   display_github_contexts:
     runs-on: [self-hosted, docker]
     container:
-      image: node:18
+      image: node:20
     steps:
       - uses: bfraser/cicd/actions/debug_display_contexts@v1
 
   build-frontend:
     runs-on: [self-hosted, docker]
     container:
-      image: node:18
+      image: node:20
     timeout-minutes: 60
     outputs:
       frontend-artifact: frontend.tar.gz
@@ -65,7 +65,7 @@ jobs:
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
     container:
-      image: node:18
+      image: node:20
     env:
       # specify time zone for AWS CLI
       DEBIAN_FRONTEND: noninteractive
@@ -191,7 +191,7 @@ jobs:
   frontend-unit_tests:
     runs-on: [self-hosted, docker]
     container:
-      image: node:18
+      image: node:20
     steps:
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
@@ -340,7 +340,7 @@ jobs:
   frontend-lint-format:
     runs-on: [self-hosted, docker]
     container:
-      image: node:18
+      image: node:20
     steps:
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
@@ -351,13 +351,11 @@ jobs:
           npm install -g npm@$NPM_VERSION
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Install Prettier
-        run: npm install prettier@2.7.1 --global
       - name: Frontend Lint
         run: ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Frontend Format
-        run: prettier --check "src/**/*.{ts,tsx}"
+        run: ./node_modules/.bin/prettier --check "src/**/*.{ts,tsx}"
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
 
   backend_format:

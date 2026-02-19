@@ -23,7 +23,7 @@ WORKFLOW_VARIABLE_TYPE_ENUM = sa.Enum(
     "string",
     "date",
     "boolean",
-    "container",
+    "collection",
     name="workflowvariabletypeenum",
 )
 WORKFLOW_INSTANCE_DATA_FIELD_TYPE_ENUM = sa.Enum(
@@ -51,7 +51,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("namespace", sa.String(length=100), nullable=True),
-        sa.Column("container_name", sa.String(length=100), nullable=True),
+        sa.Column("collection_name", sa.String(length=100), nullable=True),
         sa.Column("field_path", sa.Text(), nullable=True),
         sa.Column("is_computed", sa.Boolean(), nullable=False, server_default="0"),
         sa.Column("is_dynamic", sa.Boolean(), nullable=False, server_default="0"),
