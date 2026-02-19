@@ -144,6 +144,7 @@ export const CreateWorkflowTemplate = () => {
           workflow={workflowEditor.editedWorkflow}
           hasChanges={workflowEditor.hasChanges}
           selectedStepId={workflowEditor.selectedStepId}
+          selectedBranchIndex={workflowEditor.selectedBranchIndex}
           onStepSelect={workflowEditor.setSelectedStepId}
           onFieldChange={workflowEditor.handleFieldChange}
           onStepChange={workflowEditor.handleStepChange}
@@ -152,6 +153,7 @@ export const CreateWorkflowTemplate = () => {
           onAddBranch={workflowEditor.handleAddBranch}
           onConnectionCreate={workflowEditor.handleConnectionCreate}
           onDeleteNode={workflowEditor.handleDeleteNode}
+          onAddRule={workflowEditor.handleAddRule}
           onSave={workflowEditor.handleSave}
           onCancel={workflowEditor.handleCancel}
           canUndo={workflowEditor.canUndo}

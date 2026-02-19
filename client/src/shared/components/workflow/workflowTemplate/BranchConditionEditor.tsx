@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Stack, TextField, Autocomplete, Typography } from '@mui/material';
+import {
+  Box,
+  Stack,
+  TextField,
+  Autocomplete,
+  Typography,
+  Divider,
+} from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 
 // Hardcoded condition options
@@ -38,10 +45,13 @@ interface BranchConditionEditorProps {
   stepId: string;
   targetStepName?: string;
   isEditMode?: boolean;
+  isSelected?: boolean;
+  showFullEditor?: boolean;
   onChange?: (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => void;
 }
 
@@ -51,46 +61,144 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   stepId,
   targetStepName = 'Unknown Step',
   isEditMode = false,
+  isSelected = false,
+  showFullEditor = false,
   onChange,
 }) => {
+  const [conditionName, setConditionName] = useState<string>('');
   const [selectedField, setSelectedField] = useState<
-    typeof CONDITION_OPTIONS[number] | null
+    (typeof CONDITION_OPTIONS)[number] | null
   >(null);
 
   const [selectedOperator, setSelectedOperator] = useState<
-    typeof CONDITION_OPTIONS[0]['operators'][number] | null
+    (typeof CONDITION_OPTIONS)[0]['operators'][number] | null
   >(null);
 
   const [selectedValue, setSelectedValue] = useState<string>('');
 
-  // Clear input fields when a different step or branch is selected
+  // Initialize all fields from branch condition if it exists
   useEffect(() => {
-    setSelectedField(null);
-    setSelectedOperator(null);
-    setSelectedValue('');
-  }, [stepId, branchIndex]);
+    if (branch.condition?.rule) {
+      try {
+        const rule = JSON.parse(branch.condition.rule);
+
+        // Restore condition name
+        setConditionName(rule.name || '');
+
+        // Find the operator and extract field and value
+        const operators = ['<', '>', '==', '<=', '>='];
+        let foundOperator = null;
+        let foundField = null;
+        let foundValue = '';
+
+        for (const op of operators) {
+          if (rule[op]) {
+            foundOperator = op;
+            // Rule structure: { "<": [{ "var": "patient.age" }, 18] }
+            const [fieldObj, value] = rule[op];
+            if (fieldObj?.var) {
+              foundField = fieldObj.var;
+              foundValue = String(value);
+            }
+            break;
+          }
+        }
+
+        // Match found field to CONDITION_OPTIONS
+        if (foundField) {
+          const matchedOption = CONDITION_OPTIONS.find(
+            (opt) => opt.value === foundField
+          );
+          if (matchedOption) {
+            setSelectedField(matchedOption);
+
+            // Match operator
+            if (foundOperator) {
+              const matchedOperator = matchedOption.operators.find(
+                (opObj) => opObj.op === foundOperator
+              );
+              if (matchedOperator) {
+                setSelectedOperator(matchedOperator);
+              }
+            }
+
+            // Set value
+            setSelectedValue(foundValue);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to parse branch condition rule:', error);
+        setConditionName('');
+        setSelectedField(null);
+        setSelectedOperator(null);
+        setSelectedValue('');
+      }
+    } else {
+      // Clear all fields if no condition exists
+      setConditionName('');
+      setSelectedField(null);
+      setSelectedOperator(null);
+      setSelectedValue('');
+    }
+  }, [branch, stepId, branchIndex]);
 
   // Generate and save condition JSON whenever inputs change
+  // Note: We exclude onChange from dependencies to avoid unnecessary re-saves
+  // when the callback reference changes
   useEffect(() => {
-    if (selectedField && selectedOperator && selectedValue) {
+    if (selectedField && selectedOperator && selectedValue && onChange) {
       const conditionJSON = generateConditionJSON(
         selectedField.value,
         selectedOperator.op,
         Number(selectedValue)
       );
 
-      onChange?.(stepId, branchIndex, conditionJSON);
+      onChange(stepId, branchIndex, conditionJSON, conditionName);
     }
-  }, [selectedField, selectedOperator, selectedValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedField,
+    selectedOperator,
+    selectedValue,
+    conditionName,
+    stepId,
+    branchIndex,
+  ]);
 
   return (
-    <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        Branch {branchIndex + 1} → {targetStepName}
-      </Typography>
+    <Box
+      sx={{
+        p: 2,
+        border: isSelected ? '2px solid #1976d2' : '1px solid #e0e0e0',
+        borderRadius: 1,
+        backgroundColor: isSelected
+          ? 'rgba(25, 118, 210, 0.05)'
+          : 'transparent',
+        transition: 'all 0.2s ease-in-out',
+        boxShadow: isSelected ? '0 2px 8px rgba(25, 118, 210, 0.2)' : 'none',
+      }}>
+      {!showFullEditor && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Branch {branchIndex + 1} → {targetStepName}
+        </Typography>
+      )}
 
       {isEditMode ? (
         <Stack spacing={2}>
+          {showFullEditor && (
+            <>
+              <TextField
+                fullWidth
+                size="small"
+                label="Condition Name"
+                placeholder="Enter a name for this condition..."
+                value={conditionName}
+                onChange={(e) => setConditionName(e.target.value)}
+                helperText="This name will be displayed on the branch in the flow diagram"
+              />
+              <Divider sx={{ my: 1 }} />
+            </>
+          )}
           <Autocomplete
             fullWidth
             size="small"
