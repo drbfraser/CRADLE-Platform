@@ -47,6 +47,8 @@ export default function WorkflowPossibleSteps(props: {
                     <ListItem
                       key={step.id}
                       sx={{
+                        ml: `${step.indent * 2 + 1}%`, // indent based on branch depth
+                        width: `calc(100% - ${step.indent * 2 + 1}%)`, // adjust width based on indent
                         border: 1,
                         borderColor: 'grey.300',
                         borderRadius: '8px',
@@ -78,7 +80,7 @@ export default function WorkflowPossibleSteps(props: {
                               <PlayArrowIcon />
                             </IconButton>
                           </Tooltip>
-                          {step.form && (
+                          {step.hasForm && (
                             <Tooltip
                               title="This step has an associated form"
                               placement="top">

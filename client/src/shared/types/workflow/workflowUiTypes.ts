@@ -25,7 +25,7 @@ export type InstanceStep = {
 };
 
 export type WorkflowPath = {
-  branch: InstanceStep[];
+  branch: PossibleStep[];
   length: number;
   hasCycle: boolean;
   trimmed: boolean;
@@ -34,8 +34,8 @@ export type WorkflowPath = {
 export type PossibleStep = {
   id: string;
   title: string;
+  indent: number; // for formatting based on branch depth
   hasForm?: boolean;
-  estimate?: number;
   isSkippable?: boolean;
 };
 

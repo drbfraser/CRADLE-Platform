@@ -12,6 +12,7 @@ import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
+  PossibleStep,
   WorkflowInfoRow,
   WorkflowNextStepOption,
   WorkflowPath,
@@ -197,6 +198,16 @@ export function getWorkflowStepHistory(steps: InstanceStep[]): InstanceStep[] {
   ];
 }
 
+function mapWorkflowPossibleStep(step: InstanceStep) {
+  const possibleStep = {
+    id: step.id,
+    title: step.title,
+    indent: 0,
+    hasForm: step.formTemplateId ? true : false,
+  };
+  return possibleStep;
+}
+
 /**
  * Returns possible future steps in DFS order (sorted by shortest path first)
  * - Finds all paths from beginning to end of workflow, then deduplicates steps that appear in multiple paths (e.g. due to completion, cycles, converging/diverging branches, etc.)
@@ -213,7 +224,7 @@ function getWorkflowPossibleSteps(
     template.steps.map((s) => [s.id, s])
   );
   const instanceStepMap = Object.fromEntries(
-    instance.map((s) => [s.workflowTemplateStepId, s])
+    instance.map((s) => [s.workflowTemplateStepId, mapWorkflowPossibleStep(s)])
   );
 
   /**
@@ -221,12 +232,12 @@ function getWorkflowPossibleSteps(
    * - includes current step
    * - can probably be further optimized
    */
-  function dfs(
+  function getWorkflowPaths(
     stepId: string,
     currentStepId: string,
     countPath: boolean,
     templateStepMap: Record<string, WorkflowTemplateStep>,
-    instanceStepMap: Record<string, InstanceStep>,
+    instanceStepMap: Record<string, PossibleStep>,
     visited: Set<string>
   ): WorkflowPath[] {
     const step = templateStepMap[stepId];
@@ -263,7 +274,9 @@ function getWorkflowPossibleSteps(
 
     const paths: WorkflowPath[] = [];
     for (const br of step.branches) {
-      const subPaths = dfs(
+      instanceStepMap[br.targetStepId].indent =
+        instanceStepMap[stepId].indent + (step.branches.length > 1 ? 1 : 0); // increase indent for diverging branches
+      const subPaths = getWorkflowPaths(
         br.targetStepId,
         currentStepId,
         pathCount,
@@ -285,8 +298,10 @@ function getWorkflowPossibleSteps(
     return paths;
   }
 
-  const rawPaths = dfs(
-    template.startingStepId ? template.startingStepId : instance[0].workflowTemplateStepId, // TODO: better handling of no starting step case
+  const rawPaths = getWorkflowPaths(
+    template.startingStepId
+      ? template.startingStepId
+      : instance[0].workflowTemplateStepId, // TODO: better handling of no starting step case
     currentStep
       ? currentStep.workflowTemplateStepId
       : instance[0].workflowTemplateStepId, // TODO: better handling of no active step case
@@ -295,7 +310,8 @@ function getWorkflowPossibleSteps(
     instanceStepMap,
     new Set<string>()
   ).sort((a, b) => {
-    if (a.length === 0 && b.length === 0) return a.branch.length - b.branch.length; // sorting trimmed branches
+    if (a.length === 0 && b.length === 0)
+      return a.branch.length - b.branch.length; // sorting trimmed branches
     if (a.length === 0 && b.length !== 0) return 1;
     if (b.length === 0 && a.length !== 0) return -1;
     return a.length - b.length;
@@ -304,10 +320,17 @@ function getWorkflowPossibleSteps(
   // Deduplicate steps that appear in multiple paths (e.g. due to completion, cycles, converging/diverging branches, etc.)
   const globallySeen = new Set<string>();
   const deduped = rawPaths.map((path) => {
-    const newBranch: InstanceStep[] = [];
+    const newBranch: PossibleStep[] = [];
     for (const step of path.branch) {
-      if (!globallySeen.has(step.id) && step.status !== StepStatus.ACTIVE && step.status !== StepStatus.COMPLETED) {
+      if (
+        !globallySeen.has(step.id) &&
+        instance.find((s) => s.id == step.id)?.status !== StepStatus.ACTIVE &&
+        instance.find((s) => s.id == step.id)?.status !== StepStatus.COMPLETED
+      ) {
         globallySeen.add(step.id);
+        step.indent -= currentStep
+          ? instanceStepMap[currentStep.workflowTemplateStepId].indent
+          : 0; // adjust indent based on current step
         newBranch.push(step);
       }
     }
