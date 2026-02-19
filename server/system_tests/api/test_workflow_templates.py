@@ -11,6 +11,7 @@ def test_workflow_templates_with_same_classification_upload(
     database, workflow_template1, workflow_template3, api_post
 ):
     try:
+        workflow_template3["steps"] = []
         archived_template1_id = workflow_template1["id"]
 
         response = api_post(
@@ -132,13 +133,16 @@ def test_getting_workflow_templates(
 
         workflow_template4["archived"] = True
 
-        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body",
+                 json=workflow_template1)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates/body", json=workflow_template3)
+        api_post(endpoint="/api/workflow/templates/body",
+                 json=workflow_template3)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates/body", json=workflow_template4)
+        api_post(endpoint="/api/workflow/templates/body",
+                 json=workflow_template4)
         database.session.commit()
 
         classification_id = workflow_template1["classification_id"]
@@ -207,11 +211,11 @@ def test_workflow_template_patch_request(
 ):
     updated_workflow_template = None
     try:
-        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body",
+                 json=workflow_template1)
         database.session.commit()
 
         changes = {
-            "name": "New workflow template name",
             "description": "New workflow template description",
             "version": "v2",
         }
@@ -237,11 +241,12 @@ def test_workflow_template_patch_request(
 
         assert (
             updated_workflow_template is not None
-            and updated_workflow_template.name == "New workflow template name"
             and updated_workflow_template.description
             == "New workflow template description"
             and updated_workflow_template.version == "v2"
         )
+
+        assert response_body["name"] == workflow_template1["classification"]["name"]
 
     finally:
         crud.delete_workflow(
@@ -332,7 +337,8 @@ def workflow_template3(form_template, workflow_template1):
         "starting_step_id": step_id,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "version": "1",  # Should replace version 0 (workflow_template1) of this template when uploaded
+        # Should replace version 0 (workflow_template1) of this template when uploaded
+        "version": "1",
         "classification_id": workflow_template1["classification_id"],
         "classification": {
             "id": workflow_template1["classification_id"],

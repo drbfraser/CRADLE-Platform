@@ -45,7 +45,8 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     name: str
     description: str
     # TODO: Should this be a relative time? e.g. 2 days?
-    expected_completion: Optional[int] = Field(default_factory=get_current_time)
+    expected_completion: Optional[int] = Field(
+        default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     form_id: Optional[str] = None
     workflow_template_id: str
@@ -63,7 +64,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: str
+    name: Optional[str] = None
     description: str
     archived: bool
     starting_step_id: Optional[str] = None
@@ -97,7 +98,8 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     triggered_by: Optional[str] = None
     form_id: Optional[str] = None
     form: Optional[dict] = (
-        None  # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
+        # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
+        None
     )
 
     @field_validator("data", mode="after")

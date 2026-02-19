@@ -125,8 +125,8 @@ export const ManageWorkflowTemplates = () => {
   );
 
   const tableColumns: GridColDef[] = [
-    { flex: 1, field: 'name', headerName: 'Name' },
-    { flex: 1, field: 'classification', headerName: 'classification' },
+    { flex: 1, field: 'name', headerName: 'Classification Name' },
+    { flex: 1, field: 'classification', headerName: 'Classification ID' },
     { flex: 1, field: 'version', headerName: 'Version' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
     { flex: 1, field: 'lastEdited', headerName: 'Last edit' },
@@ -145,7 +145,8 @@ export const ManageWorkflowTemplates = () => {
     (template: WorkflowTemplate, index: number) => ({
       id: index,
       name: template.name,
-      classification: template.classification?.name || 'N/A',
+      classification:
+        template.classificationId || template.classification?.id || 'N/A',
       version: template.version,
       dateCreated: getPrettyDate(template.dateCreated),
       lastEdited: getPrettyDate(template.lastEdited),

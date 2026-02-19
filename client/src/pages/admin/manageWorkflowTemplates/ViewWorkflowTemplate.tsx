@@ -132,7 +132,7 @@ export const ViewWorkflowTemplate = () => {
               </IconButton>
             </Tooltip>
             <Typography variant="h4" component="h2" sx={{ ml: 0.5 }}>
-              Workflow Template: {dash(currentWorkflow?.name)}
+              Workflow Classification: {dash(currentWorkflow?.name)}
             </Typography>
           </Box>
 
@@ -153,6 +153,7 @@ export const ViewWorkflowTemplate = () => {
           <WorkflowEditor
             workflow={workflowEditor.editedWorkflow}
             collectionName={collectionName}
+            allowClassificationEdit={false}
             hasChanges={workflowEditor.hasChanges}
             selectedStepId={workflowEditor.selectedStepId}
             selectedBranchIndex={workflowEditor.selectedBranchIndex}
@@ -180,7 +181,7 @@ export const ViewWorkflowTemplate = () => {
             </Typography>
 
             <WorkflowMetadata
-              name={currentWorkflow?.name}
+              classificationName={currentWorkflow?.name}
               description={currentWorkflow?.description}
               collectionName={collectionName}
               version={currentWorkflow?.version}
@@ -188,6 +189,7 @@ export const ViewWorkflowTemplate = () => {
               archived={currentWorkflow?.archived}
               dateCreated={currentWorkflow?.dateCreated}
               isEditMode={false}
+              isClassificationEditable={false}
             />
 
             <Divider sx={{ my: 3 }} />

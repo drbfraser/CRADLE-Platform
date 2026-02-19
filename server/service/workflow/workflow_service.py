@@ -47,8 +47,14 @@ class WorkflowService:
         """
         workflow_instance = {}
 
+        workflow_name = workflow_template.name
+        if workflow_name is None and workflow_template.classification is not None:
+            workflow_name = workflow_template.classification.name
+        if workflow_name is None:
+            workflow_name = "Workflow"
+
         workflow_instance["id"] = get_uuid()
-        workflow_instance["name"] = workflow_template.name
+        workflow_instance["name"] = workflow_name
         workflow_instance["description"] = workflow_template.description
         workflow_instance["start_date"] = None
         workflow_instance["current_step_id"] = None
@@ -157,7 +163,8 @@ class WorkflowService:
         """
         Fetch a workflow instance by ID, returning None if it does not exist.
         """
-        workflow_instance_orm = crud.read(WorkflowInstanceOrm, id=workflow_instance_id)
+        workflow_instance_orm = crud.read(
+            WorkflowInstanceOrm, id=workflow_instance_id)
 
         if not workflow_instance_orm:
             return None
@@ -204,7 +211,8 @@ class WorkflowService:
         if not workflow_instance_step_orm:
             return None
 
-        workflow_instance_step_dict = orm_serializer.marshal(workflow_instance_step_orm)
+        workflow_instance_step_dict = orm_serializer.marshal(
+            workflow_instance_step_orm)
         workflow_instance_step = WorkflowInstanceStepModel(
             **workflow_instance_step_dict
         )
@@ -217,7 +225,8 @@ class WorkflowService:
         """
         Fetch a workflow template by ID, returning None if it does not exist.
         """
-        workflow_template_orm = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
+        workflow_template_orm = crud.read(
+            WorkflowTemplateOrm, id=workflow_template_id)
 
         if not workflow_template_orm:
             return None
@@ -240,7 +249,8 @@ class WorkflowService:
         """
         Get the next valid workflow actions for a workflow instance.
         """
-        available_actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
+        available_actions = WorkflowPlanner.get_available_actions(
+            ctx=workflow_view)
         return available_actions
 
     @staticmethod
@@ -267,7 +277,8 @@ class WorkflowService:
         assert workflow_view.has_instance_step(instance_step_id)
 
         step_evaluation = WorkflowPlanner.evaluate_step(
-            ctx=workflow_view, step=workflow_view.get_instance_step(instance_step_id)
+            ctx=workflow_view, step=workflow_view.get_instance_step(
+                instance_step_id)
         )
         return step_evaluation
 

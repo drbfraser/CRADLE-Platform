@@ -13,9 +13,11 @@ class WorkflowCollectionOrm(db.Model):
     """
 
     __tablename__ = "workflow_collection"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    date_created = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -32,7 +34,8 @@ class WorkflowClassificationOrm(db.Model):
     """
 
     __tablename__ = "workflow_classification"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
 
     # FOREIGN KEYS
@@ -60,7 +63,8 @@ class RuleGroupOrm(db.Model):
     """
 
     __tablename__ = "rule_group"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     # NOTE: These attributes may need to be altered or removed depending on what rules engine we choose
     rule = db.Column(db.JSON, nullable=True)
 
@@ -74,11 +78,12 @@ class WorkflowTemplateOrm(db.Model):
     """
 
     __tablename__ = "workflow_template"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    name = db.Column(db.String(200), index=True, nullable=False)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
-    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    date_created = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time)
     starting_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,
@@ -112,7 +117,8 @@ class WorkflowTemplateStepOrm(db.Model):
     """
 
     __tablename__ = "workflow_template_step"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     expected_completion = db.Column(
@@ -158,7 +164,8 @@ class WorkflowTemplateStepBranchOrm(db.Model):
     """
 
     __tablename__ = "workflow_template_step_branch"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     target_step_id = db.Column(db.String(50), nullable=True)
 
     # FOREIGN KEYS
@@ -194,7 +201,8 @@ class WorkflowInstanceOrm(db.Model):
     """
 
     __tablename__ = "workflow_instance"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=True, default=None)
@@ -221,7 +229,8 @@ class WorkflowInstanceOrm(db.Model):
     # RELATIONSHIPS
     patient = db.relationship(
         "PatientOrm",
-        backref=db.backref("workflow_instances", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_instances",
+                           cascade="all, delete", lazy=True),
     )
     workflow_template = db.relationship(
         "WorkflowTemplateOrm",
@@ -231,7 +240,8 @@ class WorkflowInstanceOrm(db.Model):
 
 class WorkflowInstanceStepOrm(db.Model):
     __tablename__ = "workflow_instance_step"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=True, default=None)
@@ -290,7 +300,8 @@ class WorkflowVariableCatalogueOrm(db.Model):
     """
 
     __tablename__ = "workflow_variable_catalogue"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     tag = db.Column(db.String(200), unique=True, nullable=False, index=True)
     description = db.Column(db.Text, nullable=True)
     variable_type = db.Column(
@@ -299,10 +310,12 @@ class WorkflowVariableCatalogueOrm(db.Model):
     )
     namespace = db.Column(db.String(100), nullable=True, index=True)
     collection_name = db.Column(db.String(100), nullable=True)
-    field_path = db.Column(db.Text, nullable=True)  # JSON array e.g. ["systolic"]
+    # JSON array e.g. ["systolic"]
+    field_path = db.Column(db.Text, nullable=True)
     is_computed = db.Column(db.Boolean, nullable=False, default=False)
     is_dynamic = db.Column(db.Boolean, nullable=False, default=False)
-    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    date_created = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -319,7 +332,8 @@ class WorkflowInstanceDataOrm(db.Model):
     """
 
     __tablename__ = "workflow_instance_data"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True,
+                   nullable=False, default=get_uuid)
     workflow_instance_id = db.Column(
         db.String(50),
         db.ForeignKey("workflow_instance.id", ondelete="CASCADE"),
@@ -332,7 +346,8 @@ class WorkflowInstanceDataOrm(db.Model):
         db.Enum(WorkflowInstanceDataFieldTypeEnum),
         nullable=False,
     )
-    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    date_created = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,

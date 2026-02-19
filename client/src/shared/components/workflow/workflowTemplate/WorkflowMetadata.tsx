@@ -15,7 +15,7 @@ import { getPrettyDateTime } from 'src/shared/utils';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface WorkflowMetadataProps {
-  name?: string;
+  classificationName?: string;
   description?: string;
   collectionName?: string;
   version?: string;
@@ -23,6 +23,7 @@ interface WorkflowMetadataProps {
   archived?: boolean;
   dateCreated?: number;
   isEditMode?: boolean;
+  isClassificationEditable?: boolean;
   onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
 }
 
@@ -88,7 +89,7 @@ const InlineField = ({
 };
 
 export const WorkflowMetadata = ({
-  name,
+  classificationName,
   description,
   collectionName,
   version,
@@ -96,6 +97,7 @@ export const WorkflowMetadata = ({
   archived,
   dateCreated,
   isEditMode = false,
+  isClassificationEditable = false,
   onFieldChange,
 }: WorkflowMetadataProps) => {
   const versionText = `${version ?? ''}`;
@@ -109,7 +111,7 @@ export const WorkflowMetadata = ({
 
   return (
     <>
-      {/* Row 1: Left (Name + Description) | Right (Collection) */}
+      {/* Row 1: Left (Classification + Description) | Right (Collection) */}
       <Grid
         container
         columnSpacing={6}
@@ -120,14 +122,16 @@ export const WorkflowMetadata = ({
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
             <Stack spacing={1.5}>
-              <Typography variant="subtitle1">Name:</Typography>
+              <Typography variant="subtitle1">Classification Name:</Typography>
               <TextField
-                value={name || ''}
-                placeholder="Enter name"
+                value={classificationName || ''}
+                placeholder="Enter classification name"
                 fullWidth
-                InputProps={{ readOnly: !isEditMode }}
+                InputProps={{
+                  readOnly: !isEditMode || !isClassificationEditable,
+                }}
                 onChange={
-                  isEditMode
+                  isEditMode && isClassificationEditable
                     ? (e) => handleFieldChange('name', e.target.value)
                     : undefined
                 }

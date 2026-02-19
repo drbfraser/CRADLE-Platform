@@ -16,9 +16,10 @@ const classificationPath = (id: ID) => `${CLASSIFICATIONS}/${id}`;
 export const listWorkflowClassifications = async (): Promise<
   WorkflowClassification[]
 > => {
-  const response =
-    await axiosFetch.get<WorkflowClassification[]>(CLASSIFICATIONS);
-  return response.data;
+  const response = await axiosFetch.get<{ items: WorkflowClassification[] }>(
+    CLASSIFICATIONS
+  );
+  return response.data.items;
 };
 
 // GET /workflow/classifications/{classificationId}

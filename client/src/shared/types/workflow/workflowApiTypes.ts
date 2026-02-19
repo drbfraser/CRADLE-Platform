@@ -32,7 +32,8 @@ export interface WorkflowTemplateStep {
   workflowTemplateId?: ID;
 }
 
-export interface WorkflowTemplateStepWithFormAndIndex extends WorkflowTemplateStep {
+export interface WorkflowTemplateStepWithFormAndIndex
+  extends WorkflowTemplateStep {
   form?: FormTemplate;
   index: number;
   branchIndices?: number[];
@@ -40,11 +41,11 @@ export interface WorkflowTemplateStepWithFormAndIndex extends WorkflowTemplateSt
 
 export interface WorkflowTemplate {
   id: ID;
-  name: string;
+  name?: string;
   description: string;
   version: string;
 
-  classificationId: ID;
+  classificationId?: ID;
   classification?: WorkflowClassification;
   steps: WorkflowTemplateStep[];
   startingStepId?: ID;
@@ -68,10 +69,15 @@ export interface ClassificationInput {
 }
 
 // Payload for POST /workflow/templates/body
-export type TemplateInput = Omit<
-  WorkflowTemplate,
-  'id' | 'dateCreated' | 'lastEdited' | 'lastEditedBy'
->;
+export interface TemplateInput {
+  description: string;
+  version: string;
+  archived: boolean;
+  startingStepId?: ID;
+  classificationId?: ID;
+  classification?: { id?: ID; name: string } | null;
+  steps: WorkflowTemplateStep[];
+}
 
 // Optional grouping structure used by listTemplates?groupBy=classification
 export interface TemplateGroup {

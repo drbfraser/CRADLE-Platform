@@ -61,9 +61,9 @@ export const CreateWorkflowTemplate = () => {
     onSave: async (workflow) => {
       // Validate required fields
       if (!workflow.name?.trim()) {
-        workflowEditor.setToastMsg('Please enter a workflow name');
+        workflowEditor.setToastMsg('Please enter a classification name');
         workflowEditor.setToastOpen(true);
-        throw new Error('Name is required');
+        throw new Error('Classification name is required');
       }
 
       if (!workflow.version?.trim()) {
@@ -74,29 +74,40 @@ export const CreateWorkflowTemplate = () => {
 
       // Generate a temporary template ID for the steps
       const tempTemplateId = workflow.id || `temp-${Date.now()}`;
+      const classificationId =
+        workflow.classificationId ||
+        workflow.classification?.id ||
+        `workflow-classification-${Date.now()}`;
+      const classificationName =
+        workflow.classification?.name || workflow.name.trim();
 
       const payload = {
-        name: workflow.name,
         description: workflow.description || '',
         version: workflow.version,
         archived: false,
-        classification: workflow.classification || null,
-        steps: workflow.steps.map((step) => ({
+        classification_id: classificationId,
+        classification: {
+          id: classificationId,
+          name: classificationName,
+        },
+        steps: (workflow.id ? workflow.steps : []).map((step) => ({
           id: step.id,
           name: step.name,
           description: step.description,
-          workflowTemplateId: step.workflowTemplateId || tempTemplateId,
-          branches: step.branches || [],
-          lastEdited: step.lastEdited,
-          formId: step.formId,
-          expectedCompletion: step.expectedCompletion,
+          workflow_template_id: step.workflowTemplateId || tempTemplateId,
+          branches: (step.branches || []).map((branch) => ({
+            id: branch.id,
+            step_id: branch.stepId,
+            condition_id: branch.conditionId,
+            condition: branch.condition,
+            target_step_id: branch.targetStepId,
+          })),
+          last_edited: step.lastEdited,
+          form_id: step.formId,
+          expected_completion: step.expectedCompletion,
         })),
-        startingStepId: workflow.startingStepId,
-        // Only include classificationId if it has a value
-        ...(workflow.classificationId && {
-          classificationId: workflow.classificationId,
-        }),
-      } as TemplateInput;
+        starting_step_id: workflow.id ? workflow.startingStepId : null,
+      } as unknown as TemplateInput;
 
       await createWorkflowTemplateMutation.mutateAsync(payload);
 
@@ -142,6 +153,7 @@ export const CreateWorkflowTemplate = () => {
 
         <WorkflowEditor
           workflow={workflowEditor.editedWorkflow}
+          allowClassificationEdit={true}
           hasChanges={workflowEditor.hasChanges}
           selectedStepId={workflowEditor.selectedStepId}
           selectedBranchIndex={workflowEditor.selectedBranchIndex}

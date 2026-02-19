@@ -79,7 +79,6 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     # Top-level object
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == wt_id
-    assert obj.name == "ANC Workflow v1"
     assert obj.description == "Standard ANC flow"
     assert obj.version == "1.0"
     assert obj.archived is False
@@ -138,7 +137,6 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
 
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == "wt-2"
-    assert obj.name == "Simple Flow"
     assert obj.description == "A very small template"
     assert obj.version == "0.1"
     assert obj.archived is True

@@ -21,6 +21,7 @@ import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 interface WorkflowEditorProps {
   workflow: WorkflowTemplate | null;
   collectionName?: string;
+  allowClassificationEdit?: boolean;
   hasChanges: boolean;
   selectedStepId?: string;
   selectedBranchIndex?: number;
@@ -58,6 +59,7 @@ interface WorkflowEditorProps {
 export const WorkflowEditor = ({
   workflow,
   collectionName,
+  allowClassificationEdit = false,
   hasChanges,
   selectedStepId,
   selectedBranchIndex,
@@ -125,7 +127,7 @@ export const WorkflowEditor = ({
       </Typography>
 
       <WorkflowMetadata
-        name={workflow.name}
+        classificationName={workflow.name}
         description={workflow.description}
         collectionName={collectionName}
         version={workflow.version}
@@ -133,6 +135,7 @@ export const WorkflowEditor = ({
         archived={workflow.archived}
         dateCreated={workflow.dateCreated}
         isEditMode={true}
+        isClassificationEditable={allowClassificationEdit}
         onFieldChange={onFieldChange}
       />
 

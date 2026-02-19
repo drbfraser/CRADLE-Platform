@@ -32,7 +32,8 @@ def get_form() -> dict:
 
 
 def test__workflow_template_step__valid():
-    step_json = make_workflow_template_step(id="s-1", workflow_template_id="wt-1")
+    step_json = make_workflow_template_step(
+        id="s-1", workflow_template_id="wt-1")
     step_model = WorkflowTemplateStepModel(**step_json)
 
     # sanity check
@@ -49,7 +50,8 @@ def test__workflow_template_step__valid():
     ],
 )
 def test__workflow_template_step__missing_required_fields(required_field: str):
-    step_json = make_workflow_template_step(id="s-1", workflow_template_id="wt-1")
+    step_json = make_workflow_template_step(
+        id="s-1", workflow_template_id="wt-1")
     step_json.pop(required_field)
 
     with pytest.raises(ValidationError) as e:
@@ -59,7 +61,8 @@ def test__workflow_template_step__missing_required_fields(required_field: str):
 
 
 def test__workflow_template_step__extra_field():
-    step_json = make_workflow_template_step(id="s-1", workflow_template_id="wt-1")
+    step_json = make_workflow_template_step(
+        id="s-1", workflow_template_id="wt-1")
     step_json["extra"] = "nope"
 
     with pytest.raises(ValidationError) as e:
@@ -79,9 +82,12 @@ def test__workflow_template__valid():
 
 
 def test__workflow_template__with_steps():
-    step_1_json = make_workflow_template_step(id="s-1", workflow_template_id="wt-1")
-    step_2_json = make_workflow_template_step(id="s-2", workflow_template_id="wt-1")
-    workflow_json = make_workflow_template(id="wt-1", steps=[step_1_json, step_2_json])
+    step_1_json = make_workflow_template_step(
+        id="s-1", workflow_template_id="wt-1")
+    step_2_json = make_workflow_template_step(
+        id="s-2", workflow_template_id="wt-1")
+    workflow_json = make_workflow_template(
+        id="wt-1", steps=[step_1_json, step_2_json])
 
     workflow_model = WorkflowTemplateModel(**workflow_json)
 
@@ -91,7 +97,8 @@ def test__workflow_template__with_steps():
 
 
 def test__workflow_template__invalid_step():
-    step_json = make_workflow_template_step(id="s-1", workflow_template_id="wt-1")
+    step_json = make_workflow_template_step(
+        id="s-1", workflow_template_id="wt-1")
     step_json["extra"] = "nope"
     workflow_json = make_workflow_template(id="wt-1", steps=[step_json])
 
@@ -105,7 +112,6 @@ def test__workflow_template__invalid_step():
     "required_field",
     [
         "id",
-        "name",
         "archived",
         "version",
         "steps",
@@ -131,7 +137,8 @@ def test__workflow_template__extra_field():
 
 
 def test__workflow_template__invalid_dates():
-    workflow_json = make_workflow_template(id="wt-1", last_edited=TIMESTAMP_YESTERDAY)
+    workflow_json = make_workflow_template(
+        id="wt-1", last_edited=TIMESTAMP_YESTERDAY)
 
     with pytest.raises(ValidationError) as e:
         WorkflowTemplateModel(**workflow_json)
@@ -143,7 +150,8 @@ def test__workflow_template__invalid_dates():
 
 
 def test__workflow_instance_step__valid():
-    step_json = make_workflow_instance_step(id="s-1", workflow_instance_id="wi-1")
+    step_json = make_workflow_instance_step(
+        id="s-1", workflow_instance_id="wi-1")
     step_model = WorkflowInstanceStepModel(**step_json)
 
     assert step_model.id == "s-1"
@@ -159,7 +167,8 @@ def test__workflow_instance_step__valid():
     ],
 )
 def test__workflow_instance_step__missing_required_fields(required_field: str):
-    step_json = make_workflow_instance_step(id="s-1", workflow_instance_id="wi-1")
+    step_json = make_workflow_instance_step(
+        id="s-1", workflow_instance_id="wi-1")
     step_json.pop(required_field, None)
 
     with pytest.raises(ValidationError) as e:
@@ -169,7 +178,8 @@ def test__workflow_instance_step__missing_required_fields(required_field: str):
 
 
 def test__workflow_instance_step__extra_field():
-    step_json = make_workflow_instance_step(id="s-1", workflow_instance_id="wi-1")
+    step_json = make_workflow_instance_step(
+        id="s-1", workflow_instance_id="wi-1")
     step_json["extra"] = "nope"
 
     with pytest.raises(ValidationError) as e:
@@ -228,9 +238,12 @@ def test__workflow_instance__valid():
 
 
 def test__workflow_instance__with_steps():
-    step_1_json = make_workflow_instance_step(id="s-1", workflow_instance_id="wi-1")
-    step_2_json = make_workflow_instance_step(id="s-2", workflow_instance_id="wi-1")
-    workflow_json = make_workflow_instance(id="wi-1", steps=[step_1_json, step_2_json])
+    step_1_json = make_workflow_instance_step(
+        id="s-1", workflow_instance_id="wi-1")
+    step_2_json = make_workflow_instance_step(
+        id="s-2", workflow_instance_id="wi-1")
+    workflow_json = make_workflow_instance(
+        id="wi-1", steps=[step_1_json, step_2_json])
 
     workflow_model = WorkflowInstanceModel(**workflow_json)
 
@@ -240,7 +253,8 @@ def test__workflow_instance__with_steps():
 
 
 def test__workflow_instance__invalid_step():
-    step_json = make_workflow_instance_step(id="s-1", workflow_instance_id="wi-1")
+    step_json = make_workflow_instance_step(
+        id="s-1", workflow_instance_id="wi-1")
     step_json["extra"] = "nope"
     workflow_json = make_workflow_instance(steps=[step_json])
 

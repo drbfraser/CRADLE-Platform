@@ -73,9 +73,6 @@ export const editWorkflowTemplateAsync = async (
   const patchBody: Partial<WorkflowTemplate> = {};
 
   // Only include fields that have actually changed
-  if (template.name !== undefined) {
-    patchBody.name = template.name;
-  }
   if (template.description !== undefined) {
     patchBody.description = template.description;
   }

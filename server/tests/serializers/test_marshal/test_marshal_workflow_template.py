@@ -129,7 +129,7 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     ):
         assert key in marshalled
     assert marshalled["id"] == workflow_template.id
-    assert marshalled["name"] == "ANC Workflow"
+    assert marshalled["name"] == "Antenatal"
     assert marshalled["archived"] is False
     assert marshalled["date_created"] == 1_690_000_000
     assert marshalled["version"] == "v1"
@@ -200,7 +200,8 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
     workflow_template.date_created = 1_700_000_001
     workflow_template.last_edited = 1_700_000_002
     workflow_template.version = "v2"
-    workflow_template.starting_step_id = None  # should be stripped in shallow output
+    # should be stripped in shallow output
+    workflow_template.starting_step_id = None
     workflow_template._private = "strip-me"
 
     wc = WorkflowClassificationOrm()

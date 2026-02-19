@@ -35,7 +35,6 @@ class WorkflowTemplateUploadModel(WorkflowTemplateModel):
 
 class WorkflowTemplatePatchBody(CradleBaseModel):
     id: Optional[str] = None
-    name: Optional[str] = None
     description: Optional[str] = None
     archived: Optional[bool] = None
     starting_step_id: Optional[str] = None
