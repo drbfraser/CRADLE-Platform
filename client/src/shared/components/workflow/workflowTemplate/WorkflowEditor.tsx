@@ -23,18 +23,25 @@ interface WorkflowEditorProps {
   collectionName?: string;
   hasChanges: boolean;
   selectedStepId?: string;
+  selectedBranchIndex?: number;
   onStepSelect: (stepId: string) => void;
   onFieldChange: (field: keyof WorkflowTemplate, value: any) => void;
   onStepChange: (stepId: string, field: string, value: string) => void;
   onBranchChange: (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => void;
   onInsertNode: (stepId: string) => void;
   onAddBranch: (stepId: string) => void;
   onConnectionCreate: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode: (stepId: string) => void;
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void;
   onSave: () => void;
   onCancel: () => void;
   canUndo: boolean;
@@ -53,6 +60,7 @@ export const WorkflowEditor = ({
   collectionName,
   hasChanges,
   selectedStepId,
+  selectedBranchIndex,
   onStepSelect,
   onFieldChange,
   onStepChange,
@@ -61,6 +69,7 @@ export const WorkflowEditor = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  onAddRule,
   onSave,
   onCancel,
   canUndo,
@@ -175,6 +184,7 @@ export const WorkflowEditor = ({
           isInstance={false}
           isEditMode={true}
           selectedStepId={selectedStepId}
+          selectedBranchIndex={selectedBranchIndex}
           onStepSelect={onStepSelect}
           onStepChange={onStepChange}
           onBranchChange={onBranchChange}
@@ -182,6 +192,7 @@ export const WorkflowEditor = ({
           onAddBranch={onAddBranch}
           onConnectionCreate={onConnectionCreate}
           onDeleteNode={onDeleteNode}
+          onAddRule={onAddRule}
           canUndo={canUndo}
           canRedo={canRedo}
           onUndo={onUndo}
