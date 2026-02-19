@@ -11,12 +11,10 @@ from flask_openapi3.models.tag import Tag
 import data.db_operations as crud
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
-from common import workflow_utils_v2
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
-    check_branch_conditions,
     generate_updated_workflow_template,
     validate_workflow_template_step,
 )
@@ -29,7 +27,6 @@ from models import (
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.workflow_api_models import (
-    GetWorkflowTemplatesQuery,
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
@@ -57,41 +54,6 @@ api_workflow_templates = APIBlueprint(
 )
 
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
-
-
-def _resolve_template_names(
-    data: dict, template_orm: Optional[WorkflowTemplateOrm] = None
-) -> None:
-    """
-    Resolve ``name_string_id`` values to human-readable name strings
-    in a marshalled template response dict.  Mutates *data* in place.
-
-    Follows the FormsV2 pattern: templates do NOT have their own name.
-    The display name is always derived from the classification's
-    ``name_string_id``.
-    """
-    # Template name comes from classification
-    if template_orm and template_orm.classification:
-        data["name"] = workflow_utils_v2.resolve_name(
-            template_orm.classification.name_string_id
-        )
-    elif data.get("classification") and data["classification"].get("name_string_id"):
-        data["name"] = workflow_utils_v2.resolve_name(
-            data["classification"]["name_string_id"]
-        )
-
-    # Classification sub-object
-    classification = data.get("classification")
-    if classification and classification.get("name_string_id"):
-        classification["name"] = workflow_utils_v2.resolve_name(
-            classification["name_string_id"]
-        )
-
-    # Step names
-    for step in data.get("steps", []):
-        if step.get("name_string_id"):
-            step["name"] = workflow_utils_v2.resolve_name(
-                step["name_string_id"])
 
 
 def find_and_archive_previous_workflow_template(
@@ -142,16 +104,6 @@ def get_workflow_classification_from_dict(
 
     if workflow_classification_orm is None and workflow_classification_dict is not None:
         # If this workflow classification is completely new, then it will be returned
-        # Handle multi-lang name for new classification
-        try:
-            workflow_utils_v2.handle_classification_name(
-                workflow_classification_dict)
-        except ValueError as e:
-            return abort(code=400, description=str(e))
-
-        if "name" in workflow_classification_dict:
-            del workflow_classification_dict["name"]
-
         workflow_classification_orm = orm_serializer.unmarshal(
             WorkflowClassificationOrm, workflow_classification_dict
         )
@@ -163,13 +115,12 @@ def get_workflow_classification_from_dict(
 
 
 def check_for_existing_template_version(
-    workflow_classification_id: str,
-    workflow_template_version: str,
+    workflow_classification_id: str, workflow_template_version: str
 ) -> None:
     """
-    Checks if a workflow template with the same version under the same classification already exists.
+    Checks if a workflow template with the same version under the same classification already exists
     :param workflow_classification_id: ID of the workflow classification
-    :param workflow_template_version: Version string to check
+    :param workflow_template_dict: Dictionary consisting of attributes for a workflow template
     """
     existing_template_version = crud.read(
         WorkflowTemplateOrm,
@@ -197,36 +148,9 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     del workflow_template_dict["classification"]
 
     # Validate each step in the template
-    # NOTE: We use check_branch_conditions + form upload directly instead of
-    # validate_workflow_template_step(), because that function requires the
-    # template to exist in DB already (which it doesn't during creation).
-    # Step IDs are already assigned by assign_workflow_template_or_instance_ids.
-    if workflow_template_dict.get("steps") is not None:
+    if workflow_template_dict.get("steps") is None:
         for workflow_template_step in workflow_template_dict["steps"]:
-            check_branch_conditions(workflow_template_step)
-            # Handle form template upload if provided
-            if workflow_template_step.get("form") is not None:
-                from api.resources.form_templates import handle_form_template_upload
-                from validation.formTemplates import FormTemplateUpload
-
-                try:
-                    form_template = FormTemplateUpload(
-                        **workflow_template_step["form"]
-                    )
-                    form_template = handle_form_template_upload(form_template)
-                    workflow_template_step["form"] = form_template
-                except ValueError as err:
-                    return abort(code=409, description=str(err))
-            # Handle multi-lang name for steps
-            workflow_utils_v2.handle_template_step_name(workflow_template_step)
-            if "name" in workflow_template_step:
-                del workflow_template_step["name"]
-
-    # Handle multi-lang name for the template itself
-    # Templates don't have their own name — name comes from classification.
-    # Remove transient 'name' key so the ORM doesn't choke.
-    if "name" in workflow_template_dict:
-        del workflow_template_dict["name"]
+            validate_workflow_template_step(workflow_template_step)
 
     workflow_template_orm = orm_serializer.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
@@ -255,10 +179,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
     crud.create(model=workflow_template_orm, refresh=True)
 
-    response_data = orm_serializer.marshal(
-        obj=workflow_template_orm, shallow=True)
-    _resolve_template_names(response_data, workflow_template_orm)
-    return response_data
+    return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
 
 
 # /api/workflow/templates [POST] - File upload (like form templates)
@@ -298,18 +219,23 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
 
 # /api/workflow/templates?classification_id=<str>&archived=<bool> [GET]
 @api_workflow_templates.get("", responses={200: WorkflowTemplateListResponse})
-def get_workflow_templates(query: GetWorkflowTemplatesQuery):
+def get_workflow_templates():
     """Get All Workflow Templates"""
+    # Get query parameters
+    workflow_classification_id = request.args.get("classification_id", default=None)
+
+    archived_param = request.args.get("archived")
+    is_archived = convert_query_parameter_to_bool(archived_param)
+
     workflow_templates = crud.read_workflow_templates(
-        workflow_classification_id=query.classification_id,
-        is_archived=query.archived,
+        workflow_classification_id=workflow_classification_id,
+        is_archived=is_archived,
     )
 
-    response_data = []
-    for template in workflow_templates:
-        data = orm_serializer.marshal(template, shallow=True)
-        _resolve_template_names(data, template)
-        response_data.append(data)
+    response_data = [
+        orm_serializer.marshal(template, shallow=True)
+        for template in workflow_templates
+    ]
 
     return {"items": response_data}, 200
 
@@ -323,12 +249,10 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     # Get query parameters
     with_steps = request.args.get("with_steps", default=False)
     with_steps = convert_query_parameter_to_bool(with_steps)
-    with_classification = request.args.get(
-        "with_classification", default=False)
+    with_classification = request.args.get("with_classification", default=False)
     with_classification = convert_query_parameter_to_bool(with_classification)
 
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -338,13 +262,10 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = orm_serializer.marshal(
-        obj=workflow_template, shallow=False)
-    _resolve_template_names(response_data, workflow_template)
+    response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
-
     if not with_classification and "classification" in response_data:
         del response_data["classification"]
 
@@ -364,8 +285,7 @@ because that returns a workflow template + steps if desired, whereas this endpoi
 )
 def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template Steps by Template ID"""
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
             code=404,
@@ -377,16 +297,11 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     template_steps = crud.read_template_steps(
         workflow_template_id=path.workflow_template_id
     )
-    template_steps_data = []
-    for template_step in template_steps:
-        data = orm_serializer.marshal(template_step)
-        if data.get("name_string_id"):
-            data["name"] = workflow_utils_v2.resolve_name(
-                data["name_string_id"]
-            )
-        template_steps_data.append(data)
+    template_steps = [
+        orm_serializer.marshal(template_step) for template_step in template_steps
+    ]
 
-    return {"items": template_steps_data}, 200
+    return {"items": template_steps}, 200
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
@@ -397,8 +312,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 )
 def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
     """Update Workflow Template"""
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -422,11 +336,9 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         id=path.workflow_template_id,
     )
 
-    updated_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
-    response_data = orm_serializer.marshal(updated_template, shallow=True)
-    _resolve_template_names(response_data, updated_template)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -446,8 +358,7 @@ def update_workflow_template_patch(
     """
     body_dict = body.model_dump(exclude_unset=True)
 
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -456,9 +367,6 @@ def update_workflow_template_patch(
                 path.workflow_template_id
             ),
         )
-
-    # ── Extract name payload (templates don't have their own name) ──
-    body_dict.pop("name", None)
 
     # If the request body includes a new workflow classification, process it
     if body_dict.get("classification") is not None:
@@ -475,62 +383,27 @@ def update_workflow_template_patch(
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
 
-    # ── Validate version BEFORE any DB side-effects ──
     classification_id = (
-        body_dict.get(
-            "classification_id") or workflow_template.classification_id
+        body_dict.get("classification_id") or workflow_template.classification_id
     )
 
-    new_version = body_dict.get("version")
-    if new_version and classification_id:
+    if classification_id is not None:
         check_for_existing_template_version(
             classification_id,
-            new_version,
+            body_dict.get("version"),
         )
-
-    # ── Now safe to persist translations (validation passed) ──
-
-    # Handle step name translations
-    if body_dict.get("steps"):
-        for step in body_dict["steps"]:
-            workflow_utils_v2.handle_template_step_name(step)
-            # Remove name dict so ORM unmarshal doesn't choke
-            step.pop("name", None)
-
-    # Re-read the template: translation upserts above trigger db_session.commit()
-    # which expires all loaded ORM attributes. Without this refresh the subsequent
-    # marshal(existing_template) would produce an incomplete dict (missing
-    # description, version, etc.) and unmarshal would raise a ValidationError.
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
 
-    # Ensure the new version keeps the same classification.
-    # generate_updated_workflow_template preserves classification_id in the dict,
-    # but unmarshal leaves the classification relationship as None.  SQLAlchemy
-    # syncs the None relationship back to the FK on commit, so we must set the
-    # actual relationship object.
-    if workflow_template.classification_id:
-        classification_orm = crud.read(
-            WorkflowClassificationOrm, id=workflow_template.classification_id
-        )
-        if classification_orm:
-            new_workflow_template.classification = classification_orm
-
-    # New versions must always be non-archived; archive only the old version
-    new_workflow_template.archived = False
     workflow_template.archived = True
 
     crud.create(model=new_workflow_template, refresh=True)
 
-    updated_template = crud.read(
-        WorkflowTemplateOrm, id=new_workflow_template.id)
+    response_data = crud.read(WorkflowTemplateOrm, id=new_workflow_template.id)
 
-    response_data = orm_serializer.marshal(updated_template, shallow=True)
-    _resolve_template_names(response_data, updated_template)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -539,8 +412,7 @@ def update_workflow_template_patch(
 @api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})
 def delete_workflow_template(path: WorkflowTemplateIdPath):
     """Delete Workflow Template"""
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -568,8 +440,7 @@ def archive_workflow_template(
     path: WorkflowTemplateIdPath, query: ArchiveWorkflowTemplateQuery
 ):
     """Archive / Unarchive Workflow Template"""
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -590,11 +461,8 @@ def archive_workflow_template(
         id=path.workflow_template_id,
     )
 
-    updated_template = crud.read(
-        WorkflowTemplateOrm, id=path.workflow_template_id)
-    response_data = orm_serializer.marshal(updated_template, shallow=True)
-    _resolve_template_names(response_data, updated_template)
-    return response_data, 200
+    updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    return orm_serializer.marshal(updated_template, shallow=True), 200
 
 
 # /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]
@@ -631,26 +499,15 @@ def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
 
     # Write template data
     writer.writerow(["ID", workflow_template.id])
-    # Resolve template name from classification
-    template_name = ""
-    if (
-        workflow_template.classification
-        and workflow_template.classification.name_string_id
-    ):
-        template_name = workflow_utils_v2.resolve_name(
-            workflow_template.classification.name_string_id
-        ) or ""
-    writer.writerow(["Name", template_name])
+    writer.writerow(["Name", workflow_template.name])
     writer.writerow(["Description", workflow_template.description or ""])
     writer.writerow(["Version", workflow_template.version])
     writer.writerow(
         [
             "Classification",
             (
-                workflow_utils_v2.resolve_name(
-                    workflow_template.classification.name_string_id
-                ) or ""
-                if workflow_template.classification and workflow_template.classification.name_string_id
+                workflow_template.classification.name
+                if workflow_template.classification
                 else ""
             ),
         ]

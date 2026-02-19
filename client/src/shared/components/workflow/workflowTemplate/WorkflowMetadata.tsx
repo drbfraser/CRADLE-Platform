@@ -161,8 +161,7 @@ export const WorkflowMetadata = ({
           </Stack>
         </Grid>
       </Grid>
-
-      {/* Row 4: Version | Last Edited */}
+      {/* Row 2: Version | Last Edited */}
       <Grid
         container
         columnSpacing={6}
@@ -195,7 +194,7 @@ export const WorkflowMetadata = ({
         </Grid>
       </Grid>
 
-      {/* Row 5: Archived | First Create */}
+      {/* Row 3: Archived | First Create */}
       <Grid
         container
         columnSpacing={6}

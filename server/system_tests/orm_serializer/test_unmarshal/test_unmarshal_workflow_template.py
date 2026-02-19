@@ -38,6 +38,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     # Step 1 with form + branch
     step1 = make_workflow_template_step(
         id=step1_id,
+        name="Registration",
         description="Capture intake details",
         workflow_template_id=wt_id,
         form=make_form_template(id="ft-001"),
@@ -45,27 +46,24 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
         expected_completion=3_600,
         last_edited=1_700_200_001,
     )
-    # Strip virtual "name" field; set the ORM column directly
-    step1.pop("name", None)
-    step1["name_string_id"] = "ns-registration"
 
     # Step 2 without form/branches
     step2 = make_workflow_template_step(
         id=step2_id,
+        name="Review",
         description="Supervisor review",
         workflow_template_id=wt_id,
         expected_completion=7_200,
         last_edited=1_700_200_002,
     )
-    step2.pop("name", None)
-    step2["name_string_id"] = "ns-review"
 
     # Classification payload
-    classification_payload = {"id": "wc-007", "name_string_id": "ns-anc"}
+    classification_payload = {"id": "wc-007", "name": "ANC"}
 
     # Top-level workflow template payload
     payload = make_workflow_template(
         id=wt_id,
+        name="ANC Workflow v1",
         description="Standard ANC flow",
         version="1.0",
         archived=False,
@@ -81,6 +79,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     # Top-level object
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == wt_id
+    assert obj.name == "ANC Workflow v1"
     assert obj.description == "Standard ANC flow"
     assert obj.version == "1.0"
     assert obj.archived is False
@@ -113,7 +112,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     # Classification
     assert isinstance(obj.classification, WorkflowClassificationOrm)
     assert obj.classification.id == "wc-007"
-    assert obj.classification.name_string_id == "ns-anc"
+    assert getattr(obj.classification, "name", None) == "ANC"
 
 
 def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
@@ -124,6 +123,7 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
     """
     payload = make_workflow_template(
         id="wt-2",
+        name="Simple Flow",
         description="A very small template",
         version="0.1",
         archived=True,
@@ -138,6 +138,7 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
 
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == "wt-2"
+    assert obj.name == "Simple Flow"
     assert obj.description == "A very small template"
     assert obj.version == "0.1"
     assert obj.archived is True
@@ -158,6 +159,7 @@ def test_unmarshal_workflow_template_strips_none_and_handles_empty_steps():
     """
     payload = make_workflow_template(
         id="wt-3",
+        name="Nulls Example",
         description="Demonstrates stripping of None",
         version="1.2",
         archived=False,

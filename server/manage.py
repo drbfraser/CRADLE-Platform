@@ -319,8 +319,7 @@ def seed_test_patient():
         1620640628,
     )
     create_pregnancy("4930004967", 1609840628)
-    create_pregnancy("4930004967", 1549015028,
-                     1573379828, "SVD. Baby weighed 3kg.")
+    create_pregnancy("4930004967", 1549015028, 1573379828, "SVD. Baby weighed 3kg.")
 
 
 def seed():
@@ -826,8 +825,7 @@ def create_form_template_v2():
 
     create_form_classification_v2()
 
-    intake_classification = crud.read(
-        FormClassificationOrmV2, id="fc-v2-intake")
+    intake_classification = crud.read(FormClassificationOrmV2, id="fc-v2-intake")
 
     intake_template_v1 = FormTemplateOrmV2(
         id="ft-v2-intake-v1",
@@ -944,10 +942,8 @@ def create_form_template_v2():
         (mc_other_id, "Other", "Autre"),
     ]
     for opt_id, en, fr in mc_options:
-        db.session.add(LangVersionOrmV2(
-            string_id=opt_id, lang="English", text=en))
-        db.session.add(LangVersionOrmV2(
-            string_id=opt_id, lang="French", text=fr))
+        db.session.add(LangVersionOrmV2(string_id=opt_id, lang="English", text=en))
+        db.session.add(LangVersionOrmV2(string_id=opt_id, lang="French", text=fr))
 
     question3 = FormQuestionTemplateOrmV2(
         id="fq-v2-intake-sex",
@@ -996,8 +992,7 @@ def create_form_template_v2():
     cat2_string_id = get_uuid()
     db.session.add_all(
         [
-            LangVersionOrmV2(string_id=cat2_string_id,
-                             lang="English", text="Vitals"),
+            LangVersionOrmV2(string_id=cat2_string_id, lang="English", text="Vitals"),
             LangVersionOrmV2(
                 string_id=cat2_string_id, lang="French", text="Signes vitaux"
             ),
@@ -1099,8 +1094,7 @@ def create_form_template_v2():
     for en, fr in symptoms:
         sid = get_uuid()
         mc_symptom_ids.append(sid)
-        db.session.add(LangVersionOrmV2(
-            string_id=sid, lang="English", text=en))
+        db.session.add(LangVersionOrmV2(string_id=sid, lang="English", text=en))
         db.session.add(LangVersionOrmV2(string_id=sid, lang="French", text=fr))
 
     question6 = FormQuestionTemplateOrmV2(
@@ -1157,8 +1151,7 @@ def create_form_template_v2_version2():
 
     create_form_template_v2()
 
-    intake_classification = crud.read(
-        FormClassificationOrmV2, id="fc-v2-intake")
+    intake_classification = crud.read(FormClassificationOrmV2, id="fc-v2-intake")
 
     # Archive previous template
     previous_template = crud.read(
@@ -1271,8 +1264,7 @@ def create_followup_form_template_v2():
     if crud.read(FormTemplateOrmV2, id="ft-v2-followup-v1") is not None:
         return
 
-    followup_classification = crud.read(
-        FormClassificationOrmV2, id="fc-v2-followup")
+    followup_classification = crud.read(FormClassificationOrmV2, id="fc-v2-followup")
     if not followup_classification:
         followup_name_string_id = get_uuid()
         db.session.add_all(
@@ -1464,8 +1456,7 @@ def create_form_submission_v2(patient_id: str, user_id: int):
     db.session.flush()
 
     # Get questions for this template
-    questions = crud.read_all(
-        FormQuestionTemplateOrmV2, form_template_id=template.id)
+    questions = crud.read_all(FormQuestionTemplateOrmV2, form_template_id=template.id)
 
     # Create sample answers
     sample_answers = {
@@ -1546,26 +1537,14 @@ def create_relay_nums():
 def create_simple_workflow_classification():
     classification_id = "wc-simple-1"
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
-        return classification_id
-
-    name_string_id = get_uuid()
+        return None
 
     workflow_classification = {
         "id": classification_id,
-        "name_string_id": name_string_id,
+        "name": "Get Patient Name Workflow",
     }
 
-    # Store the classification name in lang_version_v2
-    db.session.add(
-        LangVersionOrmV2(
-            string_id=name_string_id,
-            lang="English",
-            text="Get Patient Name Workflow",
-        )
-    )
-
-    workflow_classification_orm = WorkflowClassificationOrm(
-        **workflow_classification)
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
 
     db.session.add(workflow_classification_orm)
     db.session.commit()
@@ -1584,6 +1563,7 @@ def create_simple_workflow_template(
 
     workflow_template = {
         "id": workflow_template_id,
+        "name": "Get Patient Name Workflow",
         "description": "Collect name from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
@@ -1599,17 +1579,9 @@ def create_simple_workflow_template(
     )
 
     for step_number in range(1, num_steps + 1):
-        step_name_string_id = get_uuid()
-        db.session.add(
-            LangVersionOrmV2(
-                string_id=step_name_string_id,
-                lang="English",
-                text="Get Patient Name",
-            )
-        )
         step = {
             "id": f"{workflow_template_id}-step-{step_number}",
-            "name_string_id": step_name_string_id,
+            "name": "Get Patient Name",
             "description": "Enter the patient's name",
             "expected_completion": get_current_time()
             + 86400,  # Expected completion is 24 hours after this step was created
@@ -1651,6 +1623,7 @@ def create_simple_workflow_template_with_branching(
 
     workflow_template = {
         "id": workflow_template_id,
+        "name": "Get Patient Name Workflow",
         "description": "Collect name from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
@@ -1678,17 +1651,9 @@ def create_simple_workflow_template_with_branching(
 
     for step_number in range(1, NUM_STEPS + 1):
         step_id = f"{workflow_template_id}-step-{step_number}"
-        step_name_string_id = get_uuid()
-        db.session.add(
-            LangVersionOrmV2(
-                string_id=step_name_string_id,
-                lang="English",
-                text=f"Step {step_number}",
-            )
-        )
         step_data = {
             "id": step_id,
-            "name_string_id": step_name_string_id,
+            "name": f"Step {step_number}",
             "description": "Enter the patient's name",
             "expected_completion": get_current_time() + 86400,
             "last_edited": get_current_time(),
@@ -1737,8 +1702,7 @@ def create_simple_workflow_template_step_form_classification():
         "name": "Patient Name Form",
     }
 
-    simple_form_classification_orm = FormClassificationOrm(
-        **simple_form_classification)
+    simple_form_classification_orm = FormClassificationOrm(**simple_form_classification)
 
     db.session.add(simple_form_classification_orm)
     db.session.commit()
@@ -1753,8 +1717,7 @@ def create_simple_workflow_template_step_form():
 
     # Add classification for form to DB
     classification_id = create_simple_workflow_template_step_form_classification()
-    form_classification_orm = crud.read(
-        FormClassificationOrm, id=classification_id)
+    form_classification_orm = crud.read(FormClassificationOrm, id=classification_id)
 
     # Set up form template associated with workflow
     form_template = {
@@ -1818,16 +1781,8 @@ def create_complex_workflow_classification():
 
     papagaio_study_workflow_classification = {
         "id": "papagaio_study_workflow_classification",
-        "name_string_id": "papagaio_classification_name",
+        "name": "PAPAGAIO Research Study",
     }
-
-    db.session.add(
-        LangVersionOrmV2(
-            string_id="papagaio_classification_name",
-            lang="English",
-            text="PAPAGAIO Research Study",
-        )
-    )
 
     papagaio_study_workflow_classification_orm = WorkflowClassificationOrm(
         **papagaio_study_workflow_classification
@@ -1847,6 +1802,7 @@ def create_complex_workflow_template():
 
     papagaio_study_workflow_template = {
         "id": "papagaio_study_workflow_template",
+        "name": "PAPAGAO Research Study",
         "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
         "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
         "archived": True,
@@ -1882,17 +1838,9 @@ def create_complex_workflow_template_steps():
     create_complex_workflow_template_step_form_questions()
 
     if crud.read(WorkflowTemplateStepOrm, id="prerequisites_template_step") is None:
-        prerequisites_step_name_id = get_uuid()
-        db.session.add(
-            LangVersionOrmV2(
-                string_id=prerequisites_step_name_id,
-                lang="English",
-                text="Prerequisites Step",
-            )
-        )
         prerequisites_template_step = {
             "id": "prerequisites_template_step",
-            "name_string_id": prerequisites_step_name_id,
+            "name": "prerequisites_step",
             "description": "Prerequisites Step",
             "expected_completion": None,
             "last_edited": get_current_time(),
@@ -1915,17 +1863,9 @@ def create_complex_workflow_template_steps():
         )
 
     if crud.read(WorkflowTemplateStepOrm, id="papagaio_consent_template_step") is None:
-        consent_step_name_id = get_uuid()
-        db.session.add(
-            LangVersionOrmV2(
-                string_id=consent_step_name_id,
-                lang="English",
-                text="PAPAGAIO Consent Step",
-            )
-        )
         papagaio_consent_template_step = {
             "id": "papagaio_consent_template_step",
-            "name_string_id": consent_step_name_id,
+            "name": "papagaio_consent_step",
             "description": "PAPAGAIO Consent Step",
             "expected_completion": None,
             "last_edited": get_current_time(),
@@ -1953,17 +1893,9 @@ def create_complex_workflow_template_steps():
         )
         is None
     ):
-        randomized_step_name_id = get_uuid()
-        db.session.add(
-            LangVersionOrmV2(
-                string_id=randomized_step_name_id,
-                lang="English",
-                text="PAPAGAIO Randomized Treatment Step",
-            )
-        )
         papagaio_randomized_treatment_template_step = {
             "id": "papagaio_randomized_treatment_template_step",
-            "name_string_id": randomized_step_name_id,
+            "name": "papagaio_randomized_treatment_step",
             "description": "PAPAGAIO Randomized Treatment Step",
             "expected_completion": None,
             "last_edited": get_current_time(),
@@ -1991,17 +1923,9 @@ def create_complex_workflow_template_steps():
         )
         is None
     ):
-        observation_step_name_id = get_uuid()
-        db.session.add(
-            LangVersionOrmV2(
-                string_id=observation_step_name_id,
-                lang="English",
-                text="PAPAGAIO Observation Treatment Step",
-            )
-        )
         papagaio_observation_treatment_template_step = {
             "id": "papagaio_observation_treatment_template_step",
-            "name_string_id": observation_step_name_id,
+            "name": "papagaio_observation_treatment_step",
             "description": "PAPAGAIO Observation Treatment Step",
             "expected_completion": None,
             "last_edited": get_current_time(),
@@ -2028,8 +1952,7 @@ def create_workflow_template_step_with_form_and_branches(
     template_step: dict, form_id: str, template_step_branches: List[dict]
 ) -> None:
     form_template_orm = crud.read(FormTemplateOrm, id=form_id)
-    template_step_orm = WorkflowTemplateStepOrm(
-        form=form_template_orm, **template_step)
+    template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
 
     for branch in template_step_branches:
         template_step_branch_orm = WorkflowTemplateStepBranchOrm(**branch)
@@ -2309,8 +2232,7 @@ def create_complex_workflow_template_step_form_questions():
             "question_id": "papagaio_consent_question",
         }
 
-        papagaio_consent_question_orm = QuestionOrm(
-            **papagaio_consent_question)
+        papagaio_consent_question_orm = QuestionOrm(**papagaio_consent_question)
         db.session.add(papagaio_consent_question_orm)
         db.session.add(QuestionLangVersionOrm(**papagaio_consent_lang_version))
 
@@ -2356,8 +2278,7 @@ def create_complex_workflow_template_step_form_questions():
         )
         db.session.add(papagaio_randomized_treatment_plan_question_orm)
         db.session.add(
-            QuestionLangVersionOrm(
-                **papagaio_randomized_treatment_plan_lang_version)
+            QuestionLangVersionOrm(**papagaio_randomized_treatment_plan_lang_version)
         )
 
     if (
@@ -2401,8 +2322,7 @@ def create_complex_workflow_template_step_form_questions():
         )
         db.session.add(papagaio_observation_treatment_plan_question_orm)
         db.session.add(
-            QuestionLangVersionOrm(
-                **papagaio_observation_treatment_plan_lang_version)
+            QuestionLangVersionOrm(**papagaio_observation_treatment_plan_lang_version)
         )
 
     db.session.commit()
@@ -2453,8 +2373,7 @@ def create_workflow_instance(
                 **workflow_instance_step
             )
 
-            workflow_instance_orm.steps.append(
-                current_workflow_instance_step_orm)
+            workflow_instance_orm.steps.append(current_workflow_instance_step_orm)
 
         db.session.add(workflow_instance_orm)
         db.session.commit()
@@ -2500,8 +2419,7 @@ def create_workflow_instance_form(
         }
 
         workflow_instance_form_orm = FormOrm(**workflow_instance_form)
-        workflow_instance_form_orm.questions.append(
-            workflow_instance_form_question_orm)
+        workflow_instance_form_orm.questions.append(workflow_instance_form_question_orm)
 
         db.session.add(workflow_instance_form_orm)
         db.session.commit()
@@ -2509,8 +2427,7 @@ def create_workflow_instance_form(
 
 def get_random_initials():
     return (
-        random.choice(string.ascii_letters) +
-        random.choice(string.ascii_letters)
+        random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
     ).upper()
 
 
@@ -2582,13 +2499,11 @@ def generate_phone_numbers():
 
     area_codes = [loc["areaCode"] for loc in facility_locations]
     n = len(area_codes)
-    post_fixes = ["".join([f"{randint(0, 9)}" for num in range(6)])
-                  for x in range(n)]
+    post_fixes = ["".join([f"{randint(0, 9)}" for num in range(6)]) for x in range(n)]
 
     numbers = {}
     for i in range(n):
-        numbers[area_codes[i]] = prefix + "-" + \
-            str(area_codes[i]) + "-" + post_fixes[i]
+        numbers[area_codes[i]] = prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i]
 
     return numbers
 
@@ -2631,8 +2546,7 @@ if __name__ == "__main__":
     # TODO: This should be updated once in a while, for readings to be displayed in the frontend.
     START_DATE = "1/1/2022 12:01 AM"
 
-    patient_list = random.sample(
-        range(48300027408, 48300099999), NUM_OF_PATIENTS)
+    patient_list = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patient_list)
     patient_list = list(map(str, patient_list))
 
@@ -2652,15 +2566,11 @@ if __name__ == "__main__":
         "Urgent requests only",
     ]
 
-    symptoms_list = ["HEADACHE", "BLURRED VISION",
-                     "ABDO PAIN", "BLEEDING", "FEVERISH"]
+    symptoms_list = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
     sex_list = ["FEMALE", "MALE"]
-    bp_systolic_list = np.clip(np.random.normal(
-        120, 35, 1000).astype(int), 50, 300)
-    bp_diastolic_list = np.clip(np.random.normal(
-        80, 25, 1000).astype(int), 30, 200)
-    heart_rate_list = np.clip(np.random.normal(
-        60, 17, 1000).astype(int), 30, 250)
+    bp_systolic_list = np.clip(np.random.normal(120, 35, 1000).astype(int), 50, 300)
+    bp_diastolic_list = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
+    heart_rate_list = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
     date_1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
     date_2 = datetime.datetime.today().replace(microsecond=0)

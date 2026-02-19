@@ -11,13 +11,11 @@ from service.workflow.datasourcing.data_sourcing import VariableResolution
 from service.workflow.evaluate.rules_engine import RuleStatus
 from validation import CradleBaseModel
 from validation.rule_groups import RuleGroupModel
-from validation.formsV2_models import MultiLangText
 
 
 class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[Union[str, MultiLangText]] = None
-    name_string_id: Optional[str] = None
+    name: str
     collection_id: Optional[str] = None
 
 
@@ -44,12 +42,10 @@ class WorkflowTemplateStepBranchModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[Union[str, MultiLangText]] = None
-    name_string_id: Optional[str] = None
+    name: str
     description: str
     # TODO: Should this be a relative time? e.g. 2 days?
-    expected_completion: Optional[int] = Field(
-        default_factory=get_current_time)
+    expected_completion: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     form_id: Optional[str] = None
     workflow_template_id: str
@@ -67,6 +63,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
+    name: str
     description: str
     archived: bool
     starting_step_id: Optional[str] = None
@@ -86,7 +83,7 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[str] = None
+    name: str
     description: str
     workflow_instance_id: str
     status: WorkflowStatusEnum
@@ -100,8 +97,7 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     triggered_by: Optional[str] = None
     form_id: Optional[str] = None
     form: Optional[dict] = (
-        # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
-        None
+        None  # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
     )
 
     @field_validator("data", mode="after")
@@ -140,7 +136,7 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
 
 class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
-    name: Optional[str] = None
+    name: str
     description: str
     status: WorkflowStatusEnum
     workflow_template_id: Optional[str] = None

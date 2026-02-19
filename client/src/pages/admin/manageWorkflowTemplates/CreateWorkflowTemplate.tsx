@@ -80,11 +80,7 @@ export const CreateWorkflowTemplate = () => {
         description: workflow.description || '',
         version: workflow.version,
         archived: false,
-        // Auto-create a classification from the workflow name when none is
-        // selected so the template is still grouped under a classification.
-        classification: workflow.classification ?? {
-          name: workflow.name,
-        },
+        classification: workflow.classification || null,
         steps: workflow.steps.map((step) => ({
           id: step.id,
           name: step.name,

@@ -43,6 +43,7 @@ def test_unmarshal_step_with_form_and_branches():
 
     payload = make_workflow_template_step(
         id=step_id,
+        name="Registration",
         description="Capture intake details and vitals",
         workflow_template_id="wt-42",
         form=form_payload,
@@ -50,16 +51,13 @@ def test_unmarshal_step_with_form_and_branches():
         expected_completion=3_600,
         last_edited=1_700_100_000,
     )
-    # Strip virtual "name" field; set the ORM column directly
-    payload.pop("name", None)
-    payload["name_string_id"] = "ns-registration"
 
     obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
 
     # Scalars
     assert obj.id == "wts-100"
-    assert obj.name_string_id == "ns-registration"
+    assert obj.name == "Registration"
     assert obj.description == "Capture intake details and vitals"
     assert obj.workflow_template_id == "wt-42"
     assert obj.expected_completion == 3_600
@@ -97,18 +95,17 @@ def test_unmarshal_step_without_form_or_branches():
     """
     payload = make_workflow_template_step(
         id="wts-200",
+        name="Review",
         description="Supervisor reviews intake form",
         workflow_template_id="wt-42",
         expected_completion=7_200,
         last_edited=1_700_200_000,
     )
-    payload.pop("name", None)
-    payload["name_string_id"] = "ns-review"
 
     obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
     assert obj.id == "wts-200"
-    assert obj.name_string_id == "ns-review"
+    assert obj.name == "Review"
     assert obj.description == "Supervisor reviews intake form"
     assert obj.workflow_template_id == "wt-42"
     assert obj.expected_completion == 7_200
@@ -128,6 +125,7 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
     """
     payload = make_workflow_template_step(
         id="wts-300",
+        name="Counseling",
         description="Provide counseling and education",
         workflow_template_id="wt-42",
         form=None,
@@ -135,13 +133,11 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
         expected_completion=None,
         last_edited=1_700_300_000,
     )
-    payload.pop("name", None)
-    payload["name_string_id"] = "ns-counseling"
 
     obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
     assert obj.id == "wts-300"
-    assert obj.name_string_id == "ns-counseling"
+    assert obj.name == "Counseling"
     assert obj.description == "Provide counseling and education"
     assert obj.workflow_template_id == "wt-42"
     assert obj.last_edited == 1_700_300_000

@@ -75,9 +75,7 @@ export const ViewWorkflowTemplate = () => {
       }
 
       await editWorkflowTemplateMutation.mutateAsync({
-        template: {
-          ...workflow,
-        },
+        template: workflow,
       });
 
       // Redirect to workflow templates page after successful save

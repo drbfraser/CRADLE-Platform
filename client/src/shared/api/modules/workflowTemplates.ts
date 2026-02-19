@@ -53,8 +53,7 @@ export const getAllWorkflowTemplatesAsync = async (
 ): Promise<WorkflowTemplate[]> => {
   try {
     const response = await axiosFetch.get<{ items: WorkflowTemplate[] }>(
-      TEMPLATES,
-      { params: { archived: includeArchived } }
+      TEMPLATES + `?archived=${includeArchived}`
     );
     return response.data.items;
   } catch (e) {

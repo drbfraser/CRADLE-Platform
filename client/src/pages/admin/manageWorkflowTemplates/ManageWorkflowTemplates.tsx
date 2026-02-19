@@ -27,7 +27,7 @@ import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import { useDownloadTemplateAsCSV } from './mutations';
 
-type TemplateRow = WorkflowTemplate & {
+type WorkflowTemplateWithIndex = WorkflowTemplate & {
   index: number;
 };
 
@@ -51,7 +51,11 @@ export const ManageWorkflowTemplates = () => {
     useDownloadTemplateAsCSV();
 
   const TableRowActions = useCallback(
-    ({ workflowTemplate }: { workflowTemplate?: TemplateRow }) => {
+    ({
+      workflowTemplate,
+    }: {
+      workflowTemplate?: WorkflowTemplateWithIndex;
+    }) => {
       if (!workflowTemplate) return null;
 
       const actions: TableAction[] = [];
@@ -122,22 +126,21 @@ export const ManageWorkflowTemplates = () => {
 
   const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Name' },
-    { flex: 1, field: 'classification', headerName: 'Classification' },
-    { flex: 0.6, field: 'version', headerName: 'Version' },
+    { flex: 1, field: 'classification', headerName: 'classification' },
+    { flex: 1, field: 'version', headerName: 'Version' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
-    { flex: 1, field: 'lastEdited', headerName: 'Last Edit' },
+    { flex: 1, field: 'lastEdited', headerName: 'Last edit' },
     {
       flex: 1,
       field: 'takeAction',
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (params: GridRenderCellParams<TemplateRow>) => (
+      renderCell: (params: GridRenderCellParams<WorkflowTemplateWithIndex>) => (
         <TableRowActions workflowTemplate={params.value} />
       ),
     },
   ];
-
   const tableRows = workflowTemplatesQuery.data?.map(
     (template: WorkflowTemplate, index: number) => ({
       id: index,
@@ -146,7 +149,7 @@ export const ManageWorkflowTemplates = () => {
       version: template.version,
       dateCreated: getPrettyDate(template.dateCreated),
       lastEdited: getPrettyDate(template.lastEdited),
-      takeAction: { ...template, index } as TemplateRow,
+      takeAction: template,
     })
   );
 
@@ -194,11 +197,7 @@ export const ManageWorkflowTemplates = () => {
       />
 
       <DataTableHeader title={'Workflow'}>
-        <Stack
-          direction={'row'}
-          gap={'8px'}
-          flexWrap={'wrap'}
-          alignItems="center">
+        <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
@@ -219,9 +218,11 @@ export const ManageWorkflowTemplates = () => {
         footer={TableFooter}
         loading={workflowTemplatesQuery.isLoading}
         getRowClassName={(params) => {
-          const takeAction = params.row.takeAction as TemplateRow | undefined;
-          if (!takeAction) return '';
-          return takeAction.archived ? 'row-archived' : '';
+          const index = params.row.id;
+          const workflowTemplate =
+            workflowTemplatesQuery.data?.at(index) ?? undefined;
+          if (!workflowTemplate) return '';
+          return workflowTemplate.archived ? 'row-archived' : '';
         }}
       />
     </>

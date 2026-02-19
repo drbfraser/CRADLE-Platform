@@ -67,25 +67,11 @@ export interface ClassificationInput {
   name: string;
 }
 
-/** Step payload for create/edit. */
-export interface WorkflowTemplateStepInput extends WorkflowTemplateStep {}
-
 // Payload for POST /workflow/templates/body
-export interface TemplateInput
-  extends Omit<
-    WorkflowTemplate,
-    | 'id'
-    | 'dateCreated'
-    | 'lastEdited'
-    | 'lastEditedBy'
-    | 'steps'
-    | 'classification'
-  > {
-  steps: WorkflowTemplateStepInput[];
-  /** When creating, the classification may be auto-generated from the name and
-   *  therefore won't have an id yet. */
-  classification?: { id?: ID; name: string } | null;
-}
+export type TemplateInput = Omit<
+  WorkflowTemplate,
+  'id' | 'dateCreated' | 'lastEdited' | 'lastEditedBy'
+>;
 
 // Optional grouping structure used by listTemplates?groupBy=classification
 export interface TemplateGroup {

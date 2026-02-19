@@ -9,8 +9,7 @@ import {
   Autocomplete,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
-import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
+import { getAllFormTemplatesAsync } from 'src/shared/api/modules/formTemplates';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface StepDetailsProps {
@@ -29,7 +28,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
     queryKey: ['formTemplates', false],
-    queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
+    queryFn: () => getAllFormTemplatesAsync(false),
     enabled: isEditMode, // Only fetch when in edit mode
   });
 
@@ -111,10 +110,10 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               <Autocomplete
                 fullWidth
                 options={formTemplatesQuery.data || []}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={(option) => option.classification.name}
                 value={
                   formTemplatesQuery.data?.find(
-                    (form: FormTemplateList) => form.id === selectedStep.formId
+                    (form) => form.id === selectedStep.formId
                   ) || null
                 }
                 onChange={(_, newValue) => {

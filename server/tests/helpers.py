@@ -19,6 +19,7 @@ def assert_is_recent_timestamp(timestamp: int):
 def make_workflow_template(**overrides):
     base = {
         "id": get_uuid(),
+        "name": "Test Workflow",
         "description": "This is a workflow template for testing.",
         "archived": False,
         "starting_step_id": None,
@@ -33,7 +34,7 @@ def make_workflow_template(**overrides):
 def make_workflow_template_step(**overrides):
     base = {
         "id": get_uuid(),
-        "name": {"English": "Test Step"},
+        "name": "Test Step",
         "description": "This is a workflow template step for testing.",
         "workflow_template_id": None,
         "last_edited": TIMESTAMP_TODAY,

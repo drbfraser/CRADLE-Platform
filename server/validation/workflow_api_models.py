@@ -1,11 +1,10 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pydantic import Field, model_validator
 from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
-from validation.formsV2_models import MultiLangText
 from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
@@ -23,23 +22,7 @@ class WorkflowClassificationUploadModel(WorkflowClassificationModel):
 
 class WorkflowClassificationPatchModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
-    name: Optional[Union[str, MultiLangText]] = None
-
-
-class GetWorkflowTemplatesQuery(CradleBaseModel):
-    """Query params for GET /workflow/templates."""
-
-    archived: bool = Field(
-        False, description="If true, include archived templates."
-    )
-    classification_id: Optional[str] = Field(
-        None, description="Filter by classification ID."
-    )
-
-
-class GetWorkflowClassificationsQuery(CradleBaseModel):
-    """Query params for GET /workflow/classifications."""
-    pass
+    name: Optional[str] = None
 
 
 class WorkflowCollectionUploadModel(WorkflowCollectionModel):
@@ -48,12 +31,11 @@ class WorkflowCollectionUploadModel(WorkflowCollectionModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateModel):
     id: Optional[str] = None
-    name: Optional[str] = None
-    classification: Optional[WorkflowClassificationUploadModel] = None
 
 
 class WorkflowTemplatePatchBody(CradleBaseModel):
     id: Optional[str] = None
+    name: Optional[str] = None
     description: Optional[str] = None
     archived: Optional[bool] = None
     starting_step_id: Optional[str] = None
