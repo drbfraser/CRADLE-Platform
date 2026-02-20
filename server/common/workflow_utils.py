@@ -148,10 +148,12 @@ def assign_workflow_template_or_instance_ids(
 
     for step in workflow["steps"]:
         if m is WorkflowTemplateOrm:
-            assign_step_ids(WorkflowTemplateStepOrm, step, workflow_id, auto_assign_id)
+            assign_step_ids(WorkflowTemplateStepOrm, step,
+                            workflow_id, auto_assign_id)
 
         elif m is WorkflowInstanceOrm:
-            assign_step_ids(WorkflowInstanceStepOrm, step, workflow_id, auto_assign_id)
+            assign_step_ids(WorkflowInstanceStepOrm, step,
+                            workflow_id, auto_assign_id)
 
 
 def apply_changes_to_model(model: Type[M], changes: dict) -> None:
@@ -168,7 +170,8 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
 def check_branch_conditions(template_step: dict) -> None:
     for branch in template_step["branches"]:
         if branch.get("condition") is None and branch.get("condition_id") is not None:
-            branch_condition = crud.read(RuleGroupOrm, id=branch.get("condition_id"))
+            branch_condition = crud.read(
+                RuleGroupOrm, id=branch.get("condition_id"))
 
             if branch_condition is None:
                 return abort(
@@ -186,7 +189,8 @@ def validate_workflow_template_step(
     if workflow_template is None and not allow_missing_template:
         return abort(
             code=404,
-            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id),
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
+                workflow_template_id),
         )
 
     assign_step_ids(
@@ -199,7 +203,8 @@ def validate_workflow_template_step(
 
     try:
         if workflow_template_step.get("form") is not None:
-            form_template = FormTemplateUpload(**workflow_template_step["form"])
+            form_template = FormTemplateUpload(
+                **workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown
             form_template = handle_form_template_upload(form_template)
@@ -277,7 +282,8 @@ def generate_updated_workflow_template(
     """
     copy_workflow_template_dict = orm_serializer.marshal(existing_template)
 
-    existing_classification = copy_workflow_template_dict.pop("classification", None)
+    existing_classification = copy_workflow_template_dict.pop(
+        "classification", None)
     if (
         copy_workflow_template_dict.get("classification_id") is None
         and existing_classification is not None
@@ -338,9 +344,11 @@ def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanc
     Fetch a workflow instance or raise a 404 if not found.
     Intended for use inside Flask endpoint handlers.
     """
-    workflow_instance = WorkflowService.get_workflow_instance(workflow_instance_id)
+    workflow_instance = WorkflowService.get_workflow_instance(
+        workflow_instance_id)
     if workflow_instance is None:
-        abort_not_found(WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id))
+        abort_not_found(
+            WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(workflow_instance_id))
 
     return workflow_instance
 
@@ -357,7 +365,8 @@ def fetch_workflow_instance_step_or_404(
     )
     if workflow_instance_step is None:
         abort_not_found(
-            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id)
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
+                workflow_instance_step_id)
         )
 
     return workflow_instance_step
@@ -368,9 +377,11 @@ def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplat
     Fetch a workflow template or raise a 404 if not found.
     Intended for use inside Flask endpoint handlers.
     """
-    workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
+    workflow_template = WorkflowService.get_workflow_template(
+        workflow_template_id)
     if workflow_template is None:
-        abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
+        abort_not_found(
+            WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
 
     return workflow_template
 
@@ -398,6 +409,7 @@ def find_workflow_instance_step_or_404(
     step = workflow_instance.get_instance_step(workflow_instance_step_id)
     if step is None:
         abort_not_found(
-            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
+            WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(
+                workflow_instance_step_id),
         )
     return step
