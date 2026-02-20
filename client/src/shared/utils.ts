@@ -90,7 +90,7 @@ export function formatISODateNumber(isoDateNumber: number): ISODate {
   return new Date(isoDateNumber * 1000).toLocaleDateString('en-CA');
 }
 
-export function formatISODateNumberWithTime(isoDateNumber: number): string {
+export function formatISODateNumberWithTime(isoDateNumber: number): ISODate {
   return new Date(isoDateNumber * 1000).toLocaleString('en-CA');
 }
 
