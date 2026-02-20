@@ -90,7 +90,7 @@ describe('Workflow Table', () => {
     TEST_DATA.unArchivedTemplates.forEach(
       ({ classification, dateCreated, version, name }, index) => {
         const tableRow = tableRows[index];
-        const displayName = classification?.name || name || 'N/A';
+        const displayName = name || classification?.name || 'N/A';
 
         // Debug what's actually in the table row
         console.log('Table row content:', tableRow.textContent);
@@ -122,7 +122,7 @@ describe('Workflow Table', () => {
     TEST_DATA.archivedTemplates.forEach(
       ({ classification, dateCreated, version, name }, index) => {
         const tableRow = tableRows![index];
-        const displayName = classification?.name || name || 'N/A';
+        const displayName = name || classification?.name || 'N/A';
 
         // Debug what's actually in the table row
         console.log('Archived table row content:', tableRow.textContent);
