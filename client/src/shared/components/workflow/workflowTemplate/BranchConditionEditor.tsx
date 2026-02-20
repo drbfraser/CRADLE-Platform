@@ -67,11 +67,11 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 }) => {
   const [conditionName, setConditionName] = useState<string>('');
   const [selectedField, setSelectedField] = useState<
-    typeof CONDITION_OPTIONS[number] | null
+    (typeof CONDITION_OPTIONS)[number] | null
   >(null);
 
   const [selectedOperator, setSelectedOperator] = useState<
-    typeof CONDITION_OPTIONS[0]['operators'][number] | null
+    (typeof CONDITION_OPTIONS)[0]['operators'][number] | null
   >(null);
 
   const [selectedValue, setSelectedValue] = useState<string>('');
