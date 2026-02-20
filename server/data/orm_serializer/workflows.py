@@ -254,7 +254,9 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
 
         workflow_template_orm = __load(WorkflowTemplateOrm, d)
         workflow_template_orm.steps = steps
-        workflow_template_orm.classification = classification
+
+        if classification is not None:
+            workflow_template_orm.classification = classification
 
     return workflow_template_orm
 

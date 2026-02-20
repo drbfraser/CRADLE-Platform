@@ -277,6 +277,15 @@ def generate_updated_workflow_template(
     """
     copy_workflow_template_dict = orm_serializer.marshal(existing_template)
 
+    existing_classification = copy_workflow_template_dict.pop("classification", None)
+    if (
+        copy_workflow_template_dict.get("classification_id") is None
+        and existing_classification is not None
+    ):
+        copy_workflow_template_dict["classification_id"] = existing_classification.get(
+            "id"
+        )
+
     copy_workflow_template_dict.pop("steps", None)
     copy_workflow_template_dict["steps"] = []
 
@@ -292,11 +301,6 @@ def generate_updated_workflow_template(
 
     new_workflow_template.steps = []
     new_workflow_template_id = copy_workflow_template_dict["id"]
-
-    if patch_body.get("classification"):
-        assign_workflow_template_or_instance_ids(
-            m=WorkflowTemplateOrm, workflow=patch_body["classification"]
-        )
 
     template_changes = {
         key: value for key, value in patch_body.items() if key != "steps"

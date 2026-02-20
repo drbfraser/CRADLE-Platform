@@ -4,7 +4,7 @@ from humps import decamelize
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from models import WorkflowTemplateOrm
+from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 
 
 def test_workflow_templates_with_same_classification_upload(
@@ -214,6 +214,10 @@ def test_workflow_template_patch_request(
         changes = {
             "description": "New workflow template description",
             "version": "v2",
+            "classification": {
+                "id": workflow_template1["classification_id"],
+                "name": "Workflow Classification example 1 (renamed)"
+            },
         }
 
         response = api_patch(
@@ -242,7 +246,20 @@ def test_workflow_template_patch_request(
             and updated_workflow_template.version == "v2"
         )
 
-        assert response_body["name"] == workflow_template1["classification"]["name"]
+        assert (
+            updated_workflow_template.classification_id
+            == old_workflow_template.classification_id
+        )
+
+        updated_classification = crud.read(
+            WorkflowClassificationOrm,
+            id=old_workflow_template.classification_id,
+        )
+
+        assert updated_classification is not None
+        assert updated_classification.name == "Workflow Classification example 1 (renamed)"
+
+        assert response_body["name"] == "Workflow Classification example 1 (renamed)"
 
     finally:
         crud.delete_workflow(

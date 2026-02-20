@@ -373,18 +373,30 @@ def update_workflow_template_patch(
             ),
         )
 
-    # If the request body includes a new workflow classification, process it
+    # If classification is provided during template edit, rename the existing
+    # classification in place (do not create or relink classifications).
     if body_dict.get("classification") is not None:
-        # Use the existing classification_id as a fallback if one isn't provided
-        classification_context = {
-            "classification_id": body_dict.get(
-                "classification_id", workflow_template.classification_id
-            )
-        }
-        get_workflow_classification_from_dict(
-            classification_context, body_dict["classification"]
+        existing_classification_id = workflow_template.classification_id
+        if existing_classification_id is None:
+            return abort(code=404, description="Classification not found.")
+
+        classification_orm = crud.read(
+            WorkflowClassificationOrm, id=existing_classification_id
         )
-        body_dict["classification_id"] = classification_context["classification_id"]
+        if classification_orm is None:
+            return abort(code=404, description="Classification not found.")
+
+        classification_name = body_dict["classification"].get("name")
+        if classification_name is not None:
+            crud.update(
+                WorkflowClassificationOrm,
+                changes={"name": classification_name},
+                autocommit=False,
+                id=existing_classification_id,
+            )
+
+        # Always keep template bound to its existing classification ID.
+        body_dict["classification_id"] = existing_classification_id
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
 
