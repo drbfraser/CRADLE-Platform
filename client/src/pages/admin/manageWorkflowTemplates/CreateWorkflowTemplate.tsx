@@ -77,7 +77,7 @@ export const CreateWorkflowTemplate = () => {
       const classificationId =
         workflow.classificationId ||
         workflow.classification?.id ||
-        `workflow-classification-${Date.now()}`;
+        `wc-${Date.now()}`;
       const classificationName =
         workflow.classification?.name || workflow.name.trim();
 

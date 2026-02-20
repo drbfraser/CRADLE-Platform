@@ -110,6 +110,8 @@ export const ViewWorkflowTemplate = () => {
   const currentWorkflow = isEditMode
     ? workflowEditor.editedWorkflow
     : workflowTemplateQuery.data;
+  const classificationName =
+    currentWorkflow?.classification?.name || currentWorkflow?.name;
 
   return (
     <>
@@ -132,7 +134,7 @@ export const ViewWorkflowTemplate = () => {
               </IconButton>
             </Tooltip>
             <Typography variant="h4" component="h2" sx={{ ml: 0.5 }}>
-              Workflow Classification: {dash(currentWorkflow?.name)}
+              Workflow Classification: {dash(classificationName)}
             </Typography>
           </Box>
 
@@ -153,7 +155,7 @@ export const ViewWorkflowTemplate = () => {
           <WorkflowEditor
             workflow={workflowEditor.editedWorkflow}
             collectionName={collectionName}
-            allowClassificationEdit={false}
+            allowClassificationEdit={true}
             hasChanges={workflowEditor.hasChanges}
             selectedStepId={workflowEditor.selectedStepId}
             selectedBranchIndex={workflowEditor.selectedBranchIndex}
@@ -181,7 +183,7 @@ export const ViewWorkflowTemplate = () => {
             </Typography>
 
             <WorkflowMetadata
-              classificationName={currentWorkflow?.name}
+              classificationName={classificationName}
               description={currentWorkflow?.description}
               collectionName={collectionName}
               version={currentWorkflow?.version}

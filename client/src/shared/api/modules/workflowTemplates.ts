@@ -70,7 +70,7 @@ export const editWorkflowTemplateAsync = async (
   if (!template.id) {
     throw new Error('Template ID is required for updates');
   }
-  const patchBody: Partial<WorkflowTemplate> = {};
+  const patchBody: Record<string, unknown> = {};
 
   // Only include fields that have actually changed
   if (template.description !== undefined) {
@@ -85,14 +85,28 @@ export const editWorkflowTemplateAsync = async (
   if (template.classificationId !== undefined) {
     patchBody.classificationId = template.classificationId;
   }
+
+  const classificationName = template.classification?.name?.trim();
+  const classificationId =
+    template.classificationId || template.classification?.id;
+
+  if (classificationName) {
+    patchBody.classification = {
+      ...(classificationId ? { id: classificationId } : {}),
+      name: classificationName,
+    };
+  }
   if (template.startingStepId !== undefined) {
     patchBody.startingStepId = template.startingStepId;
   }
   if (template.steps !== undefined) {
     // Exclude form data from steps to avoid validation errors
     // The backend will preserve existing forms when creating the new version
-    patchBody.steps = template.steps.map((step: any) => {
-      const { form, ...stepWithoutForm } = step;
+    patchBody.steps = template.steps.map((step) => {
+      const stepWithoutForm = {
+        ...step,
+      } as WorkflowTemplateStep & { form?: unknown };
+      delete stepWithoutForm.form;
       return stepWithoutForm;
     });
   }
