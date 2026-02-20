@@ -153,7 +153,9 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     # Validate each step in the template
     if workflow_template_dict.get("steps") is not None:
         for workflow_template_step in workflow_template_dict["steps"]:
-            validate_workflow_template_step(workflow_template_step)
+            validate_workflow_template_step(
+                workflow_template_step, allow_missing_template=True
+            )
 
     workflow_template_orm = orm_serializer.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
@@ -225,7 +227,8 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
 def get_workflow_templates():
     """Get All Workflow Templates"""
     # Get query parameters
-    workflow_classification_id = request.args.get("classification_id", default=None)
+    workflow_classification_id = request.args.get(
+        "classification_id", default=None)
 
     archived_param = request.args.get("archived")
     is_archived = convert_query_parameter_to_bool(archived_param)
@@ -252,10 +255,12 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     # Get query parameters
     with_steps = request.args.get("with_steps", default=False)
     with_steps = convert_query_parameter_to_bool(with_steps)
-    with_classification = request.args.get("with_classification", default=False)
+    with_classification = request.args.get(
+        "with_classification", default=False)
     with_classification = convert_query_parameter_to_bool(with_classification)
 
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -265,7 +270,8 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
+    response_data = orm_serializer.marshal(
+        obj=workflow_template, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
@@ -288,7 +294,8 @@ because that returns a workflow template + steps if desired, whereas this endpoi
 )
 def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template Steps by Template ID"""
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
             code=404,
@@ -315,7 +322,8 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 )
 def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
     """Update Workflow Template"""
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -339,7 +347,8 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         id=path.workflow_template_id,
     )
 
-    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    response_data = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     response_data = orm_serializer.marshal(response_data, shallow=True)
 
@@ -361,7 +370,8 @@ def update_workflow_template_patch(
     """
     body_dict = body.model_dump(exclude_unset=True)
 
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -387,7 +397,8 @@ def update_workflow_template_patch(
         del body_dict["classification"]
 
     classification_id = (
-        body_dict.get("classification_id") or workflow_template.classification_id
+        body_dict.get(
+            "classification_id") or workflow_template.classification_id
     )
 
     if body_dict.get("name") is not None:
@@ -418,7 +429,8 @@ def update_workflow_template_patch(
 @api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})
 def delete_workflow_template(path: WorkflowTemplateIdPath):
     """Delete Workflow Template"""
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -446,7 +458,8 @@ def archive_workflow_template(
     path: WorkflowTemplateIdPath, query: ArchiveWorkflowTemplateQuery
 ):
     """Archive / Unarchive Workflow Template"""
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
@@ -467,7 +480,8 @@ def archive_workflow_template(
         id=path.workflow_template_id,
     )
 
-    updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    updated_template = crud.read(
+        WorkflowTemplateOrm, id=path.workflow_template_id)
     return orm_serializer.marshal(updated_template, shallow=True), 200
 
 

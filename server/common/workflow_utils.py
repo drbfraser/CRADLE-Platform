@@ -177,22 +177,22 @@ def check_branch_conditions(template_step: dict) -> None:
                 )
 
 
-def validate_workflow_template_step(workflow_template_step: dict):
-    # This endpoint assumes that the step has a workflow ID assigned to it already
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=workflow_template_step["workflow_template_id"]
-    )
+def validate_workflow_template_step(
+    workflow_template_step: dict, allow_missing_template: bool = False
+):
+    workflow_template_id = workflow_template_step["workflow_template_id"]
+    workflow_template = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
 
-    if workflow_template is None:
+    if workflow_template is None and not allow_missing_template:
         return abort(
             code=404,
-            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
-                workflow_template_step["workflow_template_id"]
-            ),
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id),
         )
 
     assign_step_ids(
-        WorkflowTemplateStepOrm, workflow_template_step, workflow_template.id
+        WorkflowTemplateStepOrm,
+        workflow_template_step,
+        workflow_template.id if workflow_template else workflow_template_id,
     )
 
     check_branch_conditions(workflow_template_step)

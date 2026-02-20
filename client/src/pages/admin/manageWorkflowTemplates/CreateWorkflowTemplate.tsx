@@ -72,7 +72,7 @@ export const CreateWorkflowTemplate = () => {
         throw new Error('Version is required');
       }
 
-      // Generate a temporary template ID for the steps
+      // Generate a temporary template ID for the steps (server rewrites this)
       const tempTemplateId = workflow.id || `temp-${Date.now()}`;
       const classificationId =
         workflow.classificationId ||
@@ -90,7 +90,7 @@ export const CreateWorkflowTemplate = () => {
           id: classificationId,
           name: classificationName,
         },
-        steps: (workflow.id ? workflow.steps : []).map((step) => ({
+        steps: (workflow.steps || []).map((step) => ({
           id: step.id,
           name: step.name,
           description: step.description,
@@ -106,7 +106,10 @@ export const CreateWorkflowTemplate = () => {
           form_id: step.formId,
           expected_completion: step.expectedCompletion,
         })),
-        starting_step_id: workflow.id ? workflow.startingStepId : null,
+        starting_step_id:
+          workflow.steps?.length && workflow.startingStepId
+            ? workflow.startingStepId
+            : null,
       } as unknown as TemplateInput;
 
       await createWorkflowTemplateMutation.mutateAsync(payload);
