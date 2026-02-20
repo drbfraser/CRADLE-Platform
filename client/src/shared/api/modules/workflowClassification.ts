@@ -17,8 +17,8 @@ export const listWorkflowClassifications = async (): Promise<
   WorkflowClassification[]
 > => {
   const response =
-    await axiosFetch.get<{ items: WorkflowClassification[] }>(CLASSIFICATIONS);
-  return response.data.items;
+    await axiosFetch.get<WorkflowClassification[]>(CLASSIFICATIONS);
+  return response.data;
 };
 
 // GET /workflow/classifications/{classificationId}
