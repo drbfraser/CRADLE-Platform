@@ -185,8 +185,8 @@ export const WorkflowInfo: React.FC = () => {
               row.status === InstanceStatus.ACTIVE
                 ? 'success'
                 : row.status === InstanceStatus.COMPLETED
-                ? 'primary'
-                : 'error'
+                  ? 'primary'
+                  : 'error'
             }
             variant="outlined"
           />

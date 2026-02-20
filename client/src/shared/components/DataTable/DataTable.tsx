@@ -82,7 +82,7 @@ export const DataTable = ({
   }, [rows, apiRef]);
 
   const isServerPaginated = typeof rowCount === 'number';
-  const effectiveRowCount = isServerPaginated ? rowCount : rows?.length ?? 0;
+  const effectiveRowCount = isServerPaginated ? rowCount : (rows?.length ?? 0);
 
   return (
     <Box
