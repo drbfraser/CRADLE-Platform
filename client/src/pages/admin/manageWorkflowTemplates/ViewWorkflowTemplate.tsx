@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import EditIcon from '@mui/icons-material/Edit';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   WorkflowTemplateStepWithFormAndIndex,
@@ -98,10 +98,6 @@ export const ViewWorkflowTemplate = () => {
   const isLoading = workflowTemplateQuery.isPending;
 
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
-  const collectionName = useMemo(
-    () => dash(workflowTemplateQuery.data?.classification?.name),
-    [workflowTemplateQuery.data]
-  );
 
   const handleEdit = () => {
     setIsEditMode(true);
@@ -154,7 +150,6 @@ export const ViewWorkflowTemplate = () => {
         {isEditMode ? (
           <WorkflowEditor
             workflow={workflowEditor.editedWorkflow}
-            collectionName={collectionName}
             allowClassificationEdit={true}
             hasChanges={workflowEditor.hasChanges}
             selectedStepId={workflowEditor.selectedStepId}
@@ -185,7 +180,6 @@ export const ViewWorkflowTemplate = () => {
             <WorkflowMetadata
               classificationName={classificationName}
               description={currentWorkflow?.description}
-              collectionName={collectionName}
               version={currentWorkflow?.version}
               lastEdited={currentWorkflow?.lastEdited}
               archived={currentWorkflow?.archived}

@@ -90,15 +90,16 @@ describe('Workflow Table', () => {
     TEST_DATA.unArchivedTemplates.forEach(
       ({ classification, dateCreated, version, name }, index) => {
         const tableRow = tableRows[index];
+        const displayName = classification?.name || name || 'N/A';
 
         // Debug what's actually in the table row
         console.log('Table row content:', tableRow.textContent);
-        console.log('Looking for name:', name);
+        console.log('Looking for name:', displayName);
         console.log('Looking for date:', getPrettyDate(dateCreated));
         console.log('Looking for version:', version.toString());
 
         // If getByText finds the element, the test passes
-        within(tableRow).getByText(name);
+        within(tableRow).getByText(displayName);
         // Skip date for now to see if other elements work
         // within(tableRow).getByText(getPrettyDate(dateCreated));
         within(tableRow).getByText(version.toString());
@@ -121,12 +122,13 @@ describe('Workflow Table', () => {
     TEST_DATA.archivedTemplates.forEach(
       ({ classification, dateCreated, version, name }, index) => {
         const tableRow = tableRows![index];
+        const displayName = classification?.name || name || 'N/A';
 
         // Debug what's actually in the table row
         console.log('Archived table row content:', tableRow.textContent);
 
         // If getByText finds the element, the test passes
-        within(tableRow).getByText(name);
+        within(tableRow).getByText(displayName);
         // Skip date for now to see if other elements work
         // within(tableRow).getByText(getPrettyDate(dateCreated));
         within(tableRow).getByText(version.toString());

@@ -17,14 +17,13 @@ import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 interface WorkflowMetadataProps {
   classificationName?: string;
   description?: string;
-  collectionName?: string;
   version?: string;
   lastEdited?: number;
   archived?: boolean;
   dateCreated?: number;
   isEditMode?: boolean;
   isClassificationEditable?: boolean;
-  onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
+  onFieldChange?: (field: keyof WorkflowTemplate, value: unknown) => void;
 }
 
 const InlineField = ({
@@ -91,7 +90,6 @@ const InlineField = ({
 export const WorkflowMetadata = ({
   classificationName,
   description,
-  collectionName,
   version,
   lastEdited,
   archived,
@@ -105,18 +103,18 @@ export const WorkflowMetadata = ({
     ? getPrettyDateTime(new Date(lastEdited).getTime())
     : 'N/A';
 
-  const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
+  const handleFieldChange = (field: keyof WorkflowTemplate, value: unknown) => {
     onFieldChange?.(field, value);
   };
 
   return (
     <>
-      {/* Row 1: Left (Classification + Description) | Right (Collection) */}
+      {/* Row 1: Classification + Description */}
       <Grid
         container
         columnSpacing={6}
         rowSpacing={{ xs: 2, md: 0 }}
-        justifyContent="space-around"
+        justifyContent="flex-start"
         alignItems="flex-start"
         sx={{ mb: 3 }}>
         <Grid item xs={12} md={5}>
@@ -153,15 +151,6 @@ export const WorkflowMetadata = ({
                 }
               />
             </Stack>
-          </Stack>
-        </Grid>
-
-        <Grid item xs={12} md={5}>
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle1">Collection:</Typography>
-            <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>
-              {collectionName}
-            </Typography>
           </Stack>
         </Grid>
       </Grid>
