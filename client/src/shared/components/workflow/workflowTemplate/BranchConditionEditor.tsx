@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Stack,
   TextField,
   Autocomplete,
   Typography,
   Divider,
+  Grid,
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 
@@ -53,6 +53,7 @@ interface BranchConditionEditorProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
+  steps?: WorkflowTemplateStepWithFormAndIndex[];
 }
 
 export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
@@ -64,6 +65,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   isSelected = false,
   showFullEditor = false,
   onChange,
+  steps =[],
 }) => {
   const [conditionName, setConditionName] = useState<string>('');
   const [selectedField, setSelectedField] = useState<
@@ -184,67 +186,112 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       )}
 
       {isEditMode ? (
-        <Stack spacing={2}>
-          {showFullEditor && (
-            <>
-              <TextField
-                fullWidth
-                size="small"
-                label="Condition Name"
-                placeholder="Enter a name for this condition..."
-                value={conditionName}
-                onChange={(e) => setConditionName(e.target.value)}
-                helperText="This name will be displayed on the branch in the flow diagram"
-              />
-              <Divider sx={{ my: 1 }} />
-            </>
-          )}
-          <Autocomplete
-            fullWidth
-            size="small"
-            options={CONDITION_OPTIONS}
-            getOptionLabel={(option) => option.field}
-            value={selectedField}
-            onChange={(_, newValue) => {
-              setSelectedField(newValue);
-              setSelectedOperator(null);
-              setSelectedValue('');
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select a Field"
-                placeholder="Select field..."
-              />
-            )}
-          />
-          <Autocomplete
-            fullWidth
-            size="small"
-            options={CONDITION_OPTIONS[0].operators || []}
-            getOptionLabel={(option) => option.label}
-            value={selectedOperator}
-            onChange={(_, newValue) => {
-              setSelectedOperator(newValue);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select an Operator"
-                placeholder="Select operator..."
-              />
-            )}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            type="number"
-            label="Enter a Value"
-            placeholder="Enter value..."
-            value={selectedValue}
-            onChange={(e) => setSelectedValue(e.target.value)}
-          />
-        </Stack>
+      <Box>
+        {showFullEditor && (
+          <>
+            <TextField
+              fullWidth
+              size="small"
+              label="Condition Name"
+              placeholder="Enter a name for this condition..."
+              value={conditionName}
+              onChange={(e) => setConditionName(e.target.value)}
+              helperText="This name will be displayed on the branch in the flow diagram"
+            />
+            <Divider sx={{ my: 2 }} />
+          </>
+        )}
+        {/* Grid view (horizontal) */}
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid item xs={0.5} sm={0.5} md={0.5} lg={0.5} sx={{ ml: 3 }}>
+            <Typography sx={{ fontWeight: 'bold', color: 'text.black', whiteSpace: 'nowrap', mt:1}}>
+              if
+            </Typography>
+          </Grid>
+          <Grid item xs={2.3} sm={2.3} md={2.3} lg={2.3}>
+            <Autocomplete
+              fullWidth
+              size="small"
+              options={CONDITION_OPTIONS}
+              getOptionLabel={(option) => option.field}
+              value={selectedField}
+              onChange={(_, newValue) => {
+                setSelectedField(newValue);
+                setSelectedOperator(null);
+                setSelectedValue('');
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select a Field"
+                  placeholder="Select field..."
+                />
+              )}
+            />
+          </Grid>
+          
+          <Grid item xs={2.8} sm={2.8} md={2.8} lg={2.8}>
+            <Autocomplete
+              fullWidth
+              size="small"
+              options={CONDITION_OPTIONS[0].operators || []}
+              getOptionLabel={(option) => option.label}
+              value={selectedOperator}
+              onChange={(_, newValue) => {
+                setSelectedOperator(newValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select an Operator"
+                  placeholder="Select operator..."
+                />
+              )}
+            />
+          </Grid>
+          
+          <Grid item xs={2} sm={2} md={2} lg={2}>
+            <TextField
+              fullWidth
+              size="small"
+              type="number"
+              label="Enter a Value"
+              placeholder="Enter value..."
+              value={selectedValue}
+              onChange={(e) => setSelectedValue(e.target.value)}
+            />
+          </Grid>
+          
+          <Grid item xs={0.5} sm={0.5} md={0.5} lg={0.5}>
+            <Typography sx={{ fontWeight: 'bold', color: 'text.black', whiteSpace: 'nowrap', mt:1}}>
+              then go to
+            </Typography>
+          </Grid>
+
+          <Grid item xs={2.5} sm={2.5} md={2.5} lg={2.5} sx={{ ml: 7 }}>
+            <Autocomplete
+              fullWidth
+              size="small"
+              options={steps.filter(step => step.id !== stepId)} //Don't add current step
+              getOptionLabel={(step) => step.name}
+              value={steps.find(step => step.id === branch.targetStepId) || null}
+              onChange={(_, newStep) => {
+                if (newStep) {
+                  // Handle step change here
+                }
+              }}
+              disableClearable
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Step"
+                  placeholder="Select next step..."
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+      </Box>
       ) : (
         <>
           {branch.condition?.rule ? (
