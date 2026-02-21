@@ -7,7 +7,6 @@ import {
   Tooltip,
   Button,
   Dialog,
-  PaperProps,
 } from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
@@ -95,24 +94,6 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
       onStepSelect(stepId);
     } else {
       setInternalSelectedStepId(stepId);
-    }
-  };
-  const handleEditBranch = (stepId: string, branchIndex: number) => {
-    // Set the step ID
-    if (setSelectedStepId) {
-      setSelectedStepId(stepId);
-    } else {
-      setInternalSelectedStepId(stepId);
-    }
-
-    // Set the specific branch index to open the pop up
-    if (setSelectedBranchIndex) {
-      setSelectedBranchIndex(branchIndex);
-    }
-
-    // Create new branch
-    if (onEditBranch) {
-      onEditBranch(stepId, branchIndex);
     }
   };
 
