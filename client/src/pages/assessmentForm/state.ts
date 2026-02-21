@@ -30,9 +30,8 @@ export const getAssessmentState = async (
   patientId: string,
   assessmentId: string | undefined
 ): Promise<AssessmentState> => {
-  initialState[AssessmentField.drugHistory] = await getDrugHistoryAsync(
-    patientId
-  );
+  initialState[AssessmentField.drugHistory] =
+    await getDrugHistoryAsync(patientId);
 
   if (assessmentId === undefined) {
     return { ...initialState };
