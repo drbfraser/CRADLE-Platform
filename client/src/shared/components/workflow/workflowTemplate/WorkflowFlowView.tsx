@@ -201,7 +201,6 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 onStepSelect={handleStepSelect}
                 onInsertNode={onInsertNode}
                 onAddBranch={handleAddBranch}
-                onEditBranch={handleEditBranch}
                 onConnectionCreate={onConnectionCreate}
                 onDeleteNode={onDeleteNode}
                 onAddRule={onAddRule}

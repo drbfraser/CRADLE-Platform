@@ -8,6 +8,7 @@ import {
   Grid,
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes'
 
 // Hardcoded condition options
 const CONDITION_OPTIONS = [

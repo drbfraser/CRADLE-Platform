@@ -188,7 +188,9 @@ export const WorkflowEditor = ({
           selectedStepId={selectedStepId}
           selectedBranchIndex={selectedBranchIndex}
           onStepSelect={onStepSelect}
-          setSelectedStepId={onStepSelect}
+          setSelectedStepId={(stepId: string | undefined) => {
+              if (stepId) onStepSelect(stepId);
+          }}
           setSelectedBranchIndex={setSelectedBranchIndex}
           onStepChange={onStepChange}
           onBranchChange={onBranchChange}
