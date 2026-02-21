@@ -1,5 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Grid, Paper, Stack, Tooltip, Button, Dialog, PaperProps } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Paper,
+  Stack,
+  Tooltip,
+  Button,
+  Dialog,
+  PaperProps,
+} from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
@@ -89,7 +98,6 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
     }
   };
   const handleEditBranch = (stepId: string, branchIndex: number) => {
-
     // Set the step ID
     if (setSelectedStepId) {
       setSelectedStepId(stepId);
@@ -100,7 +108,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
     // Set the specific branch index to open the pop up
     if (setSelectedBranchIndex) {
       setSelectedBranchIndex(branchIndex);
-    } 
+    }
 
     // Create new branch
     if (onEditBranch) {
@@ -109,7 +117,6 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   };
 
   const handleAddBranch = (stepId: string) => {
-    
     // Set the step ID to identify which step we're adding a branch to
     if (setSelectedStepId) {
       setSelectedStepId(stepId);
@@ -120,14 +127,14 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
     // Set branch index to 0 for new branches
     if (setSelectedBranchIndex) {
       setSelectedBranchIndex(0);
-    } 
+    }
 
     // Create new branch
     if (onAddBranch) {
       onAddBranch(stepId);
     }
   };
-  
+
   const handleCloseBranchEditor = () => {
     if (setSelectedBranchIndex) {
       setSelectedBranchIndex(undefined);
@@ -137,7 +144,6 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
       setSelectedStepId(undefined);
     }
   };
-    
 
   return (
     <Box sx={{ height: '600px', width: '100%', overflow: 'hidden' }}>
@@ -205,7 +211,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
         </Grid>
 
         {/* Right side - Step Details or Branch Details */}
-         <Grid item xs={12} md={4} sx={{ height: '100%' }}>
+        <Grid item xs={12} md={4} sx={{ height: '100%' }}>
           <Box
             sx={{
               height: '100%',
@@ -223,17 +229,16 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
         </Grid>
       </Grid>
       {/* POPUP */}
-      <Dialog 
-        open={branchIndex !== undefined && selectedStep !== undefined} 
-        onClose={handleCloseBranchEditor} 
-        maxWidth="lg" 
+      <Dialog
+        open={branchIndex !== undefined && selectedStep !== undefined}
+        onClose={handleCloseBranchEditor}
+        maxWidth="lg"
         PaperProps={{
           sx: {
-            width: '80%', 
-            maxWidth: '1000px', 
-          }
-        }}
-      >
+            width: '80%',
+            maxWidth: '1000px',
+          },
+        }}>
         {selectedStep && branchIndex !== undefined && (
           <BranchDetails
             selectedStep={selectedStep}

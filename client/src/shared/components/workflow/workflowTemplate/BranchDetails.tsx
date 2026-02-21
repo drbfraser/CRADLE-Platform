@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Typography, Paper, Button, Box} from '@mui/material';
+import React, { useState } from 'react';
+import { Typography, Paper, Button, Box } from '@mui/material';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
 
@@ -14,7 +14,7 @@ interface BranchDetailsProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
-   onClose: () => void; 
+  onClose: () => void;
 }
 
 export const BranchDetails: React.FC<BranchDetailsProps> = ({
@@ -26,19 +26,21 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   onClose,
 }) => {
   const branch = selectedStep?.branches?.[selectedBranchIndex || 0];
-  
+
   //For Manual Saving
   const [localConditionRule, setLocalConditionRule] = useState<string>(
     branch?.condition?.rule || ''
   );
   const [localConditionName, setLocalConditionName] = useState<string>(
-    branch?.condition?.rule ? (() => {
-      try {
-        return JSON.parse(branch.condition.rule).name || '';
-      } catch {
-        return '';
-      }
-    })() : ''
+    branch?.condition?.rule
+      ? (() => {
+          try {
+            return JSON.parse(branch.condition.rule).name || '';
+          } catch {
+            return '';
+          }
+        })()
+      : ''
   );
   const handleBranchChange = (
     stepId: string,
@@ -77,7 +79,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
       </Paper>
     );
   }
-  
+
   if (!branch) {
     return (
       <Paper sx={{ p: 3, height: '100%' }}>
@@ -95,8 +97,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}> 
-      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}></Box>
       <Typography variant="h6" gutterBottom sx={{ textAlign: 'left' }}>
         {isEditMode ? 'Edit Branch Condition' : 'View Branch Condition'}
       </Typography>
