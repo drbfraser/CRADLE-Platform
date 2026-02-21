@@ -287,9 +287,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
                 size="small"
                 options={steps.filter((step) => step.id !== stepId)} //Don't add current step
                 getOptionLabel={(step) => step.name}
-                value={
-                  steps.find((step) => step.id === branch.targetStepId) || null
-                }
+                value={steps.find((step) => step.id === branch.targetStepId)}
                 onChange={(_, newStep) => {
                   if (newStep) {
                     // Handle step change here
