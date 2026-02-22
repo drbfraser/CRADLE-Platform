@@ -27,19 +27,12 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
     isEditMode = false,
     onNodeClick,
     onInsertNode,
-    onAddBranch,
     onDeleteNode,
   } = data as unknown as FlowNodeData;
 
   const handleInsertNode = () => {
     if (onInsertNode) {
       onInsertNode(stepId);
-    }
-  };
-
-  const handleAddBranch = () => {
-    if (onAddBranch) {
-      onAddBranch(stepId);
     }
   };
 
@@ -95,11 +88,7 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
         }}>
         {stepName || `Step ${stepNumber}`}
       </Typography>
-      <NodeHandler
-        isEditMode={isEditMode}
-        onInsertNode={handleInsertNode}
-        onAddBranch={handleAddBranch}
-      />
+      <NodeHandler isEditMode={isEditMode} onInsertNode={handleInsertNode} />
       <DeleteButton isEditMode={isEditMode} onDelete={handleDeleteNode} />
     </Box>
   );
