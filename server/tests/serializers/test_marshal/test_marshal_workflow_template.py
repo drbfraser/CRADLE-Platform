@@ -200,8 +200,7 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
     workflow_template.date_created = 1_700_000_001
     workflow_template.last_edited = 1_700_000_002
     workflow_template.version = "v2"
-    # should be stripped in shallow output
-    workflow_template.starting_step_id = None
+    workflow_template.starting_step_id = None  # should be stripped in shallow output
     workflow_template._private = "strip-me"
 
     wc = WorkflowClassificationOrm()
