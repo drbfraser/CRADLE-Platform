@@ -54,7 +54,7 @@ interface BranchConditionEditorProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
-  onTargetStepChange?: (   
+  onTargetStepChange?: (
     stepId: string,
     branchIndex: number,
     targetStepId: string
@@ -150,8 +150,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       setSelectedValue('');
     }
   }, [branch, stepId, branchIndex]);
-  useEffect(() => {
-  }, [branch.targetStepId]);
+  useEffect(() => {}, [branch.targetStepId]);
 
   // Generate and save condition JSON whenever inputs change
   // Note: We exclude onChange from dependencies to avoid unnecessary re-saves

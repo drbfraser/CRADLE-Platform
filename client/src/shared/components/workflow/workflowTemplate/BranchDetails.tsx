@@ -14,7 +14,7 @@ interface BranchDetailsProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
-    onTargetStepChange?: (  
+  onTargetStepChange?: (
     stepId: string,
     branchIndex: number,
     targetStepId: string
