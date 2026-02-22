@@ -331,6 +331,42 @@ export const useWorkflowEditor = ({
     }
   };
 
+  const handleTargetStepChange = (
+  stepId: string,
+  branchIndex: number,
+  targetStepId: string
+) => {
+
+  if (!editedWorkflow){
+    return;
+  }
+
+  setEditedWorkflow((prev) => {
+    if (!prev) return prev;
+
+    const updatedSteps = prev.steps?.map((step) => {
+      if (step.id === stepId && step.branches) {
+        const updatedBranches = step.branches.map((branch, idx) => {
+          if (idx === branchIndex) {
+            return {
+              ...branch,
+              targetStepId: targetStepId,
+            };
+          }
+          return branch;
+        });
+        return { ...step, branches: updatedBranches };
+      }
+      return step;
+    });
+    const newWorkflow = {
+      ...prev,
+      steps: updatedSteps,
+    };
+    return newWorkflow;
+  });
+  setHasChanges(true);
+};
   const handleDeleteNode = (stepId: string) => {
     if (!editedWorkflow) return;
 
@@ -474,6 +510,7 @@ export const useWorkflowEditor = ({
     selectedStepId,
     setSelectedStepId: handleStepSelect,
     selectedBranchIndex,
+    onTargetStepChange: handleTargetStepChange,
     setSelectedBranchIndex,
     toastOpen,
     setToastOpen,

@@ -54,6 +54,11 @@ interface BranchConditionEditorProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
+  onTargetStepChange?: (   
+    stepId: string,
+    branchIndex: number,
+    targetStepId: string
+  ) => void;
   steps?: WorkflowTemplateStepWithFormAndIndex[];
 }
 
@@ -66,6 +71,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   isSelected = false,
   showFullEditor = false,
   onChange,
+  onTargetStepChange,
   steps = [],
 }) => {
   const [conditionName, setConditionName] = useState<string>('');
@@ -144,6 +150,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       setSelectedValue('');
     }
   }, [branch, stepId, branchIndex]);
+  useEffect(() => {
+  }, [branch.targetStepId]);
 
   // Generate and save condition JSON whenever inputs change
   // Note: We exclude onChange from dependencies to avoid unnecessary re-saves
@@ -289,8 +297,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
                 getOptionLabel={(step) => step.name}
                 value={steps.find((step) => step.id === branch.targetStepId)}
                 onChange={(_, newStep) => {
-                  if (newStep) {
-                    // Handle step change here
+                  if (newStep && onTargetStepChange) {
+                    onTargetStepChange(stepId, branchIndex, newStep.id);
                   }
                 }}
                 disableClearable

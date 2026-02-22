@@ -14,6 +14,11 @@ interface BranchDetailsProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
+    onTargetStepChange?: (  
+    stepId: string,
+    branchIndex: number,
+    targetStepId: string
+  ) => void;
   onClose: () => void;
 }
 
@@ -21,6 +26,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   selectedStep,
   selectedBranchIndex,
   steps,
+  onTargetStepChange,
   isEditMode = false,
   onBranchChange,
   onClose,
@@ -110,6 +116,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         branchIndex={selectedBranchIndex}
         stepId={selectedStep.id}
         targetStepName={targetStep?.name}
+        onTargetStepChange={onTargetStepChange}
         isEditMode={isEditMode}
         isSelected={true}
         showFullEditor={true}

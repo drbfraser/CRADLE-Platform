@@ -30,6 +30,11 @@ interface WorkflowFlowViewProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
+  onTargetStepChange?: (
+    stepId: string,
+    branchIndex: number,
+    targetStepId: string
+  ) => void;
   onStepSelect?: (stepId: string) => void;
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
@@ -59,6 +64,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   selectedBranchIndex,
   onStepChange,
   onBranchChange,
+  onTargetStepChange,
   onStepSelect,
   onInsertNode,
   onAddBranch,
@@ -226,6 +232,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
             steps={steps}
             isEditMode={isEditMode}
             onBranchChange={onBranchChange}
+            onTargetStepChange={onTargetStepChange}
             onClose={handleCloseBranchEditor}
           />
         )}
