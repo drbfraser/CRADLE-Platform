@@ -48,6 +48,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         })()
       : ''
   );
+  const [newTargetStepId, setNewTargetStepId] = useState<string | undefined>(undefined);
+  const handleTargetStepChange = (stepId: string, branchIndex: number, targetStepId: string) => {
+    setNewTargetStepId(targetStepId); // Store locally, don't save yet
+  };
   const handleBranchChange = (
     stepId: string,
     branchIndex: number,
@@ -69,6 +73,14 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         localConditionRule,
         localConditionName
       );
+
+    if (newTargetStepId) {
+      onTargetStepChange?.(
+        selectedStep.id, 
+        selectedBranchIndex, 
+        newTargetStepId
+      );
+    }
     }
     onClose();
   };
@@ -116,7 +128,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         branchIndex={selectedBranchIndex}
         stepId={selectedStep.id}
         targetStepName={targetStep?.name}
-        onTargetStepChange={onTargetStepChange}
+        onTargetStepChange={handleTargetStepChange}
         isEditMode={isEditMode}
         isSelected={true}
         showFullEditor={true}
