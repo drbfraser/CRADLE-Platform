@@ -47,7 +47,9 @@ class WorkflowService:
         """
         workflow_instance = {}
 
-        workflow_name = workflow_template.name
+        # Fallback to classification name if template name is not set
+        workflow_name = getattr(workflow_template, "name", None)
+
         if workflow_name is None and workflow_template.classification is not None:
             workflow_name = workflow_template.classification.name
         if workflow_name is None:

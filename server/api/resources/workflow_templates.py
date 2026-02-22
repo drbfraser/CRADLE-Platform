@@ -373,6 +373,15 @@ def update_workflow_template_patch(
             ),
         )
 
+    if body_dict.get("name") is not None:
+        return abort(
+            code=400,
+            description=(
+                "Template name is derived from classification. "
+                "Update classification.name instead."
+            ),
+        )
+
     # If classification is provided during template edit, rename the existing
     # classification in place (do not create or relink classifications).
     if body_dict.get("classification") is not None:
@@ -403,9 +412,6 @@ def update_workflow_template_patch(
     classification_id = (
         body_dict.get("classification_id") or workflow_template.classification_id
     )
-
-    if body_dict.get("name") is not None:
-        del body_dict["name"]
 
     if classification_id is not None and body_dict.get("version") is not None:
         check_for_existing_template_version(

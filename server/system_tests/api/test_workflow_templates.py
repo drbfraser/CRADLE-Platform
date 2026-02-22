@@ -278,6 +278,108 @@ def test_workflow_template_patch_request(
             )
 
 
+def test_workflow_template_patch_rename_affects_shared_classification(
+    database,
+    workflow_template1,
+    workflow_template3,
+    api_post,
+    api_patch,
+    api_get,
+):
+    updated_template = None
+    try:
+        workflow_template3["steps"] = []
+
+        create_response_1 = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
+        assert create_response_1.status_code == 201
+
+        create_response_2 = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template3
+        )
+        assert create_response_2.status_code == 201
+
+        database.session.commit()
+
+        changes = {
+            "description": "workflow_example3 updated",
+            "version": "2",
+            "classification": {
+                "id": workflow_template1["classification_id"],
+                "name": "Shared Classification Renamed",
+            },
+        }
+
+        patch_response = api_patch(
+            endpoint=f"/api/workflow/templates/{workflow_template3['id']}",
+            json=changes,
+        )
+        assert patch_response.status_code == 200
+
+        patch_response_body = decamelize(patch_response.json())
+        updated_template = crud.read(WorkflowTemplateOrm, id=patch_response_body["id"])
+        assert updated_template is not None
+
+        database.session.commit()
+
+        template1_response = api_get(
+            f"/api/workflow/templates/{workflow_template1['id']}"
+            "?with_steps=False&with_classification=True"
+        )
+        assert template1_response.status_code == 200
+        template1_body = decamelize(template1_response.json())
+
+        template3_response = api_get(
+            f"/api/workflow/templates/{workflow_template3['id']}"
+            "?with_steps=False&with_classification=True"
+        )
+        assert template3_response.status_code == 200
+        template3_body = decamelize(template3_response.json())
+
+        assert (
+            template1_body["classification_id"]
+            == workflow_template1["classification_id"]
+        )
+        assert (
+            template3_body["classification_id"]
+            == workflow_template1["classification_id"]
+        )
+
+        assert template1_body["name"] == "Shared Classification Renamed"
+        assert template3_body["name"] == "Shared Classification Renamed"
+        assert patch_response_body["name"] == "Shared Classification Renamed"
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=False,
+            id=workflow_template1["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=False,
+            id=workflow_template3["id"],
+        )
+        if updated_template is not None and updated_template.id not in {
+            workflow_template1["id"],
+            workflow_template3["id"],
+        }:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=False,
+                id=updated_template.id,
+            )
+        crud.delete_workflow_classification(id=workflow_template1["classification_id"])
+        if (
+            workflow_template3["classification_id"]
+            != workflow_template1["classification_id"]
+        ):
+            crud.delete_workflow_classification(
+                id=workflow_template3["classification_id"]
+            )
+
+
 @pytest.fixture
 def workflow_template1():
     template_id = get_uuid()
@@ -352,8 +454,7 @@ def workflow_template3(form_template, workflow_template1):
         "starting_step_id": step_id,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        # Should replace version 0 (workflow_template1) of this template when uploaded
-        "version": "1",
+        "version": "1",  # Should replace version 0 (workflow_template1) of this template when uploaded
         "classification_id": workflow_template1["classification_id"],
         "classification": {
             "id": workflow_template1["classification_id"],
