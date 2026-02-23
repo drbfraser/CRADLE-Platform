@@ -33,6 +33,12 @@ interface WorkflowEditorProps {
     conditionRule: string,
     conditionName?: string
   ) => void;
+  onTargetStepChange?: (
+    stepId: string,
+    branchIndex: number,
+    targetStepId: string
+  ) => void;
+  setSelectedBranchIndex?: (index: number | undefined) => void;
   onInsertNode: (stepId: string) => void;
   onAddBranch: (stepId: string) => void;
   onConnectionCreate: (sourceStepId: string, targetStepId: string) => void;
@@ -62,9 +68,11 @@ export const WorkflowEditor = ({
   selectedStepId,
   selectedBranchIndex,
   onStepSelect,
+  setSelectedBranchIndex,
   onFieldChange,
   onStepChange,
   onBranchChange,
+  onTargetStepChange,
   onInsertNode,
   onAddBranch,
   onConnectionCreate,
@@ -186,8 +194,13 @@ export const WorkflowEditor = ({
           selectedStepId={selectedStepId}
           selectedBranchIndex={selectedBranchIndex}
           onStepSelect={onStepSelect}
+          setSelectedStepId={
+            onStepSelect as (stepId: string | undefined) => void
+          }
+          setSelectedBranchIndex={setSelectedBranchIndex}
           onStepChange={onStepChange}
           onBranchChange={onBranchChange}
+          onTargetStepChange={onTargetStepChange}
           onInsertNode={onInsertNode}
           onAddBranch={onAddBranch}
           onConnectionCreate={onConnectionCreate}
