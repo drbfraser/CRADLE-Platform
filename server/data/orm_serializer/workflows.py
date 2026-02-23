@@ -113,6 +113,7 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
         d["classification"] = __marshal_workflow_classification(
             wc=wt.classification, if_include_templates=False
         )
+        d["name"] = wt.classification.name
 
     if not shallow:
         d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
@@ -248,9 +249,14 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
             classification = __load(WorkflowClassificationOrm, d.get("classification"))
             del d["classification"]
 
+        if d.get("name") is not None:
+            del d["name"]
+
         workflow_template_orm = __load(WorkflowTemplateOrm, d)
         workflow_template_orm.steps = steps
-        workflow_template_orm.classification = classification
+
+        if classification is not None:
+            workflow_template_orm.classification = classification
 
     return workflow_template_orm
 

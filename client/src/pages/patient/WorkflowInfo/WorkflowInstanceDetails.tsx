@@ -231,7 +231,6 @@ export default function WorkflowInstanceDetailsPage() {
                   </Typography>
                   <WorkflowMetadata
                     description={instanceDetails.description}
-                    collectionName={instanceDetails.collection}
                     version={instanceDetails.version}
                     lastEdited={new Date(
                       instanceDetails.lastEditedOn

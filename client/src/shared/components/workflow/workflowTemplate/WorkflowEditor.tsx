@@ -20,12 +20,12 @@ import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 
 interface WorkflowEditorProps {
   workflow: WorkflowTemplate | null;
-  collectionName?: string;
+  allowClassificationEdit?: boolean;
   hasChanges: boolean;
   selectedStepId?: string;
   selectedBranchIndex?: number;
   onStepSelect: (stepId: string) => void;
-  onFieldChange: (field: keyof WorkflowTemplate, value: any) => void;
+  onFieldChange: (field: keyof WorkflowTemplate, value: unknown) => void;
   onStepChange: (stepId: string, field: string, value: string) => void;
   onBranchChange: (
     stepId: string,
@@ -57,7 +57,7 @@ interface WorkflowEditorProps {
 
 export const WorkflowEditor = ({
   workflow,
-  collectionName,
+  allowClassificationEdit = false,
   hasChanges,
   selectedStepId,
   selectedBranchIndex,
@@ -125,14 +125,14 @@ export const WorkflowEditor = ({
       </Typography>
 
       <WorkflowMetadata
-        name={workflow.name}
+        classificationName={workflow.name}
         description={workflow.description}
-        collectionName={collectionName}
         version={workflow.version}
         lastEdited={workflow.lastEdited}
         archived={workflow.archived}
         dateCreated={workflow.dateCreated}
         isEditMode={true}
+        isClassificationEditable={allowClassificationEdit}
         onFieldChange={onFieldChange}
       />
 

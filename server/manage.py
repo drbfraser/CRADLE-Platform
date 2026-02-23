@@ -1563,7 +1563,6 @@ def create_simple_workflow_template(
 
     workflow_template = {
         "id": workflow_template_id,
-        "name": "Get Patient Name Workflow",
         "description": "Collect name from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
@@ -1623,7 +1622,6 @@ def create_simple_workflow_template_with_branching(
 
     workflow_template = {
         "id": workflow_template_id,
-        "name": "Get Patient Name Workflow",
         "description": "Collect name from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
@@ -1802,7 +1800,6 @@ def create_complex_workflow_template():
 
     papagaio_study_workflow_template = {
         "id": "papagaio_study_workflow_template",
-        "name": "PAPAGAO Research Study",
         "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
         "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
         "archived": True,

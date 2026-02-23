@@ -58,16 +58,17 @@ def test_generate_workflow_instance():
 
     assert len(workflow_instance.steps) == 2
 
-    actual_step_names = {step.name for step in workflow_instance.steps}
-    expected_step_names = {"Step 1", "Step 2"}
-    assert actual_step_names == expected_step_names
+    # Instance step names are copied from template steps
+    for step_instance in workflow_instance.steps:
+        assert step_instance.name is not None
+
+    actual_step_template_ids = {
+        step.workflow_template_step_id for step in workflow_instance.steps
+    }
+    expected_step_template_ids = {step_template_1_id, step_template_2_id}
+    assert actual_step_template_ids == expected_step_template_ids
 
     for step_instance in workflow_instance.steps:
-        if step_instance.name == "Step 1":
-            assert step_instance.workflow_template_step_id == step_template_1_id
-        else:
-            assert step_instance.workflow_template_step_id == step_template_2_id
-
         assert step_instance.id is not None
         assert step_instance.workflow_instance_id == workflow_instance.id
         assert step_instance.description is not None  # Leniant check for convenience

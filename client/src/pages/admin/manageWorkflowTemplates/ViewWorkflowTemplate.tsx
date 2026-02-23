@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import EditIcon from '@mui/icons-material/Edit';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   WorkflowTemplateStepWithFormAndIndex,
@@ -98,10 +98,6 @@ export const ViewWorkflowTemplate = () => {
   const isLoading = workflowTemplateQuery.isPending;
 
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
-  const collectionName = useMemo(
-    () => dash(workflowTemplateQuery.data?.classification?.name),
-    [workflowTemplateQuery.data]
-  );
 
   const handleEdit = () => {
     setIsEditMode(true);
@@ -110,6 +106,8 @@ export const ViewWorkflowTemplate = () => {
   const currentWorkflow = isEditMode
     ? workflowEditor.editedWorkflow
     : workflowTemplateQuery.data;
+  const classificationName =
+    currentWorkflow?.classification?.name || currentWorkflow?.name;
 
   return (
     <>
@@ -132,7 +130,7 @@ export const ViewWorkflowTemplate = () => {
               </IconButton>
             </Tooltip>
             <Typography variant="h4" component="h2" sx={{ ml: 0.5 }}>
-              Workflow Template: {dash(currentWorkflow?.name)}
+              Workflow Classification: {dash(classificationName)}
             </Typography>
           </Box>
 
@@ -152,7 +150,7 @@ export const ViewWorkflowTemplate = () => {
         {isEditMode ? (
           <WorkflowEditor
             workflow={workflowEditor.editedWorkflow}
-            collectionName={collectionName}
+            allowClassificationEdit={true}
             hasChanges={workflowEditor.hasChanges}
             selectedStepId={workflowEditor.selectedStepId}
             selectedBranchIndex={workflowEditor.selectedBranchIndex}
@@ -180,14 +178,14 @@ export const ViewWorkflowTemplate = () => {
             </Typography>
 
             <WorkflowMetadata
-              name={currentWorkflow?.name}
+              classificationName={classificationName}
               description={currentWorkflow?.description}
-              collectionName={collectionName}
               version={currentWorkflow?.version}
               lastEdited={currentWorkflow?.lastEdited}
               archived={currentWorkflow?.archived}
               dateCreated={currentWorkflow?.dateCreated}
               isEditMode={false}
+              isClassificationEditable={false}
             />
 
             <Divider sx={{ my: 3 }} />

@@ -129,7 +129,7 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     ):
         assert key in marshalled
     assert marshalled["id"] == workflow_template.id
-    assert marshalled["name"] == "ANC Workflow"
+    assert marshalled["name"] == "Antenatal"
     assert marshalled["archived"] is False
     assert marshalled["date_created"] == 1_690_000_000
     assert marshalled["version"] == "v1"

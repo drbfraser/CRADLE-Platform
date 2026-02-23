@@ -56,7 +56,7 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     """
     workflow_step = WorkflowTemplateStepOrm()
     workflow_step.id = "wts-101"
-    workflow_step.name = "Collect vitals"
+    workflow_step.name_string_id = "ns-collect-vitals"
     workflow_step.description = "Measure BP, HR, Temp"
     workflow_step.expected_completion = 2 * 60 * 60  # seconds
     workflow_step.last_edited = 1_700_000_000
@@ -90,7 +90,7 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     # Top-level expectations
     for key in (
         "id",
-        "name",
+        "name_string_id",
         "description",
         "last_edited",
         "workflow_template_id",
@@ -99,7 +99,7 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     ):
         assert key in marshalled
     assert marshalled["id"] == "wts-101"
-    assert marshalled["name"] == "Collect vitals"
+    assert marshalled["name_string_id"] == "ns-collect-vitals"
     assert marshalled["description"] == "Measure BP, HR, Temp"
     assert marshalled["last_edited"] == 1_700_000_000
     assert marshalled["workflow_template_id"] == "wt-001"
@@ -148,7 +148,7 @@ def test_workflow_template_step_marshal_shallow_tolerates_existing_branches_attr
     """
     workflow_step = WorkflowTemplateStepOrm()
     workflow_step.id = "wts-202"
-    workflow_step.name = "Review labs"
+    workflow_step.name_string_id = "ns-review-labs"
     workflow_step.description = "Check CBC and LFTs"
     workflow_step.expected_completion = None  # should be stripped
     workflow_step.last_edited = 1_800_000_000
@@ -180,5 +180,11 @@ def test_workflow_template_step_marshal_shallow_tolerates_existing_branches_attr
     assert "expected_completion" not in marshalled
 
     # core fields present
-    for key in ("id", "name", "description", "last_edited", "workflow_template_id"):
+    for key in (
+        "id",
+        "name_string_id",
+        "description",
+        "last_edited",
+        "workflow_template_id",
+    ):
         assert key in marshalled

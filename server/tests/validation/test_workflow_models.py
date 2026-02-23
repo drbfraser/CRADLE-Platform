@@ -105,7 +105,6 @@ def test__workflow_template__invalid_step():
     "required_field",
     [
         "id",
-        "name",
         "archived",
         "version",
         "steps",

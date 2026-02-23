@@ -147,10 +147,15 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
 
+    if workflow_template_dict.get("name") is not None:
+        del workflow_template_dict["name"]
+
     # Validate each step in the template
-    if workflow_template_dict.get("steps") is None:
+    if workflow_template_dict.get("steps") is not None:
         for workflow_template_step in workflow_template_dict["steps"]:
-            validate_workflow_template_step(workflow_template_step)
+            validate_workflow_template_step(
+                workflow_template_step, allow_missing_template=True
+            )
 
     workflow_template_orm = orm_serializer.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
@@ -368,18 +373,39 @@ def update_workflow_template_patch(
             ),
         )
 
-    # If the request body includes a new workflow classification, process it
-    if body_dict.get("classification") is not None:
-        # Use the existing classification_id as a fallback if one isn't provided
-        classification_context = {
-            "classification_id": body_dict.get(
-                "classification_id", workflow_template.classification_id
-            )
-        }
-        get_workflow_classification_from_dict(
-            classification_context, body_dict["classification"]
+    if body_dict.get("name") is not None:
+        return abort(
+            code=400,
+            description=(
+                "Template name is derived from classification. "
+                "Update classification.name instead."
+            ),
         )
-        body_dict["classification_id"] = classification_context["classification_id"]
+
+    # If classification is provided during template edit, rename the existing
+    # classification in place (do not create or relink classifications).
+    if body_dict.get("classification") is not None:
+        existing_classification_id = workflow_template.classification_id
+        if existing_classification_id is None:
+            return abort(code=404, description="Classification not found.")
+
+        classification_orm = crud.read(
+            WorkflowClassificationOrm, id=existing_classification_id
+        )
+        if classification_orm is None:
+            return abort(code=404, description="Classification not found.")
+
+        classification_name = body_dict["classification"].get("name")
+        if classification_name is not None:
+            crud.update(
+                WorkflowClassificationOrm,
+                changes={"name": classification_name},
+                autocommit=False,
+                id=existing_classification_id,
+            )
+
+        # Always keep template bound to its existing classification ID.
+        body_dict["classification_id"] = existing_classification_id
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
 
@@ -387,7 +413,7 @@ def update_workflow_template_patch(
         body_dict.get("classification_id") or workflow_template.classification_id
     )
 
-    if classification_id is not None:
+    if classification_id is not None and body_dict.get("version") is not None:
         check_for_existing_template_version(
             classification_id,
             body_dict.get("version"),
@@ -499,7 +525,14 @@ def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
 
     # Write template data
     writer.writerow(["ID", workflow_template.id])
-    writer.writerow(["Name", workflow_template.name])
+    writer.writerow(
+        [
+            "Name",
+            workflow_template.classification.name
+            if workflow_template.classification
+            else "",
+        ]
+    )
     writer.writerow(["Description", workflow_template.description or ""])
     writer.writerow(["Version", workflow_template.version])
     writer.writerow(

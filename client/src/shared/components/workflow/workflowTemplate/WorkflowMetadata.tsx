@@ -15,15 +15,15 @@ import { getPrettyDateTime } from 'src/shared/utils';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface WorkflowMetadataProps {
-  name?: string;
+  classificationName?: string;
   description?: string;
-  collectionName?: string;
   version?: string;
   lastEdited?: number;
   archived?: boolean;
   dateCreated?: number;
   isEditMode?: boolean;
-  onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
+  isClassificationEditable?: boolean;
+  onFieldChange?: (field: keyof WorkflowTemplate, value: unknown) => void;
 }
 
 const InlineField = ({
@@ -88,14 +88,14 @@ const InlineField = ({
 };
 
 export const WorkflowMetadata = ({
-  name,
+  classificationName,
   description,
-  collectionName,
   version,
   lastEdited,
   archived,
   dateCreated,
   isEditMode = false,
+  isClassificationEditable = false,
   onFieldChange,
 }: WorkflowMetadataProps) => {
   const versionText = `${version ?? ''}`;
@@ -103,31 +103,33 @@ export const WorkflowMetadata = ({
     ? getPrettyDateTime(new Date(lastEdited).getTime())
     : 'N/A';
 
-  const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
+  const handleFieldChange = (field: keyof WorkflowTemplate, value: unknown) => {
     onFieldChange?.(field, value);
   };
 
   return (
     <>
-      {/* Row 1: Left (Name + Description) | Right (Collection) */}
+      {/* Row 1: Classification + Description */}
       <Grid
         container
         columnSpacing={6}
         rowSpacing={{ xs: 2, md: 0 }}
-        justifyContent="space-around"
+        justifyContent="flex-start"
         alignItems="flex-start"
         sx={{ mb: 3 }}>
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
             <Stack spacing={1.5}>
-              <Typography variant="subtitle1">Name:</Typography>
+              <Typography variant="subtitle1">Classification Name:</Typography>
               <TextField
-                value={name || ''}
-                placeholder="Enter name"
+                value={classificationName || ''}
+                placeholder="Enter classification name"
                 fullWidth
-                InputProps={{ readOnly: !isEditMode }}
+                InputProps={{
+                  readOnly: !isEditMode || !isClassificationEditable,
+                }}
                 onChange={
-                  isEditMode
+                  isEditMode && isClassificationEditable
                     ? (e) => handleFieldChange('name', e.target.value)
                     : undefined
                 }
@@ -149,15 +151,6 @@ export const WorkflowMetadata = ({
                 }
               />
             </Stack>
-          </Stack>
-        </Grid>
-
-        <Grid item xs={12} md={5}>
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle1">Collection:</Typography>
-            <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>
-              {collectionName}
-            </Typography>
           </Stack>
         </Grid>
       </Grid>

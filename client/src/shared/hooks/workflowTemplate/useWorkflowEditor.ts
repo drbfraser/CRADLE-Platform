@@ -58,10 +58,24 @@ export const useWorkflowEditor = ({
   const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
     if (!editedWorkflow) return;
 
-    setEditedWorkflow((prev) => ({
-      ...prev!,
-      [field]: value,
-    }));
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      if (field === 'name') {
+        return {
+          ...prev,
+          name: value,
+          classification: prev.classification
+            ? { ...prev.classification, name: value }
+            : { id: prev.classificationId || '', name: value },
+        };
+      }
+
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
     setHasChanges(true);
   };
 

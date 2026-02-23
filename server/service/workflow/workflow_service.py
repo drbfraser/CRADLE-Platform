@@ -47,8 +47,16 @@ class WorkflowService:
         """
         workflow_instance = {}
 
+        # Fallback to classification name if template name is not set
+        workflow_name = getattr(workflow_template, "name", None)
+
+        if workflow_name is None and workflow_template.classification is not None:
+            workflow_name = workflow_template.classification.name
+        if workflow_name is None:
+            workflow_name = "Workflow"
+
         workflow_instance["id"] = get_uuid()
-        workflow_instance["name"] = workflow_template.name
+        workflow_instance["name"] = workflow_name
         workflow_instance["description"] = workflow_template.description
         workflow_instance["start_date"] = None
         workflow_instance["current_step_id"] = None

@@ -177,22 +177,22 @@ def check_branch_conditions(template_step: dict) -> None:
                 )
 
 
-def validate_workflow_template_step(workflow_template_step: dict):
-    # This endpoint assumes that the step has a workflow ID assigned to it already
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=workflow_template_step["workflow_template_id"]
-    )
+def validate_workflow_template_step(
+    workflow_template_step: dict, allow_missing_template: bool = False
+):
+    workflow_template_id = workflow_template_step["workflow_template_id"]
+    workflow_template = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
 
-    if workflow_template is None:
+    if workflow_template is None and not allow_missing_template:
         return abort(
             code=404,
-            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
-                workflow_template_step["workflow_template_id"]
-            ),
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id),
         )
 
     assign_step_ids(
-        WorkflowTemplateStepOrm, workflow_template_step, workflow_template.id
+        WorkflowTemplateStepOrm,
+        workflow_template_step,
+        workflow_template.id if workflow_template else workflow_template_id,
     )
 
     check_branch_conditions(workflow_template_step)
@@ -277,6 +277,15 @@ def generate_updated_workflow_template(
     """
     copy_workflow_template_dict = orm_serializer.marshal(existing_template)
 
+    existing_classification = copy_workflow_template_dict.pop("classification", None)
+    if (
+        copy_workflow_template_dict.get("classification_id") is None
+        and existing_classification is not None
+    ):
+        copy_workflow_template_dict["classification_id"] = existing_classification.get(
+            "id"
+        )
+
     copy_workflow_template_dict.pop("steps", None)
     copy_workflow_template_dict["steps"] = []
 
@@ -292,11 +301,6 @@ def generate_updated_workflow_template(
 
     new_workflow_template.steps = []
     new_workflow_template_id = copy_workflow_template_dict["id"]
-
-    if patch_body.get("classification"):
-        assign_workflow_template_or_instance_ids(
-            m=WorkflowTemplateOrm, workflow=patch_body["classification"]
-        )
 
     template_changes = {
         key: value for key, value in patch_body.items() if key != "steps"
