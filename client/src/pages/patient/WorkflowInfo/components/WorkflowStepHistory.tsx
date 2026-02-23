@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Box, Paper, Typography, Button, Collapse, Chip } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ReplayIcon from '@mui/icons-material/Replay';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { IconButton } from '@mui/material';
@@ -157,13 +156,8 @@ export default function WorkflowStepHistory({
                       color="success"
                       sx={{ fontSize: 24 }}
                     />
-                  ) : step.status === StepStatus.ACTIVE ? (
-                    <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
                   ) : (
-                    // TODO: remove if not showing possible steps in step history
-                    <HourglassEmptyIcon
-                      sx={{ color: 'grey.400', fontSize: 24 }}
-                    />
+                    <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
                   );
 
                 return (
@@ -266,7 +260,7 @@ export default function WorkflowStepHistory({
                           variant="body2"
                           color="text.secondary"
                           sx={{ mb: 3 }}>
-                          {step.description || 'No description available.'}
+                          {step.description ?? 'No description available.'}
                         </Typography>
 
                         {/* Form Block */}
@@ -366,31 +360,6 @@ export default function WorkflowStepHistory({
                             </Box>
                           </Box>
                         )}
-
-                        {/* Expected Completion Date */}
-                        {/* <Box sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Expected Completion Date
-                          </Typography>
-                          {step.status === StepStatus.ACTIVE ? (
-                            <TextField
-                              type="date"
-                              size="small"
-                              value={step.expectedCompletion || ''}
-                              onChange={(e) =>
-                                handleChangeExpectedCompletion(
-                                  step.id,
-                                  e.target.value
-                                )
-                              }
-                              sx={{ width: 200 }}
-                            />
-                          ) : (
-                            <Typography variant="body2" color="text.secondary">
-                              {step.expectedCompletion || 'Not set'}
-                            </Typography>
-                          )}
-                        </Box> */}
 
                         {/* Complete Step Button */}
                         <Box

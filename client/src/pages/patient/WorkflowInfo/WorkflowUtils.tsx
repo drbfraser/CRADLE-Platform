@@ -178,10 +178,11 @@ export function buildInstanceDetails(
 }
 
 /**
- * Returns steps in the order of:
- *  - Active step(s) first (in case of parallel branches)
- *  - Then completed steps in reverse chronological order (most recent first)
- *  - Possible steps are not returned
+ * Returns the workflow step history for a given instance,
+ * with the active step first and completed steps in reverse chronological order.
+ *
+ * @param instance InstanceDetails object
+ * @returns InstanceStep array with active step first and completed steps in reverse chronology
  */
 export function getWorkflowStepHistory(
   instance: InstanceDetails
@@ -199,22 +200,39 @@ export function getWorkflowStepHistory(
   ];
 }
 
+/**
+ * Converts the {@link PossibleStep} tree in the workflow instance details into a
+ * flattened array of possible future steps for UI rendering.
+ *
+ * @param instance InstanceDetails object
+ * @returns a flattened array of the possible steps tree in UI render order
+ */
 export function getWorkflowPossibleSteps(
   instance: InstanceDetails
 ): PossibleStep[] {
   const currentStepId = getWorkflowCurrentStep(instance)?.id ?? '';
   const [main, trimmed] = getWorkflowPossibleStepsArray(
     instance.possibleSteps,
-    currentStepId,
-    false
+    currentStepId
   );
   return [...main, ...trimmed];
 }
 
+/**
+ * Helper function used in {@link getWorkflowPossibleSteps}.
+ * Flattens the {@link PossibleStep} tree into an array, with the "main" branch
+ * (the branch containing all the descendants of the current active step) first,
+ * followed by the "trimmed" branches (other possible future steps not on the main path).
+ *
+ * @param baseStep PossibleStep of the root node in the workflow tree
+ * @param currentStepID id of the currently active step
+ * @param pastCurrent boolean indicator of whether we are past the current step in the workflow tree (default false)
+ * @returns tuple of main and trimmed possible steps arrays
+ */
 function getWorkflowPossibleStepsArray(
   baseStep: PossibleStep,
   currentStepID: string,
-  pastCurrent: boolean
+  pastCurrent: boolean = false
 ): [PossibleStep[], PossibleStep[]] {
   const main: PossibleStep[] = [];
   const trimmed: PossibleStep[] = [];
@@ -240,7 +258,7 @@ function getWorkflowPossibleStepsArray(
 }
 
 /**
- * Returns the number of possible future steps available based on the instance details.
+ * Returns the number of possible future steps available based on the workflow instance details.
  * Possible future steps do not include steps that are already completed or active.
  *
  * @param instance InstanceDetails object
@@ -255,7 +273,7 @@ export function getWorkflowPossibleStepsLength(
 }
 
 /**
- * Maps an InstanceStep to a PossibleStep.
+ * Maps an {@link InstanceStep} to a {@link PossibleStep}.
  *
  * @param step InstanceStep to map
  * @returns PossibleStep
@@ -274,11 +292,11 @@ function mapWorkflowPossibleStep(step: InstanceStep): PossibleStep {
 }
 
 /**
- * Returns possible future steps in DFS order (sorted by shortest path first)
- * - Finds all paths from beginning to end of workflow, then deduplicates steps that appear in multiple paths (e.g. due to completion, cycles, converging/diverging branches, etc.)
- * - Steps that are already completed or active are not included in the possible steps
- * - Cycles are handled by keeping track of visited steps (for handling future cyclical workflow implementation)
- * - TODO: better handling of edge cases caused by overriding steps (e.g. skipping back and forth between branches)
+ * Computes a {@link PossibleStep} tree from the workflow template and instance steps.
+ *
+ * @param instance InstanceStep array
+ * @param template WorkflowTemplate object
+ * @returns PossibleStep object of the root node in the workflow tree
  */
 export function initiateWorkflowPossibleSteps(
   instance: InstanceStep[],
@@ -299,68 +317,6 @@ export function initiateWorkflowPossibleSteps(
     instance.map((s) => [s.workflowTemplateStepId, mapWorkflowPossibleStep(s)])
   );
 
-  /**
-   * Helper function: DFS to find all paths to end of workflow from current step
-   * - includes current step
-   * - can probably be further optimized
-   */
-  function getWorkflowTree(
-    stepId: string,
-    templateStepMap: Record<string, WorkflowTemplateStep>,
-    instanceStepMap: Record<string, PossibleStep>,
-    visited: Set<string>,
-    indent: number
-  ): PossibleStep {
-    const step = templateStepMap[stepId];
-    // if (!step) return []; // TODO: better handling of no step found case
-
-    // Possibly a cycle or a repeated step
-    if (visited.has(stepId)) {
-      return {
-        ...instanceStepMap[stepId],
-        indent,
-        shortestPathLength: Infinity, // TODO: better handling (infinity is a placeholder)
-      };
-    }
-
-    const nextVisited = new Set(visited);
-    nextVisited.add(stepId);
-
-    const baseNode: PossibleStep = {
-      ...instanceStepMap[stepId],
-      indent,
-      shortestPathLength: 1,
-    };
-
-    // Leaf node (possible step)
-    if (!step.branches || step.branches.length === 0) {
-      return baseNode;
-    }
-
-    let shortestPath = Infinity;
-
-    for (const branch of step.branches) {
-      const childIndent = indent + (step.branches.length > 1 ? 1 : 0); // increase indent for diverging branches
-
-      const subTree = getWorkflowTree(
-        branch.targetStepId,
-        templateStepMap,
-        instanceStepMap,
-        nextVisited,
-        childIndent
-      );
-
-      baseNode.branches.push(subTree);
-
-      shortestPath = Math.min(shortestPath, subTree.shortestPathLength);
-    }
-
-    baseNode.shortestPathLength =
-      shortestPath === Infinity ? Infinity : shortestPath + 1;
-
-    return baseNode;
-  }
-
   return getWorkflowTree(
     // get starting node
     template.startingStepId
@@ -373,12 +329,96 @@ export function initiateWorkflowPossibleSteps(
   );
 }
 
+/**
+ * A helper function used in {@link initiateWorkflowPossibleSteps}
+ * that recursively builds the {@link PossibleStep} tree.
+ * - Uses DFS to traverse the workflow template steps starting from the root stepID.
+ * - Calculates the shortest path length from each node to the end of the workflow (for progress estimation).
+ * - Calculates indent level for each node (for formatting in UI).
+ *
+ * @param stepId string template id of the initial step
+ * @param templateStepMap Record<string, WorkflowTemplateStep>
+ * @param instanceStepMap Record<string, PossibleStep>
+ * @param visited Set<string> of visited step ids to prevent cycles
+ * @param indent number representing the current indent level for formatting
+ * @returns PossibleStep root node (where stepID is the root node)
+ */
+function getWorkflowTree(
+  stepId: string,
+  templateStepMap: Record<string, WorkflowTemplateStep>,
+  instanceStepMap: Record<string, PossibleStep>,
+  visited: Set<string>,
+  indent: number
+): PossibleStep {
+  const step = templateStepMap[stepId];
+  // if (!step) return []; // TODO: better handling of no step found case
+
+  // Possibly a cycle or a repeated step
+  if (visited.has(stepId)) {
+    return {
+      ...instanceStepMap[stepId],
+      indent,
+      shortestPathLength: Infinity, // TODO: better handling of cycles (infinity is a placeholder)
+    };
+  }
+
+  const nextVisited = new Set(visited);
+  nextVisited.add(stepId);
+
+  const baseNode: PossibleStep = {
+    ...instanceStepMap[stepId],
+    indent,
+    shortestPathLength: 1,
+  };
+
+  // Leaf node (possible step)
+  if (!step.branches || step.branches.length === 0) {
+    return baseNode;
+  }
+
+  let shortestPath = Infinity;
+
+  for (const branch of step.branches) {
+    const childIndent = indent + (step.branches.length > 1 ? 1 : 0); // increase indent for diverging branches
+
+    const subTree = getWorkflowTree(
+      branch.targetStepId,
+      templateStepMap,
+      instanceStepMap,
+      nextVisited,
+      childIndent
+    );
+
+    baseNode.branches.push(subTree);
+
+    shortestPath = Math.min(shortestPath, subTree.shortestPathLength);
+  }
+
+  baseNode.shortestPathLength =
+    shortestPath === Infinity ? Infinity : shortestPath + 1;
+
+  return baseNode;
+}
+
+/**
+ * Finds the current active step in the workflow instance, or returns undefined if no step is active.
+ *
+ * @param instance {@link InstanceDetails} object
+ * @returns the current step in the workflow instance, or undefined if no step is active
+ */
 export function getWorkflowCurrentStep(instance: InstanceDetails) {
   const steps = instance.steps;
   const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
   return currentStep;
 }
 
+/**
+ * Recursively searches the PossibleStep tree to find the current step and
+ * returns the shortest path length from the current step to the end of the workflow.
+ *
+ * @param instance {@link InstanceDetails} object
+ * @returns number representing the shortest path length from the current step to the end of the workflow
+ */
 export function getWorkflowShortestPath(instance: InstanceDetails): number {
   const currentStep = getWorkflowCurrentStep(instance);
   if (!currentStep) return Infinity;
