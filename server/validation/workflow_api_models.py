@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import Field, model_validator
 from typing_extensions import Self
@@ -113,3 +113,29 @@ class ApplyActionRequest(CradleBaseModel):
 
 class OverrideCurrentStepRequest(CradleBaseModel):
     workflow_instance_step_id: str
+
+
+# Workflow Variable Catalogue
+
+
+class WorkflowVariableCatalogueItemModel(CradleBaseModel, extra="forbid"):
+    """Single variable entry in the catalogue"""
+
+    tag: str
+    description: Optional[str] = None
+    type: str
+    namespace: Optional[str] = None
+    collection_name: Optional[str] = None
+    field_path: Optional[List[str]] = None
+    is_computed: bool = False
+    is_dynamic: bool = False
+
+
+class GetWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
+    variables: List[WorkflowVariableCatalogueItemModel]
+
+
+class WorkflowVariableDetailModel(WorkflowVariableCatalogueItemModel):
+    """Detail response for a single variable"""
+
+    examples: Optional[List[str]] = None

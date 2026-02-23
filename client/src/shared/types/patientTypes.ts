@@ -68,7 +68,7 @@ export type PatientMonthlyStats = [
   Array<number>,
   Array<number>,
   Array<number>,
-  Array<number>
+  Array<number>,
 ];
 
 export type PatientStatistics = {

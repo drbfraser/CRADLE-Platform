@@ -25,6 +25,9 @@ export const useWorkflowEditor = ({
   );
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
+  const [selectedBranchIndex, setSelectedBranchIndex] = useState<
+    number | undefined
+  >();
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string>('');
 
@@ -44,6 +47,12 @@ export const useWorkflowEditor = ({
     setEditedWorkflow({ ...workflow });
     setHasChanges(false);
     initHistory(workflow);
+  };
+
+  // Custom step selection that clears branch selection
+  const handleStepSelect = (stepId: string) => {
+    setSelectedStepId(stepId);
+    setSelectedBranchIndex(undefined); // Clear branch selection when selecting a step
   };
 
   const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
@@ -80,7 +89,8 @@ export const useWorkflowEditor = ({
   const handleBranchChange = (
     stepId: string,
     branchIndex: number,
-    conditionRule: string
+    conditionRule: string,
+    conditionName?: string
   ) => {
     if (!editedWorkflow) return;
 
@@ -91,11 +101,24 @@ export const useWorkflowEditor = ({
         if (step.id === stepId && step.branches) {
           const updatedBranches = step.branches.map((branch, idx) => {
             if (idx === branchIndex) {
+              // Parse the existing rule to merge with the name
+              let ruleWithName = conditionRule;
+              if (conditionName) {
+                try {
+                  const ruleObj = JSON.parse(conditionRule);
+                  ruleObj.name = conditionName;
+                  ruleWithName = JSON.stringify(ruleObj);
+                } catch {
+                  // If parsing fails, just use the original rule
+                  ruleWithName = conditionRule;
+                }
+              }
+
               return {
                 ...branch,
                 condition: {
                   id: branch.condition?.id || `condition-${Date.now()}`,
-                  rule: conditionRule,
+                  rule: ruleWithName,
                 },
               };
             }
@@ -128,35 +151,27 @@ export const useWorkflowEditor = ({
       .toString(36)
       .substr(2, 9)}`;
 
-    // Determine the next step connections
-    const newStepBranches =
-      currentStep.branches && currentStep.branches.length > 0
-        ? currentStep.branches.map((branch) => ({
-            ...branch,
-            stepId: newStepId,
-          }))
-        : [];
-
-    // Create a new step
+    // Create the new node (it starts with no children of its own)
     const newStep = {
       id: newStepId,
       name: DEFAULT_STEP_NAME,
       description: DEFAULT_STEP_DESCRIPTION,
       lastEdited: Date.now(),
       workflowTemplateId: editedWorkflow.id,
-      branches: newStepBranches,
+      branches: [],
     };
 
-    // Update current step to point all its branches to the new step
+    //always append the new ID to the existing branches array
     const updatedCurrentStep = {
       ...currentStep,
-      branches:
-        currentStep.branches && currentStep.branches.length > 0
-          ? currentStep.branches.map((branch) => ({
-              ...branch,
-              targetStepId: newStepId,
-            }))
-          : [{ stepId: currentStep.id, targetStepId: newStepId }],
+      branches: [
+        ...(currentStep.branches || []),
+        {
+          stepId: currentStep.id,
+          targetStepId: newStepId,
+          condition: undefined,
+        },
+      ],
     };
 
     // Capture the new workflow state
@@ -429,11 +444,37 @@ export const useWorkflowEditor = ({
     onCancel?.();
   };
 
+  const handleAddRule = (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => {
+    if (!editedWorkflow) return;
+
+    // Find the branch index for this specific branch
+    const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
+    if (!sourceStep?.branches) return;
+
+    const branchIndex = sourceStep.branches.findIndex(
+      (b) =>
+        b.id === branchId ||
+        (b.stepId === sourceStepId && b.targetStepId === targetStepId)
+    );
+
+    if (branchIndex === -1) return;
+
+    // Select the source step and the specific branch
+    setSelectedStepId(sourceStepId);
+    setSelectedBranchIndex(branchIndex);
+  };
+
   return {
     editedWorkflow,
     hasChanges,
     selectedStepId,
-    setSelectedStepId,
+    setSelectedStepId: handleStepSelect,
+    selectedBranchIndex,
+    setSelectedBranchIndex,
     toastOpen,
     setToastOpen,
     toastMsg,
@@ -445,6 +486,7 @@ export const useWorkflowEditor = ({
     handleAddBranch,
     handleConnectionCreate,
     handleDeleteNode,
+    handleAddRule,
     handleSave,
     handleCancel,
     initializeEditor,

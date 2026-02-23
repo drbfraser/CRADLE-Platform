@@ -6,6 +6,7 @@ import {
   Node,
   Edge,
   NodeTypes,
+  EdgeTypes,
   useNodesState,
   useEdgesState,
   addEdge,
@@ -18,6 +19,7 @@ import {
   WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
 import { FlowNode } from './FlowNode';
+import { FlowEdge } from './FlowEdge';
 import { ID } from 'src/shared/constants';
 
 const HORIZONTAL_SPACING = 350; // Space between nodes at the same level
@@ -25,6 +27,10 @@ const VERTICAL_SPACING = 180; // Space between each level (top to bottom)
 
 const nodeTypes: NodeTypes = {
   flowNode: FlowNode,
+};
+
+const edgeTypes: EdgeTypes = {
+  flowEdge: FlowEdge,
 };
 
 type Position = { x: number; y: number };
@@ -59,87 +65,51 @@ function calculateNodeLevels(
   return stepLevels;
 }
 
-/**
- * Assign horizontal positions to leaf nodes (endpoints) in DFS order.
- */
-function positionLeafNodes(
+function calculateStepPositions(
   steps: WorkflowTemplateStepWithFormAndIndex[],
   firstStepId: string,
-  stepLevels: Map<string, number>,
-  stepPositions: Map<string, Position>
-): void {
-  const visited = new Set<string>();
-  let horizontalIndex = 0;
+  stepLevels: Map<string, number>
+): Map<string, Position> {
+  const stepPositions = new Map<string, Position>();
+  const nextXAtLevel = new Map<number, number>(); // Tracks the right-most edge of each level
 
-  const traverse = (stepId: string) => {
-    if (visited.has(stepId)) return;
-    visited.add(stepId);
-
+  const layout = (stepId: string, level: number): number => {
     const step = steps.find((s) => s.id === stepId);
-    const level = stepLevels.get(stepId) || 0;
+    if (!step) return 0;
 
-    if (step?.branches && step.branches.length > 0) {
-      // Not a leaf, continue to children
-      step.branches.forEach((branch: WorkflowTemplateStepBranch) => {
-        traverse(branch.targetStepId);
-      });
-    } else {
-      // Leaf node: assign position
-      const x = horizontalIndex * HORIZONTAL_SPACING;
-      const y = level * VERTICAL_SPACING;
-      stepPositions.set(stepId, { x, y });
-      horizontalIndex++;
-    }
-  };
-
-  traverse(firstStepId);
-}
-
-/**
- * Position parent nodes at the average X position of their children.
- * bottom-up from leaf nodes.
- */
-function positionParentNodes(
-  steps: WorkflowTemplateStepWithFormAndIndex[],
-  firstStepId: string,
-  stepLevels: Map<string, number>,
-  stepPositions: Map<string, Position>
-): void {
-  const calculatePosition = (stepId: string): Position => {
-    // Return if already positioned
-    if (stepPositions.has(stepId)) {
-      return stepPositions.get(stepId)!;
-    }
-
-    const step = steps.find((s) => s.id === stepId);
-    const level = stepLevels.get(stepId) || 0;
     const y = level * VERTICAL_SPACING;
+    let x: number;
 
-    if (step?.branches && step.branches.length > 0) {
-      // Calculate X as average of children's X positions
-      const childPositions = step.branches.map(
-        (branch: WorkflowTemplateStepBranch) =>
-          calculatePosition(branch.targetStepId)
+    if (!step.branches || step.branches.length === 0) {
+      // LEAF NODE: Place it at the next available spot at this depth
+      x = nextXAtLevel.get(level) || 0;
+      nextXAtLevel.set(level, x + HORIZONTAL_SPACING);
+    } else {
+      // PARENT NODE: Layout all children first
+      const childXPositions = step.branches.map((b) =>
+        layout(b.targetStepId, level + 1)
       );
 
-      const avgX =
-        childPositions.reduce((sum, pos) => sum + pos.x, 0) /
-        childPositions.length;
+      // Center parent over its children
+      const minChildX = Math.min(...childXPositions);
+      const maxChildX = Math.max(...childXPositions);
+      x = (minChildX + maxChildX) / 2;
 
-      const position = { x: avgX, y };
-      stepPositions.set(stepId, position);
-      return position;
+      // Ensure this parent doesn't overlap existing nodes at ITS level
+      const currentLevelMinX = nextXAtLevel.get(level) || 0;
+      if (x < currentLevelMinX) {
+        x = currentLevelMinX;
+      }
+      nextXAtLevel.set(level, x + HORIZONTAL_SPACING);
     }
 
-    // Fallback for nodes without branches
-    const position = { x: 0, y };
-    stepPositions.set(stepId, position);
-    return position;
+    stepPositions.set(stepId, { x, y });
+    return x;
   };
 
-  calculatePosition(firstStepId);
+  layout(firstStepId, 0);
+  return stepPositions;
 }
-
 /**
  * Prevent overlapping nodes at each level by enforcing minimum spacing
  * and centering each level horizontally.
@@ -192,6 +162,30 @@ function preventNodeOverlaps(
     nodesWithPositions.forEach(({ stepId, pos }) => {
       stepPositions.set(stepId, { x: pos.x + offset, y: pos.y });
     });
+
+    //Global Centering Logic
+    const levelNodes = new Map<number, string[]>();
+    stepLevels.forEach((level, stepId) => {
+      if (!levelNodes.has(level)) levelNodes.set(level, []);
+      levelNodes.get(level)!.push(stepId);
+    });
+
+    levelNodes.forEach((nodeIds) => {
+      const positions = nodeIds.map((id) => stepPositions.get(id)!.x);
+      const minX = Math.min(...positions);
+      const maxX = Math.max(...positions);
+
+      // Center this specific level horizontally around 0
+      const levelCenterOffset = (minX + maxX) / 2;
+
+      nodeIds.forEach((stepId) => {
+        const currentPos = stepPositions.get(stepId)!;
+        stepPositions.set(stepId, {
+          x: currentPos.x - levelCenterOffset, // Shift nodes so level is centered at 0
+          y: currentPos.y,
+        });
+      });
+    });
   });
 }
 
@@ -233,7 +227,13 @@ function createFlowNodes(
  * Create ReactFlow edges from workflow step branches.
  */
 function createFlowEdges(
-  steps: WorkflowTemplateStepWithFormAndIndex[]
+  steps: WorkflowTemplateStepWithFormAndIndex[],
+  isEditMode: boolean,
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void
 ): Edge[] {
   const edges: Edge[] = [];
 
@@ -241,12 +241,35 @@ function createFlowEdges(
     if (step.branches) {
       step.branches.forEach(
         (branch: WorkflowTemplateStepBranch, index: number) => {
+          // Extract condition name for display
+          let conditionName = 'Condition';
+          if (branch.condition) {
+            try {
+              const rule = JSON.parse(branch.condition.rule);
+              // Try to extract a meaningful name from the rule
+              conditionName =
+                rule.name || rule.label || `Condition ${index + 1}`;
+            } catch {
+              // If parsing fails, use a default name
+              conditionName = `Condition ${index + 1}`;
+            }
+          }
+
           edges.push({
             id: `e-${step.id}-${branch.targetStepId}-${index}`,
             source: step.id,
             target: branch.targetStepId,
-            type: 'default',
+            type: 'flowEdge',
             animated: false,
+            data: {
+              hasCondition: !!branch.condition,
+              conditionName: branch.condition ? conditionName : undefined,
+              branchId: branch.id,
+              sourceStepId: step.id,
+              targetStepId: branch.targetStepId,
+              onAddRule,
+              isEditMode,
+            },
             style: {
               stroke: '#9e9e9e',
               strokeWidth: 2.5,
@@ -276,6 +299,11 @@ interface WorkflowFlowProps {
   onAddBranch?: (stepId: string) => void;
   onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode?: (stepId: string) => void;
+  onAddRule?: (
+    branchId: string,
+    sourceStepId: string,
+    targetStepId: string
+  ) => void;
 }
 
 export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
@@ -288,6 +316,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  onAddRule,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -299,10 +328,11 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
 
     const stepLevels = calculateNodeLevels(steps, firstStepId);
 
-    const stepPositions = new Map<string, Position>();
-    positionLeafNodes(steps, firstStepId, stepLevels, stepPositions);
-
-    positionParentNodes(steps, firstStepId, stepLevels, stepPositions);
+    const stepPositions = calculateStepPositions(
+      steps,
+      firstStepId,
+      stepLevels
+    );
 
     preventNodeOverlaps(stepLevels, stepPositions);
 
@@ -316,7 +346,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
       onAddBranch,
       onDeleteNode
     );
-    const edges = createFlowEdges(steps);
+    const edges = createFlowEdges(steps, isEditMode, onAddRule);
 
     return { generatedNodes: nodes, generatedEdges: edges };
   }, [
@@ -328,6 +358,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     onInsertNode,
     onAddBranch,
     onDeleteNode,
+    onAddRule,
   ]);
 
   // Update nodes and edges when generated data changes
@@ -344,11 +375,6 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
 
       if (!sourceStep || !targetStep) {
         return 'Invalid connection: step not found';
-      }
-
-      // Check if source already has outgoing connections
-      if (sourceStep.branches && sourceStep.branches.length > 0) {
-        return 'This node already has an outgoing connection.';
       }
 
       // Calculate levels to ensure target is deeper than source
@@ -415,6 +441,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         onConnect={isEditMode ? onConnect : undefined}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         nodesDraggable={false}
         nodesConnectable={isEditMode}
         elementsSelectable={isEditMode}
