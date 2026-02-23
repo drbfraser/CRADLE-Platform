@@ -421,7 +421,7 @@ export function getWorkflowCurrentStep(instance: InstanceDetails) {
  */
 export function getWorkflowShortestPath(instance: InstanceDetails): number {
   const currentStep = getWorkflowCurrentStep(instance);
-  if (!currentStep) return Infinity;
+  if (!currentStep) return Infinity; // TODO: better handling of no active step case
 
   const root = instance.possibleSteps;
   const queue: PossibleStep[] = [root];
@@ -429,6 +429,9 @@ export function getWorkflowShortestPath(instance: InstanceDetails): number {
 
   while (queue.length > 0) {
     const step = queue.shift()!;
+    if (step.id === currentStep.id) {
+      return step.shortestPathLength;
+    }
 
     for (const branch of step.branches) {
       if (branch.id === currentStep.id) {

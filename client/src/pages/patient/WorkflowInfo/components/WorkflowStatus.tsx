@@ -54,12 +54,12 @@ export default function WorkflowStatus(props: {
                     : 'Last Edited'}
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {workflowInstance.workflowCompletedOn ??
+                  {workflowInstance.workflowCompletedOn ||
                     workflowInstance.lastEditedOn}
                 </Typography>
                 {!workflowInstance.workflowCompletedOn && (
                   <Typography variant="caption" color="text.secondary">
-                    by {workflowInstance?.lastEditedBy ?? 'N/A'}
+                    by {workflowInstance?.lastEditedBy || 'N/A'}
                   </Typography>
                 )}
               </Box>
@@ -81,7 +81,7 @@ export default function WorkflowStatus(props: {
                   {workflowInstance.workflowCompletedOn
                     ? progressInfo.completed
                     : progressInfo.completed +
-                      (getWorkflowShortestPath(workflowInstance) ?? 0)}
+                      (getWorkflowShortestPath(workflowInstance) || 0)}
                   {workflowInstance.workflowCompletedOn ? '' : '+'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -89,11 +89,11 @@ export default function WorkflowStatus(props: {
                   {workflowInstance.workflowCompletedOn
                     ? 'All steps completed'
                     : 'At least ' +
-                      (getWorkflowShortestPath(workflowInstance) ??
+                      (getWorkflowShortestPath(workflowInstance) ||
                         workflowInstance.steps.length -
                           progressInfo.completed) +
                       ' more step' +
-                      (getWorkflowShortestPath(workflowInstance) ??
+                      (getWorkflowShortestPath(workflowInstance) ||
                       workflowInstance.steps.length - progressInfo.completed !==
                         1
                         ? 's'
