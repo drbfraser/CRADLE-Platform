@@ -12,6 +12,10 @@ import ArticleIcon from '@mui/icons-material/Article';
 
 import { Tooltip, IconButton } from '@mui/material';
 import { InstanceDetails } from 'src/shared/types/workflow/workflowUiTypes';
+import {
+  getWorkflowPossibleSteps,
+  getWorkflowPossibleStepsLength,
+} from '../WorkflowUtils';
 
 export default function WorkflowPossibleSteps(props: {
   workflowInstance: InstanceDetails;
@@ -32,7 +36,7 @@ export default function WorkflowPossibleSteps(props: {
         </Box>
 
         <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
-          {workflowInstance.possibleSteps.length === 0 ? (
+          {getWorkflowPossibleStepsLength(workflowInstance) === 0 ? (
             <Typography
               variant="body2"
               color="text.secondary"
@@ -42,58 +46,56 @@ export default function WorkflowPossibleSteps(props: {
           ) : (
             <>
               <List disablePadding>
-                {workflowInstance.possibleSteps.map((path) =>
-                  path.branch.map((step) => (
-                    <ListItem
-                      key={step.id}
+                {getWorkflowPossibleSteps(workflowInstance).map((step) => (
+                  <ListItem
+                    key={step.id}
+                    sx={{
+                      ml: `${step.indent * 2 + 1}%`, // indent based on branch depth
+                      width: `calc(100% - ${step.indent * 2 + 1}%)`, // adjust width based on indent
+                      border: 1,
+                      borderColor: 'grey.300',
+                      borderRadius: '8px',
+                      mb: 1,
+                      '&:hover': { bgcolor: 'grey.50' },
+                    }}>
+                    <ListItemText
+                      primary={
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          {step.title}
+                        </Typography>
+                      }
+                    />
+                    <Box
                       sx={{
-                        ml: `${step.indent * 2 + 1}%`, // indent based on branch depth
-                        width: `calc(100% - ${step.indent * 2 + 1}%)`, // adjust width based on indent
-                        border: 1,
-                        borderColor: 'grey.300',
-                        borderRadius: '8px',
-                        mb: 1,
-                        '&:hover': { bgcolor: 'grey.50' },
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
                       }}>
-                      <ListItemText
-                        primary={
-                          <Typography variant="subtitle1" fontWeight={600}>
-                            {step.title}
-                          </Typography>
-                        }
-                      />
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                        }}>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip
+                          title="Set this as current step"
+                          placement="top">
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleMakeCurrent(step.id, step.title)
+                            }>
+                            <PlayArrowIcon />
+                          </IconButton>
+                        </Tooltip>
+                        {step.hasForm && (
                           <Tooltip
-                            title="Set this as current step"
+                            title="This step has an associated form"
                             placement="top">
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                handleMakeCurrent(step.id, step.title)
-                              }>
-                              <PlayArrowIcon />
+                            <IconButton size="small" disabled>
+                              <ArticleIcon />
                             </IconButton>
                           </Tooltip>
-                          {step.hasForm && (
-                            <Tooltip
-                              title="This step has an associated form"
-                              placement="top">
-                              <IconButton size="small" disabled>
-                                <ArticleIcon />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Box>
+                        )}
                       </Box>
-                    </ListItem>
-                  ))
-                )}
+                    </Box>
+                  </ListItem>
+                ))}
               </List>
               <Typography
                 variant="caption"

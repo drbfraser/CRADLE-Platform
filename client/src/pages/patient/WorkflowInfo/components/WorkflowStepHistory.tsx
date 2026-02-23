@@ -146,7 +146,7 @@ export default function WorkflowStepHistory({
                 }}
               />
 
-              {getWorkflowStepHistory(workflowInstance.steps).map((step) => {
+              {getWorkflowStepHistory(workflowInstance).map((step) => {
                 /* TODO: make workflow completion independent of workflow.step.length and move 
                    getWorkflowStepHistory to WorkflowUtils.tsx when building workflow instance 
                    to minimize rendering inefficiencies */

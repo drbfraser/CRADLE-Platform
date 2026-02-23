@@ -24,17 +24,12 @@ export type InstanceStep = {
   workflowTemplateStepId: string;
 };
 
-export type WorkflowPath = {
-  branch: PossibleStep[];
-  length: number;
-  hasCycle: boolean;
-  trimmed: boolean;
-};
-
 export type PossibleStep = {
   id: string;
   title: string;
   indent: number; // for formatting based on branch depth
+  branches: PossibleStep[];
+  status: StepStatus;
   hasForm?: boolean;
   isSkippable?: boolean;
 };
@@ -61,7 +56,7 @@ export type InstanceDetails = {
 
   // Steps
   steps: InstanceStep[];
-  possibleSteps: WorkflowPath[];
+  possibleSteps: PossibleStep; // tree of all possible steps
 };
 
 export type WorkflowInstanceProgress = {

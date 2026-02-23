@@ -15,7 +15,6 @@ import {
   PossibleStep,
   WorkflowInfoRow,
   WorkflowNextStepOption,
-  WorkflowPath,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import {
   formatISODateNumber,
@@ -169,7 +168,7 @@ export function buildInstanceDetails(
 
     // Steps
     steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
-    possibleSteps: getWorkflowPossibleSteps(
+    possibleSteps: initiateWorkflowPossibleSteps(
       instance.steps.map((step) => mapWorkflowStep(step, template)),
       template
     ),
@@ -184,25 +183,90 @@ export function buildInstanceDetails(
  *  - Then completed steps in reverse chronological order (most recent first)
  *  - Possible steps are not returned
  */
-export function getWorkflowStepHistory(steps: InstanceStep[]): InstanceStep[] {
+export function getWorkflowStepHistory(
+  instance: InstanceDetails
+): InstanceStep[] {
   return [
-    ...steps.filter((s) => s.status === StepStatus.ACTIVE), // get active step(s)
-    ...steps // append completed steps in reverse chronological order
+    ...instance.steps.filter((s) => s.status === StepStatus.ACTIVE), // get active step(s)
+    ...instance.steps // append completed steps in reverse chronological order
       .filter(
         (step): step is InstanceStep & { completedOn: string } =>
           step.completedOn !== null
       )
       .sort(
-        (a, b) => b.completedOn.localeCompare(a.completedOn) // using string comparison since dates are string ISO format
+        (a, b) => b.completedOn.localeCompare(a.completedOn) // using string comparison since dates are string ISO format (and comparing Date objects to string wasn't working)
       ),
   ];
 }
 
-function mapWorkflowPossibleStep(step: InstanceStep) {
-  const possibleStep = {
+export function getWorkflowPossibleSteps(
+  instance: InstanceDetails
+): PossibleStep[] {
+  const currentStepId = getWorkflowCurrentStep(instance)?.id ?? '';
+  const [main, trimmed] = getWorkflowPossibleStepsArray(
+    instance.possibleSteps,
+    currentStepId,
+    false
+  );
+  return [...main, ...trimmed];
+}
+
+function getWorkflowPossibleStepsArray(
+  baseStep: PossibleStep,
+  currentStepID: string,
+  pastCurrent: boolean
+): [PossibleStep[], PossibleStep[]] {
+  const main: PossibleStep[] = [];
+  const trimmed: PossibleStep[] = [];
+  const isCurrent = pastCurrent || baseStep.id === currentStepID;
+
+  if (baseStep.status === StepStatus.PENDING) {
+    if (isCurrent) {
+      main.push(baseStep);
+    } else {
+      trimmed.push(baseStep);
+    }
+  }
+  for (const branch of baseStep.branches) {
+    const [branchMain, branchTrimmed] = getWorkflowPossibleStepsArray(
+      branch,
+      currentStepID,
+      isCurrent
+    );
+    main.push(...branchMain);
+    trimmed.push(...branchTrimmed);
+  }
+  return [main, trimmed];
+}
+
+/**
+ * Returns the number of possible future steps available based on the instance details.
+ * Possible future steps do not include steps that are already completed or active.
+ *
+ * @param instance InstanceDetails object
+ * @returns number specifying the amount of possible steps available
+ */
+export function getWorkflowPossibleStepsLength(
+  instance: InstanceDetails
+): number {
+  return (
+    instance.steps.filter((s) => s.status === StepStatus.PENDING).length || 0
+  );
+}
+
+/**
+ * Maps an InstanceStep to a PossibleStep.
+ *
+ * @param step InstanceStep to map
+ * @returns PossibleStep
+ */
+function mapWorkflowPossibleStep(step: InstanceStep): PossibleStep {
+  const possibleStep: PossibleStep = {
     id: step.id,
     title: step.title,
     indent: 0,
+    branches: [],
+    status: step.status,
     hasForm: step.formTemplateId ? true : false,
   };
   return possibleStep;
@@ -215,11 +279,14 @@ function mapWorkflowPossibleStep(step: InstanceStep) {
  * - Cycles are handled by keeping track of visited steps (for handling future cyclical workflow implementation)
  * - TODO: better handling of edge cases caused by overriding steps (e.g. skipping back and forth between branches)
  */
-function getWorkflowPossibleSteps(
+export function initiateWorkflowPossibleSteps(
   instance: InstanceStep[],
   template: WorkflowTemplate
-): WorkflowPath[] {
+): PossibleStep {
   const currentStep = instance.find((s) => s.status === StepStatus.ACTIVE);
+
+  // if (!currentStep) return; // TODO: better handling of no active step case
+
   const templateStepMap = Object.fromEntries(
     template.steps.map((s) => [s.id, s])
   );
@@ -232,117 +299,63 @@ function getWorkflowPossibleSteps(
    * - includes current step
    * - can probably be further optimized
    */
-  function getWorkflowPaths(
+  function getWorkflowTree(
     stepId: string,
-    currentStepId: string,
-    countPath: boolean,
     templateStepMap: Record<string, WorkflowTemplateStep>,
     instanceStepMap: Record<string, PossibleStep>,
-    visited: Set<string>
-  ): WorkflowPath[] {
+    visited: Set<string>,
+    indent: number
+  ): PossibleStep {
     const step = templateStepMap[stepId];
-    if (!step) return [];
-
-    const pathCount = countPath || stepId === currentStepId; // start counting path length once we hit the current step
+    // if (!step) return []; // TODO: better handling of no step found case
 
     // Possibly a cycle or a repeated step
     if (visited.has(stepId)) {
-      return [
-        {
-          branch: [],
-          length: pathCount ? 1 : 0,
-          hasCycle: true,
-          trimmed: false,
-        },
-      ];
+      return {
+        ...instanceStepMap[stepId],
+        indent,
+      };
     }
 
     const nextVisited = new Set(visited);
     nextVisited.add(stepId);
 
+    const baseNode: PossibleStep = {
+      ...instanceStepMap[stepId],
+      indent,
+    };
+
     // Leaf node (possible step)
     if (!step.branches || step.branches.length === 0) {
-      return [
-        {
-          branch: [instanceStepMap[stepId]],
-          length: pathCount ? 1 : 0,
-          hasCycle: false,
-          trimmed: false,
-        },
-      ];
+      return baseNode;
     }
 
-    const paths: WorkflowPath[] = [];
     for (const br of step.branches) {
-      instanceStepMap[br.targetStepId].indent =
-        instanceStepMap[stepId].indent + (step.branches.length > 1 ? 1 : 0); // increase indent for diverging branches
-      const subPaths = getWorkflowPaths(
+      const childIndent = indent + (step.branches.length > 1 ? 1 : 0); // increase indent for diverging branches
+
+      const subTree = getWorkflowTree(
         br.targetStepId,
-        currentStepId,
-        pathCount,
         templateStepMap,
         instanceStepMap,
-        nextVisited
+        nextVisited,
+        childIndent
       );
 
-      for (const sub of subPaths) {
-        paths.push({
-          branch: [instanceStepMap[stepId], ...sub.branch],
-          length: pathCount ? sub.length + 1 : sub.length,
-          hasCycle: sub.hasCycle,
-          trimmed: false,
-        });
-      }
+      baseNode.branches.push(subTree);
     }
 
-    return paths;
+    return baseNode;
   }
 
-  const rawPaths = getWorkflowPaths(
+  return getWorkflowTree(
     template.startingStepId
       ? template.startingStepId
       : instance[0].workflowTemplateStepId, // TODO: better handling of no starting step case
-    currentStep
-      ? currentStep.workflowTemplateStepId
-      : instance[0].workflowTemplateStepId, // TODO: better handling of no active step case
-    false,
     templateStepMap,
     instanceStepMap,
-    new Set<string>()
-  ).sort((a, b) => {
-    if (a.length === 0 && b.length === 0)
-      return a.branch.length - b.branch.length; // sorting trimmed branches
-    if (a.length === 0 && b.length !== 0) return 1;
-    if (b.length === 0 && a.length !== 0) return -1;
-    return a.length - b.length;
-  });
-
-  // Deduplicate steps that appear in multiple paths (e.g. due to completion, cycles, converging/diverging branches, etc.)
-  const globallySeen = new Set<string>();
-  const deduped = rawPaths.map((path) => {
-    const newBranch: PossibleStep[] = [];
-    for (const step of path.branch) {
-      if (
-        !globallySeen.has(step.id) &&
-        instance.find((s) => s.id == step.id)?.status !== StepStatus.ACTIVE &&
-        instance.find((s) => s.id == step.id)?.status !== StepStatus.COMPLETED
-      ) {
-        globallySeen.add(step.id);
-        step.indent -= currentStep
-          ? instanceStepMap[currentStep.workflowTemplateStepId].indent
-          : 0; // adjust indent based on current step
-        newBranch.push(step);
-      }
-    }
-    return { ...path, branch: newBranch };
-  });
-
-  // TODO: also handle partially empty paths after deduplication
-  if (deduped.every((path) => path.branch.length === 0)) {
-    return [];
-  }
-
-  return deduped;
+    new Set<string>(),
+    0
+  );
 }
 
 export function getWorkflowCurrentStep(instance: InstanceDetails) {

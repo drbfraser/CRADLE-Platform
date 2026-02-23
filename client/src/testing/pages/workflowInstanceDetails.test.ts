@@ -11,6 +11,7 @@ import { getPatientInfoAsync } from 'src/shared/api';
 import {
   buildInstanceDetails,
   mapWorkflowStep,
+  initiateWorkflowPossibleSteps,
 } from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
 
 // Mock API calls
@@ -99,7 +100,12 @@ describe('loadInstanceById', () => {
       steps: testWorkflowInstance.steps.map((step) =>
         mapWorkflowStep(step, testWorkflowTemplate)
       ),
-      possibleSteps: [],
+      possibleSteps: initiateWorkflowPossibleSteps(
+        testWorkflowInstance.steps.map((step) =>
+          mapWorkflowStep(step, testWorkflowTemplate)
+        ),
+        testWorkflowTemplate
+      ),
     });
   });
 });
