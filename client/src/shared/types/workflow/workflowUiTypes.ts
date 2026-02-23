@@ -30,6 +30,7 @@ export type PossibleStep = {
   indent: number; // for formatting based on branch depth
   branches: PossibleStep[];
   status: StepStatus;
+  shortestPathLength: number; // shortest path to workflow completion
   hasForm?: boolean;
   isSkippable?: boolean;
 };

@@ -7,7 +7,10 @@ import {
   InstanceDetails,
   WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import { formatWorkflowStepStatusText } from '../WorkflowUtils';
+import {
+  formatWorkflowStepStatusText,
+  getWorkflowShortestPath,
+} from '../WorkflowUtils';
 
 export default function WorkflowStatus(props: {
   workflowInstance: InstanceDetails;
@@ -78,7 +81,7 @@ export default function WorkflowStatus(props: {
                   {workflowInstance.workflowCompletedOn
                     ? progressInfo.completed
                     : progressInfo.completed +
-                        workflowInstance.possibleSteps[0]?.length || 0}
+                        getWorkflowShortestPath(workflowInstance) || 0}
                   {workflowInstance.workflowCompletedOn ? '' : '+'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -86,11 +89,11 @@ export default function WorkflowStatus(props: {
                   {workflowInstance.workflowCompletedOn
                     ? 'All steps completed'
                     : 'At least ' +
-                      (workflowInstance.possibleSteps[0]?.length ||
+                      (getWorkflowShortestPath(workflowInstance) ??
                         workflowInstance.steps.length -
                           progressInfo.completed) +
                       ' more step' +
-                      (workflowInstance.possibleSteps[0]?.length ||
+                      (getWorkflowShortestPath(workflowInstance) ??
                       workflowInstance.steps.length - progressInfo.completed !==
                         1
                         ? 's'

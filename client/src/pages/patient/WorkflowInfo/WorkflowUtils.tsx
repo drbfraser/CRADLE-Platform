@@ -250,7 +250,7 @@ export function getWorkflowPossibleStepsLength(
   instance: InstanceDetails
 ): number {
   return (
-    instance.steps.filter((s) => s.status === StepStatus.PENDING).length || 0
+    instance.steps.filter((s) => s.status === StepStatus.PENDING).length ?? 0
   );
 }
 
@@ -267,6 +267,7 @@ function mapWorkflowPossibleStep(step: InstanceStep): PossibleStep {
     indent: 0,
     branches: [],
     status: step.status,
+    shortestPathLength: Infinity, // to be computed in initiateWorkflowPossibleSteps
     hasForm: step.formTemplateId ? true : false,
   };
   return possibleStep;
@@ -283,9 +284,13 @@ export function initiateWorkflowPossibleSteps(
   instance: InstanceStep[],
   template: WorkflowTemplate
 ): PossibleStep {
-  const currentStep = instance.find((s) => s.status === StepStatus.ACTIVE);
-
-  // if (!currentStep) return; // TODO: better handling of no active step case
+  const currentInstanceStep = instance.find(
+    (s) => s.status === StepStatus.ACTIVE
+  );
+  if (!currentInstanceStep) {
+    throw new Error('No active step found in instance');
+  }
+  // TODO: better handling of currentInstanceStep not found case
 
   const templateStepMap = Object.fromEntries(
     template.steps.map((s) => [s.id, s])
@@ -314,6 +319,7 @@ export function initiateWorkflowPossibleSteps(
       return {
         ...instanceStepMap[stepId],
         indent,
+        shortestPathLength: Infinity, // TODO: better handling (infinity is a placeholder)
       };
     }
 
@@ -323,6 +329,7 @@ export function initiateWorkflowPossibleSteps(
     const baseNode: PossibleStep = {
       ...instanceStepMap[stepId],
       indent,
+      shortestPathLength: 1,
     };
 
     // Leaf node (possible step)
@@ -330,11 +337,13 @@ export function initiateWorkflowPossibleSteps(
       return baseNode;
     }
 
-    for (const br of step.branches) {
+    let shortestPath = Infinity;
+
+    for (const branch of step.branches) {
       const childIndent = indent + (step.branches.length > 1 ? 1 : 0); // increase indent for diverging branches
 
       const subTree = getWorkflowTree(
-        br.targetStepId,
+        branch.targetStepId,
         templateStepMap,
         instanceStepMap,
         nextVisited,
@@ -342,12 +351,18 @@ export function initiateWorkflowPossibleSteps(
       );
 
       baseNode.branches.push(subTree);
+
+      shortestPath = Math.min(shortestPath, subTree.shortestPathLength);
     }
+
+    baseNode.shortestPathLength =
+      shortestPath === Infinity ? Infinity : shortestPath + 1;
 
     return baseNode;
   }
 
   return getWorkflowTree(
+    // get starting node
     template.startingStepId
       ? template.startingStepId
       : instance[0].workflowTemplateStepId, // TODO: better handling of no starting step case
@@ -362,6 +377,31 @@ export function getWorkflowCurrentStep(instance: InstanceDetails) {
   const steps = instance.steps;
   const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
   return currentStep;
+}
+
+export function getWorkflowShortestPath(instance: InstanceDetails): number {
+  const currentStep = getWorkflowCurrentStep(instance);
+  if (!currentStep) return Infinity;
+
+  const root = instance.possibleSteps;
+  const queue: PossibleStep[] = [root];
+  const visited = new Set<PossibleStep>([root]);
+
+  while (queue.length > 0) {
+    const step = queue.shift()!;
+
+    for (const branch of step.branches) {
+      if (branch.id === currentStep.id) {
+        return branch.shortestPathLength;
+      }
+      if (!visited.has(branch)) {
+        visited.add(branch);
+        queue.push(branch);
+      }
+    }
+  }
+
+  return Infinity;
 }
 
 export function getWorkflowStepWithId(
