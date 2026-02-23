@@ -203,6 +203,7 @@ export function getWorkflowStepHistory(
 /**
  * Converts the {@link PossibleStep} tree in the workflow instance details into a
  * flattened array of possible future steps for UI rendering.
+ * If the workflow instance is complete, returns an empty array.
  *
  * @param instance InstanceDetails object
  * @returns a flattened array of the possible steps tree in UI render order
@@ -210,7 +211,8 @@ export function getWorkflowStepHistory(
 export function getWorkflowPossibleSteps(
   instance: InstanceDetails
 ): PossibleStep[] {
-  const currentStepId = getWorkflowCurrentStep(instance)?.id ?? '';
+  const currentStepId = getWorkflowCurrentStep(instance)?.id ?? null;
+  if (!currentStepId) return []; // TODO: better handling of no active step case
   const [main, trimmed] = getWorkflowPossibleStepsArray(
     instance.possibleSteps,
     currentStepId
@@ -302,14 +304,6 @@ export function initiateWorkflowPossibleSteps(
   instance: InstanceStep[],
   template: WorkflowTemplate
 ): PossibleStep {
-  const currentInstanceStep = instance.find(
-    (s) => s.status === StepStatus.ACTIVE
-  );
-  if (!currentInstanceStep) {
-    throw new Error('No active step found in instance');
-  }
-  // TODO: better handling of currentInstanceStep not found case
-
   const templateStepMap = Object.fromEntries(
     template.steps.map((s) => [s.id, s])
   );
@@ -351,7 +345,9 @@ function getWorkflowTree(
   indent: number
 ): PossibleStep {
   const step = templateStepMap[stepId];
-  // if (!step) return []; // TODO: better handling of no step found case
+  if (!step) {
+    throw new Error(`No template step found for step id ${stepId}`);
+  } // TODO: better handling of no step found case
 
   // Possibly a cycle or a repeated step
   if (visited.has(stepId)) {
@@ -428,7 +424,7 @@ export function getWorkflowShortestPath(instance: InstanceDetails): number {
   const visited = new Set<PossibleStep>([root]);
 
   while (queue.length > 0) {
-    const step = queue.shift()!;
+    const step = queue.shift()!; // TODO: better handling of empty queue case
     if (step.id === currentStep.id) {
       return step.shortestPathLength;
     }
