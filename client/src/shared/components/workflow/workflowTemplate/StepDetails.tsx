@@ -12,11 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
-import {
-  WorkflowTemplateStepWithFormAndIndex,
-  WorkflowTemplateStepBranch,
-} from 'src/shared/types/workflow/workflowApiTypes';
-import { BranchConditionEditor } from './BranchConditionEditor';
+import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 
 
 interface StepDetailsProps {
@@ -28,7 +24,7 @@ interface StepDetailsProps {
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
   selectedStep,
-  isInstance = false,
+  isInstance: _isInstance = false,
   isEditMode = false,
   onStepChange,
 }) => {
