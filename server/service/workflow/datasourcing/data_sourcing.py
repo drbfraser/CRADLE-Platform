@@ -1,4 +1,5 @@
 import logging
+import re
 from dataclasses import dataclass
 from functools import reduce
 from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
@@ -84,7 +85,15 @@ class DatasourceVariable:
 
     @classmethod
     def from_string(cls, variable: str) -> Optional["DatasourceVariable"]:
-        """Parse a string variable into a DatasourceVariable."""
+        """
+        Parse a string variable into a DatasourceVariable.
+
+        Only supports simple object.attribute format (e.g. patient.age).
+        Returns None for collection-indexed paths (e.g. vitals[latest].systolic);
+        use VariablePath.from_string() for those.
+        """
+        if not variable or "[" in variable:
+            return None
         parts = variable.split(".")
         if len(parts) < 2:
             return None
@@ -110,6 +119,22 @@ class DatasourceVariable:
     def __hash__(self) -> int:
         return hash((self.obj.name, self.attr.name))
 
+
+@dataclass(frozen=True)
+class VariablePath:
+    """
+    Represents a parsed variable path with optional collection indexing.
+
+    Supports:
+    - Simple: patient.age -> namespace="patient", collection_index=None, field_path=["age"]
+    - Collection indexed: vitals[latest].systolic -> namespace="vitals", index="latest", field_path=["systolic"]
+    - Nested: vitals[latest].urine_test.leukocytes -> field_path=["urine_test", "leukocytes"]
+    - Collection size: vitals.size -> namespace="vitals", field_path=["size"]
+    """
+
+    namespace: str
+    collection_index: Optional[Union[str, int]]
+    field_path: List[str]
 
 def _group_objects(
     accumulator: Dict[DatasourceObject, List[DatasourceAttribute]],
