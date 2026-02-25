@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Box, Paper, Typography, Button, Collapse, Chip } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ReplayIcon from '@mui/icons-material/Replay';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { IconButton } from '@mui/material';
@@ -12,7 +11,10 @@ import {
   InstanceDetails,
   InstanceStep,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import { formatWorkflowStepStatusText } from '../WorkflowUtils';
+import {
+  formatWorkflowStepStatusText,
+  getWorkflowStepHistory,
+} from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CheckCircle } from '@mui/icons-material';
 import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
@@ -143,21 +145,10 @@ export default function WorkflowStepHistory({
                 }}
               />
 
-              {[
-                ...workflowInstance.steps.filter(
-                  (s) => s.status === StepStatus.ACTIVE
-                ), // get active step(s)
-                ...workflowInstance.steps // append completed steps in reverse chronological order
-                  .filter(
-                    (step): step is InstanceStep & { completedOn: string } =>
-                      step.completedOn !== null
-                  )
-                  .sort(
-                    (a, b) =>
-                      new Date(b.completedOn).getTime() -
-                      new Date(a.completedOn).getTime()
-                  ),
-              ].map((step) => {
+              {getWorkflowStepHistory(workflowInstance).map((step) => {
+                /* TODO: make workflow completion independent of workflow.step.length and move 
+                   getWorkflowStepHistory to WorkflowUtils.tsx when building workflow instance 
+                   to minimize rendering inefficiencies */
                 const isExpanded = expandAll || expandedStep === step.id;
                 const statusIcon =
                   step.status === StepStatus.COMPLETED ? (
@@ -165,13 +156,8 @@ export default function WorkflowStepHistory({
                       color="success"
                       sx={{ fontSize: 24 }}
                     />
-                  ) : step.status === StepStatus.ACTIVE ? (
-                    <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
                   ) : (
-                    // TODO: remove if not showing possible steps in step history
-                    <HourglassEmptyIcon
-                      sx={{ color: 'grey.400', fontSize: 24 }}
-                    />
+                    <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
                   );
 
                 return (
@@ -274,7 +260,7 @@ export default function WorkflowStepHistory({
                           variant="body2"
                           color="text.secondary"
                           sx={{ mb: 3 }}>
-                          {step.description || 'No description available.'}
+                          {step.description ?? 'No description available.'}
                         </Typography>
 
                         {/* Form Block */}
@@ -374,31 +360,6 @@ export default function WorkflowStepHistory({
                             </Box>
                           </Box>
                         )}
-
-                        {/* Expected Completion Date */}
-                        {/* <Box sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Expected Completion Date
-                          </Typography>
-                          {step.status === StepStatus.ACTIVE ? (
-                            <TextField
-                              type="date"
-                              size="small"
-                              value={step.expectedCompletion || ''}
-                              onChange={(e) =>
-                                handleChangeExpectedCompletion(
-                                  step.id,
-                                  e.target.value
-                                )
-                              }
-                              sx={{ width: 200 }}
-                            />
-                          ) : (
-                            <Typography variant="body2" color="text.secondary">
-                              {step.expectedCompletion || 'Not set'}
-                            </Typography>
-                          )}
-                        </Box> */}
 
                         {/* Complete Step Button */}
                         <Box

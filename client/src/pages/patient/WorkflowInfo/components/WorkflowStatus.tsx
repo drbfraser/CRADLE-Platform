@@ -7,7 +7,10 @@ import {
   InstanceDetails,
   WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import { formatWorkflowStepStatusText } from '../WorkflowUtils';
+import {
+  formatWorkflowStepStatusText,
+  getWorkflowShortestPath,
+} from '../WorkflowUtils';
 
 export default function WorkflowStatus(props: {
   workflowInstance: InstanceDetails;
@@ -75,24 +78,24 @@ export default function WorkflowStatus(props: {
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
                   {progressInfo.completed} /{' '}
-                  {
-                    /* TODO: change implementation to shortest path to completion, not just total steps */
-                    workflowInstance.workflowCompletedOn
-                      ? progressInfo.completed
-                      : workflowInstance.steps.length
-                  }
+                  {workflowInstance.workflowCompletedOn
+                    ? progressInfo.completed
+                    : progressInfo.completed +
+                      (getWorkflowShortestPath(workflowInstance) || 0)}
                   {workflowInstance.workflowCompletedOn ? '' : '+'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {/*TODO: change implementation to shortest path to completion, not just total steps */}
+                  {/*TODO: handle edge cases caused by overriding steps (e.g. skipping back and forth between shortest branch and other branch) */}
                   {workflowInstance.workflowCompletedOn
                     ? 'All steps completed'
                     : 'At least ' +
-                      (workflowInstance.steps.length - progressInfo.completed) +
+                      (getWorkflowShortestPath(workflowInstance) ||
+                        workflowInstance.steps.length -
+                          progressInfo.completed) +
                       ' more step' +
-                      (workflowInstance.steps.length -
-                        progressInfo.completed !==
-                      1
+                      (getWorkflowShortestPath(workflowInstance) ||
+                      workflowInstance.steps.length - progressInfo.completed !==
+                        1
                         ? 's'
                         : '') +
                       ' remaining'}

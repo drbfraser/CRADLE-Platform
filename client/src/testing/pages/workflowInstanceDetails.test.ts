@@ -3,11 +3,15 @@ import {
   WORKFLOW_INSTANCE_TEST_DATA,
   WORKFLOW_TEMPLATE_TEST_DATA,
 } from '../testData';
-import { formatISODateNumber } from 'src/shared/utils';
+import {
+  formatISODateNumber,
+  formatISODateNumberWithTime,
+} from 'src/shared/utils';
 import { getPatientInfoAsync } from 'src/shared/api';
 import {
   buildInstanceDetails,
   mapWorkflowStep,
+  initiateWorkflowPossibleSteps,
 } from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
 
 // Mock API calls
@@ -43,8 +47,10 @@ describe('mapWorkflowStep', () => {
       id: testWorkflowInstanceStep.id,
       title: testWorkflowInstanceStep.name,
       status: testWorkflowInstanceStep.status,
-      startedOn: formatISODateNumber(testWorkflowInstanceStep.startDate),
-      completedOn: formatISODateNumber(
+      startedOn: formatISODateNumberWithTime(
+        testWorkflowInstanceStep.startDate
+      ),
+      completedOn: formatISODateNumberWithTime(
         testWorkflowInstanceStep.completionDate!
       ),
       expectedCompletion: formatISODateNumber(
@@ -94,7 +100,12 @@ describe('loadInstanceById', () => {
       steps: testWorkflowInstance.steps.map((step) =>
         mapWorkflowStep(step, testWorkflowTemplate)
       ),
-      possibleSteps: [],
+      possibleSteps: initiateWorkflowPossibleSteps(
+        testWorkflowInstance.steps.map((step) =>
+          mapWorkflowStep(step, testWorkflowTemplate)
+        ),
+        testWorkflowTemplate
+      ),
     });
   });
 });

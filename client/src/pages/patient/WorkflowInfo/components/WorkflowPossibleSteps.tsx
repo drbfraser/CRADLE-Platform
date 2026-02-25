@@ -5,7 +5,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Badge,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -13,6 +12,10 @@ import ArticleIcon from '@mui/icons-material/Article';
 
 import { Tooltip, IconButton } from '@mui/material';
 import { InstanceDetails } from 'src/shared/types/workflow/workflowUiTypes';
+import {
+  getWorkflowPossibleSteps,
+  getWorkflowPossibleStepsLength,
+} from '../WorkflowUtils';
 
 export default function WorkflowPossibleSteps(props: {
   workflowInstance: InstanceDetails;
@@ -25,7 +28,6 @@ export default function WorkflowPossibleSteps(props: {
       <Box sx={{ mx: 5, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Typography variant="h6">Possible Steps</Typography>{' '}
-          {/*TODO: fix possible steps display order (group by branch?)*/}
           <Tooltip
             title="You may override the workflow order and skip to a new step."
             placement="top">
@@ -34,7 +36,7 @@ export default function WorkflowPossibleSteps(props: {
         </Box>
 
         <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
-          {workflowInstance.possibleSteps.length === 0 ? (
+          {getWorkflowPossibleStepsLength(workflowInstance) === 0 ? (
             <Typography
               variant="body2"
               color="text.secondary"
@@ -44,10 +46,12 @@ export default function WorkflowPossibleSteps(props: {
           ) : (
             <>
               <List disablePadding>
-                {workflowInstance.possibleSteps.map((step) => (
+                {getWorkflowPossibleSteps(workflowInstance).map((step) => (
                   <ListItem
                     key={step.id}
                     sx={{
+                      ml: `${step.indent * 2 + 1}%`, // indent based on branch depth
+                      width: `calc(100% - ${step.indent * 2 + 1}%)`, // adjust width based on indent
                       border: 1,
                       borderColor: 'grey.300',
                       borderRadius: '8px',
@@ -67,21 +71,6 @@ export default function WorkflowPossibleSteps(props: {
                         alignItems: 'center',
                         gap: 2,
                       }}>
-                      {step.estimate && (
-                        <Badge
-                          badgeContent={step.estimate}
-                          color="primary"
-                          sx={{
-                            '& .MuiBadge-badge': {
-                              position: 'static',
-                              transform: 'none',
-                              borderRadius: '12px',
-                              px: 1,
-                            },
-                          }}>
-                          <Box />
-                        </Badge>
-                      )}
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <Tooltip
                           title="Set this as current step"

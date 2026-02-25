@@ -90,6 +90,15 @@ export function formatISODateNumber(isoDateNumber: number): ISODate {
   return new Date(isoDateNumber * 1000).toLocaleDateString('en-CA');
 }
 
+export function formatISODateNumberWithTime(isoDateNumber: number): ISODate {
+  return new Date(isoDateNumber * 1000).toLocaleString('en-CA');
+}
+
+export function getDateFromStringTimestamp(strDate: string): string {
+  const idx = strDate.indexOf(',');
+  return idx === -1 ? strDate : strDate.slice(0, idx);
+}
+
 export const getNumOfWeeksDaysNumeric = (
   startTime: number,
   endTime: OrNull<number>
