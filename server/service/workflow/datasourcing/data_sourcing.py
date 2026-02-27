@@ -136,6 +136,82 @@ class VariablePath:
     collection_index: Optional[Union[str, int]]
     field_path: List[str]
 
+    @classmethod
+    def from_string(cls, variable: str) -> Optional["VariablePath"]:
+        """
+        Parse a variable string into a VariablePath.
+
+        Handles:
+        - object.attribute (patient.age)
+        - object.attribute.nested (patient.medical_history.x)
+        - collection[index].field (vitals[latest].systolic, vitals[1].systolic)
+        - collection[index].nested.field (vitals[latest].urine_test.leukocytes)
+        - collection.size (vitals.size)
+        - Namespaces with hyphens (current-user.name)
+        """
+        if not variable or not variable.strip():
+            return None
+        s = variable.strip()
+
+        # Match collection indexing: name[index] or name[index].path.path
+        bracket_match = re.match(r"^([^\[]+)\[([^\]]+)\](.*)$", s)
+        if bracket_match:
+            namespace = bracket_match.group(1).rstrip(".")
+            index_str = bracket_match.group(2).strip().lower()
+            rest = bracket_match.group(3).strip()
+            if rest.startswith("."):
+                rest = rest[1:].strip()
+
+            if index_str == "latest":
+                collection_index: Optional[Union[str, int]] = "latest"
+            else:
+                try:
+                    collection_index = int(index_str)
+                except ValueError:
+                    return None
+
+            field_path = [p for p in rest.split(".") if p] if rest else []
+            # Allow vitals[latest] with no field path (resolves to the item itself)
+            return cls(
+                namespace=namespace,
+                collection_index=collection_index,
+                field_path=field_path,
+            )
+
+        # No bracket: simple path namespace.f1.f2.f3
+        parts = [p for p in s.split(".") if p]
+        if len(parts) < 2:
+            return None
+        namespace = parts[0]
+        field_path = parts[1:]
+        return cls(
+            namespace=namespace,
+            collection_index=None,
+            field_path=field_path,
+        )
+
+    def to_string(self) -> str:
+        """Convert back to canonical variable string."""
+        if self.collection_index is not None:
+            index_str = (
+                "latest"
+                if self.collection_index == "latest"
+                else str(self.collection_index)
+            )
+            base = f"{self.namespace}[{index_str}]"
+        else:
+            base = self.namespace
+        if self.field_path:
+            return base + "." + ".".join(self.field_path)
+        return base
+
+    def __str__(self) -> str:
+        return self.to_string()
+
+    def __hash__(self) -> int:
+        return hash((self.namespace, self.collection_index, tuple(self.field_path)))
+
+
 def _group_objects(
     accumulator: Dict[DatasourceObject, List[DatasourceAttribute]],
     variable: DatasourceVariable,
