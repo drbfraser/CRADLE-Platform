@@ -29,6 +29,14 @@ def test_datasource_variable_from_invalid_string():
     assert var is None
 
 
+def test_datasource_variable_rejects_collection_indexed_path():
+    """Collection-indexed paths (e.g. vitals[latest].systolic) return None; use VariablePath for those."""
+    var = DatasourceVariable.from_string("vitals[latest].systolic")
+    assert var is None
+    var2 = DatasourceVariable.from_string("pregnancies[1].start_date")
+    assert var2 is None
+
+
 def test_datasource_variable_hashable():
     var1 = DatasourceVariable.from_string("patient.age")
     var2 = DatasourceVariable.from_string("patient.age")
