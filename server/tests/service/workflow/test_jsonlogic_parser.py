@@ -156,6 +156,19 @@ class TestEdgeCases:
         variables = parser.extract_variables(rule)
         assert variables == {"items", "item.name"}
 
+    def test_collection_indexed_variable_extraction(self):
+        """Enhanced format variables (e.g. vitals[latest].systolic) are extracted as-is for VariablePath parsing."""
+        parser = JsonLogicParser()
+        rule = {">": [{"var": "vitals[latest].systolic"}, 140]}
+        variables = parser.extract_variables(rule)
+        assert variables == {"vitals[latest].systolic"}
+
+    def test_nested_collection_variable_extraction(self):
+        parser = JsonLogicParser()
+        rule = {"==": [{"var": "vitals[latest].urine_test.leukocytes"}, "positive"]}
+        variables = parser.extract_variables(rule)
+        assert variables == {"vitals[latest].urine_test.leukocytes"}
+
     def test_numeric_var_values(self):
         parser = JsonLogicParser()
         rule = {"var": [0]}  # Numeric index, not a path
