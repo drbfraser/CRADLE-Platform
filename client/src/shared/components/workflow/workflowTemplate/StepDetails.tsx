@@ -14,7 +14,6 @@ import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 
-
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
   isInstance?: boolean;
