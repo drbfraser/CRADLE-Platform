@@ -2,8 +2,6 @@
 Unit tests for VariablePath parsing.
 """
 
-import pytest
-
 from service.workflow.datasourcing.data_sourcing import VariablePath
 
 
