@@ -56,9 +56,8 @@ api_workflow_templates = APIBlueprint(
 
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
 # Version values must be parsed numerically (V1, V2, ...), not lexically.
-# For example, lexical order would place V10 before V2, which is incorrect. (since 1 comes before 2 lexically)
-# We have to do this since not all versions are guaranteed to be in the V<number> format,
-# and we don't want to break if non-conforming versions are introduced
+# For example, lexical order would place V10 before V2, which is incorrect.
+# (since 1 comes before 2 lexically)
 workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
 
 
