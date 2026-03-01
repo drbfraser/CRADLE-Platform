@@ -66,12 +66,6 @@ export const CreateWorkflowTemplate = () => {
         throw new Error('Classification name is required');
       }
 
-      if (!workflow.version?.trim()) {
-        workflowEditor.setToastMsg('Please enter a version');
-        workflowEditor.setToastOpen(true);
-        throw new Error('Version is required');
-      }
-
       // Generate a temporary template ID for the steps (server rewrites this)
       const tempTemplateId = workflow.id || `temp-${Date.now()}`;
       const classificationId =
@@ -83,7 +77,6 @@ export const CreateWorkflowTemplate = () => {
 
       const payload = {
         description: workflow.description || '',
-        version: workflow.version,
         archived: false,
         classification_id: classificationId,
         classification: {

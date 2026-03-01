@@ -70,7 +70,7 @@ export interface ClassificationInput {
 // Payload for POST /workflow/templates/body
 export interface TemplateInput {
   description: string;
-  version: string;
+  version?: string;
   archived: boolean;
   startingStepId?: ID;
   classificationId?: ID;
