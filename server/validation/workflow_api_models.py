@@ -31,6 +31,9 @@ class WorkflowCollectionUploadModel(WorkflowCollectionModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateModel):
     id: Optional[str] = None
+    version: Optional[str] = (
+        None  # Version is optional on upload to allow for auto-generation if not provided
+    )
 
 
 class WorkflowTemplatePatchBody(CradleBaseModel):
@@ -40,7 +43,7 @@ class WorkflowTemplatePatchBody(CradleBaseModel):
     starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    version: str  # A new version is required
+    version: Optional[str] = None
     classification_id: Optional[str] = None
     classification: Optional[WorkflowClassificationModel] = None
     steps: Optional[list[WorkflowTemplateStepModel]] = None
