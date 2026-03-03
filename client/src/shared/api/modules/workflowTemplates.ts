@@ -79,9 +79,6 @@ export const editWorkflowTemplateAsync = async (
   if (template.archived !== undefined) {
     patchBody.archived = template.archived;
   }
-  if (template.version !== undefined) {
-    patchBody.version = template.version;
-  }
   if (template.classificationId !== undefined) {
     patchBody.classificationId = template.classificationId;
   }

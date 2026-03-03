@@ -2,6 +2,7 @@
 import csv
 import io
 import json
+import re
 from typing import List, Optional
 
 from flask import abort, make_response, request
@@ -54,6 +55,50 @@ api_workflow_templates = APIBlueprint(
 )
 
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
+# Version values must be parsed numerically (V1, V2, ...), not lexically.
+# For example, lexical order would place V10 before V2, which is incorrect.
+# (since 1 comes before 2 lexically)
+workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
+
+
+def parse_workflow_template_version(version: Optional[str]) -> Optional[int]:
+    """Return numeric part for versions in the form V<number>, else None."""
+    if version is None:
+        return None
+
+    normalized_version = version.strip()
+    version_match = workflow_template_version_regex.match(normalized_version)
+    if version_match is None:
+        return None
+
+    return int(version_match.group("number"))
+
+
+def get_next_workflow_template_version(
+    workflow_classification_id: Optional[str],
+) -> str:
+    """
+    Compute the next template version for a classification.
+
+    - New classification starts at V1.
+    - Existing classification increments the max known V<number>.
+    """
+    if workflow_classification_id is None:
+        return "V1"
+
+    existing_templates = (
+        crud.db_session.query(WorkflowTemplateOrm)
+        .filter(WorkflowTemplateOrm.classification_id == workflow_classification_id)
+        .all()
+    )
+
+    max_version_number = 0
+    for existing_template in existing_templates:
+        parsed_version = parse_workflow_template_version(existing_template.version)
+        if parsed_version is not None:
+            max_version_number = max(max_version_number, parsed_version)
+
+    return f"V{max_version_number + 1}"
 
 
 def find_and_archive_previous_workflow_template(
@@ -114,27 +159,6 @@ def get_workflow_classification_from_dict(
     return workflow_classification_orm
 
 
-def check_for_existing_template_version(
-    workflow_classification_id: str, workflow_template_version: str
-) -> None:
-    """
-    Checks if a workflow template with the same version under the same classification already exists
-    :param workflow_classification_id: ID of the workflow classification
-    :param workflow_template_dict: Dictionary consisting of attributes for a workflow template
-    """
-    existing_template_version = crud.read(
-        WorkflowTemplateOrm,
-        classification_id=workflow_classification_id,
-        version=workflow_template_version,
-    )
-
-    if existing_template_version is not None:
-        return abort(
-            code=409,
-            description="Workflow template with same version still exists - Change version before upload.",
-        )
-
-
 def handle_workflow_template_upload(workflow_template_dict: dict):
     """
     Common logic for handling uploaded workflow template. Whether it was uploaded
@@ -157,20 +181,16 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
                 workflow_template_step, allow_missing_template=True
             )
 
-    workflow_template_orm = orm_serializer.unmarshal(
-        WorkflowTemplateOrm, workflow_template_dict
-    )
-
     with crud.db_session.no_autoflush:
         workflow_classification_orm = get_workflow_classification_from_dict(
             workflow_template_dict, workflow_classification_dict
         )
 
         if workflow_classification_orm is not None:
-            check_for_existing_template_version(
-                workflow_classification_orm.id, workflow_template_dict["version"]
+            workflow_template_dict["classification_id"] = workflow_classification_orm.id
+            workflow_template_dict["version"] = get_next_workflow_template_version(
+                workflow_classification_orm.id
             )
-            workflow_template_orm.classification = workflow_classification_orm
 
             """
             There should only be one unarchived version of the workflow template, so this
@@ -181,6 +201,16 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             find_and_archive_previous_workflow_template(
                 workflow_classification_orm.id,
             )
+
+        else:
+            workflow_template_dict["version"] = "V1"
+
+    workflow_template_orm = orm_serializer.unmarshal(
+        WorkflowTemplateOrm, workflow_template_dict
+    )
+
+    if workflow_classification_orm is not None:
+        workflow_template_orm.classification = workflow_classification_orm
 
     crud.create(model=workflow_template_orm, refresh=True)
 
@@ -413,11 +443,7 @@ def update_workflow_template_patch(
         body_dict.get("classification_id") or workflow_template.classification_id
     )
 
-    if classification_id is not None and body_dict.get("version") is not None:
-        check_for_existing_template_version(
-            classification_id,
-            body_dict.get("version"),
-        )
+    body_dict["version"] = get_next_workflow_template_version(classification_id)
 
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True

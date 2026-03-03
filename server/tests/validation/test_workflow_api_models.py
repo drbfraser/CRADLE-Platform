@@ -26,6 +26,14 @@ def test__workflow_template_patch__with_steps():
     assert patch_model.steps[0].id == "s-1"
 
 
+def test__workflow_template_patch__without_version():
+    patch_json = make_workflow_template(id="wt-1")
+    del patch_json["version"]
+
+    patch_model = WorkflowTemplatePatchBody(**patch_json)
+    assert patch_model.version is None
+
+
 @pytest.mark.parametrize(
     "field, value, error_message",
     [

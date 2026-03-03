@@ -64,16 +64,6 @@ export const ViewWorkflowTemplate = () => {
     initialWorkflow: workflowTemplateQuery.data || null,
     enabled: isEditMode,
     onSave: async (workflow) => {
-      // Frontend guard: require version bump to avoid 409 from backend
-      const originalVersion = workflowTemplateQuery.data?.version;
-      if (workflow.version === originalVersion) {
-        workflowEditor.setToastMsg(
-          'Please change the version before saving. A template with this version already exists.'
-        );
-        workflowEditor.setToastOpen(true);
-        throw new Error('Version must be changed');
-      }
-
       await editWorkflowTemplateMutation.mutateAsync({
         template: workflow,
       });

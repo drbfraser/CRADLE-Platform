@@ -21,6 +21,7 @@ def test_workflow_templates_with_same_classification_upload(
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 201
+        assert response_body["version"] == "V1"
 
         """
         Uploading a new template with a different version under the same classification should archive
@@ -34,6 +35,7 @@ def test_workflow_templates_with_same_classification_upload(
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 201
+        assert response_body["version"] == "V2"
 
         # The first template should now be archived
         archived_template1 = crud.read(
@@ -87,17 +89,14 @@ def test_invalid_workflow_templates_uploaded(
         pretty_print(response_body)
         assert response.status_code == 201
 
-        """
-        Submitting a workflow template with the same version of another template under the same classification should
-        return a 409 error
-        """
         response = api_post(
             endpoint="/api/workflow/templates/body", json=workflow_template1
         )
-        # database.session.commit()
+        database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        assert response.status_code == 409
+        assert response.status_code == 201
+        assert response_body["version"] == "V2"
 
     finally:
         crud.delete_workflow(
@@ -213,7 +212,6 @@ def test_workflow_template_patch_request(
 
         changes = {
             "description": "New workflow template description",
-            "version": "v2",
             "classification": {
                 "id": workflow_template1["classification_id"],
                 "name": "Workflow Classification example 1 (renamed)",
@@ -243,7 +241,7 @@ def test_workflow_template_patch_request(
             updated_workflow_template is not None
             and updated_workflow_template.description
             == "New workflow template description"
-            and updated_workflow_template.version == "v2"
+            and updated_workflow_template.version == "V2"
         )
 
         assert (
@@ -304,7 +302,6 @@ def test_workflow_template_patch_rename_affects_shared_classification(
 
         changes = {
             "description": "workflow_example3 updated",
-            "version": "2",
             "classification": {
                 "id": workflow_template1["classification_id"],
                 "name": "Shared Classification Renamed",
@@ -349,6 +346,7 @@ def test_workflow_template_patch_rename_affects_shared_classification(
         assert template1_body["name"] == "Shared Classification Renamed"
         assert template3_body["name"] == "Shared Classification Renamed"
         assert patch_response_body["name"] == "Shared Classification Renamed"
+        assert patch_response_body["version"] == "V3"
 
     finally:
         crud.delete_workflow(

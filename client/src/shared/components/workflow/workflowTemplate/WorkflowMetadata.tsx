@@ -163,23 +163,7 @@ export const WorkflowMetadata = ({
         alignItems="center"
         sx={{ mb: 3 }}>
         <Grid item xs={12} md={5}>
-          <InlineField
-            label="Version:"
-            value={versionText}
-            isEditable={isEditMode}
-            onChange={
-              isEditMode
-                ? (value) => {
-                    if (value) {
-                      handleFieldChange('version', value);
-                    } else {
-                      handleFieldChange('version', 'V');
-                    }
-                  }
-                : undefined
-            }
-            fieldName="version"
-          />
+          <InlineField label="Version:" value={versionText} />
         </Grid>
 
         <Grid item xs={12} md={5}>
