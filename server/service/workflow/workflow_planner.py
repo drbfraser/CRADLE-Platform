@@ -9,6 +9,7 @@ from service.workflow.workflow_view import WorkflowView
 from validation.workflow_models import (
     CompleteStepActionModel,
     CompleteWorkflowActionModel,
+    SkipStepActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
     WorkflowActionModel,
@@ -16,7 +17,6 @@ from validation.workflow_models import (
     WorkflowInstanceStepModel,
     WorkflowStepEvaluation,
     WorkflowTemplateStepBranchModel,
-    SkipStepActionModel,
 )
 
 
