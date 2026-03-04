@@ -284,9 +284,9 @@ def api_get_actions(
     response = api_get(
         endpoint=f"/api/workflow/instances/{path.workflow_instance_id}/actions"
     )
-    assert response.status_code == 200, (
-        f"Failed to get available actions: {response.text}"
-    )
+    assert (
+        response.status_code == 200
+    ), f"Failed to get available actions: {response.text}"
 
     actions_resp = decamelize(response.json())
     return GetAvailableActionsResponse(**actions_resp)
@@ -339,9 +339,9 @@ def api_override_current_step(
         json=request.model_dump(),
     )
     if expected_code == 200:
-        assert response.status_code == 200, (
-            f"Failed to override current step: {response.text}"
-        )
+        assert (
+            response.status_code == 200
+        ), f"Failed to override current step: {response.text}"
 
         workflow_instance_resp = decamelize(response.json())
         return WorkflowInstanceModel(**workflow_instance_resp)
