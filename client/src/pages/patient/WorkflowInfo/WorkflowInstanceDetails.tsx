@@ -14,7 +14,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { archiveInstanceStepForm } from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
@@ -128,7 +128,7 @@ export default function WorkflowInstanceDetailsPage() {
       message: `Override current step and move to ${title}?`,
       onConfirm: async () => {
         const { success } = await setCurrentStep(stepId);
-        if (!success) return; 
+        if (!success) return;
 
         console.log('Make current step:', stepId);
         setConfirmDialog((prev) => ({ ...prev, open: false }));

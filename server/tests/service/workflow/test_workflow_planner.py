@@ -12,6 +12,7 @@ from service.workflow.workflow_planner import (
 from validation.workflow_models import (
     CompleteStepActionModel,
     CompleteWorkflowActionModel,
+    SkipStepActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
     WorkflowBranchEvaluation,
@@ -81,7 +82,10 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [CompleteStepActionModel(step_id="si-1")]
+        assert actions == [
+            CompleteStepActionModel(step_id="si-1"),
+            SkipStepActionModel(step_id="si-1"),
+        ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
@@ -111,7 +115,10 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [CompleteStepActionModel(step_id="si-2")]
+        assert actions == [
+            CompleteStepActionModel(step_id="si-2"),
+            SkipStepActionModel(step_id="si-2"),
+        ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
@@ -183,7 +190,10 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [CompleteStepActionModel(step_id="si-2")]
+        assert actions == [
+            CompleteStepActionModel(step_id="si-2"),
+            SkipStepActionModel(step_id="si-2"),
+        ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
@@ -214,7 +224,10 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [CompleteStepActionModel(step_id="si-1")]
+        assert actions == [
+            CompleteStepActionModel(step_id="si-1"),
+            SkipStepActionModel(step_id="si-1"),
+        ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(

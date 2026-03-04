@@ -172,7 +172,10 @@ class WorkflowPlanner:
                 return [StartStepActionModel(step_id=current_step.id)]
 
             if current_step.status == WorkflowStepStatusEnum.ACTIVE:
-                return [CompleteStepActionModel(step_id=current_step.id), SkipStepActionModel(step_id=current_step.id)]
+                return [
+                    CompleteStepActionModel(step_id=current_step.id),
+                    SkipStepActionModel(step_id=current_step.id),
+                ]
 
             if (
                 ctx.instance.status != WorkflowStatusEnum.COMPLETED
@@ -212,7 +215,7 @@ class WorkflowPlanner:
             step = ctx.get_instance_step(action.step_id)
             step.status = WorkflowStepStatusEnum.COMPLETED
             step.completion_date = get_current_time()
-        
+
         elif isinstance(action, SkipStepActionModel):
             step = ctx.get_instance_step(action.step_id)
             step.status = WorkflowStepStatusEnum.PENDING
@@ -221,7 +224,6 @@ class WorkflowPlanner:
         elif isinstance(action, CompleteWorkflowActionModel):
             ctx.instance.status = WorkflowStatusEnum.COMPLETED
             ctx.instance.completion_date = get_current_time()
-        
 
         else:
             raise ValueError(f"Action '{action}' is not supported")

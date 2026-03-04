@@ -56,16 +56,16 @@ export function useWorkflowStepActions(
       InstanceStepAction.SKIP,
       currentStep!.id
     );
-  }
+  };
 
   const overrideStep = async (stepId: string) => {
     const payload: OverrideStepRequest = {
       workflowInstanceStepId: stepId,
     };
     const response = await advanceOverrideStep(instanceDetails!.id, payload);
-    
+
     return response;
-  }
+  };
 
   const isRecommendedStep = (stepId: string) => {
     return currentStepEvaluation!.selectedBranchId === stepId;
@@ -123,12 +123,12 @@ export function useWorkflowStepActions(
       return { success: false };
     }
   };
-  
+
   const setCurrentStep = async (stepId: string) => {
     try {
-      await skipStep(); // skip step instead
+      await skipStep();
       await reload();
-      
+
       await overrideStep(stepId);
 
       await startStep(stepId);

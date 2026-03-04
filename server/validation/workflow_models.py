@@ -184,6 +184,7 @@ class CompleteStepActionModel(CradleBaseModel):
     type: Literal["complete_step"] = "complete_step"
     step_id: str
 
+
 class SkipStepActionModel(CradleBaseModel):
     type: Literal["skip_step"] = "skip_step"
     step_id: str
