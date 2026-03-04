@@ -80,7 +80,7 @@ export default function WorkflowInstanceDetailsPage() {
     showSnackbar
   );
 
-  const { completeAndStartNextStep, completeFinalStep } =
+  const { completeAndStartNextStep, completeFinalStep, setCurrentStep } =
     useWorkflowStepActions(
       instanceDetails,
       currentStep,
@@ -121,17 +121,20 @@ export default function WorkflowInstanceDetailsPage() {
   };
 
   // TODO: Placeholder function. To be implemented for overrides.
-  const handleSetCurrentStep = useCallback((stepId: string, title: string) => {
+  const handleSetCurrentStep = async (stepId: string, title: string) => {
     setConfirmDialog({
       open: true,
       title: 'Override Current Step',
       message: `Override current step and move to ${title}?`,
-      onConfirm: () => {
+      onConfirm: async () => {
+        const { success } = await setCurrentStep(stepId);
+        if (!success) return; 
+
         console.log('Make current step:', stepId);
         setConfirmDialog((prev) => ({ ...prev, open: false }));
       },
     });
-  }, []);
+  };
 
   const handleCompleteFinalStep = async () => {
     const { success } = await completeFinalStep();
