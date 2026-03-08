@@ -20,6 +20,7 @@ export enum InstanceStepAction {
   START = 'start_step',
   COMPLETE = 'complete_step',
   COMPLETE_WORKFLOW = 'complete_workflow',
+  SKIP = 'skip_step',
 }
 
 export enum WorkflowBranchEvaluationStatus {

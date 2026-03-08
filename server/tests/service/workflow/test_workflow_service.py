@@ -13,6 +13,7 @@ from tests.helpers import (
 from validation.workflow_models import (
     CompleteStepActionModel,
     CompleteWorkflowActionModel,
+    SkipStepActionModel,
     StartStepActionModel,
     StartWorkflowActionModel,
     WorkflowTemplateModel,
@@ -101,7 +102,10 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         assert workflow_view.instance.current_step_id == "si-1"
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
-        assert actions == [CompleteStepActionModel(step_id="si-1")]
+        assert actions == [
+            CompleteStepActionModel(step_id="si-1"),
+            SkipStepActionModel(step_id="si-1"),
+        ]
 
         WorkflowService.apply_workflow_action(
             action=CompleteStepActionModel(step_id="si-1"), workflow_view=workflow_view
@@ -118,7 +122,10 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         )
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
-        assert actions == [CompleteStepActionModel(step_id="si-2")]
+        assert actions == [
+            CompleteStepActionModel(step_id="si-2"),
+            SkipStepActionModel(step_id="si-2"),
+        ]
 
         WorkflowService.apply_workflow_action(
             action=CompleteStepActionModel(step_id="si-2"), workflow_view=workflow_view

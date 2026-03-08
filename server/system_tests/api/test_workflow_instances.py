@@ -19,6 +19,7 @@ from validation.workflow_api_models import (
 from validation.workflow_models import (
     CompleteStepActionModel,
     CompleteWorkflowActionModel,
+    SkipStepActionModel,
     StartStepActionModel,
     WorkflowInstanceModel,
     WorkflowTemplateModel,
@@ -364,7 +365,10 @@ def test_sequential_workflow_progression__in_order(
     # Complete step 1
     resp = api_get_actions(api_get, workflow_instance_id_path)
     expected_resp = GetAvailableActionsResponse(
-        actions=[CompleteStepActionModel(step_id="si-1")]
+        actions=[
+            CompleteStepActionModel(step_id="si-1"),
+            SkipStepActionModel(step_id="si-1"),
+        ]
     )
     assert resp == expected_resp
 
@@ -396,7 +400,10 @@ def test_sequential_workflow_progression__in_order(
     # Complete step 2
     resp = api_get_actions(api_get, workflow_instance_id_path)
     expected_resp = GetAvailableActionsResponse(
-        actions=[CompleteStepActionModel(step_id="si-2")]
+        actions=[
+            CompleteStepActionModel(step_id="si-2"),
+            SkipStepActionModel(step_id="si-2"),
+        ]
     )
     assert resp == expected_resp
 

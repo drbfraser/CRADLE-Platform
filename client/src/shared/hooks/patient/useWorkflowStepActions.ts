@@ -7,6 +7,7 @@ import { SnackbarSeverity } from 'src/shared/enums';
 import {
   ApplyInstanceStepActionRequest,
   WorkflowInstanceStepEvaluation,
+  OverrideStepRequest,
 } from 'src/shared/types/workflow/workflowApiTypes';
 import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
 import {
@@ -48,6 +49,22 @@ export function useWorkflowStepActions(
       InstanceStepAction.COMPLETE,
       currentStep!.id
     );
+  };
+
+  const skipStep = async () => {
+    return await handleApplyStepAction(
+      InstanceStepAction.SKIP,
+      currentStep!.id
+    );
+  };
+
+  const overrideStep = async (stepId: string) => {
+    const payload: OverrideStepRequest = {
+      workflowInstanceStepId: stepId,
+    };
+    const response = await advanceOverrideStep(instanceDetails!.id, payload);
+
+    return response;
   };
 
   const isRecommendedStep = (stepId: string) => {
@@ -107,8 +124,28 @@ export function useWorkflowStepActions(
     }
   };
 
+  const setCurrentStep = async (stepId: string) => {
+    try {
+      await skipStep();
+      await reload();
+
+      await overrideStep(stepId);
+
+      await startStep(stepId);
+      await reload();
+
+      showSnackbar('Step set as current!', SnackbarSeverity.SUCCESS);
+      return { success: true };
+    } catch (e) {
+      console.error('Unable to set current step', e);
+      showSnackbar('Unable to set current step', SnackbarSeverity.ERROR);
+      return { success: false };
+    }
+  };
+
   return {
     completeFinalStep,
     completeAndStartNextStep,
+    setCurrentStep,
   };
 }

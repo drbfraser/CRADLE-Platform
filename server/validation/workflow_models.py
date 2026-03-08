@@ -185,11 +185,17 @@ class CompleteStepActionModel(CradleBaseModel):
     step_id: str
 
 
+class SkipStepActionModel(CradleBaseModel):
+    type: Literal["skip_step"] = "skip_step"
+    step_id: str
+
+
 WorkflowActionModel = Union[
     StartWorkflowActionModel,
     StartStepActionModel,
     CompleteStepActionModel,
     CompleteWorkflowActionModel,
+    SkipStepActionModel,
 ]
 
 
