@@ -1,7 +1,10 @@
 from unittest.mock import patch
 
 from service.workflow.datasourcing import data_sourcing
-from service.workflow.datasourcing.data_sourcing import DatasourceVariable
+from service.workflow.datasourcing.data_sourcing import (
+    DatasourceVariable,
+    VariablePath,
+)
 from validation.assessments import AssessmentModel
 from validation.patients import PatientModel
 from validation.readings import ReadingModel
@@ -145,6 +148,82 @@ def test_resolve_variables_with_missing_object():
     resolved = data_sourcing.resolve_variables(context, variables, catalogue)
 
     assert resolved == expected
+
+
+def test_resolve_collection_variables_vitals_latest_and_size():
+    """
+    Basic collection resolution for vitals[latest].systolic_blood_pressure and vitals.size.
+    """
+
+    context = {"patient_id": "patient_123"}
+    variable_paths = [
+        VariablePath.from_string("vitals[latest].systolic_blood_pressure"),
+        VariablePath.from_string("vitals.size"),
+    ]
+    variable_paths = [vp for vp in variable_paths if vp is not None]
+
+    def mock_vitals_query(patient_id: str):
+        assert patient_id == "patient_123"
+        # Newest first
+        return [
+            {"systolic_blood_pressure": 130},
+            {"systolic_blood_pressure": 120},
+        ]
+
+    catalogue = {
+        "vitals": {
+            "query": mock_vitals_query,
+            "collection": True,
+        }
+    }
+
+    resolved = data_sourcing.resolve_collection_variables(
+        context=context, variable_paths=variable_paths, catalogue=catalogue
+    )
+
+    assert resolved == {
+        "vitals[latest].systolic_blood_pressure": 130,
+        "vitals.size": 2,
+    }
+
+
+def test_resolve_collection_variables_pregnancies_indexing():
+    """
+    Collection indexing rules for pregnancies[latest].start_date and pregnancies[2].start_date.
+    """
+
+    context = {"patient_id": "patient_456"}
+    variable_paths = [
+        VariablePath.from_string("pregnancies[latest].start_date"),
+        VariablePath.from_string("pregnancies[2].start_date"),
+    ]
+    variable_paths = [vp for vp in variable_paths if vp is not None]
+
+    def mock_pregnancies_query(patient_id: str):
+        assert patient_id == "patient_456"
+        # Newest first by start_date
+        return [
+            {"start_date": 300},
+            {"start_date": 200},
+            {"start_date": 100},
+        ]
+
+    catalogue = {
+        "pregnancies": {
+            "query": mock_pregnancies_query,
+            "collection": True,
+        }
+    }
+
+    resolved = data_sourcing.resolve_collection_variables(
+        context=context, variable_paths=variable_paths, catalogue=catalogue
+    )
+
+    # latest -> newest (300); index 2 -> second from oldest (200) with newest-first ordering
+    assert resolved == {
+        "pregnancies[latest].start_date": 300,
+        "pregnancies[2].start_date": 200,
+    }
 
 
 @patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
