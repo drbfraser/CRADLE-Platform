@@ -80,7 +80,9 @@ class RuleEvaluator:
         if simple_variables:
             resolved_data.update(
                 resolve_variables(
-                    context=context, variables=simple_variables, catalogue=self.catalogue
+                    context=context,
+                    variables=simple_variables,
+                    catalogue=self.catalogue,
                 )
             )
 
