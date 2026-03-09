@@ -5,9 +5,10 @@ import {
   EdgeProps,
   getBezierPath,
 } from '@xyflow/react';
-import { Box, IconButton, Chip } from '@mui/material';
+import { Box, IconButton, Chip, Menu, MenuItem} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import { useState } from 'react';
 
 interface FlowEdgeData {
   hasCondition: boolean;
@@ -19,6 +20,11 @@ interface FlowEdgeData {
     branchId: string,
     sourceStepId: string,
     targetStepId: string
+  ) => void;
+  onInsertNodeBetween?: ( 
+    sourceStepId: string, 
+    targetStepId: string, 
+    branchId?: string
   ) => void;
   isEditMode?: boolean;
 }
@@ -35,6 +41,9 @@ export const FlowEdge: React.FC<EdgeProps> = ({
   markerEnd,
   data,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -58,6 +67,27 @@ export const FlowEdge: React.FC<EdgeProps> = ({
   const showAddButton = !hasCondition && isEditMode;
   const showRuleChip = hasCondition;
 
+  const handleAddClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget as HTMLElement);
+  };
+
+  const handleAddCondition = () => {
+    handleMenuClose();
+    if (isEditMode && onAddRule && sourceStepId && targetStepId) {
+      onAddRule(branchId || '', sourceStepId, targetStepId);
+    }
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleInsertNodeBetween = () => {
+    handleMenuClose();
+    
+  };
+
   const handleRuleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     // Only allow editing in edit mode
@@ -80,25 +110,35 @@ export const FlowEdge: React.FC<EdgeProps> = ({
             }}
             className="nodrag nopan">
             {showAddButton ? (
-              <IconButton
-                size="small"
-                onClick={handleRuleClick}
-                sx={{
-                  backgroundColor: '#1976d2',
-                  color: 'white',
-                  width: 28,
-                  height: 28,
-                  border: '2px solid white',
-                  boxShadow: '0 2px 8px rgba(25, 118, 210, 0.4)',
-                  transition: 'all 0.2s ease-in-out',
-                  '&:hover': {
-                    backgroundColor: '#1565c0',
-                    transform: 'scale(1.1)',
-                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.6)',
-                  },
-                }}>
-                <AddIcon sx={{ fontSize: '16px' }} />
-              </IconButton>
+              <>
+                <IconButton
+                  size="small"
+                  onClick={handleAddClick}
+                  sx={{
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    width: 28,
+                    height: 28,
+                    border: '2px solid white',
+                    boxShadow: '0 2px 8px rgba(25, 118, 210, 0.4)',
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                      transform: 'scale(1.1)',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.6)',
+                    },
+                  }}>
+                  <AddIcon sx={{ fontSize: '16px' }} />
+                </IconButton>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleMenuClose}
+                  >
+                    <MenuItem onClick={handleAddCondition}>Add Condition</MenuItem>
+                    <MenuItem onClick={handleInsertNodeBetween}>Add Node</MenuItem>
+                </Menu>
+              </>
             ) : (
               <Chip
                 label={conditionName || 'Rule'}
