@@ -410,7 +410,7 @@ def _select_collection_item(
         return None
 
     if collection_index is None:
-        # No index specified – invalid for most access patterns.
+        # No index specified
         return None
 
     if collection_index == "latest":

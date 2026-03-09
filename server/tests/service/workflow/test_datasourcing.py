@@ -154,7 +154,6 @@ def test_resolve_collection_variables_vitals_latest_and_size():
     """
     Basic collection resolution for vitals[latest].systolic_blood_pressure and vitals.size.
     """
-
     context = {"patient_id": "patient_123"}
     variable_paths = [
         VariablePath.from_string("vitals[latest].systolic_blood_pressure"),
@@ -191,7 +190,6 @@ def test_resolve_collection_variables_pregnancies_indexing():
     """
     Collection indexing rules for pregnancies[latest].start_date and pregnancies[2].start_date.
     """
-
     context = {"patient_id": "patient_456"}
     variable_paths = [
         VariablePath.from_string("pregnancies[latest].start_date"),
