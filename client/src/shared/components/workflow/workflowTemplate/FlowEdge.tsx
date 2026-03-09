@@ -5,7 +5,7 @@ import {
   EdgeProps,
   getBezierPath,
 } from '@xyflow/react';
-import { Box, IconButton, Chip, Menu, MenuItem} from '@mui/material';
+import { Box, IconButton, Chip, Menu, MenuItem } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState } from 'react';
@@ -21,9 +21,9 @@ interface FlowEdgeData {
     sourceStepId: string,
     targetStepId: string
   ) => void;
-  onInsertNodeBetween?: ( 
-    sourceStepId: string, 
-    targetStepId: string, 
+  onInsertNodeBetween?: (
+    sourceStepId: string,
+    targetStepId: string,
     branchId?: string
   ) => void;
   isEditMode?: boolean;
@@ -86,10 +86,9 @@ export const FlowEdge: React.FC<EdgeProps> = ({
 
   const handleInsertNodeBetween = () => {
     handleMenuClose();
-    if (onInsertNodeBetween && sourceStepId && targetStepId) 
-    {
+    if (onInsertNodeBetween && sourceStepId && targetStepId) {
       onInsertNodeBetween(sourceStepId, targetStepId, branchId);
-    } 
+    }
   };
 
   const handleRuleClick = (event: React.MouseEvent) => {
@@ -135,19 +134,22 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                   <AddIcon sx={{ fontSize: '16px' }} />
                 </IconButton>
                 <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleMenuClose}
-                    anchorOrigin={{
-                      vertical: 'center',
-                      horizontal: 'right',  
-                    }}
-                    sx={{
-                      mt: -5, 
-                    }}
-                  >
-                    <MenuItem onClick={handleAddCondition}>Add Condition</MenuItem>
-                    <MenuItem onClick={handleInsertNodeBetween}>Insert Step Between</MenuItem>
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right',
+                  }}
+                  sx={{
+                    mt: -5,
+                  }}>
+                  <MenuItem onClick={handleAddCondition}>
+                    Add Condition
+                  </MenuItem>
+                  <MenuItem onClick={handleInsertNodeBetween}>
+                    Insert Step Between
+                  </MenuItem>
                 </Menu>
               </>
             ) : (

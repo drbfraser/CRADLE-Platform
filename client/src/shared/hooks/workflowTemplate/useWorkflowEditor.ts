@@ -224,79 +224,81 @@ export const useWorkflowEditor = ({
     sourceStepId: string,
     targetStepId: string,
     branchId?: string
-) => {
-  if (!editedWorkflow) return;
+  ) => {
+    if (!editedWorkflow) return;
 
-  // Generate a unique ID for the new step
-  const newStepId = `step-${Date.now()}-${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
+    // Generate a unique ID for the new step
+    const newStepId = `step-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
-  // Find the source step
-  const sourceStep = editedWorkflow.steps.find(s => s.id === sourceStepId);
-  if (!sourceStep?.branches) return;
+    // Find the source step
+    const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
+    if (!sourceStep?.branches) return;
 
-  // Find the branch index
-  const branchIndex = sourceStep.branches.findIndex(b => 
-    b.id === branchId || (b.stepId === sourceStepId && b.targetStepId === targetStepId)
-  );
-  
-  if (branchIndex === -1) return;
+    // Find the branch index
+    const branchIndex = sourceStep.branches.findIndex(
+      (b) =>
+        b.id === branchId ||
+        (b.stepId === sourceStepId && b.targetStepId === targetStepId)
+    );
 
-  // Create the new step
-  const newStep = {
-    id: newStepId,
-    name: DEFAULT_STEP_NAME,
-    description: DEFAULT_STEP_DESCRIPTION,
-    lastEdited: Date.now(),
-    workflowTemplateId: editedWorkflow.id,
-    branches: [],
-  };
-  
-  setEditedWorkflow((prev) => {
-    if (!prev) return prev;
+    if (branchIndex === -1) return;
 
-    const updatedSteps = prev.steps.map((step) => {
-      if (step.id === sourceStepId && step.branches) {
-        const updatedBranches = step.branches.map((branch, idx) => {
-          if (idx === branchIndex) {
-            return {
-              ...branch,
-              targetStepId: newStepId, 
-            };
-          }
-          return branch;
-        });
-        return { ...step, branches: updatedBranches };
-      }
-      return step;
+    // Create the new step
+    const newStep = {
+      id: newStepId,
+      name: DEFAULT_STEP_NAME,
+      description: DEFAULT_STEP_DESCRIPTION,
+      lastEdited: Date.now(),
+      workflowTemplateId: editedWorkflow.id,
+      branches: [],
+    };
+
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps.map((step) => {
+        if (step.id === sourceStepId && step.branches) {
+          const updatedBranches = step.branches.map((branch, idx) => {
+            if (idx === branchIndex) {
+              return {
+                ...branch,
+                targetStepId: newStepId,
+              };
+            }
+            return branch;
+          });
+          return { ...step, branches: updatedBranches };
+        }
+        return step;
+      });
+
+      // Add the new step with a branch to the original target
+      const newStepWithBranch = {
+        ...newStep,
+        branches: [
+          {
+            stepId: newStepId,
+            targetStepId: targetStepId,
+            condition: undefined,
+          },
+        ],
+      };
+
+      const newWorkflow = {
+        ...prev,
+        steps: [...updatedSteps, newStepWithBranch],
+      };
+
+      return newWorkflow;
     });
 
-    // Add the new step with a branch to the original target
-    const newStepWithBranch = {
-      ...newStep,
-      branches: [
-        {
-          stepId: newStepId,
-          targetStepId: targetStepId,
-          condition: undefined,
-        },
-      ],
-    };
+    setHasChanges(true);
 
-    const newWorkflow = {
-      ...prev,
-      steps: [...updatedSteps, newStepWithBranch],
-    };
-
-    return newWorkflow;
-  });
-
-  setHasChanges(true);
-  
- // Auto-select the newly created step
-  setSelectedStepId(newStepId);
-};
+    // Auto-select the newly created step
+    setSelectedStepId(newStepId);
+  };
 
   const handleAddBranch = (stepId: string) => {
     if (!editedWorkflow) return;
