@@ -61,6 +61,7 @@ export const FlowEdge: React.FC<EdgeProps> = ({
   const sourceStepId = edgeData?.sourceStepId;
   const targetStepId = edgeData?.targetStepId;
   const onAddRule = edgeData?.onAddRule;
+  const onInsertNodeBetween = edgeData?.onInsertNodeBetween;
 
   // Show '+' button if no condition and in edit mode
   // Show rule name chip if condition exists (editable in edit mode, read-only otherwise)
@@ -85,7 +86,10 @@ export const FlowEdge: React.FC<EdgeProps> = ({
 
   const handleInsertNodeBetween = () => {
     handleMenuClose();
-    
+    if (onInsertNodeBetween && sourceStepId && targetStepId) 
+    {
+      onInsertNodeBetween(sourceStepId, targetStepId, branchId);
+    } 
   };
 
   const handleRuleClick = (event: React.MouseEvent) => {
@@ -134,9 +138,16 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleMenuClose}
+                    anchorOrigin={{
+                      vertical: 'center',
+                      horizontal: 'right',  
+                    }}
+                    sx={{
+                      mt: -5, 
+                    }}
                   >
                     <MenuItem onClick={handleAddCondition}>Add Condition</MenuItem>
-                    <MenuItem onClick={handleInsertNodeBetween}>Add Node</MenuItem>
+                    <MenuItem onClick={handleInsertNodeBetween}>Insert Step Between</MenuItem>
                 </Menu>
               </>
             ) : (

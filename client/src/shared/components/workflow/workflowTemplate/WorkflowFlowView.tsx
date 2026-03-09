@@ -48,6 +48,11 @@ interface WorkflowFlowViewProps {
     sourceStepId: string,
     targetStepId: string
   ) => void;
+  onInsertNodeBetween?: (
+    sourceStepId: string,
+    targetStepId: string,
+    branchId?: string
+  ) => void;
   // props for undo redo
   canUndo?: boolean;
   canRedo?: boolean;
@@ -69,6 +74,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   onInsertNode,
   onAddBranch,
   onConnectionCreate,
+  onInsertNodeBetween,
   onDeleteNode,
   onAddRule,
   onEditBranch,
@@ -187,6 +193,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 isEditMode={isEditMode}
                 onStepSelect={handleStepSelect}
                 onInsertNode={onInsertNode}
+                onInsertNodeBetween={onInsertNodeBetween}
                 onAddBranch={handleAddBranch}
                 onConnectionCreate={onConnectionCreate}
                 onDeleteNode={onDeleteNode}

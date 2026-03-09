@@ -163,6 +163,7 @@ export const CreateWorkflowTemplate = () => {
           onConnectionCreate={workflowEditor.handleConnectionCreate}
           onDeleteNode={workflowEditor.handleDeleteNode}
           onAddRule={workflowEditor.handleAddRule}
+          onInsertNodeBetween={workflowEditor.handleInsertNodeBetween}
           onSave={workflowEditor.handleSave}
           onCancel={workflowEditor.handleCancel}
           canUndo={workflowEditor.canUndo}
