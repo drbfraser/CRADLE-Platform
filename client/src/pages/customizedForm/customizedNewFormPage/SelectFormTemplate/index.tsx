@@ -64,9 +64,12 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   }
 
   const getAvailableLanguages = (selectedFormName: string) => {
-    const index = formTemplatesQuery.data.templates.findIndex(
+    const templates = formTemplatesQuery.data?.templates;
+    if (!templates) return [];
+    const index = templates.findIndex(
       (form) => form.name === selectedFormName
     );
+    if (index === -1) return [];
     return formTemplateLangsQueries[index]?.data ?? [];
   };
 
@@ -79,7 +82,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   };
 
   const handleSubmit = async () => {
-    const formId = formTemplatesQuery.data.templates.find(
+    const formId = formTemplatesQuery.data?.templates?.find(
       (form) => form.name === selectedFormName
     )?.id;
 
@@ -96,7 +99,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
         onClose={() => submitForm.reset()}
       />
 
-      {formTemplatesQuery.data.templates.length > 0 ? (
+      {(formTemplatesQuery.data?.templates?.length ?? 0) > 0 ? (
         <Formik
           initialValues={{ name: selectedFormName, lang: selectedLanguage }}
           enableReinitialize
@@ -112,7 +115,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
                       component={Autocomplete}
                       fullWidth
                       name={CustomizedFormField.name}
-                      options={formTemplatesQuery.data.templates.map(
+                      options={(formTemplatesQuery.data?.templates ?? []).map(
                         (form) => form.name
                       )}
                       disableClearable={true}
