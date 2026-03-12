@@ -66,9 +66,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   const getAvailableLanguages = (selectedFormName: string) => {
     const templates = formTemplatesQuery.data?.templates;
     if (!templates) return [];
-    const index = templates.findIndex(
-      (form) => form.name === selectedFormName
-    );
+    const index = templates.findIndex((form) => form.name === selectedFormName);
     if (index === -1) return [];
     return formTemplateLangsQueries[index]?.data ?? [];
   };
