@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
+from typing import Any, Callable, Dict, List, TypeAlias, TypeVar
 
 import data.db_operations as crud
 from data import orm_serializer
@@ -18,12 +18,84 @@ M = TypeVar("M")
 ObjectResolver = Callable[[str, str], Any]
 CustomResolver = Callable[[Dict], Any]
 
-ObjectCatalogue: TypeAlias = Dict[str, Union[ObjectResolver, Dict[str, CustomResolver]]]
+# For object entries we use a dict with well-known keys like:
+#   {"query": <callable>, "custom": {...}, "collection": bool}
+ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
 
 
-# TODO: query for form data
-def __query_form_data():
-    pass
+def __query_vitals_collection(patient_id: str) -> List[Dict[str, Any]]:
+    """
+    Query all readings (vitals) for a patient, ordered by date_taken (newest first).
+
+    Each item is a plain dict produced via orm_serializer.marshal, optionally
+    enriched with a nested "urine_test" dict if a urine test exists.
+    """
+    # Reuse existing patient query that already orders readings by date.
+    readings: List[ReadingOrm] = crud.read_patient_all_records(
+        patient_id, readings=True
+    )
+
+    result: List[Dict[str, Any]] = []
+    for reading in readings:
+        reading_dict = orm_serializer.marshal(reading)
+
+        # Attach nested urine_test if present on the ORM relationship.
+        urine: UrineTestOrm | None = getattr(reading, "urine_tests", None)
+        if urine is not None:
+            urine_dict = orm_serializer.marshal(urine)
+            reading_dict["urine_test"] = urine_dict
+
+        result.append(reading_dict)
+
+    return result
+
+
+def __query_pregnancies_collection(patient_id: str) -> List[Dict[str, Any]]:
+    """
+    Query all pregnancies for a patient, ordered by start_date (newest first).
+    """
+    pregnancies = crud.read_all(PregnancyOrm, patient_id=patient_id) or []
+    pregnancies_sorted = sorted(
+        pregnancies,
+        key=lambda p: getattr(p, "start_date", 0) or 0,
+        reverse=True,
+    )
+    return [orm_serializer.marshal(p) for p in pregnancies_sorted]
+
+
+def __query_referrals_collection(patient_id: str) -> List[Dict[str, Any]]:
+    """
+    Skeleton: query referrals collection for a patient.
+
+    Phase 3 focuses on vitals and pregnancies; referrals will be
+    implemented in a later phase.
+    """
+    # TODO: Implement referral collection query (Phase 3 extension).
+    return []
+
+
+def __query_assessments_collection(patient_id: str) -> List[Dict[str, Any]]:
+    """
+    Skeleton: query assessments collection for a patient.
+    """
+    # TODO: Implement assessment collection query (Phase 3 extension).
+    return []
+
+
+def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
+    """
+    Skeleton: query forms collection for a patient.
+    """
+    # TODO: Implement forms collection query (Phase 4).
+    return []
+
+
+def __query_all_workflows_collection(patient_id: str) -> List[Dict[str, Any]]:
+    """
+    Skeleton: query all workflows collection for a patient.
+    """
+    # TODO: Implement all_wf collection query (Phase 5).
+    return []
 
 
 def __query_object(
@@ -72,7 +144,7 @@ def get_catalogue() -> Dict[str, ObjectCatalogue]:
     Objects below are from the spike on relevant system data used in a workflow
     see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
 """
-__data_catalogue = {
+__data_catalogue: Dict[str, ObjectCatalogue] = {
     "assessment": {
         "query": partial(
             __query_object, AssessmentOrm, lambda _id: AssessmentOrm.id == _id
@@ -95,6 +167,7 @@ __data_catalogue = {
         ),
         "custom": {},
     },
+    # Simple reading object access (non-collection).
     "reading": {
         "query": partial(
             __query_object, ReadingOrm, lambda _id: ReadingOrm.patient_id == _id
@@ -106,5 +179,30 @@ __data_catalogue = {
             __query_object, UrineTestOrm, lambda _id: UrineTestOrm.id == _id
         ),
         "custom": {},
+    },
+    # Collection namespaces used by VariablePath-based resolution.
+    "vitals": {
+        "query": __query_vitals_collection,
+        "collection": True,
+    },
+    "pregnancies": {
+        "query": __query_pregnancies_collection,
+        "collection": True,
+    },
+    "referrals": {
+        "query": __query_referrals_collection,
+        "collection": True,
+    },
+    "assessments": {
+        "query": __query_assessments_collection,
+        "collection": True,
+    },
+    "forms": {
+        "query": __query_forms_collection,
+        "collection": True,
+    },
+    "all_wf": {
+        "query": __query_all_workflows_collection,
+        "collection": True,
     },
 }

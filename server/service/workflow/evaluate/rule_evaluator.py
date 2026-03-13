@@ -4,8 +4,10 @@ from typing import Any, Dict, List, Optional, Tuple
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
     DatasourceVariable,
+    VariablePath,
     VariableResolution,
     VariableResolutionStatus,
+    resolve_collection_variables,
     resolve_variables,
 )
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
@@ -49,13 +51,49 @@ class RuleEvaluator:
             "Variables to resolve: %s for patient %s", variable_strings, patient_id
         )
 
-        variables = [DatasourceVariable.from_string(v) for v in variable_strings]
-        variables = [v for v in variables if v is not None]
+        # Split variables into simple datasource variables and collection-based paths.
+        collection_namespaces = {
+            "vitals",
+            "pregnancies",
+            "referrals",
+            "assessments",
+            "forms",
+            "all_wf",
+        }
+
+        collection_paths = []
+        simple_variables = []
+
+        for var_str in variable_strings:
+            vp = VariablePath.from_string(var_str)
+            if vp is not None and vp.namespace in collection_namespaces:
+                collection_paths.append(vp)
+                continue
+
+            dv = DatasourceVariable.from_string(var_str)
+            if dv is not None:
+                simple_variables.append(dv)
 
         context = {"patient_id": patient_id}
-        resolved_data = resolve_variables(
-            context=context, variables=variables, catalogue=self.catalogue
-        )
+
+        resolved_data: Dict[str, Any] = {}
+        if simple_variables:
+            resolved_data.update(
+                resolve_variables(
+                    context=context,
+                    variables=simple_variables,
+                    catalogue=self.catalogue,
+                )
+            )
+
+        if collection_paths:
+            resolved_data.update(
+                resolve_collection_variables(
+                    context=context,
+                    variable_paths=collection_paths,
+                    catalogue=self.catalogue,
+                )
+            )
 
         logger.debug("Resolved data for context %s: %s", context, resolved_data)
 

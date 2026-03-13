@@ -374,3 +374,152 @@ def resolve_variable(
         return custom_query(model_dict)
 
     return None
+
+
+def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
+    """
+    Walk a nested field path on a BaseModel or dict.
+
+    Returns None if any step in the path is missing.
+    """
+    current = value
+    for field in field_path:
+        if isinstance(current, BaseModel):
+            current = getattr(current, field, None)
+        elif isinstance(current, dict):
+            current = current.get(field)
+        else:
+            return None
+
+        if current is None:
+            return None
+
+    return current
+
+
+def _select_collection_item(
+    items: List[Any],
+    collection_index: Optional[Union[str, int]],
+) -> Any:
+    """
+    Select a single item from a collection using Cradle's indexing rules.
+
+    Assumes items are ordered from newest to oldest.
+    """
+    if not items:
+        return None
+
+    if collection_index is None:
+        # No index specified
+        return None
+
+    if collection_index == "latest":
+        return items[0]
+
+    if isinstance(collection_index, int):
+        idx = collection_index
+        if idx > 0:
+            # Positive indices are 1-indexed from the oldest item.
+            # items are newest-first, so oldest is at the end.
+            if idx <= len(items):
+                return items[-idx]
+            return None
+
+        # Negative indices are from newest: -1 is latest, -2 is second latest, etc.
+        offset = abs(idx) - 1
+        if offset < len(items):
+            return items[offset]
+        return None
+
+    return None
+
+
+def resolve_collection_variables(
+    context: ResolverContext,
+    variable_paths: List[VariablePath],
+    catalogue: Dict[str, ObjectCatalogue],
+) -> Dict[str, Any]:
+    """
+    Resolve collection variables (e.g., vitals[latest].systolic_blood_pressure).
+
+    Collection namespaces are configured in the data catalogue via:
+        {
+            "query": callable(patient_id) -> List[BaseModel | dict],
+            "collection": True,
+        }
+    """
+    logger = logging.getLogger(__name__)
+
+    if not variable_paths:
+        return {}
+
+    patient_id = context.get("patient_id")
+    if not patient_id:
+        logger.debug(
+            "Collection resolution failed: missing 'patient_id' in context: %s",
+            context,
+        )
+        return {vp.to_string(): None for vp in variable_paths}
+
+    # Group by namespace so we only query each collection once per evaluation.
+    paths_by_namespace: Dict[str, List[VariablePath]] = {}
+    for vp in variable_paths:
+        paths_by_namespace.setdefault(vp.namespace, []).append(vp)
+
+    resolved: Dict[str, Any] = {}
+
+    for namespace, paths in paths_by_namespace.items():
+        collection_entry = catalogue.get(namespace)
+        if not collection_entry or not collection_entry.get("collection"):
+            for vp in paths:
+                resolved[vp.to_string()] = None
+            continue
+
+        query_fn = collection_entry.get("query")
+        if query_fn is None:
+            logger.debug(
+                "Collection resolution failed: namespace '%s' has no query function.",
+                namespace,
+            )
+            for vp in paths:
+                resolved[vp.to_string()] = None
+            continue
+
+        try:
+            items = query_fn(patient_id)
+        except Exception as exc:
+            logger.error(
+                "Error querying collection '%s' for patient '%s': %s",
+                namespace,
+                patient_id,
+                exc,
+            )
+            for vp in paths:
+                resolved[vp.to_string()] = None
+            continue
+
+        # Ensure we always have a list to work with.
+        items = items or []
+
+        for vp in paths:
+            key = vp.to_string()
+
+            # Special-case: collection.size
+            if vp.collection_index is None and vp.field_path == ["size"]:
+                resolved[key] = len(items)
+                continue
+
+            item = _select_collection_item(items, vp.collection_index)
+            if item is None:
+                resolved[key] = None
+                continue
+
+            if not vp.field_path:
+                # Caller requested the whole item (e.g., vitals[latest]).
+                resolved[key] = item
+                continue
+
+            value = _navigate_field_path(item, vp.field_path)
+            resolved[key] = value
+
+    return resolved
