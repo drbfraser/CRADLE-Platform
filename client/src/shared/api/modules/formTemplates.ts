@@ -131,12 +131,31 @@ export const getFormTemplateLangAsync = async (
     )
   ).data;
 
+export const getFormTemplateLangAsyncV2 = async (
+  formTemplateId: string,
+  lang: string
+) =>
+  (
+    await axiosFetch.get(
+      `${EndpointEnum.FORM_TEMPLATES_V2}/${formTemplateId}?lang=${lang}`
+    )
+  ).data;
+
 export const getFormTemplateLangsAsync = async (
   formTemplateId: string
 ): Promise<string[]> =>
   (
     await axiosFetch.get(
       EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
+    )
+  ).data.langVersions;
+
+export const getFormTemplateLangsAsyncV2 = async (
+  formTemplateId: string
+): Promise<string[]> =>
+  (
+    await axiosFetch.get(
+      EndpointEnum.FORM_TEMPLATES_V2 + `/${formTemplateId}/languages`
     )
   ).data.langVersions;
 

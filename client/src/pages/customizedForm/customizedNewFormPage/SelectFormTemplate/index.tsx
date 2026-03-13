@@ -12,13 +12,13 @@ import {
 } from '@mui/material';
 
 import { CForm } from 'src/shared/types/form/formTypes';
-import { getFormTemplateLangAsync } from 'src/shared/api';
-import { useFormTemplatesQuery } from 'src/shared/queries';
+import { getFormTemplateLangAsyncV2 } from 'src/shared/api';
+import { useFormTemplatesQueryV2 } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
 import { CustomizedFormField, validationSchema } from './state';
-import { useFormTemplateLangsQueries } from '../../queries';
+import { useFormTemplateLangsQueriesV2 } from '../../queries';
 
 const getDefaultLanguage = (languageOptions: string[]) => {
   // Check if fetched languages contain browser language
@@ -48,12 +48,12 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
 
   const submitForm = useMutation({
     mutationFn: async (values: { formId: string; lang: string }) => {
-      setForm(await getFormTemplateLangAsync(values.formId, values.lang));
+      setForm(await getFormTemplateLangAsyncV2(values.formId, values.lang));
     },
   });
 
-  const formTemplatesQuery = useFormTemplatesQuery(false);
-  const formTemplateLangsQueries = useFormTemplateLangsQueries(
+  const formTemplatesQuery = useFormTemplatesQueryV2(false);
+  const formTemplateLangsQueries = useFormTemplateLangsQueriesV2(
     formTemplatesQuery.data
   );
   if (
@@ -64,9 +64,10 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   }
 
   const getAvailableLanguages = (selectedFormName: string) => {
-    const index = formTemplatesQuery.data.findIndex(
-      (form) => form.classification.name === selectedFormName
-    );
+    const templates = formTemplatesQuery.data?.templates;
+    if (!templates) return [];
+    const index = templates.findIndex((form) => form.name === selectedFormName);
+    if (index === -1) return [];
     return formTemplateLangsQueries[index]?.data ?? [];
   };
 
@@ -79,8 +80,8 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
   };
 
   const handleSubmit = async () => {
-    const formId = formTemplatesQuery.data.find(
-      (form) => form.classification.name === selectedFormName
+    const formId = formTemplatesQuery.data?.templates?.find(
+      (form) => form.name === selectedFormName
     )?.id;
 
     submitForm.mutate({
@@ -96,7 +97,7 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
         onClose={() => submitForm.reset()}
       />
 
-      {formTemplatesQuery.data.length > 0 ? (
+      {(formTemplatesQuery.data?.templates?.length ?? 0) > 0 ? (
         <Formik
           initialValues={{ name: selectedFormName, lang: selectedLanguage }}
           enableReinitialize
@@ -112,8 +113,8 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
                       component={Autocomplete}
                       fullWidth
                       name={CustomizedFormField.name}
-                      options={formTemplatesQuery.data.map(
-                        (form) => form.classification.name
+                      options={(formTemplatesQuery.data?.templates ?? []).map(
+                        (form) => form.name
                       )}
                       disableClearable={true}
                       onInputChange={handleSelectForm}

@@ -6,6 +6,7 @@ import {
   getFormTemplateAsync,
   getFormTemplateAsyncV2,
   getFormTemplateLangsAsync,
+  getFormTemplateLangsAsyncV2,
 } from 'src/shared/api';
 import {
   FormTemplate,
@@ -46,7 +47,7 @@ export const useFormTemplateLangsQueriesV2 = (
     queries:
       templates?.templates.map((template) => ({
         queryKey: ['formTemplateLang', template.id],
-        queryFn: () => getFormTemplateLangsAsync(template.id),
+        queryFn: () => getFormTemplateLangsAsyncV2(template.id),
       })) ?? [],
   });
 
