@@ -8,6 +8,7 @@ from typing import List, Optional
 from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
 from api.decorator import roles_required
@@ -234,7 +235,16 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     if workflow_classification_orm is not None:
         workflow_template_orm.classification = workflow_classification_orm
 
-    crud.create(model=workflow_template_orm, refresh=True)
+    try:
+        crud.create(model=workflow_template_orm, refresh=True)
+    except IntegrityError:
+        crud.db_session.rollback()
+        return abort(
+            code=409,
+            description=(
+                "Workflow template version conflict. Please retry the request."
+            ),
+        )
 
     return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
 
@@ -475,7 +485,16 @@ def update_workflow_template_patch(
 
     workflow_template.archived = True
 
-    crud.create(model=new_workflow_template, refresh=True)
+    try:
+        crud.create(model=new_workflow_template, refresh=True)
+    except IntegrityError:
+        crud.db_session.rollback()
+        return abort(
+            code=409,
+            description=(
+                "Workflow template version conflict. Please retry the request."
+            ),
+        )
 
     response_data = crud.read(WorkflowTemplateOrm, id=new_workflow_template.id)
 
