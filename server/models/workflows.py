@@ -74,6 +74,13 @@ class WorkflowTemplateOrm(db.Model):
     """
 
     __tablename__ = "workflow_template"
+    __table_args__ = (
+        db.UniqueConstraint(
+            "classification_id",
+            "version",
+            name="uq_workflow_template_classification_version",
+        ),
+    )
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
