@@ -8,10 +8,10 @@ from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter
 from enums import RoleEnum, WorkflowStepStatusEnum
 from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
+    CreateNewStepRequest,
     GetWorkflowInstanceStepsRequest,
     GetWorkflowInstanceStepsResponse,
     WorkflowInstanceStepPatchModel,
-    CreateNewStepRequest,
 )
 from validation.workflow_models import WorkflowInstanceStepModel, WorkflowStepEvaluation
 
@@ -66,9 +66,10 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
 def create_workflow_instance_step(
     path: WorkflowInstanceStepIdPath, body: CreateNewStepRequest
 ):
-    """Create Workflow Instance Step
-    Return 409 conflict if incomplete step instance already exists"""
-
+    """
+    Create Workflow Instance Step
+    Return 409 conflict if incomplete step instance already exists
+    """
     step_instance = workflow_utils.fetch_workflow_instance_step_or_404(
         path.workflow_instance_step_id
     )
@@ -82,7 +83,7 @@ def create_workflow_instance_step(
         for step in workflow_instance.steps
         if (
             step.workflow_template_step_id == step_instance.workflow_template_step_id
-            and not step.status == WorkflowStepStatusEnum.COMPLETED
+            and step.status != WorkflowStepStatusEnum.COMPLETED
         )
     ]
 
