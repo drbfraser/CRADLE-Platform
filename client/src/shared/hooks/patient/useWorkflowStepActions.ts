@@ -167,7 +167,25 @@ export function useWorkflowStepActions(
 
       showSnackbar('New step instance created!', SnackbarSeverity.SUCCESS);
       return { success: true };
-    } catch (e) {
+    } catch (e: any) {
+      if (e.response?.status === 409) {
+        // an incomplete step instance of the same template already exists
+        try {
+          const existingId = e.response.data.existingStepId;
+          console.log(existingId);
+          await overrideStep(existingId);
+
+          await startStep(existingId);
+          await reload();
+
+          showSnackbar('Step instance loaded!', SnackbarSeverity.SUCCESS);
+          return { success: true };
+        } catch (e) {
+          console.error('Unable to loading step instance', e);
+          showSnackbar('Unable to load step instance', SnackbarSeverity.ERROR);
+          return { success: false };
+        }
+      }
       console.error('Unable to create new step instance', e);
       showSnackbar(
         'Unable to create new step instance',

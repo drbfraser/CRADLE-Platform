@@ -137,7 +137,7 @@ export default function WorkflowInstanceDetailsPage() {
     setConfirmDialog({
       open: true,
       title: 'Override Current Step',
-      message: `Override current step and move to ${title}?${statusNote}`,
+      message: `Override current step and move to ${title}? ${statusNote}`,
       onConfirm: async () => {
         if (status === StepStatus.COMPLETED) {
           const { success } = await overrideCompletedStep(stepId);
