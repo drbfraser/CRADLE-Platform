@@ -11,6 +11,7 @@ from validation.workflow_api_models import (
     GetWorkflowInstanceStepsRequest,
     GetWorkflowInstanceStepsResponse,
     WorkflowInstanceStepPatchModel,
+    CreateNewStepRequest,
 )
 from validation.workflow_models import WorkflowInstanceStepModel, WorkflowStepEvaluation
 
@@ -56,6 +57,39 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         step.form = None
 
     return step.model_dump(), 200
+
+
+# /api/workflow/instance/steps [POST]
+@api_workflow_instance_steps.post(
+    "/<string:workflow_instance_step_id>", responses={201: WorkflowInstanceStepModel}
+)
+def create_workflow_instance_step(
+    path: WorkflowInstanceStepIdPath, body: CreateNewStepRequest
+):
+    """Create Workflow Instance Step"""
+
+    step = workflow_utils.fetch_workflow_instance_step_or_404(
+        path.workflow_instance_step_id
+    )
+    template_step = workflow_utils.fetch_workflow_template_step_or_404(
+        step.workflow_template_step_id
+    )
+
+    new_step = WorkflowService.generate_workflow_instance_step(
+        template_step, body.workflow_instance_id
+    )
+    new_step_id = new_step.id
+
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        body.workflow_instance_id
+    )
+    WorkflowService.add_step_to_workflow_instance(workflow_instance, new_step)
+
+    WorkflowService.upsert_workflow_instance(workflow_instance)
+
+    updated_new_step = WorkflowService.get_workflow_instance_step(new_step_id)
+
+    return updated_new_step.model_dump(), 201
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id> [PATCH]

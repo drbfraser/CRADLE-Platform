@@ -117,6 +117,10 @@ class OverrideCurrentStepRequest(CradleBaseModel):
     workflow_instance_step_id: str
 
 
+class CreateNewStepRequest(CradleBaseModel):
+    workflow_instance_id: str
+
+
 # Workflow Variable Catalogue
 
 

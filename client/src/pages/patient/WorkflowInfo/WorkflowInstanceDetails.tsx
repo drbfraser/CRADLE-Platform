@@ -30,6 +30,7 @@ import { SnackbarSeverity } from 'src/shared/enums';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowNextStepOptions } from 'src/shared/hooks/patient/useWorkflowNextStepOptions';
 import { useWorkflowStepActions } from 'src/shared/hooks/patient/useWorkflowStepActions';
+import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -80,14 +81,18 @@ export default function WorkflowInstanceDetailsPage() {
     showSnackbar
   );
 
-  const { completeAndStartNextStep, completeFinalStep, setCurrentStep } =
-    useWorkflowStepActions(
-      instanceDetails,
-      currentStep,
-      currentStepEvaluation,
-      showSnackbar,
-      reload
-    );
+  const {
+    completeAndStartNextStep,
+    completeFinalStep,
+    setCurrentStep,
+    overrideCompletedStep,
+  } = useWorkflowStepActions(
+    instanceDetails,
+    currentStep,
+    currentStepEvaluation,
+    showSnackbar,
+    reload
+  );
 
   const handleArchiveForm = async () => {
     try {
@@ -120,15 +125,27 @@ export default function WorkflowInstanceDetailsPage() {
     }
   };
 
-  // TODO: Placeholder function. To be implemented for overrides.
-  const handleSetCurrentStep = async (stepId: string, title: string) => {
+  const handleSetCurrentStep = async (
+    stepId: string,
+    title: string,
+    status: StepStatus
+  ) => {
+    const statusNote =
+      status === StepStatus.COMPLETED
+        ? 'Note: A new step instance will be created.'
+        : '';
     setConfirmDialog({
       open: true,
       title: 'Override Current Step',
-      message: `Override current step and move to ${title}?`,
+      message: `Override current step and move to ${title}?${statusNote}`,
       onConfirm: async () => {
-        const { success } = await setCurrentStep(stepId);
-        if (!success) return;
+        if (status === StepStatus.COMPLETED) {
+          const { success } = await overrideCompletedStep(stepId);
+          if (!success) return;
+        } else {
+          const { success } = await setCurrentStep(stepId);
+          if (!success) return;
+        }
 
         console.log('Make current step:', stepId);
         setConfirmDialog((prev) => ({ ...prev, open: false }));

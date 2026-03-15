@@ -16,10 +16,15 @@ import {
   getWorkflowPossibleSteps,
   getWorkflowPossibleStepsLength,
 } from '../WorkflowUtils';
+import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowPossibleSteps(props: {
   workflowInstance: InstanceDetails;
-  handleMakeCurrent: (stepId: string, title: string) => void;
+  handleMakeCurrent: (
+    stepId: string,
+    title: string,
+    status: StepStatus
+  ) => void;
 }) {
   const { workflowInstance, handleMakeCurrent } = props;
 
@@ -78,7 +83,11 @@ export default function WorkflowPossibleSteps(props: {
                           <IconButton
                             size="small"
                             onClick={() =>
-                              handleMakeCurrent(step.id, step.title)
+                              handleMakeCurrent(
+                                step.id,
+                                step.title,
+                                step.status
+                              )
                             }>
                             <PlayArrowIcon />
                           </IconButton>

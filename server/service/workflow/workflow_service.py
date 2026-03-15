@@ -8,6 +8,7 @@ from models.workflows import (
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
+    WorkflowTemplateStepOrm,
 )
 from service.workflow.workflow_planner import WorkflowPlanner
 from service.workflow.workflow_view import WorkflowView
@@ -106,6 +107,24 @@ class WorkflowService:
         return step
 
     @staticmethod
+    def generate_workflow_instance_step(
+        workflow_template_step: WorkflowTemplateStepModel,
+        workflow_instance_id: str,
+    ) -> WorkflowInstanceStepModel:
+        step = WorkflowService._generate_workflow_instance_step(
+            workflow_template_step, workflow_instance_id
+        )
+
+        return WorkflowInstanceStepModel(**step)
+
+    @staticmethod
+    def add_step_to_workflow_instance(
+        workflow_instance: WorkflowInstanceModel,
+        workflow_step: WorkflowInstanceStepModel,
+    ) -> None:
+        workflow_instance.steps.append(workflow_step)
+
+    @staticmethod
     def upsert_workflow_instance(workflow_instance: WorkflowInstanceModel):
         """
         Insert or update a workflow instance in the database.
@@ -201,7 +220,7 @@ class WorkflowService:
     @staticmethod
     def get_workflow_instance_step(
         workflow_instance_step_id: str,
-    ) -> Optional[WorkflowInstanceModel]:
+    ) -> Optional[WorkflowInstanceStepModel]:
         """
         Fetch a workflow instance step by ID, returning None if it does not exist.
         """
@@ -233,6 +252,26 @@ class WorkflowService:
         workflow_template_dict = orm_serializer.marshal(workflow_template_orm)
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
+
+    @staticmethod
+    def get_workflow_template_step(
+        workflow_template_step_id: str,
+    ) -> Optional[WorkflowTemplateStepModel]:
+        """
+        Fetch a workflow template step by ID, returning None if it does not exist.
+        """
+        workflow_template_step_orm = crud.read(
+            WorkflowTemplateStepOrm, id=workflow_template_step_id
+        )
+
+        if not workflow_template_step_orm:
+            return None
+
+        workflow_template_step_dict = orm_serializer.marshal(workflow_template_step_orm)
+        workflow_template_step = WorkflowTemplateStepModel(
+            **workflow_template_step_dict
+        )
+        return workflow_template_step
 
     @staticmethod
     def delete_workflow_instance(workflow_instance_id: str) -> None:

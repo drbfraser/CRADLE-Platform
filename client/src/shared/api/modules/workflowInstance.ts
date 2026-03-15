@@ -13,6 +13,7 @@ import {
   WorkflowInstanceActionsResponse,
   WorkflowInstanceStepEvaluation,
   OverrideStepRequest,
+  CreateInstanceStepRequest,
 } from '../../types/workflow/workflowApiTypes';
 import { AxiosResponse } from 'axios';
 
@@ -295,6 +296,18 @@ export const evaluateInstanceStep = async (
 ): Promise<WorkflowInstanceStepEvaluation> => {
   const response = await axiosFetch.get<WorkflowInstanceStepEvaluation>(
     `${INSTANCE_STEPS}/${stepId}/evaluate`
+  );
+  return response.data;
+};
+
+// POST /api/workflow/instance/steps/<string:workflow_instance_step_id>
+export const createStepInstance = async (
+  stepId: ID,
+  payload: CreateInstanceStepRequest
+): Promise<WorkflowInstanceStep> => {
+  const response = await axiosFetch.post<WorkflowInstanceStep>(
+    `${INSTANCE_STEPS}/${stepId}`,
+    payload
   );
   return response.data;
 };
