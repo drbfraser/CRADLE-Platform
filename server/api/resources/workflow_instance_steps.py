@@ -66,7 +66,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
 def create_workflow_instance_step(
     path: WorkflowInstanceStepIdPath, body: CreateNewStepRequest
 ):
-    """Create Workflow Instance Step 
+    """Create Workflow Instance Step
     Return 409 conflict if incomplete step instance already exists"""
 
     step_instance = workflow_utils.fetch_workflow_instance_step_or_404(
@@ -78,14 +78,20 @@ def create_workflow_instance_step(
 
     # check whether an incomplete step instance of the same template already exists
     existing_steps = [
-        step for step in workflow_instance.steps
-        if (step.workflow_template_step_id == step_instance.workflow_template_step_id
-        and not step.status == WorkflowStepStatusEnum.COMPLETED)
+        step
+        for step in workflow_instance.steps
+        if (
+            step.workflow_template_step_id == step_instance.workflow_template_step_id
+            and not step.status == WorkflowStepStatusEnum.COMPLETED
+        )
     ]
 
     # return 409 conflict if step instance exists
     if existing_steps:
-        return {"details": "incomplete step instance already exists", "existing_step_id": existing_steps[0].id}, 409
+        return {
+            "details": "incomplete step instance already exists",
+            "existing_step_id": existing_steps[0].id,
+        }, 409
 
     template_step = workflow_utils.fetch_workflow_template_step_or_404(
         step_instance.workflow_template_step_id
