@@ -31,6 +31,8 @@ interface FlowEdgeData {
 
 export const FlowEdge: React.FC<EdgeProps> = ({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
@@ -58,8 +60,8 @@ export const FlowEdge: React.FC<EdgeProps> = ({
   const conditionName = edgeData?.conditionName;
   const isEditMode = edgeData?.isEditMode ?? false;
   const branchId = edgeData?.branchId;
-  const sourceStepId = edgeData?.sourceStepId;
-  const targetStepId = edgeData?.targetStepId;
+  const sourceStepId = source;
+  const targetStepId = target;
   const onAddRule = edgeData?.onAddRule;
   const onInsertNodeBetween = edgeData?.onInsertNodeBetween;
 
