@@ -233,6 +233,11 @@ function createFlowEdges(
     branchId: string,
     sourceStepId: string,
     targetStepId: string
+  ) => void,
+  onInsertNodeBetween?: (
+    sourceStepId: string,
+    targetStepId: string,
+    branchId?: string
   ) => void
 ): Edge[] {
   const edges: Edge[] = [];
@@ -268,6 +273,7 @@ function createFlowEdges(
               sourceStepId: step.id,
               targetStepId: branch.targetStepId,
               onAddRule,
+              onInsertNodeBetween,
               isEditMode,
             },
             style: {
@@ -304,6 +310,11 @@ interface WorkflowFlowProps {
     sourceStepId: string,
     targetStepId: string
   ) => void;
+  onInsertNodeBetween?: (
+    sourceStepId: string,
+    targetStepId: string,
+    branchId?: string
+  ) => void;
 }
 
 export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
@@ -313,6 +324,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   isEditMode = false,
   onStepSelect,
   onInsertNode,
+  onInsertNodeBetween,
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
@@ -346,7 +358,12 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
       onAddBranch,
       onDeleteNode
     );
-    const edges = createFlowEdges(steps, isEditMode, onAddRule);
+    const edges = createFlowEdges(
+      steps,
+      isEditMode,
+      onAddRule,
+      onInsertNodeBetween
+    );
 
     return { generatedNodes: nodes, generatedEdges: edges };
   }, [
@@ -356,6 +373,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     isEditMode,
     onStepSelect,
     onInsertNode,
+    onInsertNodeBetween,
     onAddBranch,
     onDeleteNode,
     onAddRule,
