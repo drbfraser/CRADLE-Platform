@@ -2,12 +2,14 @@ import {
   advanceOverrideStep,
   advanceRecommendedStep,
   applyInstanceStepAction,
+  createStepInstance,
 } from 'src/shared/api';
 import { SnackbarSeverity } from 'src/shared/enums';
 import {
   ApplyInstanceStepActionRequest,
   WorkflowInstanceStepEvaluation,
   OverrideStepRequest,
+  CreateInstanceStepRequest,
 } from 'src/shared/types/workflow/workflowApiTypes';
 import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
 import {
@@ -81,6 +83,13 @@ export function useWorkflowStepActions(
     }
   };
 
+  const handleCreateStepInstance = async (stepId: string) => {
+    const payload: CreateInstanceStepRequest = {
+      workflowInstanceId: instanceDetails!.id,
+    };
+    return await createStepInstance(stepId, payload);
+  };
+
   const completeWorkflow = async () => {
     return await handleApplyStepAction(
       InstanceStepAction.COMPLETE_WORKFLOW,
@@ -143,9 +152,53 @@ export function useWorkflowStepActions(
     }
   };
 
+  const overrideCompletedStep = async (stepId: string) => {
+    try {
+      await skipStep();
+      await reload();
+
+      const newStep = await handleCreateStepInstance(stepId);
+      await reload();
+
+      await overrideStep(newStep.id);
+
+      await startStep(newStep.id);
+      await reload();
+
+      showSnackbar('New step instance created!', SnackbarSeverity.SUCCESS);
+      return { success: true };
+    } catch (e: any) {
+      if (e.response?.status === 409) {
+        // an incomplete step instance of the same template already exists
+        try {
+          const existingId = e.response.data.existingStepId;
+          console.log(existingId);
+          await overrideStep(existingId);
+
+          await startStep(existingId);
+          await reload();
+
+          showSnackbar('Step instance loaded!', SnackbarSeverity.SUCCESS);
+          return { success: true };
+        } catch (e) {
+          console.error('Unable to loading step instance', e);
+          showSnackbar('Unable to load step instance', SnackbarSeverity.ERROR);
+          return { success: false };
+        }
+      }
+      console.error('Unable to create new step instance', e);
+      showSnackbar(
+        'Unable to create new step instance',
+        SnackbarSeverity.ERROR
+      );
+      return { success: false };
+    }
+  };
+
   return {
     completeFinalStep,
     completeAndStartNextStep,
     setCurrentStep,
+    overrideCompletedStep,
   };
 }

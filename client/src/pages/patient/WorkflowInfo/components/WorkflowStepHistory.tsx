@@ -33,7 +33,11 @@ interface IProps {
       onConfirm: () => void;
     }>
   >;
-  handleMakeCurrent: (stepId: string, title: string) => void;
+  handleMakeCurrent: (
+    stepId: string,
+    title: string,
+    status: StepStatus
+  ) => void;
   handleOpenFormModal: (formRenderState: FormRenderStateEnum) => void;
   handleCloseFormModal: () => void;
   formModalState: FormModalState;
@@ -387,18 +391,21 @@ export default function WorkflowStepHistory({
                             justifyContent: 'flex-end',
                             mt: 2,
                           }}>
-                          {step.status != StepStatus.ACTIVE &&
-                            step.status != StepStatus.COMPLETED && (
-                              <Button
-                                size="small"
-                                variant="text"
-                                color="primary"
-                                onClick={() =>
-                                  handleMakeCurrent(step.id, step.title)
-                                }>
-                                Make this current step
-                              </Button>
-                            )}
+                          {step.status != StepStatus.ACTIVE && (
+                            <Button
+                              size="small"
+                              variant="text"
+                              color="primary"
+                              onClick={() =>
+                                handleMakeCurrent(
+                                  step.id,
+                                  step.title,
+                                  step.status
+                                )
+                              }>
+                              Make this current step
+                            </Button>
+                          )}
                         </Box>
                       </Box>
                     </Collapse>

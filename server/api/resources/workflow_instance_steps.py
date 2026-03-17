@@ -5,9 +5,10 @@ from flask_openapi3.models.tag import Tag
 from api.decorator import roles_required
 from common import form_utils, user_utils, workflow_utils
 from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
-from enums import RoleEnum
+from enums import RoleEnum, WorkflowStepStatusEnum
 from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
+    CreateNewStepRequest,
     GetWorkflowInstanceStepsRequest,
     GetWorkflowInstanceStepsResponse,
     WorkflowInstanceStepPatchModel,
@@ -56,6 +57,58 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         step.form = None
 
     return step.model_dump(), 200
+
+
+# /api/workflow/instance/steps [POST]
+@api_workflow_instance_steps.post(
+    "/<string:workflow_instance_step_id>", responses={201: WorkflowInstanceStepModel}
+)
+def create_workflow_instance_step(
+    path: WorkflowInstanceStepIdPath, body: CreateNewStepRequest
+):
+    """
+    Create Workflow Instance Step
+    Return 409 conflict if incomplete step instance already exists
+    """
+    step_instance = workflow_utils.fetch_workflow_instance_step_or_404(
+        path.workflow_instance_step_id
+    )
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        body.workflow_instance_id
+    )
+
+    # check whether an incomplete step instance of the same template already exists
+    existing_steps = [
+        step
+        for step in workflow_instance.steps
+        if (
+            step.workflow_template_step_id == step_instance.workflow_template_step_id
+            and step.status != WorkflowStepStatusEnum.COMPLETED
+        )
+    ]
+
+    # return 409 conflict if step instance exists
+    if existing_steps:
+        return {
+            "details": "incomplete step instance already exists",
+            "existing_step_id": existing_steps[0].id,
+        }, 409
+
+    template_step = workflow_utils.fetch_workflow_template_step_or_404(
+        step_instance.workflow_template_step_id
+    )
+
+    new_step = WorkflowService.generate_workflow_instance_step(
+        template_step, body.workflow_instance_id
+    )
+    new_step_id = new_step.id
+
+    WorkflowService.add_step_to_workflow_instance(workflow_instance, new_step)
+    WorkflowService.upsert_workflow_instance(workflow_instance)
+
+    updated_new_step = WorkflowService.get_workflow_instance_step(new_step_id)
+
+    return updated_new_step.model_dump(), 201
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id> [PATCH]

@@ -144,6 +144,10 @@ export interface OverrideStepRequest {
   workflowInstanceStepId: ID;
 }
 
+export interface CreateInstanceStepRequest {
+  workflowInstanceId: ID;
+}
+
 export interface WorkflowBranchVarResolution {
   var: string;
   value: number | null;

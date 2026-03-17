@@ -29,13 +29,14 @@ if TYPE_CHECKING:
         WorkflowInstanceModel,
         WorkflowInstanceStepModel,
         WorkflowTemplateModel,
+        WorkflowTemplateStepModel,
     )
 
 
 WORKFLOW_INSTANCE_NOT_FOUND_MSG = "Workflow instance with ID: ({}) not found."
 WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
 WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG = "Workflow instance step with ID: ({}) not found."
-
+WORKFLOW_TEMPLATE_STEP_NOT_FOUND_MSG = "Workflow template step with ID: ({}) not found."
 
 # NOTE: Consider moving workflow mutation and validation logic
 #       (e.g., assign_*_ids, generate_updated_workflow_template)
@@ -347,7 +348,7 @@ def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanc
 
 def fetch_workflow_instance_step_or_404(
     workflow_instance_step_id: str,
-) -> WorkflowInstanceModel:
+) -> WorkflowInstanceStepModel:
     """
     Fetch a workflow instance step or raise a 404 if not found.
     Intended for use inside Flask endpoint handlers.
@@ -373,6 +374,24 @@ def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplat
         abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
 
     return workflow_template
+
+
+def fetch_workflow_template_step_or_404(
+    workflow_template_step_id: str,
+) -> WorkflowTemplateStepModel:
+    """
+    Fetch a workflow template step or raise a 404 if not found.
+    Intended for use inside Flask endpoint handlers.
+    """
+    workflow_template_step = WorkflowService.get_workflow_template_step(
+        workflow_template_step_id
+    )
+    if workflow_template_step is None:
+        abort_not_found(
+            WORKFLOW_TEMPLATE_STEP_NOT_FOUND_MSG.format(workflow_template_step_id)
+        )
+
+    return workflow_template_step
 
 
 def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
