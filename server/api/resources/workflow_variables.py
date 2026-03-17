@@ -3,6 +3,7 @@ Workflow variable catalogue API.
 
 GET /api/workflow/variables - List available variables (optional filters: namespace, type, collection)
 GET /api/workflow/variables/<variable_tag> - Get a single variable by tag
+GET /api/workflow/variables/rule-logic?rule_group_id=<id> - Get variable logic (e.g. variable_tag, operator, value) for a branch condition
 """
 
 import json
@@ -16,8 +17,10 @@ import data.db_operations as crud
 from common.commonUtil import abort_not_found
 from enums import WorkflowVariableTypeEnum
 from models import WorkflowVariableCatalogueOrm
+from service.workflow.evaluate.rule_logic_parser import parse_single_comparison_from_rule
 from validation.workflow_api_models import (
     GetWorkflowVariablesResponse,
+    VariableLogicModel,
     WorkflowVariableCatalogueItemModel,
     WorkflowVariableDetailModel,
 )
@@ -88,6 +91,33 @@ def get_workflow_variables():
     variables = [_orm_to_item_model(row) for row in rows]
     response = GetWorkflowVariablesResponse(variables=variables)
     return response.model_dump(), 200
+
+
+# GET /api/workflow/variables/rule-logic?rule_group_id=<id>
+@api_workflow_variables.get(
+    "/rule-logic",
+    responses={200: VariableLogicModel},
+)
+def get_rule_logic():
+    """
+    Get variable logic (variable_tag, operator, value) for a branch condition rule.
+    Used during workflow instance to show e.g. "if patient.age >= 18".
+    Only supports a single-comparison rule; returns 404 if rule is compound or not found.
+    """
+    rule_group_id = request.args.get("rule_group_id", type=str)
+    if not rule_group_id:
+        abort_not_found("rule_group_id query parameter is required.")
+    rule_group = crud.read_rule_group(rule_group_id)
+    if rule_group is None:
+        abort_not_found(f"Rule group with id '{rule_group_id}' not found.")
+    rule = rule_group.rule
+    parsed = parse_single_comparison_from_rule(rule)
+    if parsed is None:
+        abort_not_found(
+            f"Rule group '{rule_group_id}' is not a single comparison (e.g. one of >, <, >=, <=, ==, !=)."
+        )
+    model = VariableLogicModel(**parsed)
+    return model.model_dump(), 200
 
 
 # GET /api/workflow/variables/<variable_tag>
