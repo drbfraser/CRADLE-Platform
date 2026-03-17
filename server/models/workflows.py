@@ -92,7 +92,7 @@ class WorkflowTemplateOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    version = db.Column(db.Text, nullable=False)
+    version = db.Column(db.String(255), nullable=False)
 
     # FOREIGN KEYS
     classification_id = db.Column(
