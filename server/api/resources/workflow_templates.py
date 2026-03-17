@@ -8,6 +8,7 @@ from typing import List, Optional
 from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
 from api.decorator import roles_required
@@ -101,6 +102,21 @@ def get_next_workflow_template_version(
     return f"V{max_version_number + 1}"
 
 
+def lock_workflow_classification_for_update(
+    workflow_classification_id: Optional[str],
+) -> Optional[WorkflowClassificationOrm]:
+    """Acquire a row lock for classification-scoped version sequencing."""
+    if workflow_classification_id is None:
+        return None
+
+    return (
+        crud.db_session.query(WorkflowClassificationOrm)
+        .filter(WorkflowClassificationOrm.id == workflow_classification_id)
+        .with_for_update()
+        .one_or_none()
+    )
+
+
 def find_and_archive_previous_workflow_template(
     workflow_classification_id: str,
 ) -> None:
@@ -187,6 +203,13 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         )
 
         if workflow_classification_orm is not None:
+            locked_classification = lock_workflow_classification_for_update(
+                workflow_classification_orm.id
+            )
+
+            if locked_classification is not None:
+                workflow_classification_orm = locked_classification
+
             workflow_template_dict["classification_id"] = workflow_classification_orm.id
             workflow_template_dict["version"] = get_next_workflow_template_version(
                 workflow_classification_orm.id
@@ -212,7 +235,16 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     if workflow_classification_orm is not None:
         workflow_template_orm.classification = workflow_classification_orm
 
-    crud.create(model=workflow_template_orm, refresh=True)
+    try:
+        crud.create(model=workflow_template_orm, refresh=True)
+    except IntegrityError:
+        crud.db_session.rollback()
+        return abort(
+            code=409,
+            description=(
+                "Workflow template version conflict. Please retry the request."
+            ),
+        )
 
     return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
 
@@ -443,6 +475,8 @@ def update_workflow_template_patch(
         body_dict.get("classification_id") or workflow_template.classification_id
     )
 
+    lock_workflow_classification_for_update(classification_id)
+
     body_dict["version"] = get_next_workflow_template_version(classification_id)
 
     new_workflow_template = generate_updated_workflow_template(
@@ -451,7 +485,16 @@ def update_workflow_template_patch(
 
     workflow_template.archived = True
 
-    crud.create(model=new_workflow_template, refresh=True)
+    try:
+        crud.create(model=new_workflow_template, refresh=True)
+    except IntegrityError:
+        crud.db_session.rollback()
+        return abort(
+            code=409,
+            description=(
+                "Workflow template version conflict. Please retry the request."
+            ),
+        )
 
     response_data = crud.read(WorkflowTemplateOrm, id=new_workflow_template.id)
 
