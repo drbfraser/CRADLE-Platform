@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from pydantic import Field, model_validator
 from typing_extensions import Self
@@ -145,3 +145,14 @@ class WorkflowVariableDetailModel(WorkflowVariableCatalogueItemModel):
     """Detail response for a single variable"""
 
     examples: Optional[List[str]] = None
+
+
+class VariableLogicModel(CradleBaseModel, extra="forbid"):
+    """
+    Minimal variable logic parsed from a rule (single comparison).
+    Frontend can display e.g. "if patient.age >= 18" during workflow instance.
+    """
+
+    variable_tag: str
+    operator: str  # e.g. ">", ">=", "<", "<=", "==", "!="
+    value: Any  # literal (int, float, str, bool, etc.)
