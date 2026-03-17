@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 
@@ -152,6 +152,7 @@ export const useWorkflowEditor = ({
   };
 
   const handleInsertNode = (stepId: string) => {
+    console.log('handleInsertNode called:', stepId);
     if (!editedWorkflow) return;
 
     // Get the current step
@@ -219,6 +220,86 @@ export const useWorkflowEditor = ({
       captureCurrentState(newWorkflow);
     }
   };
+
+  const handleInsertNodeBetween = useCallback(
+    (sourceStepId: string, targetStepId: string, branchId?: string) => {
+      //console.log('handleInsertNodeBetween called:', sourceStepId, targetStepId, branchId);
+      let newStepId = '';
+
+      setEditedWorkflow((prev) => {
+        if (!prev) return prev;
+
+        // Find the source step
+        const sourceStep = prev.steps.find((s) => s.id === sourceStepId);
+        if (!sourceStep?.branches) return prev;
+
+        // Find the branch index
+        const branchIndex = sourceStep.branches.findIndex(
+          (b) =>
+            (branchId !== undefined && b.id === branchId) ||
+            b.targetStepId === targetStepId
+        );
+
+        newStepId = `step-${sourceStepId}-${targetStepId}-insert`;
+
+        //console.log('match check branch 0:', sourceStep.branches[0]?.targetStepId === targetStepId);
+        //console.log('match check branch 1:', sourceStep.branches[1]?.targetStepId === targetStepId);
+        //console.log('branchId param:', branchId);
+        //console.log('targetStepId param:', targetStepId);
+        //console.log('branches:', JSON.stringify(sourceStep.branches));
+        //console.log('branchIndex:', branchIndex);
+
+        if (branchIndex === -1) return prev;
+        // Create the new step
+        const newStep = {
+          id: newStepId,
+          name: DEFAULT_STEP_NAME,
+          description: DEFAULT_STEP_DESCRIPTION,
+          lastEdited: Date.now(),
+          workflowTemplateId: prev.id,
+          branches: [{ stepId: newStepId, targetStepId, condition: undefined }],
+        };
+
+        const updatedSteps = prev.steps.map((step) => {
+          if (step.id === sourceStepId && step.branches) {
+            return {
+              ...step,
+              branches: step.branches.map((branch, idx) =>
+                idx === branchIndex
+                  ? { ...branch, targetStepId: newStepId }
+                  : branch
+              ),
+            };
+          }
+          return step;
+        });
+
+        const result = { ...prev, steps: [...updatedSteps, newStep] };
+        console.log(
+          'steps after insert:',
+          JSON.stringify(
+            result.steps.map((s) => ({
+              id: s.id,
+              name: s.name,
+              branches: s.branches?.map((b) => ({
+                from: b.stepId,
+                to: b.targetStepId,
+              })),
+            })),
+            null,
+            2
+          )
+        );
+        return result;
+      });
+
+      setHasChanges(true);
+
+      // Auto-select the newly created step
+      setSelectedStepId(newStepId);
+    },
+    []
+  );
 
   const handleAddBranch = (stepId: string) => {
     if (!editedWorkflow) return;
@@ -506,8 +587,8 @@ export const useWorkflowEditor = ({
 
     const branchIndex = sourceStep.branches.findIndex(
       (b) =>
-        b.id === branchId ||
-        (b.stepId === sourceStepId && b.targetStepId === targetStepId)
+        (branchId !== undefined && branchId !== '' && b.id === branchId) ||
+        b.targetStepId === targetStepId
     );
 
     if (branchIndex === -1) return;
@@ -533,6 +614,7 @@ export const useWorkflowEditor = ({
     handleStepChange,
     handleBranchChange,
     handleInsertNode,
+    handleInsertNodeBetween,
     handleAddBranch,
     handleConnectionCreate,
     handleDeleteNode,
