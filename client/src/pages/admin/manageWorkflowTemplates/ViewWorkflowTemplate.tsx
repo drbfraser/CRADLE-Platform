@@ -148,6 +148,7 @@ export const ViewWorkflowTemplate = () => {
             onStepSelect={workflowEditor.setSelectedStepId}
             onFieldChange={workflowEditor.handleFieldChange}
             onStepChange={workflowEditor.handleStepChange}
+            onInsertNodeBetween={workflowEditor.handleInsertNodeBetween}
             onBranchChange={workflowEditor.handleBranchChange}
             onInsertNode={workflowEditor.handleInsertNode}
             onAddBranch={workflowEditor.handleAddBranch}
