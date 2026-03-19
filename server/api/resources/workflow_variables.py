@@ -87,7 +87,7 @@ def get_workflow_variables():
     if collection is not None:
         query = query.filter(WorkflowVariableCatalogueOrm.collection_name == collection)
 
-    rows = query.all()
+    rows = query.order_by(WorkflowVariableCatalogueOrm.tag.asc()).all()
     variables = [_orm_to_item_model(row) for row in rows]
     response = GetWorkflowVariablesResponse(variables=variables)
     return response.model_dump(), 200
