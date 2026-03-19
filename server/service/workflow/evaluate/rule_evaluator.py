@@ -7,6 +7,7 @@ from service.workflow.datasourcing.data_sourcing import (
     VariablePath,
     VariableResolution,
     VariableResolutionStatus,
+    MISSING,
     resolve_collection_variables,
     resolve_variables,
 )
@@ -97,7 +98,7 @@ class RuleEvaluator:
 
         logger.debug("Resolved data for context %s: %s", context, resolved_data)
 
-        missing_vars = [k for k, v in resolved_data.items() if v is None]
+        missing_vars = [k for k, v in resolved_data.items() if v is MISSING]
         if missing_vars:
             logger.info(
                 "Missing data for variables: %s for context %s", missing_vars, context
@@ -105,8 +106,14 @@ class RuleEvaluator:
             var_resolutions = self._create_variable_resolutions(resolved_data)
             return (RuleStatus.NOT_ENOUGH_DATA, var_resolutions)
 
+        # Replace sentinel values before passing to JsonLogic (should be none after the
+        # missing-vars early return, but keep this defensive).
+        resolved_for_engine = {
+            k: (None if v is MISSING else v) for k, v in resolved_data.items()
+        }
+
         rule_engine = RulesEngineFacade(rule=rule, args={})
-        evaluation_result = rule_engine.evaluate(input=resolved_data)
+        evaluation_result = rule_engine.evaluate(input=resolved_for_engine)
 
         var_resolutions = self._create_variable_resolutions(resolved_data)
 
@@ -126,11 +133,11 @@ class RuleEvaluator:
         """
         var_resolutions = []
         for var_name, value in resolved_data.items():
-            if value is not None:
+            if value is not MISSING:
                 var_resolutions.append(
                     VariableResolution(
                         var=var_name,
-                        value=value,
+                        value=None if value is MISSING else value,
                         status=VariableResolutionStatus.RESOLVED,
                     )
                 )
