@@ -153,9 +153,7 @@ class RulesEngineImpl:
                     found = False
                     break
 
-            # Treat "not found" as missing. Explicit nulls are allowed and
-            # should be passed to JsonLogic so rules can check against null.
-            if not found:
+            if not found or current is None:
                 missing_vars.add(var)
 
         if missing_vars:
@@ -163,16 +161,7 @@ class RulesEngineImpl:
                 status=RuleStatus.NOT_ENOUGH_DATA, missing_variables=missing_vars
             )
 
-        try:
-            result = jsonLogic(self.rule, nested_data)
-        except AssertionError:
-            # json-logic-py raises AssertionError for malformed expressions such as
-            # a dict with multiple top-level operators. Don't 500 the API; treat
-            # invalid rules as FALSE so callers can still see evaluated data.
-            return RuleEvaluationResult(status=RuleStatus.FALSE)
-        except Exception:
-            # Defensive: any rule engine failure should not crash request handling.
-            return RuleEvaluationResult(status=RuleStatus.FALSE)
+        result = jsonLogic(self.rule, nested_data)
 
         status = RuleStatus.TRUE if result else RuleStatus.FALSE
         return RuleEvaluationResult(status=status)
