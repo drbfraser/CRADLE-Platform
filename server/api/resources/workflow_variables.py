@@ -17,7 +17,9 @@ import data.db_operations as crud
 from common.commonUtil import abort_not_found
 from enums import WorkflowVariableTypeEnum
 from models import WorkflowVariableCatalogueOrm
-from service.workflow.evaluate.rule_logic_parser import parse_single_comparison_from_rule
+from service.workflow.evaluate.rule_logic_parser import (
+    parse_single_comparison_from_rule,
+)
 from validation.workflow_api_models import (
     GetWorkflowVariablesResponse,
     VariableLogicModel,

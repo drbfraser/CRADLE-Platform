@@ -2,9 +2,10 @@
 Unit tests for rule_logic_parser (single-comparison variable logic extraction).
 """
 
-import pytest
 
-from service.workflow.evaluate.rule_logic_parser import parse_single_comparison_from_rule
+from service.workflow.evaluate.rule_logic_parser import (
+    parse_single_comparison_from_rule,
+)
 
 
 def test_single_comparison_greater_than():

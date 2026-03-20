@@ -3,11 +3,11 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
+    MISSING,
     DatasourceVariable,
     VariablePath,
     VariableResolution,
     VariableResolutionStatus,
-    MISSING,
     resolve_collection_variables,
     resolve_variables,
 )
