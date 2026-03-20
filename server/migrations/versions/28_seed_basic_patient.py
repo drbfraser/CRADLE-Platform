@@ -177,4 +177,3 @@ def downgrade():
     bind = op.get_bind()
     # Revert to an empty catalogue (this migration's responsibility is seeding only).
     bind.execute(sa.text("DELETE FROM workflow_variable_catalogue"))
-

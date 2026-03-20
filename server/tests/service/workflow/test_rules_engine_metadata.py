@@ -10,4 +10,3 @@ def test_rules_engine_allows_top_level_name_metadata():
 
     result2 = engine.evaluate({"patient.age": 18})
     assert result2.status == RuleStatus.FALSE
-

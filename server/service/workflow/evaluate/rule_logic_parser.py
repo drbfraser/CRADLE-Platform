@@ -36,6 +36,7 @@ def parse_single_comparison_from_rule(rule: Any) -> Optional[dict[str, Any]]:
         return None
     if isinstance(rule, str):
         import json
+
         try:
             rule = json.loads(rule)
         except (json.JSONDecodeError, TypeError):

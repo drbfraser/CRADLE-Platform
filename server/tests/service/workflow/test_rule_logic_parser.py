@@ -2,7 +2,6 @@
 Unit tests for rule_logic_parser (single-comparison variable logic extraction).
 """
 
-
 from service.workflow.evaluate.rule_logic_parser import (
     parse_single_comparison_from_rule,
 )
@@ -43,7 +42,12 @@ def test_var_with_default_returns_variable_tag_only():
 
 
 def test_compound_rule_returns_none():
-    rule = {"and": [{">": [{"var": "patient.age"}, 18]}, {"<": [{"var": "patient.age"}, 65]}]}
+    rule = {
+        "and": [
+            {">": [{"var": "patient.age"}, 18]},
+            {"<": [{"var": "patient.age"}, 65]},
+        ]
+    }
     assert parse_single_comparison_from_rule(rule) is None
 
 
