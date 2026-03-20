@@ -84,6 +84,7 @@ class RuleEvaluator:
                     context=context,
                     variables=simple_variables,
                     catalogue=self.catalogue,
+                    use_missing_sentinel=True,
                 )
             )
 
@@ -93,6 +94,7 @@ class RuleEvaluator:
                     context=context,
                     variable_paths=collection_paths,
                     catalogue=self.catalogue,
+                    use_missing_sentinel=True,
                 )
             )
 

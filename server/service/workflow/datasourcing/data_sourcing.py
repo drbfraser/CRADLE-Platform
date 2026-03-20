@@ -301,6 +301,7 @@ def resolve_variables(
     context: ResolverContext,
     variables: List[DatasourceVariable],
     catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
 ) -> Dict[str, Any]:
     """
     Resolve multiple variables into their concrete values.
@@ -318,10 +319,11 @@ def resolve_variables(
         model_instance = _resolve_object(catalogue, context, obj_name)
 
         if model_instance is None:
-            # If object not found, all its attributes are missing/undefined
+            # If object not found, all its attributes resolve to None by default.
+            # RuleEvaluator can opt into MISSING sentinel for strict missing tracking.
             for attr in attrs:
                 variable_key = f"{obj_name}.{attr.name}"
-                resolved[variable_key] = MISSING
+                resolved[variable_key] = MISSING if use_missing_sentinel else None
             continue
 
         for attr in attrs:
@@ -356,7 +358,7 @@ def resolve_variables(
                     model_dict = model_instance.model_dump()
                     resolved[variable_key] = custom_query(model_dict)
                 else:
-                    resolved[variable_key] = MISSING
+                    resolved[variable_key] = MISSING if use_missing_sentinel else None
 
     return resolved
 
@@ -365,6 +367,7 @@ def resolve_variable(
     context: ResolverContext,
     variable: DatasourceVariable,
     catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
 ) -> Any:
     """
     Resolve a single variable into a concrete value.
@@ -380,7 +383,7 @@ def resolve_variable(
     model_instance = _resolve_object(catalogue, context, obj_name)
 
     if model_instance is None:
-        return MISSING
+        return MISSING if use_missing_sentinel else None
 
     if hasattr(model_instance, attr_name):
         attr_value = getattr(model_instance, attr_name)
@@ -401,7 +404,7 @@ def resolve_variable(
 
     # If we got here and attr_value is MISSING, the field is truly missing.
     if attr_value is MISSING:
-        return MISSING
+        return MISSING if use_missing_sentinel else None
 
     # Field exists but is explicitly null.
     return None
@@ -474,6 +477,7 @@ def resolve_collection_variables(
     context: ResolverContext,
     variable_paths: List[VariablePath],
     catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
 ) -> Dict[str, Any]:
     """
     Resolve collection variables (e.g., vitals[latest].systolic_blood_pressure).
@@ -495,7 +499,8 @@ def resolve_collection_variables(
             "Collection resolution failed: missing 'patient_id' in context: %s",
             context,
         )
-        return {vp.to_string(): MISSING for vp in variable_paths}
+        default_missing = MISSING if use_missing_sentinel else None
+        return {vp.to_string(): default_missing for vp in variable_paths}
 
     # Group by namespace so we only query each collection once per evaluation.
     paths_by_namespace: Dict[str, List[VariablePath]] = {}
@@ -508,7 +513,7 @@ def resolve_collection_variables(
         collection_entry = catalogue.get(namespace)
         if not collection_entry or not collection_entry.get("collection"):
             for vp in paths:
-                resolved[vp.to_string()] = MISSING
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
             continue
 
         query_fn = collection_entry.get("query")
@@ -518,7 +523,7 @@ def resolve_collection_variables(
                 namespace,
             )
             for vp in paths:
-                resolved[vp.to_string()] = MISSING
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
             continue
 
         try:
@@ -531,7 +536,7 @@ def resolve_collection_variables(
                 exc,
             )
             for vp in paths:
-                resolved[vp.to_string()] = MISSING
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
             continue
 
         # Ensure we always have a list to work with.
@@ -547,7 +552,7 @@ def resolve_collection_variables(
 
             item = _select_collection_item(items, vp.collection_index)
             if item is MISSING:
-                resolved[key] = MISSING
+                resolved[key] = MISSING if use_missing_sentinel else None
                 continue
 
             if not vp.field_path:
