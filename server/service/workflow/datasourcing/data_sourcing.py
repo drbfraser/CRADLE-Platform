@@ -24,6 +24,10 @@ ResolverContext: TypeAlias = Dict[str, str]
 # Sentinel value used to distinguish "missing/undefined" from explicit nulls.
 # - Missing/undefined: MISSING
 # - Explicit null (field exists but value is null): None
+#
+# Resolver functions default to returning None for missing data so existing callers
+# and tests keep a simple contract. Pass use_missing_sentinel=True (e.g. from
+# RuleEvaluator) when you need to tell missing values apart from explicit nulls.
 MISSING: Any = object()
 
 DataModel = Union[
@@ -309,7 +313,13 @@ def resolve_variables(
     :param context: Context containing IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
     :param variables: List of DatasourceVariable objects to resolve
     :param catalogue: The data catalogue of supported objects
-    :returns: Dict mapping variable names to resolved values
+    :param use_missing_sentinel: If False (default), missing or unresolved values are
+        returned as ``None``, matching the historical API. If True, those cases use
+        :data:`MISSING` instead so callers (e.g. ``RuleEvaluator``) can distinguish
+        "no data" from an explicit null on a present field. Prefer keeping the default
+        False for general callers; only rule evaluation needs the sentinel.
+    :returns: Dict mapping variable names to resolved values (or ``None`` / ``MISSING``
+        per ``use_missing_sentinel``).
     """
     object_groups = reduce(_group_objects, variables, {})
     resolved = {}
@@ -375,7 +385,10 @@ def resolve_variable(
     :param context: Context containing IDs
     :param variable: DatasourceVariable object to resolve
     :param catalogue: The data catalogue of supported objects
-    :returns: Resolved value or None if not found
+    :param use_missing_sentinel: Same as :func:`resolve_variables` — False returns
+        ``None`` for missing data; True returns :data:`MISSING` for strict tracking.
+    :returns: Resolved value, ``None`` if missing/unresolved (default), or ``MISSING``
+        when ``use_missing_sentinel`` is True.
     """
     obj_name = variable.obj.name
     attr_name = variable.attr.name
