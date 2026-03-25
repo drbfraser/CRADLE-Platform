@@ -97,8 +97,31 @@ class RulesEngineImpl:
         :raises: ValueError
         """
         try:
-            rule = json.loads(rule)
-            return rule
+            parsed = json.loads(rule)
+            if not isinstance(parsed, dict):
+                raise ValueError("Rule must be a JSON object")
+
+            # Support rules stored with additional metadata at the top level, e.g.:
+            # {"<=": [{"var": "patient.age"}, 17], "name": "isChild"}
+            #
+            # json-logic-py requires exactly one top-level operator key, so we
+            # strip known metadata keys and unwrap when a single operator remains.
+            if len(parsed) != 1:
+                metadata_keys = {
+                    "name",
+                    "label",
+                    "id",
+                    "description",
+                    "comment",
+                    "notes",
+                    "enabled",
+                    "version",
+                }
+                candidate = {k: v for k, v in parsed.items() if k not in metadata_keys}
+                if len(candidate) == 1:
+                    return candidate
+
+            return parsed
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in rule: {e}")
 

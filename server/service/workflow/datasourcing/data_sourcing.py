@@ -21,6 +21,15 @@ ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
 # Contains ID mappings for data resolution, e.g., {"patient_id": "p123", "assessment_id": "a456"}
 ResolverContext: TypeAlias = Dict[str, str]
 
+# Sentinel value used to distinguish "missing/undefined" from explicit nulls.
+# - Missing/undefined: MISSING
+# - Explicit null (field exists but value is null): None
+#
+# Resolver functions default to returning None for missing data so existing callers
+# and tests keep a simple contract. Pass use_missing_sentinel=True (e.g. from
+# RuleEvaluator) when you need to tell missing values apart from explicit nulls.
+MISSING: Any = object()
+
 DataModel = Union[
     PatientModel,
     ReadingModel,
@@ -296,6 +305,7 @@ def resolve_variables(
     context: ResolverContext,
     variables: List[DatasourceVariable],
     catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
 ) -> Dict[str, Any]:
     """
     Resolve multiple variables into their concrete values.
@@ -303,7 +313,13 @@ def resolve_variables(
     :param context: Context containing IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
     :param variables: List of DatasourceVariable objects to resolve
     :param catalogue: The data catalogue of supported objects
-    :returns: Dict mapping variable names to resolved values
+    :param use_missing_sentinel: If False (default), missing or unresolved values are
+        returned as ``None``, matching the historical API. If True, those cases use
+        :data:`MISSING` instead so callers (e.g. ``RuleEvaluator``) can distinguish
+        "no data" from an explicit null on a present field. Prefer keeping the default
+        False for general callers; only rule evaluation needs the sentinel.
+    :returns: Dict mapping variable names to resolved values (or ``None`` / ``MISSING``
+        per ``use_missing_sentinel``).
     """
     object_groups = reduce(_group_objects, variables, {})
     resolved = {}
@@ -313,18 +329,24 @@ def resolve_variables(
         model_instance = _resolve_object(catalogue, context, obj_name)
 
         if model_instance is None:
-            # If object not found, all its attributes are None
+            # If object not found, all its attributes resolve to None by default.
+            # RuleEvaluator can opt into MISSING sentinel for strict missing tracking.
             for attr in attrs:
                 variable_key = f"{obj_name}.{attr.name}"
-                resolved[variable_key] = None
+                resolved[variable_key] = MISSING if use_missing_sentinel else None
             continue
 
         for attr in attrs:
             variable_key = f"{obj_name}.{attr.name}"
 
-            attr_value = getattr(model_instance, attr.name, None)
+            # Prefer direct attribute if it exists; otherwise fall back to custom resolvers.
+            if hasattr(model_instance, attr.name):
+                attr_value = getattr(model_instance, attr.name)
+            else:
+                attr_value = MISSING
 
             if attr_value is not None:
+                # Note: attr_value may be MISSING here; handle below.
                 resolved[variable_key] = attr_value
             else:
                 custom_queries = catalogue.get(obj_name, {}).get("custom", {})
@@ -335,7 +357,18 @@ def resolve_variables(
                     ca_value = custom_query(model_dict)
                     resolved[variable_key] = ca_value
                 else:
+                    # Field exists but is explicitly null.
                     resolved[variable_key] = None
+
+            # If direct attribute was missing, try custom resolver before marking missing.
+            if resolved.get(variable_key) is MISSING:
+                custom_queries = catalogue.get(obj_name, {}).get("custom", {})
+                custom_query = custom_queries.get(attr.name)
+                if custom_query is not None:
+                    model_dict = model_instance.model_dump()
+                    resolved[variable_key] = custom_query(model_dict)
+                else:
+                    resolved[variable_key] = MISSING if use_missing_sentinel else None
 
     return resolved
 
@@ -344,6 +377,7 @@ def resolve_variable(
     context: ResolverContext,
     variable: DatasourceVariable,
     catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
 ) -> Any:
     """
     Resolve a single variable into a concrete value.
@@ -351,7 +385,10 @@ def resolve_variable(
     :param context: Context containing IDs
     :param variable: DatasourceVariable object to resolve
     :param catalogue: The data catalogue of supported objects
-    :returns: Resolved value or None if not found
+    :param use_missing_sentinel: Same as :func:`resolve_variables` — False returns
+        ``None`` for missing data; True returns :data:`MISSING` for strict tracking.
+    :returns: Resolved value, ``None`` if missing/unresolved (default), or ``MISSING``
+        when ``use_missing_sentinel`` is True.
     """
     obj_name = variable.obj.name
     attr_name = variable.attr.name
@@ -359,12 +396,17 @@ def resolve_variable(
     model_instance = _resolve_object(catalogue, context, obj_name)
 
     if model_instance is None:
-        return None
+        return MISSING if use_missing_sentinel else None
 
-    attr_value = getattr(model_instance, attr_name, None)
+    if hasattr(model_instance, attr_name):
+        attr_value = getattr(model_instance, attr_name)
+    else:
+        attr_value = MISSING
 
     if attr_value is not None:
-        return attr_value
+        # Note: attr_value may be MISSING here; handle below.
+        if attr_value is not MISSING:
+            return attr_value
 
     custom_queries = catalogue.get(obj_name, {}).get("custom", {})
     custom_query = custom_queries.get(attr_name)
@@ -373,6 +415,11 @@ def resolve_variable(
         model_dict = model_instance.model_dump()
         return custom_query(model_dict)
 
+    # If we got here and attr_value is MISSING, the field is truly missing.
+    if attr_value is MISSING:
+        return MISSING if use_missing_sentinel else None
+
+    # Field exists but is explicitly null.
     return None
 
 
@@ -385,12 +432,17 @@ def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
     current = value
     for field in field_path:
         if isinstance(current, BaseModel):
-            current = getattr(current, field, None)
+            if not hasattr(current, field):
+                return MISSING
+            current = getattr(current, field)
         elif isinstance(current, dict):
+            if field not in current:
+                return MISSING
             current = current.get(field)
         else:
-            return None
+            return MISSING
 
+        # Explicit nulls are allowed and should be returned as None.
         if current is None:
             return None
 
@@ -407,11 +459,11 @@ def _select_collection_item(
     Assumes items are ordered from newest to oldest.
     """
     if not items:
-        return None
+        return MISSING
 
     if collection_index is None:
         # No index specified
-        return None
+        return MISSING
 
     if collection_index == "latest":
         return items[0]
@@ -423,21 +475,22 @@ def _select_collection_item(
             # items are newest-first, so oldest is at the end.
             if idx <= len(items):
                 return items[-idx]
-            return None
+            return MISSING
 
         # Negative indices are from newest: -1 is latest, -2 is second latest, etc.
         offset = abs(idx) - 1
         if offset < len(items):
             return items[offset]
-        return None
+        return MISSING
 
-    return None
+    return MISSING
 
 
 def resolve_collection_variables(
     context: ResolverContext,
     variable_paths: List[VariablePath],
     catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
 ) -> Dict[str, Any]:
     """
     Resolve collection variables (e.g., vitals[latest].systolic_blood_pressure).
@@ -459,7 +512,8 @@ def resolve_collection_variables(
             "Collection resolution failed: missing 'patient_id' in context: %s",
             context,
         )
-        return {vp.to_string(): None for vp in variable_paths}
+        default_missing = MISSING if use_missing_sentinel else None
+        return {vp.to_string(): default_missing for vp in variable_paths}
 
     # Group by namespace so we only query each collection once per evaluation.
     paths_by_namespace: Dict[str, List[VariablePath]] = {}
@@ -472,7 +526,7 @@ def resolve_collection_variables(
         collection_entry = catalogue.get(namespace)
         if not collection_entry or not collection_entry.get("collection"):
             for vp in paths:
-                resolved[vp.to_string()] = None
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
             continue
 
         query_fn = collection_entry.get("query")
@@ -482,7 +536,7 @@ def resolve_collection_variables(
                 namespace,
             )
             for vp in paths:
-                resolved[vp.to_string()] = None
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
             continue
 
         try:
@@ -495,7 +549,7 @@ def resolve_collection_variables(
                 exc,
             )
             for vp in paths:
-                resolved[vp.to_string()] = None
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
             continue
 
         # Ensure we always have a list to work with.
@@ -510,8 +564,8 @@ def resolve_collection_variables(
                 continue
 
             item = _select_collection_item(items, vp.collection_index)
-            if item is None:
-                resolved[key] = None
+            if item is MISSING:
+                resolved[key] = MISSING if use_missing_sentinel else None
                 continue
 
             if not vp.field_path:
