@@ -112,3 +112,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Simone Motwani      | svm4@sfu.ca          |
 | Sheldon Liang       | qla52@sfu.ca         |
 | Josh Chung          | jca472@sfu.ca        |
+| Mekdim Dereje       | mda89@sfu.ca         |
