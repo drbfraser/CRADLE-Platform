@@ -43,6 +43,7 @@ jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
 export function workspaceToJsonLogic(
   workspace: Blockly.Workspace
 ): string | null {
+  // Only the first top-level block is used; disconnected blocks are ignored
   const topBlocks = workspace.getTopBlocks(false);
   if (topBlocks.length === 0) return null;
 

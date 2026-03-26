@@ -46,6 +46,9 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   steps = [],
 }) => {
   const [conditionName, setConditionName] = useState<string>('');
+  const [currentRule, setCurrentRule] = useState<string | null>(
+    branch.condition?.rule || null
+  );
 
   useEffect(() => {
     if (branch.condition?.rule) {
@@ -55,12 +58,15 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       } catch {
         setConditionName('');
       }
+      setCurrentRule(branch.condition.rule);
     } else {
       setConditionName('');
+      setCurrentRule(null);
     }
   }, [branch, stepId, branchIndex]);
 
   const handleBlocklyChange = (jsonLogic: string | null) => {
+    setCurrentRule(jsonLogic);
     if (jsonLogic && onChange) {
       onChange(stepId, branchIndex, jsonLogic, conditionName);
     }
@@ -68,8 +74,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 
   const handleConditionNameChange = (name: string) => {
     setConditionName(name);
-    if (branch.condition?.rule && onChange) {
-      onChange(stepId, branchIndex, branch.condition.rule, name);
+    if (currentRule && onChange) {
+      onChange(stepId, branchIndex, currentRule, name);
     }
   };
 

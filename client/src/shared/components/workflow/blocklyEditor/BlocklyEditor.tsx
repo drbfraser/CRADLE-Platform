@@ -56,8 +56,16 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
       isLoadingRef.current = false;
     }
 
-    workspace.addChangeListener(() => {
+    workspace.addChangeListener((event: Blockly.Events.Abstract) => {
       if (isLoadingRef.current) return;
+      if (
+        event.type !== Blockly.Events.BLOCK_CHANGE &&
+        event.type !== Blockly.Events.BLOCK_MOVE &&
+        event.type !== Blockly.Events.BLOCK_CREATE &&
+        event.type !== Blockly.Events.BLOCK_DELETE
+      ) {
+        return;
+      }
       const jsonLogic = workspaceToJsonLogic(workspace);
       onChange(jsonLogic);
     });
