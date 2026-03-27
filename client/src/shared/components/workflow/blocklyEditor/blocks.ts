@@ -1,9 +1,7 @@
 import * as Blockly from 'blockly';
 
 // TODO: Fetch dynamically from GET /api/workflow/variables
-const VARIABLE_OPTIONS: [string, string][] = [
-  ["Patient's Age", 'patient.age'],
-];
+const VARIABLE_OPTIONS: [string, string][] = [["Patient's Age", 'patient.age']];
 
 Blockly.Blocks['app_variable'] = {
   init: function (this: Blockly.Block) {

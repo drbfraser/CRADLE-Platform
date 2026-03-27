@@ -65,10 +65,14 @@ function createBlockFromRule(
       const leftBlock = createBlockFromRule(workspace, args[0]);
       const rightBlock = createBlockFromRule(workspace, args[1]);
       if (leftBlock) {
-        block.getInput('LEFT')!.connection!.connect(leftBlock.outputConnection!);
+        block
+          .getInput('LEFT')!
+          .connection!.connect(leftBlock.outputConnection!);
       }
       if (rightBlock) {
-        block.getInput('RIGHT')!.connection!.connect(rightBlock.outputConnection!);
+        block
+          .getInput('RIGHT')!
+          .connection!.connect(rightBlock.outputConnection!);
       }
       return block;
     }
@@ -84,8 +88,7 @@ function createBlockFromRule(
         block.render();
 
         const aBlock = createBlockFromRule(workspace, args[0]);
-        const bRule =
-          args.length === 2 ? args[1] : { [op]: args.slice(1) };
+        const bRule = args.length === 2 ? args[1] : { [op]: args.slice(1) };
         const bBlock = createBlockFromRule(workspace, bRule);
 
         if (aBlock) {
@@ -105,7 +108,9 @@ function createBlockFromRule(
     block.render();
     const valueBlock = createBlockFromRule(workspace, ruleObj['!']);
     if (valueBlock) {
-      block.getInput('VALUE')!.connection!.connect(valueBlock.outputConnection!);
+      block
+        .getInput('VALUE')!
+        .connection!.connect(valueBlock.outputConnection!);
     }
     return block;
   }
