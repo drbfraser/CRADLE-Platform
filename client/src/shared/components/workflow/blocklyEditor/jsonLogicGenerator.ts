@@ -34,8 +34,7 @@ jsonLogicGenerator.forBlock['logic_op'] = function (block) {
 };
 
 jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
-  const value =
-    jsonLogicGenerator.valueToCode(block, 'VALUE', 0) || 'null';
+  const value = jsonLogicGenerator.valueToCode(block, 'VALUE', 0) || 'null';
   const result = { '!': JSON.parse(value) };
   return [JSON.stringify(result), 0];
 };
