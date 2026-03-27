@@ -13,8 +13,11 @@ from validation.workflow_api_models import (
     ApplyActionRequest,
     CreateWorkflowInstanceRequest,
     GetAvailableActionsResponse,
+    GetWorkflowInstanceDataResponse,
     GetWorkflowInstancesResponse,
     OverrideCurrentStepRequest,
+    SetWorkflowInstanceDataRequest,
+    WorkflowInstanceDataRowModel,
     WorkflowInstancePatchModel,
 )
 from validation.workflow_models import WorkflowInstanceModel
@@ -204,3 +207,33 @@ def override_current_step(
     updated_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
 
     return updated_instance.model_dump(), 200
+
+
+# /api/workflow/instances/<id>/data [GET]
+@api_workflow_instances.get(
+    "/<string:workflow_instance_id>/data",
+    responses={200: GetWorkflowInstanceDataResponse},
+)
+def get_workflow_instance_data(path: WorkflowInstanceIdPath):
+    """List dynamic data fields for a workflow instance (``workflow_instance_data``)."""
+    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
+    rows = WorkflowService.get_workflow_instance_data_rows(path.workflow_instance_id)
+    items = [WorkflowInstanceDataRowModel(**r) for r in rows]
+    return GetWorkflowInstanceDataResponse(items=items).model_dump(), 200
+
+
+# /api/workflow/instances/<id>/data [POST]
+@api_workflow_instances.post(
+    "/<string:workflow_instance_id>/data",
+    responses={200: GetWorkflowInstanceDataResponse},
+)
+def set_workflow_instance_data(
+    path: WorkflowInstanceIdPath, body: SetWorkflowInstanceDataRequest
+):
+    """Create or update dynamic workflow instance fields (used by ``wf.<tag>`` rules)."""
+    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
+    payload = [(i.field_tag, i.field_type, i.value) for i in body.items]
+    WorkflowService.upsert_workflow_instance_data_items(path.workflow_instance_id, payload)
+    rows = WorkflowService.get_workflow_instance_data_rows(path.workflow_instance_id)
+    items = [WorkflowInstanceDataRowModel(**r) for r in rows]
+    return GetWorkflowInstanceDataResponse(items=items).model_dump(), 200
