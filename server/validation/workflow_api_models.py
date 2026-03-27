@@ -5,6 +5,7 @@ from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
+from enums import WorkflowInstanceDataFieldTypeEnum
 from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
@@ -115,6 +116,32 @@ class ApplyActionRequest(CradleBaseModel):
 
 class OverrideCurrentStepRequest(CradleBaseModel):
     workflow_instance_step_id: str
+
+
+class WorkflowInstanceDataUpsertItem(CradleBaseModel, extra="forbid"):
+    """One dynamic field to store on a workflow instance (``workflow_instance_data``)."""
+
+    field_tag: str
+    field_type: WorkflowInstanceDataFieldTypeEnum
+    value: Optional[Any] = None
+
+
+class SetWorkflowInstanceDataRequest(CradleBaseModel, extra="forbid"):
+    items: List[WorkflowInstanceDataUpsertItem]
+
+
+class WorkflowInstanceDataRowModel(CradleBaseModel, extra="forbid"):
+    id: str
+    workflow_instance_id: str
+    field_tag: str
+    field_type: str
+    value: Optional[Any] = None
+    date_created: int
+    last_edited: int
+
+
+class GetWorkflowInstanceDataResponse(CradleBaseModel, extra="forbid"):
+    items: List[WorkflowInstanceDataRowModel]
 
 
 class CreateNewStepRequest(CradleBaseModel):
