@@ -98,6 +98,10 @@ __all__ = [
     "read_workflow_classifications",
     "read_workflow_templates",
     "read_workflow_instances",
+    "read_workflow_instance",
+    "read_workflow_instance_data_for_instance",
+    "read_workflow_instance_data_by_field_tag",
+    "upsert_workflow_instance_data_row",
     "read_workflows_in_collection",
     "read_rule_group",
     "read_instance_steps",
@@ -193,6 +197,19 @@ _EXPORTS: Dict[str, Tuple[str, str | None]] = {
     ),
     "read_workflow_templates": ("workflow_management", "read_workflow_templates"),
     "read_workflow_instances": ("workflow_management", "read_workflow_instances"),
+    "read_workflow_instance": ("workflow_management", "read_workflow_instance"),
+    "read_workflow_instance_data_for_instance": (
+        "workflow_management",
+        "read_workflow_instance_data_for_instance",
+    ),
+    "read_workflow_instance_data_by_field_tag": (
+        "workflow_management",
+        "read_workflow_instance_data_by_field_tag",
+    ),
+    "upsert_workflow_instance_data_row": (
+        "workflow_management",
+        "upsert_workflow_instance_data_row",
+    ),
     "read_workflows_in_collection": (
         "workflow_management",
         "read_workflows_in_collection",

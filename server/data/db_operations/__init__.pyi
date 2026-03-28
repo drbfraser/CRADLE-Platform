@@ -91,9 +91,13 @@ from .workflow_management import (
     read_rule_group,
     read_template_steps,
     read_workflow_classifications,
+    read_workflow_instance,
+    read_workflow_instance_data_by_field_tag,
+    read_workflow_instance_data_for_instance,
     read_workflow_instances,
     read_workflow_templates,
     read_workflows_in_collection,
+    upsert_workflow_instance_data_row,
 )
 
 # Expose db_session type (runtime value comes from data package)
@@ -154,8 +158,12 @@ __all__ = [
     "read_rule_group",
     "read_template_steps",
     "read_workflow_classifications",
+    "read_workflow_instance",
+    "read_workflow_instance_data_by_field_tag",
+    "read_workflow_instance_data_for_instance",
     "read_workflow_instances",
     "read_workflow_templates",
+    "upsert_workflow_instance_data_row",
     "read_workflows_in_collection",
     # misc
     "db_session",
