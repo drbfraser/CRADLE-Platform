@@ -1,9 +1,14 @@
-from typing import Optional
+import json
+from typing import Any, List, Optional
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from data import orm_serializer
-from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
+from enums import (
+    WorkflowInstanceDataFieldTypeEnum,
+    WorkflowStatusEnum,
+    WorkflowStepStatusEnum,
+)
 from models.workflows import (
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
@@ -412,6 +417,49 @@ class WorkflowService:
         workflow_instance_step.form_id = None
 
         WorkflowService.upsert_workflow_instance_step(workflow_instance_step)
+
+    @staticmethod
+    def get_workflow_instance_data_rows(workflow_instance_id: str) -> List[dict[str, Any]]:
+        """
+        Return dynamic workflow instance fields as JSON-ready dicts (decoded ``value``).
+        """
+        rows = crud.read_workflow_instance_data_for_instance(workflow_instance_id)
+        out: List[dict[str, Any]] = []
+        for r in rows:
+            parsed: Any = None
+            if r.field_value:
+                try:
+                    parsed = json.loads(r.field_value)
+                except json.JSONDecodeError:
+                    parsed = None
+            ft = (
+                r.field_type.value
+                if hasattr(r.field_type, "value")
+                else str(r.field_type)
+            )
+            out.append(
+                {
+                    "id": r.id,
+                    "workflow_instance_id": r.workflow_instance_id,
+                    "field_tag": r.field_tag,
+                    "field_type": ft,
+                    "value": parsed,
+                    "date_created": r.date_created,
+                    "last_edited": r.last_edited,
+                }
+            )
+        return out
+
+    @staticmethod
+    def upsert_workflow_instance_data_items(
+        workflow_instance_id: str,
+        items: List[tuple[str, WorkflowInstanceDataFieldTypeEnum, Any]],
+    ) -> None:
+        """Persist one or more ``workflow_instance_data`` rows (upsert per field_tag)."""
+        for field_tag, field_type, value in items:
+            crud.upsert_workflow_instance_data_row(
+                workflow_instance_id, field_tag, field_type, value
+            )
 
     @staticmethod
     def _validate_start_date_and_last_edited(
