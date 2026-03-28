@@ -66,17 +66,23 @@ class WorkflowPlanner:
     def _evaluate_branch(
         branch: WorkflowTemplateStepBranchModel,
         patient_id: str,
+        workflow_instance_id: str,
     ) -> WorkflowBranchEvaluation:
         """
         Evaluates a single workflow branch condition.
 
         :param branch: Workflow template branch to evaluate
         :param patient_id: Patient ID for data resolution
+        :param workflow_instance_id: Active instance ID for ``wf.*`` variables
         :returns: Evaluation result for the branch
         """
         rule = branch.condition.rule if branch.condition else None
         evaluator = RuleEvaluator()
-        rule_status, var_resolutions = evaluator.evaluate_rule(rule, patient_id)
+        rule_status, var_resolutions = evaluator.evaluate_rule(
+            rule,
+            patient_id,
+            workflow_instance_id=workflow_instance_id,
+        )
 
         branch_evaluation = WorkflowBranchEvaluation(
             branch_id=branch.id,
@@ -114,7 +120,10 @@ class WorkflowPlanner:
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         branch_evaluations = [
-            WorkflowPlanner._evaluate_branch(branch, patient_id) for branch in branches
+            WorkflowPlanner._evaluate_branch(
+                branch, patient_id, ctx.instance.id
+            )
+            for branch in branches
         ]
         selected_branch_id = WorkflowPlanner._select_branch_id(branch_evaluations)
 
