@@ -120,9 +120,7 @@ class WorkflowPlanner:
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         branch_evaluations = [
-            WorkflowPlanner._evaluate_branch(
-                branch, patient_id, ctx.instance.id
-            )
+            WorkflowPlanner._evaluate_branch(branch, patient_id, ctx.instance.id)
             for branch in branches
         ]
         selected_branch_id = WorkflowPlanner._select_branch_id(branch_evaluations)
