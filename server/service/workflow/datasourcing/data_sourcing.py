@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
 
-import data.db_operations as crud
 from pydantic import BaseModel
 
+import data.db_operations as crud
 from enums import StrEnum
 from validation.assessments import AssessmentModel
 from validation.patients import PatientModel

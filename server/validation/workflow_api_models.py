@@ -4,8 +4,8 @@ from pydantic import Field, model_validator
 from typing_extensions import Self
 
 from common.commonUtil import get_current_time
-from validation import CradleBaseModel
 from enums import WorkflowInstanceDataFieldTypeEnum
+from validation import CradleBaseModel
 from validation.workflow_models import (
     WorkflowActionModel,
     WorkflowClassificationModel,
