@@ -419,7 +419,9 @@ class WorkflowService:
         WorkflowService.upsert_workflow_instance_step(workflow_instance_step)
 
     @staticmethod
-    def get_workflow_instance_data_rows(workflow_instance_id: str) -> List[dict[str, Any]]:
+    def get_workflow_instance_data_rows(
+        workflow_instance_id: str,
+    ) -> List[dict[str, Any]]:
         """
         Return dynamic workflow instance fields as JSON-ready dicts (decoded ``value``).
         """

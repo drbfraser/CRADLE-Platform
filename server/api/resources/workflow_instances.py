@@ -233,7 +233,9 @@ def set_workflow_instance_data(
     """Create or update dynamic workflow instance fields (used by ``wf.<tag>`` rules)."""
     workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
     payload = [(i.field_tag, i.field_type, i.value) for i in body.items]
-    WorkflowService.upsert_workflow_instance_data_items(path.workflow_instance_id, payload)
+    WorkflowService.upsert_workflow_instance_data_items(
+        path.workflow_instance_id, payload
+    )
     rows = WorkflowService.get_workflow_instance_data_rows(path.workflow_instance_id)
     items = [WorkflowInstanceDataRowModel(**r) for r in rows]
     return GetWorkflowInstanceDataResponse(items=items).model_dump(), 200

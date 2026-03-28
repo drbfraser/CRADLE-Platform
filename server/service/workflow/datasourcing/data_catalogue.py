@@ -101,9 +101,7 @@ def __query_all_workflows_collection(patient_id: str) -> List[Dict[str, Any]]:
         key=lambda wi: (wi.start_date or 0, wi.last_edited or 0),
         reverse=True,
     )
-    return [
-        orm_serializer.marshal(wi, shallow=True) for wi in instances_sorted
-    ]
+    return [orm_serializer.marshal(wi, shallow=True) for wi in instances_sorted]
 
 
 def __query_object(
