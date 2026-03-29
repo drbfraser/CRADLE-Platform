@@ -622,7 +622,7 @@ export const useWorkflowEditor = ({
     handleSave,
     handleCancel,
     initializeEditor,
-    // Undo/Redo
+    onCaptureState: captureCurrentState,
     canUndo,
     canRedo,
     undo,

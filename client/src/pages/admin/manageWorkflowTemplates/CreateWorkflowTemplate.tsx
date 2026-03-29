@@ -159,6 +159,7 @@ export const CreateWorkflowTemplate = () => {
           onStepChange={workflowEditor.handleStepChange}
           onBranchChange={workflowEditor.handleBranchChange}
           onInsertNode={workflowEditor.handleInsertNode}
+          onCaptureState={workflowEditor.onCaptureState}
           onAddBranch={workflowEditor.handleAddBranch}
           onConnectionCreate={workflowEditor.handleConnectionCreate}
           onDeleteNode={workflowEditor.handleDeleteNode}

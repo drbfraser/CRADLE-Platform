@@ -24,6 +24,7 @@ interface WorkflowFlowViewProps {
   selectedStepId?: string;
   selectedBranchIndex?: number;
   onStepChange?: (stepId: string, field: string, value: string) => void;
+  onCaptureState?: () => void;
   onBranchChange?: (
     stepId: string,
     branchIndex: number,
@@ -68,6 +69,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   selectedStepId: controlledSelectedStepId,
   selectedBranchIndex,
   onStepChange,
+  onCaptureState,
   onBranchChange,
   onTargetStepChange,
   onStepSelect,
@@ -217,6 +219,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
               isInstance={isInstance}
               isEditMode={isEditMode}
               onStepChange={onStepChange}
+              onCaptureState={onCaptureState}
             />
           </Box>
         </Grid>
