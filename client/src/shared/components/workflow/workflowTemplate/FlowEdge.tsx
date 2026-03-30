@@ -135,24 +135,6 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                   }}>
                   <AddIcon sx={{ fontSize: '16px' }} />
                 </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleMenuClose}
-                  anchorOrigin={{
-                    vertical: 'center',
-                    horizontal: 'right',
-                  }}
-                  sx={{
-                    mt: -5,
-                  }}>
-                  <MenuItem onClick={handleAddCondition}>
-                    Add Condition
-                  </MenuItem>
-                  <MenuItem onClick={handleInsertNodeBetween}>
-                    Insert Step Between
-                  </MenuItem>
-                </Menu>
               </>
             ) : (
               <Chip
@@ -162,7 +144,7 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                     <EditIcon sx={{ fontSize: '14px !important' }} />
                   ) : undefined
                 }
-                onClick={isEditMode ? handleRuleClick : undefined}
+                onClick={isEditMode ? handleAddClick : undefined}
                 size="small"
                 sx={{
                   backgroundColor: '#1976d2',
@@ -195,11 +177,29 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                     },
                   }),
                 }}
-              />
+              /> 
             )}
+            <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right',
+                  }}
+                  sx={{
+                    mt: -5,
+                  }}>
+                  <MenuItem onClick={handleAddCondition}>
+                    {hasCondition ? 'Edit Condition' : 'Add Condition'}
+                  </MenuItem>
+                  <MenuItem onClick={handleInsertNodeBetween}>
+                    Insert Step Between
+                  </MenuItem>
+                </Menu>
           </Box>
         </EdgeLabelRenderer>
-      )}
+     )}
     </>
   );
 };
