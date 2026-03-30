@@ -13,6 +13,7 @@ import time
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import inspect
 
 revision = "28_seed_basic_workflow_variables"
 down_revision = "27_f4c1e2b8a9d0"
@@ -147,7 +148,24 @@ BASIC_VARIABLES = [
 ]
 
 
+def _ensure_workflow_variable_catalogue_collection_name() -> None:
+    """
+    Older DBs may have ``workflow_variable_catalogue`` without ``collection_name``
+    (e.g. an earlier revision of migration 25). Seed INSERTs require this column.
+    """
+    bind = op.get_bind()
+    inspector = inspect(bind)
+    cols = [c["name"] for c in inspector.get_columns("workflow_variable_catalogue")]
+    if "collection_name" not in cols:
+        op.add_column(
+            "workflow_variable_catalogue",
+            sa.Column("collection_name", sa.String(length=100), nullable=True),
+        )
+
+
 def upgrade():
+    _ensure_workflow_variable_catalogue_collection_name()
+
     bind = op.get_bind()
 
     # Ensure endpoint stays "clean": only the curated basic variables exist.
