@@ -481,12 +481,22 @@ export const useWorkflowEditor = ({
       }
     });
 
+    // If deleted node has 1 child reattach it
+    const deletedStep = editedWorkflow.steps.find((s) => s.id === stepId);
+    const singleChild =
+      deletedStep?.branches?.length === 1
+        ? deletedStep.branches[0].targetStepId
+        : null;
+
     // DFS to collect all nodes to delete
     const nodesToDelete = new Set<string>();
     const visited = new Set<string>();
 
     const dfsToDelete = (currentStepId: string) => {
       if (visited.has(currentStepId)) return;
+
+      //don't delete single child
+      if (singleChild && currentStepId === singleChild) return;
 
       visited.add(currentStepId);
       nodesToDelete.add(currentStepId);
@@ -529,12 +539,17 @@ export const useWorkflowEditor = ({
         .filter((step) => !nodesToDelete.has(step.id))
         .map((step) => {
           if (step.branches) {
-            const cleanedBranches = step.branches.filter(
-              (branch) => !nodesToDelete.has(branch.targetStepId)
-            );
+            const updatedBranches = step.branches
+            .map((branch) => {
+              if (singleChild && branch.targetStepId === stepId) {
+                return { ...branch, targetStepId: singleChild };
+              }
+              return branch;
+            })
+            .filter((branch) => !nodesToDelete.has(branch.targetStepId));
             return {
               ...step,
-              branches: cleanedBranches.length > 0 ? cleanedBranches : [],
+              branches: updatedBranches,
             };
           }
           return step;
