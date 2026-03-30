@@ -229,6 +229,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
         open={branchIndex !== undefined && selectedStep !== undefined}
         onClose={handleCloseBranchEditor}
         maxWidth="lg"
+        disableEnforceFocus
         PaperProps={{
           sx: {
             width: '80%',
