@@ -148,7 +148,7 @@ export const ViewWorkflowTemplate = () => {
             onStepSelect={workflowEditor.setSelectedStepId}
             onFieldChange={workflowEditor.handleFieldChange}
             onStepChange={workflowEditor.handleStepChange}
-            onCaptureState={workflowEditor.onCaptureState} 
+            onCaptureState={workflowEditor.onCaptureState}
             onInsertNodeBetween={workflowEditor.handleInsertNodeBetween}
             onBranchChange={workflowEditor.handleBranchChange}
             onInsertNode={workflowEditor.handleInsertNode}

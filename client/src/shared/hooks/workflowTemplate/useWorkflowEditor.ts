@@ -540,13 +540,13 @@ export const useWorkflowEditor = ({
         .map((step) => {
           if (step.branches) {
             const updatedBranches = step.branches
-            .map((branch) => {
-              if (singleChild && branch.targetStepId === stepId) {
-                return { ...branch, targetStepId: singleChild };
-              }
-              return branch;
-            })
-            .filter((branch) => !nodesToDelete.has(branch.targetStepId));
+              .map((branch) => {
+                if (singleChild && branch.targetStepId === stepId) {
+                  return { ...branch, targetStepId: singleChild };
+                }
+                return branch;
+              })
+              .filter((branch) => !nodesToDelete.has(branch.targetStepId));
             return {
               ...step,
               branches: updatedBranches,

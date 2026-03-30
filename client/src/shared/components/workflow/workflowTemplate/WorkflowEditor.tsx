@@ -207,7 +207,7 @@ export const WorkflowEditor = ({
           }
           setSelectedBranchIndex={setSelectedBranchIndex}
           onStepChange={onStepChange}
-          onCaptureState={onCaptureState} 
+          onCaptureState={onCaptureState}
           onBranchChange={onBranchChange}
           onTargetStepChange={onTargetStepChange}
           onInsertNode={onInsertNode}
