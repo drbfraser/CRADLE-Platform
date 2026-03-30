@@ -19,6 +19,7 @@ interface StepDetailsProps {
   isInstance?: boolean;
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
+  onCaptureState?: () => void;
 }
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
@@ -26,6 +27,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   isInstance: _isInstance = false,
   isEditMode = false,
   onStepChange,
+  onCaptureState,
 }) => {
   // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
@@ -70,6 +72,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 onChange={(e) =>
                   onStepChange?.(selectedStep.id, 'name', e.target.value)
                 }
+                onBlur={() => onCaptureState?.()}
                 sx={{ mt: 0.5 }}
               />
             ) : (
@@ -94,6 +97,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 onChange={(e) =>
                   onStepChange?.(selectedStep.id, 'description', e.target.value)
                 }
+                onBlur={() => onCaptureState?.()}
                 placeholder="Enter step description..."
                 sx={{ mt: 0.5 }}
               />

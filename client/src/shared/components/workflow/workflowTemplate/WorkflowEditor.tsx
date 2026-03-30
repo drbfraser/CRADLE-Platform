@@ -27,6 +27,7 @@ interface WorkflowEditorProps {
   onStepSelect: (stepId: string) => void;
   onFieldChange: (field: keyof WorkflowTemplate, value: unknown) => void;
   onStepChange: (stepId: string, field: string, value: string) => void;
+  onCaptureState?: () => void;
   onBranchChange: (
     stepId: string,
     branchIndex: number,
@@ -77,6 +78,7 @@ export const WorkflowEditor = ({
   onFieldChange,
   onStepChange,
   onBranchChange,
+  onCaptureState,
   onTargetStepChange,
   onInsertNode,
   onAddBranch,
@@ -205,6 +207,7 @@ export const WorkflowEditor = ({
           }
           setSelectedBranchIndex={setSelectedBranchIndex}
           onStepChange={onStepChange}
+          onCaptureState={onCaptureState}
           onBranchChange={onBranchChange}
           onTargetStepChange={onTargetStepChange}
           onInsertNode={onInsertNode}
