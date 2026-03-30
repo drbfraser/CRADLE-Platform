@@ -155,9 +155,7 @@ def _ensure_workflow_variable_catalogue_collection_name() -> None:
     """
     bind = op.get_bind()
     inspector = inspect(bind)
-    cols = [
-        c["name"] for c in inspector.get_columns("workflow_variable_catalogue")
-    ]
+    cols = [c["name"] for c in inspector.get_columns("workflow_variable_catalogue")]
     if "collection_name" not in cols:
         op.add_column(
             "workflow_variable_catalogue",
