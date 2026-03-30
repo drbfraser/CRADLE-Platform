@@ -172,8 +172,11 @@ def evaluate_step(path: WorkflowInstanceStepIdPath):
     )
     workflow_view = workflow_utils.fetch_workflow_view_or_404(step.workflow_instance_id)
 
+    current_user = user_utils.get_current_user_from_jwt()
     step_evaluation = WorkflowService.evaluate_workflow_step(
-        workflow_view, path.workflow_instance_step_id
+        workflow_view,
+        path.workflow_instance_step_id,
+        current_user=current_user,
     )
 
     return step_evaluation.model_dump(), 200

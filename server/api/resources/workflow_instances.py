@@ -2,7 +2,7 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from common import patient_utils, workflow_utils
+from common import patient_utils, user_utils, workflow_utils
 from common.api_utils import (
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
@@ -53,7 +53,8 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     workflow_view = WorkflowView(workflow_template, workflow_instance)
 
     # Start the workflow immediately to keep things simple
-    WorkflowService.start_workflow(workflow_view)
+    current_user = user_utils.get_current_user_from_jwt()
+    WorkflowService.start_workflow(workflow_view, current_user=current_user)
 
     WorkflowService.upsert_workflow_instance(workflow_instance)
 
@@ -179,7 +180,8 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
 def advance(path: WorkflowInstanceIdPath):
     """Advance the workflow to the next step, if possible"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
-    WorkflowService.advance_workflow(workflow_view)
+    current_user = user_utils.get_current_user_from_jwt()
+    WorkflowService.advance_workflow(workflow_view, current_user=current_user)
 
     WorkflowService.upsert_workflow_instance(workflow_view.instance)
     updated_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
