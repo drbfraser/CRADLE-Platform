@@ -4,12 +4,14 @@ from typing import Any, Dict, List, Optional, Tuple
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
     MISSING,
+    WORKFLOW_VARIABLE_NAMESPACE,
     DatasourceVariable,
     VariablePath,
     VariableResolution,
     VariableResolutionStatus,
     resolve_collection_variables,
     resolve_variables,
+    resolve_workflow_namespace_variables,
 )
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
 from service.workflow.evaluate.rules_engine import RulesEngineFacade, RuleStatus
@@ -35,13 +37,17 @@ class RuleEvaluator:
         self.catalogue = catalogue or get_catalogue()
 
     def evaluate_rule(
-        self, rule: Optional[str], patient_id: str
+        self,
+        rule: Optional[str],
+        patient_id: str,
+        workflow_instance_id: Optional[str] = None,
     ) -> Tuple[RuleStatus, List[VariableResolution]]:
         """
         Evaluate a rule with a given context.
 
         :param rule: JsonLogic rule string to evaluate
         :param patient_id: Patient ID for data resolution
+        :param workflow_instance_id: When set, enables ``wf.*`` and ties them to this instance
         :returns: Tuple of (RuleStatus, list of VariableResolution)
         """
         if rule is None or rule == "":
@@ -63,6 +69,7 @@ class RuleEvaluator:
         }
 
         collection_paths = []
+        wf_paths: List[VariablePath] = []
         simple_variables = []
 
         for var_str in variable_strings:
@@ -70,12 +77,21 @@ class RuleEvaluator:
             if vp is not None and vp.namespace in collection_namespaces:
                 collection_paths.append(vp)
                 continue
+            if (
+                vp is not None
+                and vp.namespace == WORKFLOW_VARIABLE_NAMESPACE
+                and vp.collection_index is None
+            ):
+                wf_paths.append(vp)
+                continue
 
             dv = DatasourceVariable.from_string(var_str)
             if dv is not None:
                 simple_variables.append(dv)
 
-        context = {"patient_id": patient_id}
+        context: Dict[str, Any] = {"patient_id": patient_id}
+        if workflow_instance_id:
+            context["workflow_instance_id"] = workflow_instance_id
 
         resolved_data: Dict[str, Any] = {}
         if simple_variables:
@@ -94,6 +110,15 @@ class RuleEvaluator:
                     context=context,
                     variable_paths=collection_paths,
                     catalogue=self.catalogue,
+                    use_missing_sentinel=True,
+                )
+            )
+
+        if wf_paths:
+            resolved_data.update(
+                resolve_workflow_namespace_variables(
+                    context=context,
+                    variable_paths=wf_paths,
                     use_missing_sentinel=True,
                 )
             )

@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 from dataclasses import dataclass
@@ -6,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
 
 from pydantic import BaseModel
 
+import data.db_operations as crud
 from enums import StrEnum
 from validation.assessments import AssessmentModel
 from validation.patients import PatientModel
@@ -37,6 +39,9 @@ DataModel = Union[
     PregnancyModel,
     UrineTestModel,
 ]
+
+# Namespace for workflow-scoped variables (metadata + workflow_instance_data).
+WORKFLOW_VARIABLE_NAMESPACE = "wf"
 
 MODEL_REGISTRY: Dict[str, type[BaseModel]] = {
     "patient": PatientModel,
@@ -447,6 +452,111 @@ def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
             return None
 
     return current
+
+
+def _workflow_instance_info_dict(instance: Any) -> Dict[str, Any]:
+    """Shape exposed as ``wf.info.*`` in rules (plain dict for field navigation)."""
+    return {
+        "start_date": instance.start_date,
+        "status": instance.status,
+        "current_step_id": instance.current_step_id,
+        "name": instance.name,
+        "description": instance.description,
+        "completion_date": instance.completion_date,
+        "id": instance.id,
+        "workflow_template_id": instance.workflow_template_id,
+        "patient_id": instance.patient_id,
+        "last_edited": instance.last_edited,
+    }
+
+
+def _decode_json_field_value(raw: Optional[str]) -> Any:
+    if raw is None or raw == "":
+        return None
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return MISSING
+
+
+def resolve_workflow_namespace_variables(
+    context: ResolverContext,
+    variable_paths: List[VariablePath],
+    use_missing_sentinel: bool = False,
+) -> Dict[str, Any]:
+    """
+    Resolve ``wf.*`` paths for the active workflow instance.
+
+    Requires ``workflow_instance_id`` in context. Optional ``patient_id`` is
+    checked against the instance for safety.
+
+    - ``wf.info.*`` — metadata from :class:`~models.workflows.WorkflowInstanceOrm`
+    - ``wf.<field_tag>`` — values from ``workflow_instance_data`` (JSON-decoded);
+      additional path segments navigate into object/array JSON values.
+    """
+    logger = logging.getLogger(__name__)
+    default_missing = MISSING if use_missing_sentinel else None
+
+    if not variable_paths:
+        return {}
+
+    wf_id = context.get("workflow_instance_id")
+    if not wf_id:
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    patient_id = context.get("patient_id")
+    instance = crud.read_workflow_instance(wf_id)
+    if instance is None:
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    if patient_id and instance.patient_id != patient_id:
+        logger.warning(
+            "Workflow instance %s patient mismatch: instance has %s, context has %s",
+            wf_id,
+            instance.patient_id,
+            patient_id,
+        )
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    resolved: Dict[str, Any] = {}
+
+    for vp in variable_paths:
+        key = vp.to_string()
+        if (
+            vp.namespace != WORKFLOW_VARIABLE_NAMESPACE
+            or vp.collection_index is not None
+        ):
+            resolved[key] = default_missing
+            continue
+
+        if not vp.field_path:
+            resolved[key] = default_missing
+            continue
+
+        head, *rest = vp.field_path
+
+        if head == "info":
+            root = {"info": _workflow_instance_info_dict(instance)}
+            value = _navigate_field_path(root, vp.field_path)
+        else:
+            row = crud.read_workflow_instance_data_by_field_tag(wf_id, head)
+            if row is None:
+                value = MISSING
+            else:
+                parsed = _decode_json_field_value(row.field_value)
+                if parsed is MISSING:
+                    value = MISSING
+                elif not rest:
+                    value = parsed
+                else:
+                    value = _navigate_field_path(parsed, rest)
+
+        if value is MISSING:
+            resolved[key] = default_missing
+        else:
+            resolved[key] = value
+
+    return resolved
 
 
 def _select_collection_item(

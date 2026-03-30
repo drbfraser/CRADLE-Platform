@@ -1,6 +1,6 @@
 """
-common_crud.py
---------------
+workflow_management.py
+----------------------
 
 Purpose
     This module provides helpers for deleting and reading workflow entities.
@@ -14,24 +14,32 @@ What this module provides
     - Read helpers for workflow structures:
         * read_instance_steps(...)
         * read_workflow_instances(...)
+        * read_workflow_instance(...)
+        * read_workflow_instance_data_for_instance(...)
+        * read_workflow_instance_data_by_field_tag(...)
         * read_workflow_templates(...)
         * read_workflow_classifications(...)
         * read_template_steps(...)
         * read_workflows_in_collection(...)
         * read_rule_group(...)
+    - Upsert for workflow instance dynamic data:
+        * upsert_workflow_instance_data_row(...)
 """
 
-from typing import List, Optional, Type
+import json
+from typing import Any, List, Optional, Type
 
+from common.commonUtil import get_current_time, get_uuid
 from data.db_operations import M, db_session
-from data.db_operations.common_crud import delete, delete_by, read
-from enums import WorkflowStatusEnum
+from data.db_operations.common_crud import delete, delete_by, read, read_by_filter
+from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowStatusEnum
 from models import (
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
     RuleGroupOrm,
     WorkflowClassificationOrm,
+    WorkflowInstanceDataOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
@@ -173,8 +181,7 @@ def read_workflow_instances(
     """
     query = db_session.query(WorkflowInstanceOrm)
 
-    if user_id:
-        query = query.filter(WorkflowInstanceOrm.last_edited_by == user_id)
+    # user_id filter removed: workflow_instance no longer has last_edited_by.
 
     if patient_id:
         query = query.filter(WorkflowInstanceOrm.patient_id == patient_id)
@@ -277,3 +284,79 @@ def read_rule_group(rule_group_id: str) -> RuleGroupOrm:
         return query.one_or_none()
 
     return None
+
+
+def read_workflow_instance(instance_id: str) -> Optional[WorkflowInstanceOrm]:
+    """Return a workflow instance by primary key, or None."""
+    if not instance_id:
+        return None
+    return read(WorkflowInstanceOrm, id=instance_id)
+
+
+def read_workflow_instance_data_for_instance(
+    workflow_instance_id: str,
+) -> List[WorkflowInstanceDataOrm]:
+    """All dynamic data rows for a workflow instance, ordered by field_tag."""
+    if not workflow_instance_id:
+        return []
+    return (
+        db_session.query(WorkflowInstanceDataOrm)
+        .filter(WorkflowInstanceDataOrm.workflow_instance_id == workflow_instance_id)
+        .order_by(WorkflowInstanceDataOrm.field_tag.asc())
+        .all()
+    )
+
+
+def read_workflow_instance_data_by_field_tag(
+    workflow_instance_id: str,
+    field_tag: str,
+) -> Optional[WorkflowInstanceDataOrm]:
+    """Single dynamic data row by instance id and field tag."""
+    if not workflow_instance_id or not field_tag:
+        return None
+    return read_by_filter(
+        WorkflowInstanceDataOrm,
+        (WorkflowInstanceDataOrm.workflow_instance_id == workflow_instance_id)
+        & (WorkflowInstanceDataOrm.field_tag == field_tag),
+    )
+
+
+def upsert_workflow_instance_data_row(
+    workflow_instance_id: str,
+    field_tag: str,
+    field_type: WorkflowInstanceDataFieldTypeEnum,
+    value: Any,
+) -> WorkflowInstanceDataOrm:
+    """
+    Insert or update a single workflow_instance_data row (unique per instance + tag).
+
+    ``value`` is JSON-serialized to ``field_value``; ``None`` is stored as JSON null.
+    """
+    existing = read_by_filter(
+        WorkflowInstanceDataOrm,
+        (WorkflowInstanceDataOrm.workflow_instance_id == workflow_instance_id)
+        & (WorkflowInstanceDataOrm.field_tag == field_tag),
+    )
+    encoded = json.dumps(value)
+    now = get_current_time()
+    if existing:
+        existing.field_value = encoded
+        existing.field_type = field_type
+        existing.last_edited = now
+        db_session.commit()
+        db_session.refresh(existing)
+        return existing
+
+    row = WorkflowInstanceDataOrm(
+        id=get_uuid(),
+        workflow_instance_id=workflow_instance_id,
+        field_tag=field_tag,
+        field_value=encoded,
+        field_type=field_type,
+        date_created=now,
+        last_edited=now,
+    )
+    db_session.add(row)
+    db_session.commit()
+    db_session.refresh(row)
+    return row

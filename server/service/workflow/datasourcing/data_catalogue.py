@@ -92,10 +92,16 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
 
 def __query_all_workflows_collection(patient_id: str) -> List[Dict[str, Any]]:
     """
-    Skeleton: query all workflows collection for a patient.
+    Query all workflow instances for a patient, ordered newest-first by start_date
+    (then ``last_edited``), for ``all_wf[latest]`` and related rule variables.
     """
-    # TODO: Implement all_wf collection query (Phase 5).
-    return []
+    instances = crud.read_workflow_instances(patient_id=patient_id) or []
+    instances_sorted = sorted(
+        instances,
+        key=lambda wi: (wi.start_date or 0, wi.last_edited or 0),
+        reverse=True,
+    )
+    return [orm_serializer.marshal(wi, shallow=True) for wi in instances_sorted]
 
 
 def __query_object(
