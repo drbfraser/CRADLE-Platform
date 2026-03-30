@@ -177,29 +177,29 @@ export const FlowEdge: React.FC<EdgeProps> = ({
                     },
                   }),
                 }}
-              />
+              /> 
             )}
             <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'right',
-              }}
-              sx={{
-                mt: -5,
-              }}>
-              <MenuItem onClick={handleAddCondition}>
-                {hasCondition ? 'Edit Condition' : 'Add Condition'}
-              </MenuItem>
-              <MenuItem onClick={handleInsertNodeBetween}>
-                Insert Step Between
-              </MenuItem>
-            </Menu>
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right',
+                  }}
+                  sx={{
+                    mt: -5,
+                  }}>
+                  <MenuItem onClick={handleAddCondition}>
+                    {hasCondition ? 'Edit Condition' : 'Add Condition'}
+                  </MenuItem>
+                  <MenuItem onClick={handleInsertNodeBetween}>
+                    Insert Step Between
+                  </MenuItem>
+                </Menu>
           </Box>
         </EdgeLabelRenderer>
-      )}
+     )}
     </>
   );
 };
