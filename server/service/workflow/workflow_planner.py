@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
@@ -67,6 +67,7 @@ class WorkflowPlanner:
         branch: WorkflowTemplateStepBranchModel,
         patient_id: str,
         workflow_instance_id: str,
+        current_user: Optional[Dict[str, Any]] = None,
     ) -> WorkflowBranchEvaluation:
         """
         Evaluates a single workflow branch condition.
@@ -82,6 +83,7 @@ class WorkflowPlanner:
             rule,
             patient_id,
             workflow_instance_id=workflow_instance_id,
+            current_user=current_user,
         )
 
         branch_evaluation = WorkflowBranchEvaluation(
@@ -95,7 +97,9 @@ class WorkflowPlanner:
 
     @staticmethod
     def evaluate_step(
-        ctx: WorkflowView, step: WorkflowInstanceStepModel
+        ctx: WorkflowView,
+        step: WorkflowInstanceStepModel,
+        current_user: Optional[Dict[str, Any]] = None,
     ) -> WorkflowStepEvaluation:
         """
         Evaluates all branches of a workflow step and determines which branch
@@ -120,7 +124,12 @@ class WorkflowPlanner:
         branches = ctx.get_template_step(step.workflow_template_step_id).branches
 
         branch_evaluations = [
-            WorkflowPlanner._evaluate_branch(branch, patient_id, ctx.instance.id)
+            WorkflowPlanner._evaluate_branch(
+                branch,
+                patient_id,
+                ctx.instance.id,
+                current_user=current_user,
+            )
             for branch in branches
         ]
         selected_branch_id = WorkflowPlanner._select_branch_id(branch_evaluations)
@@ -141,7 +150,9 @@ class WorkflowPlanner:
 
     @staticmethod
     def _get_immediate_next_step(
-        ctx: WorkflowView, step: WorkflowInstanceStepModel
+        ctx: WorkflowView,
+        step: WorkflowInstanceStepModel,
+        current_user: Optional[Dict[str, Any]] = None,
     ) -> Optional[WorkflowInstanceStepModel]:
         """
         Determines the next workflow step after the given step based on step evaluation.
@@ -149,7 +160,9 @@ class WorkflowPlanner:
 
         :returns: The next workflow instance step, or None if no transition is possible
         """
-        step_evaluation = WorkflowPlanner.evaluate_step(ctx, step)
+        step_evaluation = WorkflowPlanner.evaluate_step(
+            ctx, step, current_user=current_user
+        )
 
         if step_evaluation.selected_branch_id is not None:
             branch = ctx.get_template_step_branch(
@@ -237,7 +250,9 @@ class WorkflowPlanner:
 
     @staticmethod
     def _get_next_step_to_advance_to(
-        ctx: WorkflowView, step: WorkflowInstanceStepModel
+        ctx: WorkflowView,
+        step: WorkflowInstanceStepModel,
+        current_user: Optional[Dict[str, Any]] = None,
     ) -> WorkflowInstanceStepModel:
         """
         Walk forward from a completed step until an incomplete step is found,
@@ -248,7 +263,9 @@ class WorkflowPlanner:
         :returns: The next step to do
         """
         assert step.status == WorkflowStepStatusEnum.COMPLETED
-        next_step = WorkflowPlanner._get_immediate_next_step(ctx, step)
+        next_step = WorkflowPlanner._get_immediate_next_step(
+            ctx, step, current_user=current_user
+        )
 
         if next_step is None:
             # Reached the end OR no branch was selected
@@ -257,10 +274,14 @@ class WorkflowPlanner:
         if next_step.status != WorkflowStepStatusEnum.COMPLETED:
             return next_step
 
-        return WorkflowPlanner._get_next_step_to_advance_to(ctx, next_step)
+        return WorkflowPlanner._get_next_step_to_advance_to(
+            ctx, next_step, current_user=current_user
+        )
 
     @staticmethod
-    def advance(ctx: WorkflowView) -> None:
+    def advance(
+        ctx: WorkflowView, current_user: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Advances the workflow's current step pointer if possible.
 
@@ -277,7 +298,9 @@ class WorkflowPlanner:
 
         current_step = ctx.get_current_step()
         if current_step and current_step.status == WorkflowStepStatusEnum.COMPLETED:
-            next_step = WorkflowPlanner._get_next_step_to_advance_to(ctx, current_step)
+            next_step = WorkflowPlanner._get_next_step_to_advance_to(
+                ctx, current_step, current_user=current_user
+            )
             if next_step.id != current_step.id:
                 ctx.instance.current_step_id = next_step.id
 
