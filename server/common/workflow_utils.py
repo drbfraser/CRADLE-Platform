@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Type
 from flask import abort
 
 import data.db_operations as crud
-from api.resources.form_templates import handle_form_template_upload
+from api.resources.form_templates_v2 import handle_form_template_upload
 from common.commonUtil import abort_not_found, get_uuid
 from common.form_utils import assign_form_or_template_ids
 from data import orm_serializer
 from models import (
-    FormOrm,
-    FormTemplateOrm,
+    FormSubmissionOrmV2,
+    FormTemplateOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -22,6 +22,7 @@ from models import (
 )
 from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formTemplates import FormTemplateUpload
+from validation.formsV2_models import FormTemplateUploadRequest
 
 if TYPE_CHECKING:
     from data.crud import M
@@ -97,18 +98,21 @@ def assign_step_ids(
 
     step_id = step["id"]
 
+    # may no longer need this after complete migration from v1 -> v2 forms
+    #==========================================================
     form_model = None
 
     if m is WorkflowTemplateStepOrm:
-        form_model = FormTemplateOrm
+        form_model = FormTemplateOrmV2
 
     elif m is WorkflowInstanceStepOrm:
-        form_model = FormOrm
+        form_model = FormSubmissionOrmV2 # unsure if this is correct
 
     # Assign ID to form if provided
     if step.get("form") is not None:
-        assign_form_or_template_ids(form_model, step["form"])
+        assign_form_or_template_ids(form_model, step["form"]) # refactor?
         step["form_id"] = step["form"]["id"]
+    # ==========================================================
 
     if m is WorkflowTemplateStepOrm:
         for branch in step["branches"]:
@@ -200,7 +204,7 @@ def validate_workflow_template_step(
 
     try:
         if workflow_template_step.get("form") is not None:
-            form_template = FormTemplateUpload(**workflow_template_step["form"])
+            form_template = FormTemplateUploadRequest(**workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown
             form_template = handle_form_template_upload(form_template)
