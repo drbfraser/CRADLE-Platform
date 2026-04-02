@@ -16,7 +16,7 @@ import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 //update workflow apis in here
 import {
-  saveFormTemplateWithFileAsync,
+  saveFormTemplateWithFileAsyncV2,
   saveWorkflowTemplateWithFileAsync,
 } from 'src/shared/api';
 
@@ -67,7 +67,7 @@ const UploadTemplate = ({
       if (type === 'workflow') {
         await saveWorkflowTemplateWithFileAsync(file);
       } else {
-        await saveFormTemplateWithFileAsync(file);
+        await saveFormTemplateWithFileAsyncV2(file);
       }
 
       setUploadSuccess(`${file.name} uploaded successfully`);

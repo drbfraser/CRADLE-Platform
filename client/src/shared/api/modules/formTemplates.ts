@@ -31,6 +31,12 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
   });
 };
 
+export const saveFormTemplateWithFileAsyncV2 = async (file: File) => {
+  return axiosFetch.postForm(EndpointEnum.FORM_TEMPLATES_V2, {
+    file: file,
+  });
+};
+
 // TODO: delete this one once forms v2 have been integrated
 export const saveFormTemplateAsync = async (
   formTemplate: FormTemplateWithQuestions
