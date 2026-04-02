@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFormResponseQuery } from 'src/pages/customizedForm/queries';
-import { getFormTemplateLangAsyncV2 } from 'src/shared/api';
+import { getFormTemplateLangAsync } from 'src/shared/api';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import {
   FormModalState,
@@ -37,7 +37,7 @@ export function useWorkflowFormModal(
 
         try {
           const formTemplateId = currentStep.formTemplateId;
-          const formTemplate = await getFormTemplateLangAsyncV2(
+          const formTemplate = await getFormTemplateLangAsync(
             formTemplateId,
             'English' // TODO: To be updated based on user selected language
           );
