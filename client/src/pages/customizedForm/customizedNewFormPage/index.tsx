@@ -14,17 +14,24 @@ type RouteParams = {
 export const CustomizedNewFormPage = () => {
   const { patientId } = useParams() as RouteParams;
   const [form, setForm] = useState<CForm>();
+  const [formLang, setFormLang] = useState<string>('');
   const { patient } = usePatient(patientId);
+
+  const handleSetForm = (form: CForm, lang: string) => {
+    setForm({ ...form, lang });
+    setFormLang(lang);
+  };
 
   return (
     <>
       <PatientHeader title="New Form" patient={patient} />
 
-      <SelectFormTemplate setForm={setForm} />
+      <SelectFormTemplate setForm={handleSetForm} />
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedFormPageContainer
           patientId={patientId}
           fm={form}
+          lang={formLang}
           renderState={FormRenderStateEnum.FIRST_SUBMIT}
         />
       )}

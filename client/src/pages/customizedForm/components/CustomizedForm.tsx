@@ -30,6 +30,7 @@ const BUTTON_SX: SxProps = {
 interface IProps {
   patientId: string;
   fm: CForm;
+  lang?: string;
   renderState: FormRenderStateEnum;
   isFormModal?: boolean;
   customSubmitHandler?: (form: CForm, postBody: PostBody) => void;
@@ -38,6 +39,7 @@ interface IProps {
 export const CustomizedForm = ({
   patientId,
   fm: form,
+  lang = '',
   renderState,
   isFormModal = false,
   customSubmitHandler,
@@ -130,7 +132,7 @@ export const CustomizedForm = ({
               {FormQuestions({
                 questions: form.questions as unknown as TQuestion[],
                 renderState,
-                language: '',
+                language: lang,
                 handleAnswers: (answers) => {
                   setAnswers(answers);
                 },

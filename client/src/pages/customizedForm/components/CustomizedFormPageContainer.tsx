@@ -7,6 +7,7 @@ import { PostBody } from '../handlers';
 interface IProps {
   patientId: string;
   fm: CForm;
+  lang?: string;
   renderState: FormRenderStateEnum;
   isModalView?: boolean;
   handleCloseModal?: () => void;
@@ -16,6 +17,7 @@ interface IProps {
 export const CustomizedFormPageContainer = ({
   patientId,
   fm: form,
+  lang,
   renderState,
 }: IProps) => {
   return (
@@ -23,6 +25,7 @@ export const CustomizedFormPageContainer = ({
       <CustomizedForm
         patientId={patientId}
         fm={form}
+        lang={lang}
         renderState={renderState}
       />
     </Paper>
