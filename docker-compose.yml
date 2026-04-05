@@ -32,8 +32,8 @@ services:
 
     mysql:
         container_name: cradle_mysql
-        platform: linux/x86_64
-        image: mysql:5.7
+        platform: linux/arm64
+        image: mysql:8.0
         volumes:
             - mysql_data:/var/lib/mysql
         environment:

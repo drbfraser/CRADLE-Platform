@@ -17,20 +17,19 @@ import { Toast } from 'src/shared/components/toast';
 //update workflow apis in here
 import {
   saveFormTemplateWithFileAsync,
-  saveWorkflowTemplateWithFileAsync,
 } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  type?: 'form' | 'workflow';
+  type?: 'form';
   onUploadSuccess?: () => void;
 }
 
 const UploadTemplate = ({
   open,
   onClose,
-  type = 'workflow',
+  type = 'form',
   onUploadSuccess,
 }: IProps) => {
   const [files, setFiles] = useState<ExtFile[]>([]);
@@ -64,11 +63,8 @@ const UploadTemplate = ({
       return;
     }
     try {
-      if (type === 'workflow') {
-        await saveWorkflowTemplateWithFileAsync(file);
-      } else {
-        await saveFormTemplateWithFileAsync(file);
-      }
+
+      await saveFormTemplateWithFileAsync(file);
 
       setUploadSuccess(`${file.name} uploaded successfully`);
       setShowSuccess(true);
@@ -124,9 +120,7 @@ const UploadTemplate = ({
 
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {type === 'form'
-            ? 'Upload Form Template'
-            : 'Upload Workflow Template'}
+            Upload Form Template
         </DialogTitle>
         <DialogContent>
           <Box sx={boxSx}>
