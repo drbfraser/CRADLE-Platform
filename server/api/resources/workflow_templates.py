@@ -1,11 +1,7 @@
-# Create a simple CSV representation of the workflow template
-import csv
-import io
-import json
 import re
 from typing import List, Optional
 
-from flask import abort, make_response, request
+from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from sqlalchemy.exc import IntegrityError
@@ -27,18 +23,11 @@ from models import (
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.file_upload import FileUploadForm
 from validation.workflow_api_models import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
 from validation.workflow_models import WorkflowTemplateModel
-
-
-# Path model for CSV endpoint
-class WorkflowTemplateVersionPath(CradleBaseModel):
-    workflow_template_id: str
-    version: str
 
 
 # Create a response model for the list endpoints
@@ -247,27 +236,6 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         )
 
     return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
-
-
-# /api/workflow/templates [POST] - File upload (like form templates)
-@api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
-@roles_required([RoleEnum.ADMIN])
-def upload_workflow_template_file(form: FileUploadForm):
-    """
-    Upload Workflow Template VIA File
-    Accepts Workflow Template as a file.
-    Supports `.json` and `.csv` file formats.
-    """
-    file = form.file
-    file_str = str(file.stream.read(), "utf-8")
-
-    try:
-        workflow_template_dict = json.loads(file_str)
-    except json.JSONDecodeError as e:
-        return abort(400, description=f"Invalid JSON file: {e!s}")
-
-    result = handle_workflow_template_upload(workflow_template_dict)
-    return result, 201
 
 
 # /api/workflow/templates/body [POST] - JSON body (like form templates)
@@ -558,72 +526,3 @@ def archive_workflow_template(
 
     updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     return orm_serializer.marshal(updated_template, shallow=True), 200
-
-
-# /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]
-@api_workflow_templates.get(
-    "/<string:workflow_template_id>/versions/<string:version>/csv",
-    responses={
-        200: {"content": {"text/csv": {"schema": {"type": "string"}}}},
-        404: {"description": "Workflow template not found"},
-    },
-)
-def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
-    """Get Workflow Template Version as CSV"""
-    filters: dict = {
-        "id": path.workflow_template_id,
-        "version": path.version,
-    }
-
-    workflow_template = crud.read(
-        WorkflowTemplateOrm,
-        **filters,
-    )
-
-    if workflow_template is None:
-        return abort(
-            404,
-            description=f"No workflow template with ID: {path.workflow_template_id}",
-        )
-
-    csv_data = io.StringIO()
-    writer = csv.writer(csv_data)
-
-    # Write header
-    writer.writerow(["Field", "Value"])
-
-    # Write template data
-    writer.writerow(["ID", workflow_template.id])
-    writer.writerow(
-        [
-            "Name",
-            workflow_template.classification.name
-            if workflow_template.classification
-            else "",
-        ]
-    )
-    writer.writerow(["Description", workflow_template.description or ""])
-    writer.writerow(["Version", workflow_template.version])
-    writer.writerow(
-        [
-            "Classification",
-            (
-                workflow_template.classification.name
-                if workflow_template.classification
-                else ""
-            ),
-        ]
-    )
-    writer.writerow(["Date Created", workflow_template.date_created])
-    writer.writerow(["Last Edited", workflow_template.last_edited])
-    writer.writerow(["Archived", workflow_template.archived])
-
-    csv_content = csv_data.getvalue()
-    csv_data.close()
-
-    response = make_response(csv_content)
-    response.headers["Content-Disposition"] = (
-        f"attachment; filename=workflow_template_{workflow_template.id}.csv"
-    )
-    response.headers["Content-Type"] = "text/csv"
-    return response
