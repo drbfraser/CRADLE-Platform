@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
@@ -41,6 +42,7 @@ class RuleEvaluator:
         rule: Optional[str],
         patient_id: str,
         workflow_instance_id: Optional[str] = None,
+        current_user: Optional[Dict[str, Any]] = None,
     ) -> Tuple[RuleStatus, List[VariableResolution]]:
         """
         Evaluate a rule with a given context.
@@ -48,6 +50,8 @@ class RuleEvaluator:
         :param rule: JsonLogic rule string to evaluate
         :param patient_id: Patient ID for data resolution
         :param workflow_instance_id: When set, enables ``wf.*`` and ties them to this instance
+        :param current_user: User context for ``current-user.*`` system variables.
+                             When omitted, ``current-user.*`` will resolve as missing.
         :returns: Tuple of (RuleStatus, list of VariableResolution)
         """
         if rule is None or rule == "":
@@ -71,8 +75,20 @@ class RuleEvaluator:
         collection_paths = []
         wf_paths: List[VariablePath] = []
         simple_variables = []
+        system_literal_vars: Set[str] = set()
+        current_user_vars: Set[str] = set()
+
+        system_literal_var_names = {"local-date", "local-time", "local-date-time"}
+        current_user_prefix = "current-user."
 
         for var_str in variable_strings:
+            if var_str in system_literal_var_names:
+                system_literal_vars.add(var_str)
+                continue
+            if var_str.startswith(current_user_prefix):
+                current_user_vars.add(var_str)
+                continue
+
             vp = VariablePath.from_string(var_str)
             if vp is not None and vp.namespace in collection_namespaces:
                 collection_paths.append(vp)
@@ -122,6 +138,48 @@ class RuleEvaluator:
                     use_missing_sentinel=True,
                 )
             )
+
+        # Resolve system context variables after other resolvers so they can be
+        # included in ``missing_vars`` checks.
+        if system_literal_vars:
+            now = datetime.now()
+            if "local-date" in system_literal_vars:
+                resolved_data["local-date"] = now.date().isoformat()
+            if "local-time" in system_literal_vars:
+                resolved_data["local-time"] = now.time().isoformat()
+            if "local-date-time" in system_literal_vars:
+                resolved_data["local-date-time"] = now.isoformat()
+
+        if current_user_vars:
+            if current_user is None:
+                for var_str in current_user_vars:
+                    resolved_data[var_str] = MISSING
+            else:
+
+                def _navigate_dict_path(root: Any, path_parts: List[str]) -> Any:
+                    """Navigate through dicts (and simple objects) for dotted paths."""
+                    current: Any = root
+                    for part in path_parts:
+                        if isinstance(current, dict):
+                            if part not in current:
+                                return MISSING
+                            current = current.get(part)
+                        else:
+                            if not hasattr(current, part):
+                                return MISSING
+                            current = getattr(current, part)
+
+                        # Explicit nulls remain null even if there are more path parts.
+                        if current is None:
+                            return None
+                    return current
+
+                for var_str in current_user_vars:
+                    # e.g. "current-user.name" -> ["name"]
+                    field_path = var_str.split(".")[1:]
+                    resolved_data[var_str] = _navigate_dict_path(
+                        current_user, field_path
+                    )
 
         logger.debug("Resolved data for context %s: %s", context, resolved_data)
 

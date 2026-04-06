@@ -1,5 +1,5 @@
 import json
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
@@ -307,7 +307,9 @@ class WorkflowService:
 
     @staticmethod
     def evaluate_workflow_step(
-        workflow_view: WorkflowView, instance_step_id: str
+        workflow_view: WorkflowView,
+        instance_step_id: str,
+        current_user: Optional[Dict[str, Any]] = None,
     ) -> WorkflowStepEvaluation:
         """
         Evaluate a workflow step and its branches.
@@ -319,16 +321,20 @@ class WorkflowService:
         assert workflow_view.has_instance_step(instance_step_id)
 
         step_evaluation = WorkflowPlanner.evaluate_step(
-            ctx=workflow_view, step=workflow_view.get_instance_step(instance_step_id)
+            ctx=workflow_view,
+            step=workflow_view.get_instance_step(instance_step_id),
+            current_user=current_user,
         )
         return step_evaluation
 
     @staticmethod
-    def advance_workflow(workflow_view: WorkflowView) -> None:
+    def advance_workflow(
+        workflow_view: WorkflowView, current_user: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Advance the workflow to the next step if conditions are met.
         """
-        WorkflowPlanner.advance(ctx=workflow_view)
+        WorkflowPlanner.advance(ctx=workflow_view, current_user=current_user)
 
     @staticmethod
     def override_current_step(
@@ -343,7 +349,9 @@ class WorkflowService:
         )
 
     @staticmethod
-    def start_workflow(workflow_view: WorkflowView) -> None:
+    def start_workflow(
+        workflow_view: WorkflowView, current_user: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Start a workflow and its first step.
 
@@ -361,7 +369,7 @@ class WorkflowService:
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert not actions
-        WorkflowService.advance_workflow(workflow_view)
+        WorkflowService.advance_workflow(workflow_view, current_user=current_user)
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions and isinstance(actions[0], StartStepActionModel)

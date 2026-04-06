@@ -88,3 +88,49 @@ class TestIntegratedRuleEvaluator:
 
         assert status_none == "TRUE"
         assert status_empty == "TRUE"
+
+    def test_evaluate_rule_with_local_date(self):
+        evaluator = RuleEvaluator()
+        rule = '{"==": [{"var": "local-date"}, {"var": "local-date"}]}'
+
+        status, var_resolutions = evaluator.evaluate_rule(rule, patient_id="p1")
+
+        assert status == "TRUE"
+        assert len(var_resolutions) == 1
+        assert var_resolutions[0].var == "local-date"
+        assert isinstance(var_resolutions[0].value, str)
+        assert var_resolutions[0].status == VariableResolutionStatus.RESOLVED
+
+    def test_evaluate_rule_with_current_user(self):
+        evaluator = RuleEvaluator()
+        current_user = {
+            "id": 123,
+            "name": "Alice Example",
+            "username": "alice",
+            "email": "alice@example.com",
+            "health_facility_name": "Facility A",
+            "role": "HCW",
+        }
+        rule = '{"==": [{"var": "current-user.name"}, {"var": "current-user.name"}]}'
+
+        status, var_resolutions = evaluator.evaluate_rule(
+            rule, patient_id="p1", current_user=current_user
+        )
+
+        assert status == "TRUE"
+        assert len(var_resolutions) == 1
+        assert var_resolutions[0].var == "current-user.name"
+        assert var_resolutions[0].value == "Alice Example"
+        assert var_resolutions[0].status == VariableResolutionStatus.RESOLVED
+
+    def test_evaluate_rule_with_missing_current_user(self):
+        evaluator = RuleEvaluator()
+        rule = '{"==": [{"var": "current-user.name"}, {"var": "current-user.name"}]}'
+
+        status, var_resolutions = evaluator.evaluate_rule(rule, patient_id="p1")
+
+        assert status == "NOT_ENOUGH_DATA"
+        assert len(var_resolutions) == 1
+        assert var_resolutions[0].var == "current-user.name"
+        assert var_resolutions[0].value is None
+        assert var_resolutions[0].status == VariableResolutionStatus.OBJECT_NOT_FOUND
