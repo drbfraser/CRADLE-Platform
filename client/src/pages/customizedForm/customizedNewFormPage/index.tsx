@@ -16,15 +16,20 @@ export const CustomizedNewFormPage = () => {
   const [form, setForm] = useState<CForm>();
   const { patient } = usePatient(patientId);
 
+  const handleSetForm = (form: CForm, lang: string) => {
+    setForm({ ...form, lang });
+  };
+
   return (
     <>
       <PatientHeader title="New Form" patient={patient} />
 
-      <SelectFormTemplate setForm={setForm} />
+      <SelectFormTemplate setForm={handleSetForm} />
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedFormPageContainer
           patientId={patientId}
           fm={form}
+          lang={form.lang}
           renderState={FormRenderStateEnum.FIRST_SUBMIT}
         />
       )}
