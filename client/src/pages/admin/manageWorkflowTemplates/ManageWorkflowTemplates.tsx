@@ -5,13 +5,12 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Visibility } from '@mui/icons-material';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { Unarchive } from '@mui/icons-material';
-import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { getPrettyDate } from 'src/shared/utils';
 import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -23,7 +22,6 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 
 type WorkflowTemplateWithIndex = WorkflowTemplate & {
@@ -87,7 +85,6 @@ export const ManageWorkflowTemplates = () => {
         });
       }
 
-
       return <TableActionButtons actions={actions} />;
     },
     [navigate]
@@ -140,9 +137,7 @@ export const ManageWorkflowTemplates = () => {
 
   return (
     <>
-      {(workflowTemplatesQuery.isError) && (
-        <APIErrorToast />
-      )}
+      {workflowTemplatesQuery.isError && <APIErrorToast />}
 
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
@@ -156,12 +151,12 @@ export const ManageWorkflowTemplates = () => {
       />
 
       <DataTableHeader title={'Workflow'}>
-        <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'} >
+        <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
             onClick={() => navigate('/admin/workflow-templates/new')}
-              sx={{ mr:2 }}>
+            sx={{ mr: 2 }}>
             {'New Workflow'}
           </Button>
         </Stack>
