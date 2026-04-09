@@ -102,9 +102,7 @@ def _coerce_boolean(raw: Any, variable_tag: str) -> Optional[bool]:
             return True
         if lowered in ("false", "0", "no", "n"):
             return False
-        logger.warning(
-            "Boolean coercion failed for variable %r: %r", variable_tag, raw
-        )
+        logger.warning("Boolean coercion failed for variable %r: %r", variable_tag, raw)
         return None
     logger.warning(
         "Boolean coercion failed for variable %r: unsupported type %s",

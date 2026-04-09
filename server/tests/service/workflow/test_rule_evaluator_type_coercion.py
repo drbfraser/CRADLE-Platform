@@ -31,5 +31,5 @@ def test_evaluate_rule_coercion_failure_yields_none():
 
     by_var = {r.var: r for r in resolutions}
     assert by_var["patient.age"].value is None
-    # JsonLogic still runs; outcome depends on how null compares.
-    assert status in (RuleStatus.TRUE, RuleStatus.FALSE)
+    # Coercion yields None; RulesEngineImpl treats None as missing for required vars.
+    assert status == RuleStatus.NOT_ENOUGH_DATA

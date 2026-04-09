@@ -16,52 +16,43 @@ from service.workflow.datasourcing.variable_type_registry import (
 
 def test_coerce_integer_from_string():
     assert (
-        coerce_resolved_value_for_rule(
-            "42", WorkflowVariableTypeEnum.INTEGER, "x"
-        )
+        coerce_resolved_value_for_rule("42", WorkflowVariableTypeEnum.INTEGER, "x")
         == 42
     )
 
 
 def test_coerce_integer_none():
-    assert coerce_resolved_value_for_rule(None, WorkflowVariableTypeEnum.INTEGER, "x") is None
+    assert (
+        coerce_resolved_value_for_rule(None, WorkflowVariableTypeEnum.INTEGER, "x")
+        is None
+    )
 
 
 def test_coerce_double():
-    v = coerce_resolved_value_for_rule(
-        "3.5", WorkflowVariableTypeEnum.DOUBLE, "x"
-    )
+    v = coerce_resolved_value_for_rule("3.5", WorkflowVariableTypeEnum.DOUBLE, "x")
     assert v == pytest.approx(3.5)
 
 
 def test_coerce_boolean_strings():
     assert (
-        coerce_resolved_value_for_rule(
-            "true", WorkflowVariableTypeEnum.BOOLEAN, "x"
-        )
+        coerce_resolved_value_for_rule("true", WorkflowVariableTypeEnum.BOOLEAN, "x")
         is True
     )
     assert (
-        coerce_resolved_value_for_rule(
-            "no", WorkflowVariableTypeEnum.BOOLEAN, "x"
-        )
+        coerce_resolved_value_for_rule("no", WorkflowVariableTypeEnum.BOOLEAN, "x")
         is False
     )
 
 
 def test_coerce_date_datetime():
     dt = datetime(2024, 6, 15, 12, 30, tzinfo=timezone.utc)
-    out = coerce_resolved_value_for_rule(
-        dt, WorkflowVariableTypeEnum.DATE, "x"
-    )
+    out = coerce_resolved_value_for_rule(dt, WorkflowVariableTypeEnum.DATE, "x")
     assert out == "2024-06-15"
 
 
 def test_coerce_date_iso_string():
     assert (
-        coerce_resolved_value_for_rule(
-            "2024-01-02", WorkflowVariableTypeEnum.DATE, "x"
-        )
+        coerce_resolved_value_for_rule("2024-01-02", WorkflowVariableTypeEnum.DATE, "x")
         == "2024-01-02"
     )
 
@@ -95,7 +86,9 @@ def test_coerce_collection_passthrough():
 
 
 def test_infer_vitals_size():
-    assert infer_expected_type_from_tag("vitals.size") == WorkflowVariableTypeEnum.INTEGER
+    assert (
+        infer_expected_type_from_tag("vitals.size") == WorkflowVariableTypeEnum.INTEGER
+    )
 
 
 def test_infer_vitals_latest_bp():

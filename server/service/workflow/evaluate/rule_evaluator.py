@@ -227,9 +227,7 @@ class RuleEvaluator:
             if expected is None:
                 out[key] = value
                 continue
-            out[key] = coerce_resolved_value_for_rule(
-                value, expected, variable_tag=key
-            )
+            out[key] = coerce_resolved_value_for_rule(value, expected, variable_tag=key)
         return out
 
     def _create_variable_resolutions(
