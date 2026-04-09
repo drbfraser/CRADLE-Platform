@@ -257,7 +257,7 @@ class WorkflowInstanceStepOrm(db.Model):
 
     # FOREIGN KEYS
     form_id = db.Column(
-        db.String(50), db.ForeignKey("form.id", ondelete="SET NULL"), nullable=True
+        db.String(50), db.ForeignKey("form_submission_v2.id", ondelete="SET NULL"), nullable=True
     )
     workflow_template_step_id = db.Column(
         db.String(50),
@@ -279,7 +279,7 @@ class WorkflowInstanceStepOrm(db.Model):
         backref=db.backref("steps", cascade="all, delete", lazy=True),
     )
     form = db.relationship(
-        "FormOrm",
+        "FormSubmissionOrmV2",
         backref=db.backref("workflow_instance_steps", lazy=True),
     )
     workflow_template_step = db.relationship(
