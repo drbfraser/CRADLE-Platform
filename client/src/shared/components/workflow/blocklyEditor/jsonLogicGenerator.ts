@@ -50,3 +50,19 @@ export function workspaceToJsonLogic(
   const codeStr = Array.isArray(code) ? code[0] : code;
   return codeStr || null;
 }
+
+export function validateJsonLogic(rule: unknown, isRoot = false): boolean {
+  if (rule === null || rule === undefined) return false;
+  if (typeof rule === 'number') return !isRoot;
+  if (typeof rule === 'boolean') return true;
+  if (typeof rule === 'object' && 'var' in (rule as object)) return !isRoot;
+
+  if (typeof rule === 'object') {
+    const entries = Object.entries(rule as Record<string, unknown>);
+    if (entries.length !== 1) return false;
+    const [, args] = entries[0];
+    if (Array.isArray(args)) return args.every((arg) => validateJsonLogic(arg));
+    return validateJsonLogic(args);
+  }
+  return false;
+}
