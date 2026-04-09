@@ -136,9 +136,7 @@ export const ManageWorkflowTemplates = () => {
 
   return (
     <>
-      {(workflowTemplatesQuery.isError) && (
-        <APIErrorToast />
-      )}
+      {workflowTemplatesQuery.isError && <APIErrorToast />}
 
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}

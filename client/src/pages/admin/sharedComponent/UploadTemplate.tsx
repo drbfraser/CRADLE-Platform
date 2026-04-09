@@ -61,7 +61,6 @@ const UploadTemplate = ({
       return;
     }
     try {
-     
       await saveFormTemplateWithFileAsync(file);
 
       setUploadSuccess(`${file.name} uploaded successfully`);
