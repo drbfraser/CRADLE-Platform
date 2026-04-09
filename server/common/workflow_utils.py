@@ -21,7 +21,6 @@ from models import (
     WorkflowTemplateStepOrm,
 )
 from service.workflow.workflow_service import WorkflowService, WorkflowView
-from validation.formTemplates import FormTemplateUpload
 from validation.formsV2_models import FormTemplateUploadRequest
 
 if TYPE_CHECKING:

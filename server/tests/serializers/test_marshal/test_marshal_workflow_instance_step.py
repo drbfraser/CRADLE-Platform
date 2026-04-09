@@ -1,7 +1,6 @@
 # ruff: noqa: SLF001
 import data.orm_serializer as orm_seralizer
 from models import (
-    FormClassificationOrmV2,
     FormSubmissionOrmV2,
     RuleGroupOrm,
     WorkflowInstanceStepOrm,

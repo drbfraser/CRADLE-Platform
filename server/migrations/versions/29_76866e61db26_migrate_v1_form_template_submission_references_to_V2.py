@@ -1,4 +1,5 @@
-"""Migrate V1 form template/submission references to V2
+"""
+Migrate V1 form template/submission references to V2
 
 Revision ID: 29_76866e61db26
 Revises: 28_seed_basic_workflow_variables
@@ -7,8 +8,6 @@ Create Date: 2026-04-08 15:42:02.984421
 """
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = "29_76866e61db26"
