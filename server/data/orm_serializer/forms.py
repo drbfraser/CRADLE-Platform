@@ -197,9 +197,8 @@ def __marshal_form_submission_v2(
     d = vars(fs).copy()
     __pre_process(d)
 
-    if shallow:
-        if d.get("answers"):
-            del d["answers"]
+    if shallow and "answers" in d:
+        del d["answers"]
     else:
         d["answers"] = [__marshal_form_answer_v2(a) for a in fs.answers]
 
