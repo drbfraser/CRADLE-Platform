@@ -41,7 +41,7 @@ const panels: RoutedTabPanelData[] = [
     routeSegment: 'patients',
   },
   {
-    label: 'Workflows',
+    label: 'Workflow',
     Component: ManageWorkflowTemplates,
     routeSegment: 'workflow-templates',
   },

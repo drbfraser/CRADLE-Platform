@@ -2,15 +2,16 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { Visibility } from '@mui/icons-material';
+import { CloudDownloadOutlined, Visibility } from '@mui/icons-material';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { Unarchive } from '@mui/icons-material';
+import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { getPrettyDate } from 'src/shared/utils';
 import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -22,7 +23,9 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import { useDownloadTemplateAsCSV } from './mutations';
 
 type WorkflowTemplateWithIndex = WorkflowTemplate & {
   index: number;
@@ -33,15 +36,19 @@ export const ManageWorkflowTemplates = () => {
 
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate>();
 
+  const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const workflowTemplatesQuery = useQuery({
     queryKey: ['workflowTemplates', showArchivedTemplates],
     queryFn: () => getAllWorkflowTemplatesAsync(showArchivedTemplates),
   });
+  const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
+    useDownloadTemplateAsCSV();
 
   const TableRowActions = useCallback(
     ({
@@ -85,13 +92,40 @@ export const ManageWorkflowTemplates = () => {
         });
       }
 
+      actions.push({
+        tooltip: 'Download CSV',
+        Icon: CloudDownloadOutlined,
+        onClick: () => {
+          downloadTemplateCSV(
+            {
+              id: workflowTemplate.id,
+              version: `${workflowTemplate.version}`,
+            },
+            {
+              onSuccess: (file: Blob) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file);
+                link.setAttribute(
+                  'download',
+                  `${
+                    workflowTemplate.classification?.name ||
+                    workflowTemplate.name
+                  }.csv`
+                );
+                link.click();
+              },
+            }
+          );
+        },
+      });
+
       return <TableActionButtons actions={actions} />;
     },
-    [navigate]
+    [downloadTemplateCSV, navigate]
   );
 
   const tableColumns: GridColDef[] = [
-    { flex: 1, field: 'name', headerName: 'Workflow Name' },
+    { flex: 1, field: 'name', headerName: 'Classification Name' },
     { flex: 1, field: 'version', headerName: 'Version' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
     { flex: 1, field: 'lastEdited', headerName: 'Last edit' },
@@ -137,8 +171,18 @@ export const ManageWorkflowTemplates = () => {
 
   return (
     <>
-      {workflowTemplatesQuery.isError && <APIErrorToast />}
+      {(workflowTemplatesQuery.isError || downloadTemplateCSVIsError) && (
+        <APIErrorToast />
+      )}
 
+      <UploadTemplate
+        open={isUploadPopupOpen}
+        onClose={() => setIsUploadPopupOpen(false)}
+        type="workflow"
+        onUploadSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] });
+        }}
+      />
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
         onClose={() => setIsArchivePopupOpen(false)}
@@ -155,9 +199,14 @@ export const ManageWorkflowTemplates = () => {
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
-            onClick={() => navigate('/admin/workflow-templates/new')}
-            sx={{ mr: 2 }}>
+            onClick={() => navigate('/admin/workflow-templates/new')}>
             {'New Workflow'}
+          </Button>
+          <Button
+            variant={'contained'}
+            startIcon={<UploadIcon />}
+            onClick={() => setIsUploadPopupOpen(true)}>
+            {'Upload Workflow'}
           </Button>
         </Stack>
       </DataTableHeader>

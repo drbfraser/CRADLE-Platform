@@ -15,19 +15,22 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 //update workflow apis in here
-import { saveFormTemplateWithFileAsync } from 'src/shared/api';
+import {
+  saveFormTemplateWithFileAsync,
+  saveWorkflowTemplateWithFileAsync,
+} from 'src/shared/api';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  type?: 'form';
+  type?: 'form' | 'workflow';
   onUploadSuccess?: () => void;
 }
 
 const UploadTemplate = ({
   open,
   onClose,
-  type = 'form',
+  type = 'workflow',
   onUploadSuccess,
 }: IProps) => {
   const [files, setFiles] = useState<ExtFile[]>([]);
@@ -61,7 +64,11 @@ const UploadTemplate = ({
       return;
     }
     try {
-      await saveFormTemplateWithFileAsync(file);
+      if (type === 'workflow') {
+        await saveWorkflowTemplateWithFileAsync(file);
+      } else {
+        await saveFormTemplateWithFileAsync(file);
+      }
 
       setUploadSuccess(`${file.name} uploaded successfully`);
       setShowSuccess(true);
@@ -116,7 +123,11 @@ const UploadTemplate = ({
       />
 
       <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogTitle>Upload Form Template</DialogTitle>
+        <DialogTitle>
+          {type === 'form'
+            ? 'Upload Form Template'
+            : 'Upload Workflow Template'}
+        </DialogTitle>
         <DialogContent>
           <Box sx={boxSx}>
             <Dropzone
