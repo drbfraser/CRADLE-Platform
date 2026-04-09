@@ -2,41 +2,41 @@
 
 import data.orm_serializer as orm_seralizer
 from models import (
-    FormClassificationOrm,
-    FormOrm,
+    FormClassificationOrmV2,
+    FormSubmissionOrmV2,
     RuleGroupOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
 )
 
 
-def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormOrm:
+def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormSubmissionOrmV2:
     """
-    Construct a minimal FormOrm instance with the given parameters.
+    Construct a minimal FormSubmissionOrmV2 instance with the given parameters.
 
-    :param form_id: ID of the FormOrm to create.
-    :param fc_id: ID of the FormClassificationOrm associated with the form.
-    :param fc_name: Name of the FormClassificationOrm associated with the form.
-    :return: Minimal FormOrm instance with the given parameters.
+    :param form_id: ID of the FormSubmissionOrmV2 to create.
+    :param fc_id: ID of the FormClassificationOrmV2 associated with the form.
+    :param fc_name: Name of the FormClassificationOrmV2 associated with the form.
+    :return: Minimal FormSubmissionOrmV2 instance with the given parameters.
     """
-    form = FormOrm()
+    form = FormSubmissionOrmV2()
     form.id = form_id
     form.name = "ANC Intake"
     form.description = "Initial antenatal visit"
     form._private = "nope"  # should be stripped
 
-    form_classificationc = FormClassificationOrm()
-    form_classificationc.id = fc_id
-    form_classificationc.name = fc_name
-    #  __marshal_form_classification must removes it.
-
-    form_classificationc.templates = []
-    form_classificationc._tmp = "nope"
-    form.classification = form_classificationc
+    '''FormSubmissionOrmV2 does not contain classification'''
+    # form_classificationc = FormClassificationOrmV2()
+    # form_classificationc.id = fc_id
+    # form_classificationc.name = fc_name
+    # #  __marshal_form_classification must removes it.
+    # form_classificationc.templates = []
+    # form_classificationc._tmp = "nope"
+    # form.classification = form_classificationc 
 
     # Present but should be omitted because form is marshaled shallowly.
 
-    form.questions = []
+    form.answers = []
     return form
 
 
@@ -168,13 +168,14 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     assert form["id"] == "f-10"
     assert form["name"] == "ANC Intake"
     assert form["description"] == "Initial antenatal visit"
-    assert "questions" not in form  # shallow=True in __marshal_workflow_instance_step
+    assert "answers" not in form  # shallow=True in __marshal_workflow_instance_step
     assert "_private" not in form
-    assert "classification" in form and isinstance(form["classification"], dict)
-    fc = form["classification"]
-    assert fc["id"] == "fc-1" and fc["name"] == "Clinical"
-    assert "templates" not in fc  # scrubbed by __marshal_form_classification
-    assert all(not k.startswith("_") for k in fc)
+    # classification does not exist in FormSubmissionOrmV2
+    # assert "classification" in form and isinstance(form["classification"], dict)
+    # fc = form["classification"]
+    # assert fc["id"] == "fc-1" and fc["name"] == "Clinical"
+    # assert "templates" not in fc  # scrubbed by __marshal_form_classification
+    # assert all(not k.startswith("_") for k in fc)
 
     # Step B: no form/condition; explicit None for form, condition omitted
 
