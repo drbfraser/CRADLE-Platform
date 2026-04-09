@@ -8,7 +8,9 @@ from models import (
 )
 
 
-def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormSubmissionOrmV2:
+def _make_min_form(
+    form_id: str, fc_id: str, fc_name: str = "Clinical"
+) -> FormSubmissionOrmV2:
     """
     Construct a realistic FormOrm minimal for marshaling:
       - has a classification (required by __marshal_form),
@@ -21,13 +23,13 @@ def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormS
     form.description = "Initial antenatal visit"
     form._private = "nope"
 
-    '''FormSubmissionOrmV2 does not contain classification'''
+    """FormSubmissionOrmV2 does not contain classification"""
     # form_classification = FormClassificationOrmV2()
     # form_classification.id = fc_id
     # form_classification.name_string_id = fc_name
     # form_classification.templates = []  # __marshal_form_classification explicitly deletes this
     # form_classification._ephemeral = "nope"
-    # form.classification = form_classification 
+    # form.classification = form_classification
 
     # answers exists, but __marshal_form_submission_v2(..., shallow=True) must drop it
     form.answers = []

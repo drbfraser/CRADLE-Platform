@@ -99,18 +99,18 @@ def assign_step_ids(
     step_id = step["id"]
 
     # may no longer need this after complete migration from v1 -> v2 forms
-    #==========================================================
+    # ==========================================================
     form_model = None
 
     if m is WorkflowTemplateStepOrm:
         form_model = FormTemplateOrmV2
 
     elif m is WorkflowInstanceStepOrm:
-        form_model = FormSubmissionOrmV2 # unsure if this is correct
+        form_model = FormSubmissionOrmV2  # unsure if this is correct
 
     # Assign ID to form if provided
     if step.get("form") is not None:
-        assign_form_or_template_ids(form_model, step["form"]) # refactor?
+        assign_form_or_template_ids(form_model, step["form"])  # refactor?
         step["form_id"] = step["form"]["id"]
     # ==========================================================
 

@@ -10,7 +10,9 @@ from models import (
 )
 
 
-def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormSubmissionOrmV2:
+def _make_min_form(
+    form_id: str, fc_id: str, fc_name: str = "Clinical"
+) -> FormSubmissionOrmV2:
     """
     Construct a minimal FormSubmissionOrmV2 instance with the given parameters.
 
@@ -25,14 +27,14 @@ def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormS
     form.description = "Initial antenatal visit"
     form._private = "nope"  # should be stripped
 
-    '''FormSubmissionOrmV2 does not contain classification'''
+    """FormSubmissionOrmV2 does not contain classification"""
     # form_classificationc = FormClassificationOrmV2()
     # form_classificationc.id = fc_id
     # form_classificationc.name = fc_name
     # #  __marshal_form_classification must removes it.
     # form_classificationc.templates = []
     # form_classificationc._tmp = "nope"
-    # form.classification = form_classificationc 
+    # form.classification = form_classificationc
 
     # Present but should be omitted because form is marshaled shallowly.
 
