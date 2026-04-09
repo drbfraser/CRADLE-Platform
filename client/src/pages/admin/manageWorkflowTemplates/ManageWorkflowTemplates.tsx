@@ -84,7 +84,6 @@ export const ManageWorkflowTemplates = () => {
           },
         });
       }
-
       return <TableActionButtons actions={actions} />;
     },
     [navigate]
