@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import logging
 from datetime import date, datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from enums import WorkflowVariableTypeEnum
 
 logger = logging.getLogger(__name__)
 
 
-def _coerce_integer(raw: Any, variable_tag: str) -> Optional[int]:
+def _coerce_integer(raw: Any, variable_tag: str) -> int | None:
     if isinstance(raw, bool):
         return int(raw)
     if isinstance(raw, int):
@@ -41,7 +41,7 @@ def _coerce_integer(raw: Any, variable_tag: str) -> Optional[int]:
     return None
 
 
-def _coerce_double(raw: Any, variable_tag: str) -> Optional[float]:
+def _coerce_double(raw: Any, variable_tag: str) -> float | None:
     if isinstance(raw, bool):
         return float(int(raw))
     if isinstance(raw, (int, float)):
@@ -65,7 +65,7 @@ def _coerce_double(raw: Any, variable_tag: str) -> Optional[float]:
     return None
 
 
-def _coerce_string(raw: Any, variable_tag: str) -> Optional[str]:
+def _coerce_string(raw: Any, variable_tag: str) -> str | None:
     if raw is None:
         return None
     if isinstance(raw, str):
@@ -82,7 +82,7 @@ def _coerce_string(raw: Any, variable_tag: str) -> Optional[str]:
     return None
 
 
-def _coerce_boolean(raw: Any, variable_tag: str) -> Optional[bool]:
+def _coerce_boolean(raw: Any, variable_tag: str) -> bool | None:
     if isinstance(raw, bool):
         return raw
     if isinstance(raw, (int, float)):
@@ -112,7 +112,7 @@ def _coerce_boolean(raw: Any, variable_tag: str) -> Optional[bool]:
     return None
 
 
-def _coerce_date(raw: Any, variable_tag: str) -> Optional[str]:
+def _coerce_date(raw: Any, variable_tag: str) -> str | None:
     """
     Normalize to an ISO 8601 calendar date (YYYY-MM-DD) or full datetime string
     when the value encodes a time component (e.g. system ``local-date-time``).
