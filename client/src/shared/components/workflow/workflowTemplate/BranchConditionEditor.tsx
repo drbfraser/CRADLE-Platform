@@ -23,7 +23,8 @@ interface BranchConditionEditorProps {
     stepId: string,
     branchIndex: number,
     conditionRule: string,
-    conditionName?: string
+    conditionName?: string,
+    validationError?: string | null
   ) => void;
   onTargetStepChange?: (
     stepId: string,
@@ -65,10 +66,13 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     }
   }, [branch, stepId, branchIndex]);
 
-  const handleBlocklyChange = (jsonLogic: string | null) => {
+  const handleBlocklyChange = (
+    jsonLogic: string | null,
+    error: string | null
+  ) => {
     setCurrentRule(jsonLogic);
-    if (jsonLogic && onChange) {
-      onChange(stepId, branchIndex, jsonLogic, conditionName);
+    if (onChange) {
+      onChange(stepId, branchIndex, jsonLogic ?? '', conditionName, error);
     }
   };
 
