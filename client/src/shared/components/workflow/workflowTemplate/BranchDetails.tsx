@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Typography, Paper, Button, Box } from '@mui/material';
+import { Typography, Paper, Button, Box, Alert } from '@mui/material';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
+import { validateJsonLogic } from '../blocklyEditor/jsonLogicGenerator';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -48,6 +49,16 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         })()
       : ''
   );
+  const [validationError, setValidationError] = useState<string | null>(() => {
+    if (!branch?.condition?.rule) return null;
+    try {
+      return validateJsonLogic(JSON.parse(branch.condition.rule), true)
+        ? null
+        : 'The condition is incomplete. All inputs must be connected before saving.';
+    } catch {
+      return 'Invalid condition rule.';
+    }
+  });
   const [newTargetStepId, setNewTargetStepId] = useState<string | undefined>(
     undefined
   );
@@ -62,11 +73,14 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     stepId: string,
     branchIndex: number,
     conditionRule: string,
-    conditionName?: string
+    conditionName?: string,
+    validationError?: string | null
   ) => {
-    //onBranchChange?.(stepId, branchIndex, conditionRule, conditionName);
     setLocalConditionRule(conditionRule);
     setLocalConditionName(conditionName || '');
+    if (validationError !== undefined) {
+      setValidationError(validationError ?? null);
+    }
   };
   const handleCancel = () => {
     onClose();
@@ -141,12 +155,21 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         onChange={handleBranchChange}
         steps={steps}
       />
+      {isEditMode && validationError && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {validationError}
+        </Alert>
+      )}
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button onClick={handleCancel} variant="outlined" color="primary">
           Cancel
         </Button>
         {isEditMode && (
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+            disabled={!!validationError || !localConditionRule}>
             Save
           </Button>
         )}

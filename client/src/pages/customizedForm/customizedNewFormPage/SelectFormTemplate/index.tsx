@@ -38,7 +38,7 @@ const getDefaultLanguage = (languageOptions: string[]) => {
 };
 
 interface IProps {
-  setForm: (form: CForm) => void;
+  setForm: (form: CForm, lang: string) => void;
 }
 
 // TODO: need to handle case where 2 forms share the same name
@@ -48,7 +48,10 @@ export const SelectFormTemplate = ({ setForm }: IProps) => {
 
   const submitForm = useMutation({
     mutationFn: async (values: { formId: string; lang: string }) => {
-      setForm(await getFormTemplateLangAsyncV2(values.formId, values.lang));
+      setForm(
+        await getFormTemplateLangAsyncV2(values.formId, values.lang),
+        values.lang
+      );
     },
   });
 

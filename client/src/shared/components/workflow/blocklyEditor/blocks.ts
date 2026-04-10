@@ -1,16 +1,31 @@
 import * as Blockly from 'blockly';
 
-// TODO: Fetch dynamically from GET /api/workflow/variables
-const VARIABLE_OPTIONS: [string, string][] = [["Patient's Age", 'patient.age']];
+// TODO: Replace with dynamic fetch from GET /api/workflow/variables.
+const VARIABLE_OPTIONS: [string, string, string][] = [
+  ["Patient's Age", 'patient.age', 'Number'],
+];
+
+const VARIABLE_DROPDOWN: [string, string][] = VARIABLE_OPTIONS.map(
+  ([display, value]) => [display, value]
+);
+
+const VARIABLE_TYPE_MAP = new Map(
+  VARIABLE_OPTIONS.map(([, value, type]) => [value, type])
+);
 
 Blockly.Blocks['app_variable'] = {
   init: function (this: Blockly.Block) {
     this.appendDummyInput().appendField(
-      new Blockly.FieldDropdown(VARIABLE_OPTIONS),
+      new Blockly.FieldDropdown(VARIABLE_DROPDOWN),
       'VAR_NAME'
     );
-    this.setOutput(true, null);
+    this.setOutput(true, VARIABLE_OPTIONS[0]?.[2] ?? null);
     this.setColour(230);
+  },
+  onchange: function (this: Blockly.Block) {
+    const varName = this.getFieldValue('VAR_NAME');
+    const type = VARIABLE_TYPE_MAP.get(varName) ?? null;
+    this.outputConnection?.setCheck(type);
   },
 };
 
@@ -32,6 +47,11 @@ Blockly.Blocks['comparison'] = {
     this.setInputsInline(true);
     this.setOutput(true, 'Boolean');
     this.setColour(210);
+  },
+  onchange: function (this: Blockly.Block) {
+    const leftBlock = this.getInput('LEFT')?.connection?.targetBlock();
+    const typeCheck = leftBlock?.outputConnection?.getCheck() ?? null;
+    this.getInput('RIGHT')?.connection?.setCheck(typeCheck);
   },
 };
 

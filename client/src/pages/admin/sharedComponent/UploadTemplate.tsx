@@ -15,9 +15,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 //update workflow apis in here
-import {
-  saveFormTemplateWithFileAsync,
-} from 'src/shared/api';
+import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -63,7 +61,6 @@ const UploadTemplate = ({
       return;
     }
     try {
-
       await saveFormTemplateWithFileAsync(file);
 
       setUploadSuccess(`${file.name} uploaded successfully`);
@@ -119,9 +116,7 @@ const UploadTemplate = ({
       />
 
       <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogTitle>
-            Upload Form Template
-        </DialogTitle>
+        <DialogTitle>Upload Form Template</DialogTitle>
         <DialogContent>
           <Box sx={boxSx}>
             <Dropzone
