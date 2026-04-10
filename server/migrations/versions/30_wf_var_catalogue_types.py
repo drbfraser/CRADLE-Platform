@@ -4,7 +4,7 @@ Catalogue type fixes and additional documented variables.
 - ``local-date-time`` is a full ISO timestamp (string), not a calendar date only.
 - Adds representative collection / workflow variables for discovery.
 
-Revision ID: 30_workflow_variable_catalogue_types
+Revision ID: 30_wf_var_catalogue_types
 Revises: 29_seed_system_context_variables
 Create Date: 2026-04-05
 """
@@ -14,7 +14,7 @@ import time
 import sqlalchemy as sa
 from alembic import op
 
-revision = "30_workflow_variable_catalogue_types"
+revision = "30_wf_var_catalogue_types"
 down_revision = "29_seed_system_context_variables"
 branch_labels = None
 depends_on = None

@@ -6,7 +6,7 @@ Used during rule evaluation to coerce values to stable JsonLogic-friendly types.
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict
 
 from enums import WorkflowVariableTypeEnum
 from service.workflow.datasourcing.data_sourcing import (
@@ -122,7 +122,7 @@ _ALL_WF_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
 
 def _infer_from_field_path(
     namespace: str, field_path: list[str]
-) -> Optional[WorkflowVariableTypeEnum]:
+) -> WorkflowVariableTypeEnum | None:
     if not field_path:
         return None
 
@@ -160,7 +160,7 @@ def _infer_from_field_path(
     return None
 
 
-def infer_expected_type_from_tag(tag: str) -> Optional[WorkflowVariableTypeEnum]:
+def infer_expected_type_from_tag(tag: str) -> WorkflowVariableTypeEnum | None:
     """
     Infer a catalogue type from variable syntax when a row is not in the DB map.
 
@@ -187,7 +187,7 @@ def infer_expected_type_from_tag(tag: str) -> Optional[WorkflowVariableTypeEnum]
     return _infer_from_field_path(vp.namespace, vp.field_path)
 
 
-def get_expected_type_for_variable(tag: str) -> Optional[WorkflowVariableTypeEnum]:
+def get_expected_type_for_variable(tag: str) -> WorkflowVariableTypeEnum | None:
     """
     Return the expected type for a variable tag, or None if coercion should be skipped.
 

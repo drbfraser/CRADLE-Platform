@@ -1,4 +1,4 @@
-"""Unit tests for workflow variable type coercion (Phase 7)."""
+"""Unit tests for workflow variable type coercion."""
 
 from datetime import date, datetime, timezone
 
@@ -68,7 +68,7 @@ def test_coerce_date_from_date():
 
 def test_coerce_string_datetime():
     out = coerce_resolved_value_for_rule(
-        datetime(2024, 1, 2, 3, 4, 5),
+        datetime(2024, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
         WorkflowVariableTypeEnum.STRING,
         "local-date-time",
     )
