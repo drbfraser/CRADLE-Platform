@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   editWorkflowTemplateAsync,
-  getWorkflowTemplateCsvAsync,
   unarchiveWorkflowTemplateAsync,
   archiveWorkflowTemplateAsync,
   createTemplate,
@@ -33,13 +32,6 @@ export const useEditWorkflowTemplate = () => {
         queryKey: ['workflowTemplate', variables.id],
       }); // Individual template
     },
-  });
-};
-
-export const useDownloadTemplateAsCSV = () => {
-  return useMutation({
-    mutationFn: (values: { id: string; version: string }) =>
-      getWorkflowTemplateCsvAsync(values.id, values.version),
   });
 };
 

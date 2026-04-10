@@ -166,8 +166,7 @@ def get_workflow_classification_from_dict(
 
 def handle_workflow_template_upload(workflow_template_dict: dict):
     """
-    Common logic for handling uploaded workflow template. Whether it was uploaded
-    as a file, or in the request body.
+    Common logic for handling workflow template creation from request body payloads.
     """
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
