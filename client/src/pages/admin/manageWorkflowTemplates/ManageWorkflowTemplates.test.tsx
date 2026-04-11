@@ -29,10 +29,6 @@ vi.mock('src/shared/api/modules/workflowTemplates', () => ({
 
 // Mock the mutations
 vi.mock('./mutations', () => ({
-  useDownloadTemplateAsCSV: vi.fn(() => ({
-    mutate: vi.fn(),
-    isError: false,
-  })),
   useEditWorkflowTemplate: vi.fn(() => ({
     mutate: vi.fn(),
     isError: false,
