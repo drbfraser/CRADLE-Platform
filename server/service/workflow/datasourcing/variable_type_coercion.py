@@ -129,7 +129,11 @@ def _coerce_date(raw: Any, variable_tag: str) -> str | None:
             return None
         # Already YYYY-MM-DD
         if len(s) == 10 and s[4] == "-" and s[7] == "-":
-            return s
+            try:
+                return date.fromisoformat(s).isoformat()
+            except ValueError:
+                # fall through to broader parsing / warning
+                pass
         try:
             parsed = datetime.fromisoformat(s.replace("Z", "+00:00"))
             return parsed.date().isoformat()
