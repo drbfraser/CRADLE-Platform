@@ -74,15 +74,15 @@ function calculateStepPositions(
 ): Map<string, Position> {
   const stepPositions = new Map<string, Position>();
   const levelNodes = new Map<number, string[]>();
-  
+
   stepLevels.forEach((level, stepId) => {
     if (!levelNodes.has(level)) levelNodes.set(level, []);
     levelNodes.get(level)!.push(stepId);
   });
 
   levelNodes.forEach((nodeIds, level) => {
-    const y = level*VERTICAL_SPACING;
-    const totalWidth =(nodeIds.length - 1)*HORIZONTAL_SPACING;
+    const y = level * VERTICAL_SPACING;
+    const totalWidth = (nodeIds.length - 1) * HORIZONTAL_SPACING;
     const startX = -totalWidth / 2;
 
     nodeIds.forEach((stepId, index) => {
