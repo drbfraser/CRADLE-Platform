@@ -388,11 +388,6 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         return 'Invalid connection: step not found';
       }
 
-      // Calculate levels to ensure target is deeper than source
-      const stepLevels = calculateNodeLevels(steps, firstStepId);
-      const sourceLevel = stepLevels.get(sourceStepId) ?? 0;
-      const targetLevel = stepLevels.get(targetStepId) ?? 0;
-
       return null;
     },
     [steps, firstStepId]
