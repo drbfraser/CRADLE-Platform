@@ -70,7 +70,7 @@ class VariableResolution(BaseModel):
     """
 
     var: str
-    value: Optional[Union[int, float, str, bool]] = None
+    value: Optional[Any] = None
     status: VariableResolutionStatus
 
 

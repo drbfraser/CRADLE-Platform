@@ -14,6 +14,12 @@ from service.workflow.datasourcing.data_sourcing import (
     resolve_variables,
     resolve_workflow_namespace_variables,
 )
+from service.workflow.datasourcing.variable_type_coercion import (
+    coerce_resolved_value_for_rule,
+)
+from service.workflow.datasourcing.variable_type_registry import (
+    get_expected_type_for_variable,
+)
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
 from service.workflow.evaluate.rules_engine import RulesEngineFacade, RuleStatus
 
@@ -183,6 +189,8 @@ class RuleEvaluator:
 
         logger.debug("Resolved data for context %s: %s", context, resolved_data)
 
+        resolved_data = self._apply_type_coercion(resolved_data)
+
         missing_vars = [k for k, v in resolved_data.items() if v is MISSING]
         if missing_vars:
             logger.info(
@@ -203,6 +211,24 @@ class RuleEvaluator:
         var_resolutions = self._create_variable_resolutions(resolved_data)
 
         return (evaluation_result.status, var_resolutions)
+
+    def _apply_type_coercion(self, resolved_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Coerce resolved values to catalogue types so JsonLogic sees stable scalars.
+
+        Unknown tags pass through unchanged. :data:`MISSING` is preserved.
+        """
+        out: Dict[str, Any] = {}
+        for key, value in resolved_data.items():
+            if value is MISSING:
+                out[key] = value
+                continue
+            expected = get_expected_type_for_variable(key)
+            if expected is None:
+                out[key] = value
+                continue
+            out[key] = coerce_resolved_value_for_rule(value, expected, variable_tag=key)
+        return out
 
     def _create_variable_resolutions(
         self, resolved_data: Dict[str, Any]
