@@ -19,6 +19,7 @@ export type PostBody = {
 export type ApiAnswerForEdit = {
   id: string;
   answers: Answer;
+  questionType: QuestionTypeEnum;
 };
 
 const VALID_QUESTION_TYPES = Object.values(QuestionTypeEnum).map((value) =>
@@ -101,6 +102,7 @@ export const TransferQAnswerToPostBody = (
       return {
         id,
         answers: answer.answer,
+        questionType: question?.questionType ?? QuestionTypeEnum.STRING,
       };
     });
   } else {
