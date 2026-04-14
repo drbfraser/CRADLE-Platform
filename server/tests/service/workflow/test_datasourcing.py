@@ -1,5 +1,7 @@
+from functools import partial
 from unittest.mock import patch
 
+from service.workflow.datasourcing import custom_lookup as cl
 from service.workflow.datasourcing import data_sourcing
 from service.workflow.datasourcing.data_sourcing import (
     DatasourceVariable,
@@ -312,3 +314,35 @@ def test_resolve_variables_with_mixed_context():
     resolved = data_sourcing.resolve_variables(context, variables, catalogue)
 
     assert resolved == expected
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_object_variable_paths_uses_custom_age():
+    def mock_patient_resolution(id):
+        return {
+            "id": "patient_123",
+            "name": "Test",
+            "sex": "MALE",
+            "date_of_birth": "1990-01-01",
+            "is_exact_date_of_birth": True,
+        }
+
+    context = {"patient_id": "patient_123"}
+    paths = [
+        VariablePath.from_string("patient.age"),
+        VariablePath.from_string("patient.name"),
+    ]
+    catalogue = {
+        "patient": {
+            "query": mock_patient_resolution,
+            "custom": {"age": partial(cl.patient_age)},
+        }
+    }
+
+    resolved = data_sourcing.resolve_object_variable_paths(
+        context, paths, catalogue, use_missing_sentinel=False
+    )
+
+    assert resolved["patient.name"] == "Test"
+    assert isinstance(resolved["patient.age"], int)
+    assert resolved["patient.age"] >= 30
