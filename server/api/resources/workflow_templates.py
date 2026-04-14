@@ -225,8 +225,28 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
     try:
         crud.create(model=workflow_template_orm, refresh=True)
-    except IntegrityError:
+    except IntegrityError as err:
         crud.db_session.rollback()
+
+        db_error_msg = str(getattr(err, "orig", err)).lower()
+        is_version_conflict = (
+            "uq_workflow_template_classification_version" in db_error_msg
+            or (
+                "workflow_template" in db_error_msg
+                and "classification_id" in db_error_msg
+                and "version" in db_error_msg
+                and ("duplicate" in db_error_msg or "unique" in db_error_msg)
+            )
+        )
+
+        if not is_version_conflict:
+            return abort(
+                code=422,
+                description=(
+                    "Workflow template could not be created because one or more references are invalid."
+                ),
+            )
+
         return abort(
             code=409,
             description=(

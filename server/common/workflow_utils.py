@@ -25,6 +25,7 @@ from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
     from data.crud import M
+
     from validation.workflow_models import (
         WorkflowInstanceModel,
         WorkflowInstanceStepModel,
@@ -195,6 +196,15 @@ def validate_workflow_template_step(
         workflow_template_step,
         workflow_template.id if workflow_template else workflow_template_id,
     )
+
+    form_id = workflow_template_step.get("form_id")
+    if form_id is not None:
+        form_template = crud.read(FormTemplateOrm, id=form_id)
+        if form_template is None:
+            return abort(
+                code=404,
+                description=f"Form template with ID: ({form_id}) not found.",
+            )
 
     check_branch_conditions(workflow_template_step)
 

@@ -116,6 +116,61 @@ def test_invalid_workflow_templates_uploaded(
         )
 
 
+def test_workflow_template_upload_with_missing_form_id_returns_not_found(
+    database, api_post
+):
+    try:
+        template_id = get_uuid()
+        classification_id = get_uuid()
+        step_id = get_uuid()
+        missing_form_id = get_uuid()
+
+        payload = {
+            "id": template_id,
+            "name": "workflow-with-invalid-form-reference",
+            "description": "workflow-with-invalid-form-reference",
+            "archived": False,
+            "starting_step_id": step_id,
+            "date_created": get_current_time(),
+            "last_edited": get_current_time(),
+            "version": "0",
+            "classification_id": classification_id,
+            "classification": {
+                "id": classification_id,
+                "name": "Workflow Classification Missing Form Test",
+            },
+            "steps": [
+                {
+                    "id": step_id,
+                    "name": "template step missing form",
+                    "description": "step references a non-existent form template",
+                    "expected_completion": get_current_time(),
+                    "last_edited": get_current_time(),
+                    "form_id": missing_form_id,
+                    "workflow_template_id": template_id,
+                    "branches": [],
+                }
+            ],
+        }
+
+        response = api_post(endpoint="/api/workflow/templates/body", json=payload)
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+
+        assert response.status_code == 404
+        assert "Form template with ID" in response_body["description"]
+
+    finally:
+        if crud.read(WorkflowTemplateOrm, id=template_id) is not None:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=True,
+                id=template_id,
+            )
+
+
 def test_getting_workflow_templates(
     database,
     workflow_template1,
