@@ -6,10 +6,15 @@ import {
   Typography,
   Divider,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BlocklyEditor } from '../blocklyEditor';
+import {
+  WorkflowVariable,
+  getWorkflowVariables,
+} from 'src/shared/api/modules/workflowVariables';
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -46,10 +51,18 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   onTargetStepChange,
   steps = [],
 }) => {
+  const [variables, setVariables] = useState<WorkflowVariable[]>([]);
+  const [variablesLoading, setVariablesLoading] = useState(true);
   const [conditionName, setConditionName] = useState<string>('');
   const [currentRule, setCurrentRule] = useState<string | null>(
     branch.condition?.rule || null
   );
+
+  useEffect(() => {
+    getWorkflowVariables()
+      .then(setVariables)
+      .finally(() => setVariablesLoading(false));
+  }, []);
 
   useEffect(() => {
     if (branch.condition?.rule) {
@@ -120,11 +133,17 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
             </>
           )}
 
-          <BlocklyEditor
-            variables={[]}
-            initialJsonLogic={initialJsonLogic}
-            onChange={handleBlocklyChange}
-          />
+          {variablesLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : (
+            <BlocklyEditor
+              variables={variables}
+              initialJsonLogic={initialJsonLogic}
+              onChange={handleBlocklyChange}
+            />
+          )}
 
           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
             <Grid item>
