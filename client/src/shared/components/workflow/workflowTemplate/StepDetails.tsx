@@ -10,9 +10,14 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
-import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
-import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
+import { getAllFormTemplatesAsync } from 'src/shared/api/modules/formTemplates';
+import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
+
+type FormTemplateOption = {
+  id: string;
+  name: string;
+};
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -31,8 +36,14 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
 }) => {
   // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
-    queryKey: ['formTemplates', false],
-    queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
+    queryKey: ['workflowStepFormTemplates', false],
+    queryFn: async () => {
+      const templates = await getAllFormTemplatesAsync(false);
+      return templates.map((template: FormTemplate) => ({
+        id: template.id,
+        name: template.classification.name,
+      }));
+    },
     enabled: isEditMode, // Only fetch when in edit mode
   });
 
@@ -119,7 +130,8 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 getOptionLabel={(option) => option.name}
                 value={
                   formTemplatesQuery.data?.find(
-                    (form: FormTemplateList) => form.id === selectedStep.formId
+                    (form: FormTemplateOption) =>
+                      form.id === selectedStep.formId
                   ) || null
                 }
                 onChange={(_, newValue) => {
