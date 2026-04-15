@@ -121,6 +121,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
           )}
 
           <BlocklyEditor
+            variables={[]}
             initialJsonLogic={initialJsonLogic}
             onChange={handleBlocklyChange}
           />
