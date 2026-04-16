@@ -11,10 +11,7 @@ import {
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BlocklyEditor } from '../blocklyEditor';
-import {
-  WorkflowVariable,
-  getWorkflowVariables,
-} from 'src/shared/api/modules/workflowVariables';
+import { WorkflowVariable, getWorkflowVariables } from 'src/shared/api';
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;

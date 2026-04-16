@@ -1,5 +1,5 @@
 import * as Blockly from 'blockly';
-import { WorkflowVariable } from 'src/shared/api/modules/workflowVariables';
+import { WorkflowVariable } from 'src/shared/api';
 
 function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']

@@ -5,7 +5,7 @@ import { registerBlocks } from './blocks';
 import { toolboxConfig } from './toolboxConfig';
 import { workspaceToJsonLogic, validateJsonLogic } from './jsonLogicGenerator';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
-import { WorkflowVariable } from 'src/shared/api/modules/workflowVariables';
+import { WorkflowVariable } from 'src/shared/api';
 
 const blocklyZIndexFix = (
   <GlobalStyles
