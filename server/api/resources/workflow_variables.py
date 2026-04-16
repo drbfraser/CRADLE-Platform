@@ -154,16 +154,12 @@ def post_resolve_workflow_variables(body: ResolveWorkflowVariablesRequest):
         WorkflowVariableResolutionApiModel(
             var=r.var,
             value=r.value,
-            status=r.status.value
-            if hasattr(r.status, "value")
-            else str(r.status),
+            status=r.status.value if hasattr(r.status, "value") else str(r.status),
         )
         for r in resolutions
     ]
     response = ResolveWorkflowVariablesResponse(
-        evaluation_status=status.value
-        if hasattr(status, "value")
-        else str(status),
+        evaluation_status=status.value if hasattr(status, "value") else str(status),
         variable_resolutions=items,
     )
     return response.model_dump(), 200
