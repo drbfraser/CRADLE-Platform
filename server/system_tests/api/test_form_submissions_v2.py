@@ -22,6 +22,9 @@ from models import (
 #   - form_submission_v2_with_db: Create/cleanup submissions (depends on template fixture)
 #   This would eliminate manual cleanup code and make tests more composable.
 
+#   Note: clean-up fails when a test fails, which interferes with test isolation and can cause cascading failures. 
+#   Fixtures with proper teardown would resolve this issue.
+
 
 def _clean_up(
     created_template_ids=None,
@@ -69,6 +72,7 @@ def test_create_form_submission_v2(
         database.session.commit()
 
         body = decamelize(r.json())
+        print("=============", body)
         created_template_ids.append(body["id"])
         created_classification_ids.append(body["form_classification_id"])
 
