@@ -153,6 +153,7 @@ class FormQuestionTemplateOrmV2(db.Model):
             ...
             ]
 
+        Note: the mc_options uuid reference string_id in LangVersionOrmV2
     """
 
     __tablename__ = "form_question_template_v2"
