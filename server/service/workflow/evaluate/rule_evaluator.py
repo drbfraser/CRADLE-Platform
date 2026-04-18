@@ -11,6 +11,7 @@ from service.workflow.datasourcing.data_sourcing import (
     VariableResolution,
     VariableResolutionStatus,
     resolve_collection_variables,
+    resolve_object_variable_paths,
     resolve_variables,
     resolve_workflow_namespace_variables,
 )
@@ -78,9 +79,10 @@ class RuleEvaluator:
             "all_wf",
         }
 
-        collection_paths = []
+        collection_paths: List[VariablePath] = []
         wf_paths: List[VariablePath] = []
-        simple_variables = []
+        object_paths: List[VariablePath] = []
+        simple_variables: List[DatasourceVariable] = []
         system_literal_vars: Set[str] = set()
         current_user_vars: Set[str] = set()
 
@@ -107,6 +109,10 @@ class RuleEvaluator:
                 wf_paths.append(vp)
                 continue
 
+            if vp is not None and self._is_catalogue_object_namespace(vp.namespace):
+                object_paths.append(vp)
+                continue
+
             dv = DatasourceVariable.from_string(var_str)
             if dv is not None:
                 simple_variables.append(dv)
@@ -121,6 +127,16 @@ class RuleEvaluator:
                 resolve_variables(
                     context=context,
                     variables=simple_variables,
+                    catalogue=self.catalogue,
+                    use_missing_sentinel=True,
+                )
+            )
+
+        if object_paths:
+            resolved_data.update(
+                resolve_object_variable_paths(
+                    context=context,
+                    variable_paths=object_paths,
                     catalogue=self.catalogue,
                     use_missing_sentinel=True,
                 )
@@ -261,3 +277,10 @@ class RuleEvaluator:
                     )
                 )
         return var_resolutions
+
+    def _is_catalogue_object_namespace(self, namespace: str) -> bool:
+        """True if ``namespace`` is a non-collection datasource object in the catalogue."""
+        entry = self.catalogue.get(namespace)
+        if not entry or entry.get("collection"):
+            return False
+        return callable(entry.get("query"))

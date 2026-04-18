@@ -428,6 +428,130 @@ def resolve_variable(
     return None
 
 
+def _resolve_leaf_attribute(
+    model_instance: BaseModel,
+    attr_name: str,
+    obj_name: str,
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool,
+) -> Any:
+    """
+    Resolve a single attribute on a catalogue root object, including ``custom`` lookups
+    (e.g. ``patient.age``). Mirrors :func:`resolve_variables` semantics for one field.
+    """
+    default_missing = MISSING if use_missing_sentinel else None
+    custom_query = catalogue.get(obj_name, {}).get("custom", {}).get(attr_name)
+
+    if hasattr(model_instance, attr_name):
+        attr_value = getattr(model_instance, attr_name)
+        if attr_value is not None:
+            return attr_value
+        if custom_query is not None:
+            return custom_query(model_instance.model_dump())
+        return None
+
+    if custom_query is not None:
+        return custom_query(model_instance.model_dump())
+    return default_missing
+
+
+def _resolve_field_path_on_catalogue_object(
+    model_instance: BaseModel,
+    field_path: List[str],
+    obj_name: str,
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool,
+) -> Any:
+    """
+    Walk ``field_path`` on a resolved catalogue object (non-collection namespace).
+
+    Custom resolvers apply only when the path is a single segment on the root model
+    (e.g. ``patient.age``); nested paths use plain attribute / dict access.
+    """
+    default_missing = MISSING if use_missing_sentinel else None
+    if not field_path:
+        return default_missing
+
+    if len(field_path) == 1:
+        return _resolve_leaf_attribute(
+            model_instance,
+            field_path[0],
+            obj_name,
+            catalogue,
+            use_missing_sentinel,
+        )
+
+    parent = _navigate_field_path(model_instance, field_path[:-1])
+    if parent is MISSING:
+        return default_missing
+    if parent is None:
+        return None
+
+    leaf = field_path[-1]
+    if isinstance(parent, BaseModel):
+        if hasattr(parent, leaf):
+            return getattr(parent, leaf)
+        return default_missing
+    if isinstance(parent, dict):
+        if leaf not in parent:
+            return default_missing
+        return parent[leaf]
+    return default_missing
+
+
+def resolve_object_variable_paths(
+    context: ResolverContext,
+    variable_paths: List[VariablePath],
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
+) -> Dict[str, Any]:
+    """
+    Resolve dotted paths for catalogue **objects** (e.g. ``patient.age``,
+    ``reading.systolic_blood_pressure``), excluding collection namespaces and ``wf``.
+
+    Groups by namespace so each object is loaded at most once per evaluation.
+    """
+    if not variable_paths:
+        return {}
+
+    default_missing = MISSING if use_missing_sentinel else None
+    paths_by_namespace: Dict[str, List[VariablePath]] = {}
+    for vp in variable_paths:
+        if vp.collection_index is not None:
+            continue
+        paths_by_namespace.setdefault(vp.namespace, []).append(vp)
+
+    resolved: Dict[str, Any] = {}
+    for namespace, paths in paths_by_namespace.items():
+        entry = catalogue.get(namespace)
+        if not entry or entry.get("collection") or not callable(entry.get("query")):
+            for vp in paths:
+                resolved[vp.to_string()] = default_missing
+            continue
+
+        model_instance = _resolve_object(catalogue, context, namespace)
+        if model_instance is None:
+            for vp in paths:
+                resolved[vp.to_string()] = default_missing
+            continue
+
+        for vp in paths:
+            key = vp.to_string()
+            if not vp.field_path:
+                resolved[key] = default_missing
+                continue
+            value = _resolve_field_path_on_catalogue_object(
+                model_instance,
+                vp.field_path,
+                namespace,
+                catalogue,
+                use_missing_sentinel,
+            )
+            resolved[key] = value
+
+    return resolved
+
+
 def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
     """
     Walk a nested field path on a BaseModel or dict.

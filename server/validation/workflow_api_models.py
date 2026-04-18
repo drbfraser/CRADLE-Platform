@@ -183,3 +183,23 @@ class VariableLogicModel(CradleBaseModel, extra="forbid"):
     variable_tag: str
     operator: str  # e.g. ">", ">=", "<", "<=", "==", "!="
     value: Any  # literal (int, float, str, bool, etc.)
+
+
+class ResolveWorkflowVariablesRequest(CradleBaseModel, extra="forbid"):
+    """Evaluate a JsonLogic rule in a patient (and optional workflow) context."""
+
+    rule: str
+    patient_id: str
+    workflow_instance_id: Optional[str] = None
+    include_current_user: bool = True
+
+
+class WorkflowVariableResolutionApiModel(CradleBaseModel, extra="forbid"):
+    var: str
+    value: Optional[Any] = None
+    status: str
+
+
+class ResolveWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
+    evaluation_status: str
+    variable_resolutions: List[WorkflowVariableResolutionApiModel]
