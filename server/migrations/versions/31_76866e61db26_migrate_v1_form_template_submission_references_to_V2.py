@@ -1,8 +1,8 @@
 """
 Migrate V1 form template/submission references to V2
 
-Revision ID: 29_76866e61db26
-Revises: 28_seed_basic_workflow_variables
+Revision ID: 31_76866e61db26
+Revises: 30_wf_var_catalogue_types
 Create Date: 2026-04-08 15:42:02.984421
 
 """
@@ -10,8 +10,8 @@ Create Date: 2026-04-08 15:42:02.984421
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "29_76866e61db26"
-down_revision = "28_seed_basic_workflow_variables"
+revision = "31_76866e61db26"
+down_revision = "30_wf_var_catalogue_types"
 branch_labels = None
 depends_on = None
 
