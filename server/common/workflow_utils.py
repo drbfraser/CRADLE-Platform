@@ -5,13 +5,12 @@ from typing import TYPE_CHECKING, Type
 from flask import abort
 
 import data.db_operations as crud
-from api.resources.form_templates import handle_form_template_upload
 from common.commonUtil import abort_not_found, get_uuid
 from common.form_utils import assign_form_or_template_ids
 from data import orm_serializer
 from models import (
     FormOrm,
-    FormTemplateOrm,
+    FormTemplateOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -21,7 +20,6 @@ from models import (
     WorkflowTemplateStepOrm,
 )
 from service.workflow.workflow_service import WorkflowService, WorkflowView
-from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
     from data.crud import M
@@ -101,7 +99,7 @@ def assign_step_ids(
     form_model = None
 
     if m is WorkflowTemplateStepOrm:
-        form_model = FormTemplateOrm
+        form_model = FormTemplateOrmV2
 
     elif m is WorkflowInstanceStepOrm:
         form_model = FormOrm
@@ -199,7 +197,7 @@ def validate_workflow_template_step(
 
     form_id = workflow_template_step.get("form_id")
     if form_id is not None:
-        form_template = crud.read(FormTemplateOrm, id=form_id)
+        form_template = crud.read(FormTemplateOrmV2, id=form_id)
         if form_template is None:
             return abort(
                 code=404,
@@ -207,18 +205,6 @@ def validate_workflow_template_step(
             )
 
     check_branch_conditions(workflow_template_step)
-
-    try:
-        if workflow_template_step.get("form") is not None:
-            form_template = FormTemplateUpload(**workflow_template_step["form"])
-
-            # Process and upload the form template, if there is an issue, an exception is thrown
-            form_template = handle_form_template_upload(form_template)
-
-            workflow_template_step["form"] = form_template
-
-    except ValueError as err:
-        return abort(code=409, description=str(err))
 
 
 def _build_step_id_mapping(

@@ -4,7 +4,14 @@ from humps import decamelize
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from models import WorkflowClassificationOrm, WorkflowTemplateOrm
+from models import (
+    FormClassificationOrmV2,
+    FormQuestionTemplateOrmV2,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+)
 
 
 def test_workflow_templates_with_same_classification_upload(
@@ -169,6 +176,110 @@ def test_workflow_template_upload_with_missing_form_id_returns_not_found(
                 delete_classification=True,
                 id=template_id,
             )
+
+
+def test_workflow_template_upload_with_v2_form_id_succeeds(
+    database, api_post, form_template_v2_payload
+):
+    workflow_template_id = get_uuid()
+    workflow_classification_id = get_uuid()
+    step_id = get_uuid()
+    form_classification_id = None
+    form_template_id = None
+    name_string_id = None
+
+    try:
+        form_name = f"Workflow Integration Form V2 {get_uuid()}"
+        form_payload = form_template_v2_payload(
+            overrides={
+                "id": get_uuid(),
+                "classification": {
+                    "id": get_uuid(),
+                    "name": {"english": form_name},
+                },
+            }
+        )
+
+        create_form_response = api_post(
+            endpoint="/api/forms/v2/templates/body", json=form_payload
+        )
+        assert create_form_response.status_code == 201
+
+        created_form = decamelize(create_form_response.json())
+        form_template_id = created_form["id"]
+
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+        assert form_template_orm is not None
+        form_classification_id = form_template_orm.form_classification_id
+
+        form_classification_orm = crud.read(
+            FormClassificationOrmV2, id=form_classification_id
+        )
+        assert form_classification_orm is not None
+        name_string_id = form_classification_orm.name_string_id
+
+        workflow_payload = {
+            "id": workflow_template_id,
+            "name": "workflow-v2-form-reference",
+            "description": "workflow-v2-form-reference",
+            "archived": False,
+            "starting_step_id": step_id,
+            "date_created": get_current_time(),
+            "last_edited": get_current_time(),
+            "version": "0",
+            "classification_id": workflow_classification_id,
+            "classification": {
+                "id": workflow_classification_id,
+                "name": "Workflow Classification V2 Form Test",
+            },
+            "steps": [
+                {
+                    "id": step_id,
+                    "name": "template step v2 form",
+                    "description": "step references an existing v2 form template",
+                    "expected_completion": get_current_time(),
+                    "last_edited": get_current_time(),
+                    "form_id": form_template_id,
+                    "workflow_template_id": workflow_template_id,
+                    "branches": [],
+                }
+            ],
+        }
+
+        workflow_response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_payload
+        )
+        database.session.commit()
+
+        workflow_response_body = decamelize(workflow_response.json())
+        pretty_print(workflow_response_body)
+
+        assert workflow_response.status_code == 201
+
+        created_workflow = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
+        assert created_workflow is not None
+        assert len(created_workflow.steps) == 1
+        assert created_workflow.steps[0].form_id == form_template_id
+
+    finally:
+        if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=True,
+                id=workflow_template_id,
+            )
+
+        if form_template_id is not None:
+            crud.delete_all(
+                FormQuestionTemplateOrmV2, form_template_id=form_template_id
+            )
+            crud.delete_all(FormTemplateOrmV2, id=form_template_id)
+
+        if form_classification_id is not None:
+            crud.delete_all(FormClassificationOrmV2, id=form_classification_id)
+
+        if name_string_id is not None:
+            crud.delete_all(LangVersionOrmV2, string_id=name_string_id)
 
 
 def test_getting_workflow_templates(
