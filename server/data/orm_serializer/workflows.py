@@ -12,9 +12,9 @@ from models import (
 
 from .forms import (
     __marshal_form,
-    __marshal_form_template,
+    __marshal_form_template_v2,
     __unmarshal_form,
-    __unmarshal_form_template,
+    __unmarshal_form_template_v2,
 )
 from .utils import __load, __pre_process
 
@@ -88,7 +88,7 @@ def __marshal_workflow_template_step(
     __pre_process(d)
 
     if wts.form:
-        d["form"] = __marshal_form_template(wts.form)
+        d["form"] = __marshal_form_template_v2(wts.form, shallow=True)
 
     if not shallow:
         d["branches"] = [
@@ -218,7 +218,7 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
         del d["branches"]
 
     if d.get("form") is not None:
-        form = __unmarshal_form_template(d.get("form"))
+        form = __unmarshal_form_template_v2(d.get("form"))
         del d["form"]
 
     workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
