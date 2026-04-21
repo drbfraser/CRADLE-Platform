@@ -4,7 +4,6 @@ import {
   FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
-import { Field } from 'formik';
 import { Dispatch, Fragment, SetStateAction } from 'react';
 import {
   getPrettyDate,
@@ -46,6 +45,24 @@ export const FormQuestions = ({
   setDisableSubmit,
 }: IProps) => {
   const hook = useFormQuestions(questions, handleAnswers);
+  const languageKey = (language || 'English').toLowerCase();
+
+  const resolveLocalizedText = (
+    value?: string | Record<string, string>,
+    fallback = ''
+  ): string => {
+    if (!value) {
+      return fallback;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    return (
+      value[languageKey] ?? value.english ?? Object.values(value)[0] ?? fallback
+    );
+  };
 
   //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
   const generateValidationLine = (
@@ -88,7 +105,12 @@ export const FormQuestions = ({
     }
     if (!answer) {
       answer = {
-        questionIndex: question.order,
+        questionIndex:
+          typeof question.questionIndex === 'number'
+            ? question.questionIndex
+            : typeof question.order === 'number'
+              ? question.order
+              : -1,
         questionType: question.questionType,
         answerType: null,
         val: '',
@@ -96,11 +118,19 @@ export const FormQuestions = ({
     }
 
     const type = question.questionType;
-    const qid = question.order;
-    const text = question.questionText[language.toLowerCase()];
+    const qid =
+      typeof question.questionIndex === 'number'
+        ? question.questionIndex
+        : typeof question.order === 'number'
+          ? question.order
+          : -1;
+    const text = resolveLocalizedText(
+      question.questionText,
+      'Untitled question'
+    );
 
-    const mcOptions = question.mcOptions?.map(
-      (option) => option.translations[language.toLowerCase()]
+    const mcOptions = question.mcOptions?.map((option) =>
+      resolveLocalizedText(option.translations)
     );
     const required = question.required;
 
@@ -136,7 +166,7 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <FormLabel id={`question_${question.order}`}>
+            <FormLabel id={`question_${qid}`}>
               <Typography variant="h6">
                 {`${text}`}
                 {required ? ' *' : ''}
@@ -145,7 +175,7 @@ export const FormQuestions = ({
 
             <RadioGroup
               row
-              aria-labelledby={`question_${question.order}`}
+              aria-labelledby={`question_${qid}`}
               value={answer.val ? answer.val[0] : ''}
               key={answer.val}
               onChange={function (_, value) {
@@ -207,7 +237,7 @@ export const FormQuestions = ({
                       const newValue = checked
                         ? [...answer.val, mcOption]
                         : answer.val.filter((val: any) => val !== mcOption);
-                      hook.updateAnswersByValue(question.order, newValue);
+                      hook.updateAnswersByValue(qid, newValue);
                     }}
                   />
                 }
@@ -246,8 +276,8 @@ export const FormQuestions = ({
               variant="outlined"
               required={required}
               fullWidth
-              error={!!hook.numberErrors[question.order]}
-              helperText={hook.numberErrors[question.order]}
+              error={!!hook.numberErrors[qid]}
+              helperText={hook.numberErrors[qid]}
               suffix={question.units ?? ''}
               onValueChange={(values) => {
                 const value = values.floatValue;
@@ -272,10 +302,10 @@ export const FormQuestions = ({
 
                 hook.setNumberErrors((prevErrors) => ({
                   ...prevErrors,
-                  [question.order]: errorMessage,
+                  [qid]: errorMessage,
                 }));
 
-                hook.updateAnswersByValue(question.order, value);
+                hook.updateAnswersByValue(qid, value);
               }}
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -297,7 +327,7 @@ export const FormQuestions = ({
         );
 
       case QuestionTypeEnum.STRING: {
-        const helperText = hook.stringMaxLinesError[question.order]
+        const helperText = hook.stringMaxLinesError[qid]
           ? 'Exceeds maximum number of lines'
           : question.stringMaxLines
             ? `Maximum ${question.stringMaxLines} line(s) allowed`
@@ -318,10 +348,9 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <TextField
               label={text}
-              component={TextField}
-              defaultValue={answer.val ?? ''}
+              value={answer.val ?? ''}
               required={required}
               variant="outlined"
               fullWidth
@@ -332,7 +361,7 @@ export const FormQuestions = ({
               }
               multiline
               helperText={helperText}
-              error={hook.stringMaxLinesError[question.order]}
+              error={hook.stringMaxLinesError[qid]}
               inputProps={{
                 maxLength:
                   question.stringMaxLength! > 0
@@ -348,7 +377,7 @@ export const FormQuestions = ({
 
                 // Using new array because setStringMaxLinesError does not update the state immediately
                 const nextErrors = [...hook.stringMaxLinesError];
-                nextErrors[question.order] = exceedsMaxLines;
+                nextErrors[qid] = exceedsMaxLines;
                 hook.setStringMaxLinesError(nextErrors);
 
                 // Checking if any of the values in stringMaxLinesError is set to true
@@ -360,7 +389,7 @@ export const FormQuestions = ({
                 }
                 //it is originally a string type!! need transfer
                 if (!exceedsMaxLines) {
-                  hook.updateAnswersByValue(question.order, inputValue);
+                  hook.updateAnswersByValue(qid, inputValue);
                 }
               }}
             />
@@ -384,11 +413,9 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <TextField
               label={text}
-              component={TextField}
-              defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
-              key={answer.val}
+              value={answer.val ? getPrettyDateTime(answer.val) : ''}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -407,7 +434,7 @@ export const FormQuestions = ({
                 const timestamp = getTimestampFromStringDate(
                   event.target.value
                 );
-                hook.updateAnswersByValue(question.order, timestamp);
+                hook.updateAnswersByValue(qid, timestamp);
               }}
             />
           </Grid>
@@ -430,11 +457,9 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <TextField
               label={text}
-              component={TextField}
-              defaultValue={answer.val ? getPrettyDate(answer.val) : null}
-              key={answer.val}
+              value={answer.val ? getPrettyDate(answer.val) : ''}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -451,7 +476,7 @@ export const FormQuestions = ({
                 const timestamp = getTimestampFromStringDate(
                   event.target.value
                 );
-                hook.updateAnswersByValue(question.order, timestamp);
+                hook.updateAnswersByValue(qid, timestamp);
               }}
               inputProps={{
                 ...(!question.allowFutureDates
@@ -476,8 +501,14 @@ export const FormQuestions = ({
     renderState: FormRenderStateEnum
   ) => {
     return questions.map((question: TQuestion, index) => {
+      const qid =
+        typeof question.questionIndex === 'number'
+          ? question.questionIndex
+          : typeof question.order === 'number'
+            ? question.order
+            : index;
       return (
-        <Fragment key={question.order}>
+        <Fragment key={qid}>
           {hook.isQuestion(question) && question.shouldHidden
             ? null
             : generateHtmlForQuestion(question, answers[index], renderState)}

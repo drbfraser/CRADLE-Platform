@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Formik } from 'formik';
+import { Formik } from 'formik';
 import { Divider, Grid, SxProps } from '@mui/material';
 
 import { CForm, QAnswer, Question } from 'src/shared/types/form/formTypes';
@@ -39,7 +39,7 @@ interface IProps {
 export const CustomizedForm = ({
   patientId,
   fm: form,
-  lang = '',
+  lang = 'English',
   renderState,
   isFormModal = false,
   customSubmitHandler,
@@ -49,24 +49,37 @@ export const CustomizedForm = ({
   const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
     useState(false);
   const [answers, setAnswers] = useState<QAnswer[]>([]);
+  const latestAnswersRef = useRef<QAnswer[]>([]);
 
   const submitCustomForm = useSubmitCustomForm();
   const handleSubmit = () => {
-    if (!areMcResponsesValid(form.questions, answers)) {
-      setMultiSelectValidationFailed(true);
-      return;
-    }
+    const currentAnswers = latestAnswersRef.current.length
+      ? latestAnswersRef.current
+      : answers;
 
-    //2 number-range validation
-    if (
-      !areNumberResponsesValid(form.questions as unknown as Question[], answers)
-    ) {
-      // TODO: update this type when form submissions v2 are integrated
-      return;
+    const shouldRunLegacyLocalValidation =
+      renderState !== FormRenderStateEnum.FIRST_SUBMIT;
+
+    if (shouldRunLegacyLocalValidation) {
+      if (!areMcResponsesValid(form.questions, currentAnswers)) {
+        setMultiSelectValidationFailed(true);
+        return;
+      }
+
+      //2 number-range validation
+      if (
+        !areNumberResponsesValid(
+          form.questions as unknown as Question[],
+          currentAnswers
+        )
+      ) {
+        // TODO: update this type when form submissions v2 are integrated
+        return;
+      }
     }
 
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
-      answers,
+      currentAnswers,
       form.questions as unknown as Question[] // TODO: update this type when form submissions v2 are integrated
     );
     const postBody: PostBody = TransferQAnswerToPostBody(
@@ -119,7 +132,11 @@ export const CustomizedForm = ({
         validationSchema={validationSchema}
         onSubmit={handleSubmit}>
         {() => (
-          <Form>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSubmit();
+            }}>
             {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
               <Grid container spacing={3}>
                 {/* This is redundant */}
@@ -129,16 +146,17 @@ export const CustomizedForm = ({
             )}
 
             <Grid container spacing={3}>
-              {FormQuestions({
-                questions: form.questions as unknown as TQuestion[],
-                renderState,
-                language: lang,
-                handleAnswers: (answers) => {
+              <FormQuestions
+                questions={form.questions as unknown as TQuestion[]}
+                renderState={renderState}
+                language={lang}
+                handleAnswers={(answers) => {
+                  latestAnswersRef.current = answers;
                   setAnswers(answers);
-                },
-                multiSelectValidationFailed,
-                setDisableSubmit,
-              })}
+                }}
+                multiSelectValidationFailed={multiSelectValidationFailed}
+                setDisableSubmit={setDisableSubmit}
+              />
             </Grid>
             {renderState === FormRenderStateEnum.VIEW ? (
               !isFormModal && (
@@ -165,7 +183,7 @@ export const CustomizedForm = ({
                 {formTitle}
               </PrimaryButton>
             )}
-          </Form>
+          </form>
         )}
       </Formik>
     </>

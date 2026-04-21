@@ -16,6 +16,7 @@ import { CForm } from 'src/shared/types/form/formTypes';
 import { useSubmitCustomForm } from 'src/pages/customizedForm/mutations';
 import { PostBody } from 'src/pages/customizedForm/handlers';
 import { updateInstanceStepById } from 'src/shared/api';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   FormModalState,
   InstanceStep,
@@ -42,8 +43,13 @@ export default function WorkflowFormModal({
   const submitCustomForm = useSubmitCustomForm();
 
   const handleSubmit = (form: CForm, postBody: PostBody) => {
+    const submittedFormId =
+      formModalState.renderState === FormRenderStateEnum.FIRST_SUBMIT
+        ? undefined
+        : currentStep?.formId;
+
     submitCustomForm.mutate(
-      { formId: form.id, postBody: postBody },
+      { formId: submittedFormId, postBody: postBody },
       {
         onSuccess: (response) => {
           const formId = response.data.id;
@@ -53,6 +59,9 @@ export default function WorkflowFormModal({
           setFormSubmitted(true);
           updateInstanceStepById(currentStep!.id, instanceStepUpdate);
           onRefetchForm();
+        },
+        onError: (error) => {
+          console.error('Workflow form submission failed:', error);
         },
       }
     );
@@ -70,6 +79,11 @@ export default function WorkflowFormModal({
 
   return (
     <>
+      <APIErrorToast
+        open={submitCustomForm.isError}
+        onClose={() => submitCustomForm.reset()}
+      />
+
       <Modal open={formModalState.open}>
         <Box
           sx={{
