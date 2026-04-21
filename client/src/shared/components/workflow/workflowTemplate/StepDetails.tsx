@@ -10,14 +10,9 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
-import { getAllFormTemplatesAsync } from 'src/shared/api/modules/formTemplates';
-import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
+import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
+import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
-
-type FormTemplateOption = {
-  id: string;
-  name: string;
-};
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -34,17 +29,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   onStepChange,
   onCaptureState,
 }) => {
-  // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
-    queryKey: ['workflowStepFormTemplates', false],
-    queryFn: async () => {
-      const templates = await getAllFormTemplatesAsync(false);
-      return templates.map((template: FormTemplate) => ({
-        id: template.id,
-        name: template.classification.name,
-      }));
-    },
-    enabled: isEditMode, // Only fetch when in edit mode
+    queryKey: ['workflowStepFormTemplatesV2', false],
+    queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
   });
 
   if (!selectedStep) {
@@ -59,6 +46,17 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
       </Paper>
     );
   }
+
+  const selectedFormOption = formTemplatesQuery.data?.find(
+    (form: FormTemplateList) => form.id === selectedStep.formId
+  );
+
+  const selectedFormName =
+    selectedFormOption?.name ||
+    (typeof selectedStep.form?.classification?.name === 'string'
+      ? selectedStep.form.classification.name
+      : undefined) ||
+    (selectedStep.formId ? `Form ID: ${selectedStep.formId}` : undefined);
 
   return (
     <Paper sx={{ p: 3, height: '100%', overflow: 'auto' }}>
@@ -128,12 +126,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 fullWidth
                 options={formTemplatesQuery.data || []}
                 getOptionLabel={(option) => option.name}
-                value={
-                  formTemplatesQuery.data?.find(
-                    (form: FormTemplateOption) =>
-                      form.id === selectedStep.formId
-                  ) || null
-                }
+                value={selectedFormOption || null}
                 onChange={(_, newValue) => {
                   onStepChange?.(selectedStep.id, 'formId', newValue?.id || '');
                 }}
@@ -151,7 +144,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               />
             ) : (
               <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {selectedStep.form?.classification.name || 'No form associated'}
+                {selectedFormName || 'No form associated'}
               </Typography>
             )}
           </Box>
