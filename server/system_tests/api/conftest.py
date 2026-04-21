@@ -409,3 +409,29 @@ def form_with_db(api_post, form_template_v2_payload, form_submission_v2):
     crud.delete_all(FormClassificationOrmV2, id=classification_id)
     for lvid in lang_ids or []:
         crud.delete_all(LangVersionOrmV2, string_id=lvid)
+
+
+@pytest.fixture
+def form_template_with_db(api_post, form_template_v2_payload):
+    # Setup
+    template_payload = form_template_v2_payload()
+    response = api_post(endpoint="/api/forms/v2/templates/body", json=template_payload)
+    assert response.status_code == 201
+    body = decamelize(response.json())
+    template_id = body["id"]
+    classification_id = body["form_classification_id"]
+    classification = crud.read(FormClassificationOrmV2, id=classification_id)
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+    lang_ids = []
+    lang_ids.append(classification.name_string_id)
+    for ques in template.questions:
+        lang_ids.append(ques.question_string_id)
+
+    yield body
+
+    # Teardown
+    crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
+    crud.delete_all(FormTemplateOrmV2, id=template_id)
+    crud.delete_all(FormClassificationOrmV2, id=classification_id)
+    for lvid in lang_ids or []:
+        crud.delete_all(LangVersionOrmV2, string_id=lvid)
