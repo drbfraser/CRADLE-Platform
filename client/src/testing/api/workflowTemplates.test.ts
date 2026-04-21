@@ -23,7 +23,6 @@ import {
   deleteTemplateStepById,
   archiveWorkflowTemplateAsync,
   unarchiveWorkflowTemplateAsync,
-  saveWorkflowTemplateWithFileAsync,
 } from 'src/shared/api/modules/workflowTemplates';
 
 // Mock localStorage to provide access token
@@ -578,33 +577,6 @@ describe('workflowTemplates API', () => {
         await unarchiveWorkflowTemplateAsync(templateId);
         // No assertion needed for void return
       });
-    });
-  });
-
-  describe('saveWorkflowTemplateWithFileAsync', () => {
-    it('should save workflow template with file upload', async () => {
-      // Create a proper File mock for testing environment
-      const mockFile = {
-        name: 'template.json',
-        type: 'application/json',
-        size: 12,
-        stream: () => new ReadableStream(),
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(12)),
-        text: () => Promise.resolve('test content'),
-      } as File;
-
-      const mockResponse = { data: 'Upload successful' };
-
-      mockServer.use(
-        http.post(API_URL + EndpointEnum.WORKFLOW_TEMPLATES, () => {
-          // Just return success response, don't validate request details due to test env limitations
-          return HttpResponse.json(mockResponse, { status: 200 });
-        })
-      );
-
-      const result = await saveWorkflowTemplateWithFileAsync(mockFile);
-
-      expect(result.data).toEqual(mockResponse);
     });
   });
 

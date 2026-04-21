@@ -6,10 +6,12 @@ import {
   Typography,
   Divider,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BlocklyEditor } from '../blocklyEditor';
+import { WorkflowVariable, getWorkflowVariables } from 'src/shared/api';
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -23,7 +25,8 @@ interface BranchConditionEditorProps {
     stepId: string,
     branchIndex: number,
     conditionRule: string,
-    conditionName?: string
+    conditionName?: string,
+    validationError?: string | null
   ) => void;
   onTargetStepChange?: (
     stepId: string,
@@ -45,10 +48,18 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   onTargetStepChange,
   steps = [],
 }) => {
+  const [variables, setVariables] = useState<WorkflowVariable[]>([]);
+  const [variablesLoading, setVariablesLoading] = useState(true);
   const [conditionName, setConditionName] = useState<string>('');
   const [currentRule, setCurrentRule] = useState<string | null>(
     branch.condition?.rule || null
   );
+
+  useEffect(() => {
+    getWorkflowVariables()
+      .then(setVariables)
+      .finally(() => setVariablesLoading(false));
+  }, []);
 
   useEffect(() => {
     if (branch.condition?.rule) {
@@ -65,10 +76,13 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     }
   }, [branch, stepId, branchIndex]);
 
-  const handleBlocklyChange = (jsonLogic: string | null) => {
+  const handleBlocklyChange = (
+    jsonLogic: string | null,
+    error: string | null
+  ) => {
     setCurrentRule(jsonLogic);
-    if (jsonLogic && onChange) {
-      onChange(stepId, branchIndex, jsonLogic, conditionName);
+    if (onChange) {
+      onChange(stepId, branchIndex, jsonLogic ?? '', conditionName, error);
     }
   };
 
@@ -116,10 +130,17 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
             </>
           )}
 
-          <BlocklyEditor
-            initialJsonLogic={initialJsonLogic}
-            onChange={handleBlocklyChange}
-          />
+          {variablesLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : (
+            <BlocklyEditor
+              variables={variables}
+              initialJsonLogic={initialJsonLogic}
+              onChange={handleBlocklyChange}
+            />
+          )}
 
           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
             <Grid item>

@@ -276,25 +276,3 @@ export const unarchiveWorkflowTemplateAsync = async (templateId: string) => {
       '/archive?archive=false',
   });
 };
-
-export const saveWorkflowTemplateWithFileAsync = async (file: File) => {
-  return axiosFetch.postForm(EndpointEnum.WORKFLOW_TEMPLATES, {
-    file: file,
-  });
-};
-
-export const getWorkflowTemplateCsvAsync = async (
-  workflowTemplateId: string,
-  version: string
-) => {
-  try {
-    const response = await axiosFetch({
-      url: TEMPLATES + `/${workflowTemplateId}/versions/${version}/csv`,
-      responseType: 'blob',
-    });
-    return response.data;
-  } catch (e) {
-    console.error(`Error getting workflow template CSV: ${e}`);
-    throw e;
-  }
-};

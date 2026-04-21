@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import * as Blockly from 'blockly';
 import { Box, GlobalStyles } from '@mui/material';
-import './blocks';
+import { registerBlocks } from './blocks';
 import { toolboxConfig } from './toolboxConfig';
-import { workspaceToJsonLogic } from './jsonLogicGenerator';
+import { workspaceToJsonLogic, validateJsonLogic } from './jsonLogicGenerator';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
+import { WorkflowVariable } from 'src/shared/api';
 
 const blocklyZIndexFix = (
   <GlobalStyles
@@ -17,12 +18,14 @@ const blocklyZIndexFix = (
 );
 
 interface BlocklyEditorProps {
+  variables: WorkflowVariable[];
   initialJsonLogic?: string;
-  onChange: (jsonLogic: string | null) => void;
+  onChange: (jsonLogic: string | null, error: string | null) => void;
   readOnly?: boolean;
 }
 
 export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
+  variables,
   initialJsonLogic,
   onChange,
   readOnly = false,
@@ -33,6 +36,8 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
 
   useEffect(() => {
     if (!blocklyDiv.current) return;
+
+    registerBlocks(variables);
 
     const workspace = Blockly.inject(blocklyDiv.current, {
       toolbox: toolboxConfig,
@@ -66,8 +71,24 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
       ) {
         return;
       }
-      const jsonLogic = workspaceToJsonLogic(workspace);
-      onChange(jsonLogic);
+      const topBlocks = workspace.getTopBlocks(false);
+      let jsonLogic: string | null = null;
+      let error: string | null = null;
+
+      if (topBlocks.length > 1) {
+        jsonLogic = workspaceToJsonLogic(workspace);
+        error =
+          'Only one condition block is allowed. Connect or delete the extra blocks.';
+      } else if (topBlocks.length === 1) {
+        jsonLogic = workspaceToJsonLogic(workspace);
+        if (!jsonLogic || !validateJsonLogic(JSON.parse(jsonLogic), true)) {
+          error =
+            'The condition is incomplete. All inputs must be connected before saving.';
+        }
+      }
+      // topBlocks.length === 0: empty workspace, jsonLogic = null, error = null
+
+      onChange(jsonLogic, error);
     });
 
     return () => {
