@@ -238,9 +238,9 @@ export const saveFormResponseAsync = async (
     throw new Error('Missing form payload for submission.');
   }
 
-  const formTemplateId = form.questions.find(
-    (question) => question.formTemplateId
-  )?.formTemplateId;
+  const formTemplateId =
+    form.questions.find((question) => question.formTemplateId)
+      ?.formTemplateId ?? form.id;
   if (!formTemplateId) {
     throw new Error('Missing form template id for submission.');
   }
