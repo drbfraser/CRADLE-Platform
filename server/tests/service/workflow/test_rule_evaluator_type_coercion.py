@@ -8,7 +8,7 @@ from service.workflow.evaluate.rules_engine import RuleStatus
 
 def test_evaluate_rule_coerces_string_patient_age_to_int():
     with patch(
-        "service.workflow.evaluate.rule_evaluator.resolve_variables",
+        "service.workflow.evaluate.rule_evaluator.resolve_object_variable_paths",
         return_value={"patient.age": "25"},
     ):
         evaluator = RuleEvaluator(catalogue={})
@@ -22,7 +22,7 @@ def test_evaluate_rule_coerces_string_patient_age_to_int():
 
 def test_evaluate_rule_coercion_failure_yields_none():
     with patch(
-        "service.workflow.evaluate.rule_evaluator.resolve_variables",
+        "service.workflow.evaluate.rule_evaluator.resolve_object_variable_paths",
         return_value={"patient.age": "not-a-number"},
     ):
         evaluator = RuleEvaluator(catalogue={})

@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import * as Blockly from 'blockly';
 import { Box, GlobalStyles } from '@mui/material';
-import './blocks';
+import { registerBlocks } from './blocks';
 import { toolboxConfig } from './toolboxConfig';
 import { workspaceToJsonLogic, validateJsonLogic } from './jsonLogicGenerator';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
+import { WorkflowVariable } from 'src/shared/api';
 
 const blocklyZIndexFix = (
   <GlobalStyles
@@ -17,12 +18,14 @@ const blocklyZIndexFix = (
 );
 
 interface BlocklyEditorProps {
+  variables: WorkflowVariable[];
   initialJsonLogic?: string;
   onChange: (jsonLogic: string | null, error: string | null) => void;
   readOnly?: boolean;
 }
 
 export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
+  variables,
   initialJsonLogic,
   onChange,
   readOnly = false,
@@ -33,6 +36,8 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
 
   useEffect(() => {
     if (!blocklyDiv.current) return;
+
+    registerBlocks(variables);
 
     const workspace = Blockly.inject(blocklyDiv.current, {
       toolbox: toolboxConfig,
