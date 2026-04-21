@@ -4,6 +4,7 @@ import {
   QAnswer,
   Question,
 } from 'src/shared/types/form/formTypes';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 export type ApiAnswer = {
@@ -26,34 +27,74 @@ const VALID_QUESTION_TYPES = Object.values(QuestionTypeEnum).map((value) =>
   value.valueOf()
 );
 
+type QuestionLike = Question | TQuestion;
+
+const getQuestionIndex = (question: QuestionLike): number => {
+  if (
+    'questionIndex' in question &&
+    typeof question.questionIndex === 'number'
+  ) {
+    return question.questionIndex;
+  }
+
+  if ('order' in question && typeof question.order === 'number') {
+    return question.order;
+  }
+
+  return -1;
+};
+
+const getQuestionByIndex = (
+  questions: QuestionLike[],
+  index: number
+): QuestionLike | undefined =>
+  questions.find((question) => getQuestionIndex(question) === index);
+
+const getOptionLabel = (option: any): string => {
+  if (!option) {
+    return '';
+  }
+
+  if (typeof option.opt === 'string') {
+    return option.opt;
+  }
+
+  return (
+    option.translations?.english ??
+    Object.values(option.translations ?? {})[0] ??
+    ''
+  );
+};
+
 // This doesn't need to be exported
 export const TransferQAnswerToAPIStandard = (
   answers: QAnswer[],
   questions: Question[]
 ) => {
+  const questionList = questions as QuestionLike[];
+
   if (!answers || answers.length <= 0) {
     return [];
   }
 
   return answers
     .filter((answer) =>
-      questions.some((q) => {
-        if (q.questionIndex === answer.questionIndex) {
-          return VALID_QUESTION_TYPES.includes(q.questionType);
-        }
-        return false;
-      })
+      questionList.some(
+        (question) =>
+          getQuestionIndex(question) === answer.questionIndex &&
+          VALID_QUESTION_TYPES.includes(question.questionType)
+      )
     )
     .map((answer) => {
-      const question = questions.find(
-        (q) => q.questionIndex === answer.questionIndex
-      );
+      const question = getQuestionByIndex(questionList, answer.questionIndex);
 
-      const options = question?.mcOptions?.map((option) => option.opt);
+      const options = (question?.mcOptions ?? []).map((option) =>
+        getOptionLabel(option)
+      );
 
       const apiAnswer = {
         qidx: answer.questionIndex,
-        answer: { mcIdArray: [], text: undefined, number: undefined },
+        answer: {} as Answer,
       };
 
       switch (question?.questionType) {
@@ -62,9 +103,9 @@ export const TransferQAnswerToAPIStandard = (
 
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
-          apiAnswer.answer.mcIdArray = answer.val.map((item: any) =>
-            options?.indexOf(item)
-          );
+          apiAnswer.answer.mcIdArray = (answer.val ?? [])
+            .map((item: any) => options.indexOf(item))
+            .filter((index: number) => index >= 0);
 
           break;
         case QuestionTypeEnum.STRING:
@@ -91,14 +132,14 @@ export const TransferQAnswerToPostBody = (
   patientId: string,
   isEditForm: boolean
 ) => {
-  const questions: Question[] = form.questions;
+  const questions: QuestionLike[] = form.questions as unknown as QuestionLike[];
   const postBody: PostBody = { create: undefined, edit: undefined };
 
   if (isEditForm) {
     //edit a form content
     postBody.edit = answers.map((answer) => {
-      const question = questions.find((q) => q.questionIndex === answer.qidx);
-      const id = question ? question.id : '';
+      const question = getQuestionByIndex(questions, answer.qidx);
+      const id = question?.id ?? '';
       return {
         id,
         answers: answer.answer,
@@ -108,56 +149,78 @@ export const TransferQAnswerToPostBody = (
   } else {
     //create(/fill in) a new form
     //deep copy
-    const newForm: CForm = Object.assign(form);
+    const newForm: CForm = { ...form };
 
     //remove any field not needed in the post request
     newForm.version = undefined;
-    newForm.id = undefined;
     newForm.patientId = patientId;
 
-    newForm.questions = answers.map((apiAnswer: ApiAnswer) => {
-      const ques = questions.find((q) => q.questionIndex === apiAnswer.qidx);
-      const question = ques ? ques : ({} as Question);
-      question.answers = apiAnswer.answer;
-
-      //isBlank
-      switch (question.questionType) {
-        case QuestionTypeEnum.CATEGORY:
-          break;
-
-        case QuestionTypeEnum.MULTIPLE_CHOICE:
-        case QuestionTypeEnum.MULTIPLE_SELECT:
-          question.isBlank = apiAnswer.answer.mcIdArray!.length === 0;
-
-          break;
-        case QuestionTypeEnum.STRING:
-        case QuestionTypeEnum.INTEGER:
-        case QuestionTypeEnum.DATE:
-        case QuestionTypeEnum.DATETIME:
-          question.isBlank = !apiAnswer.answer;
-          break;
-
-        default:
-          console.error(`Unknown question type: ${question.questionType}`);
-      }
-
-      //change to numMax and numMin to float type
-      if (question.questionType === 'INTEGER') {
-        if (question.numMin) {
-          question.numMin = Number(parseFloat(question.numMin + '').toFixed(2));
+    newForm.questions = answers
+      .map((apiAnswer: ApiAnswer) => {
+        const question = getQuestionByIndex(questions, apiAnswer.qidx);
+        if (!question) {
+          return null;
         }
 
-        if (question.numMax) {
-          questions[apiAnswer.qidx].numMax = Number(
-            parseFloat(question.numMax + '').toFixed(2)
-          );
+        const normalizedQuestion = {
+          ...(question as Question),
+          questionIndex: getQuestionIndex(question),
+        } as Question;
+
+        normalizedQuestion.answers = apiAnswer.answer;
+
+        //isBlank
+        switch (normalizedQuestion.questionType) {
+          case QuestionTypeEnum.CATEGORY:
+            break;
+
+          case QuestionTypeEnum.MULTIPLE_CHOICE:
+          case QuestionTypeEnum.MULTIPLE_SELECT:
+            normalizedQuestion.isBlank =
+              (apiAnswer.answer.mcIdArray ?? []).length === 0;
+
+            break;
+          case QuestionTypeEnum.STRING:
+            normalizedQuestion.isBlank = !apiAnswer.answer.text;
+            break;
+          case QuestionTypeEnum.INTEGER:
+          case QuestionTypeEnum.DATE:
+          case QuestionTypeEnum.DATETIME:
+            normalizedQuestion.isBlank = apiAnswer.answer.number === undefined;
+            break;
+
+          default:
+            console.error(
+              `Unknown question type: ${normalizedQuestion.questionType}`
+            );
         }
-      }
 
-      question.shouldHidden = undefined;
+        //change to numMax and numMin to float type
+        if (normalizedQuestion.questionType === QuestionTypeEnum.INTEGER) {
+          if (
+            normalizedQuestion.numMin !== null &&
+            normalizedQuestion.numMin !== undefined
+          ) {
+            normalizedQuestion.numMin = Number(
+              parseFloat(String(normalizedQuestion.numMin)).toFixed(2)
+            );
+          }
 
-      return question;
-    });
+          if (
+            normalizedQuestion.numMax !== null &&
+            normalizedQuestion.numMax !== undefined
+          ) {
+            normalizedQuestion.numMax = Number(
+              parseFloat(String(normalizedQuestion.numMax)).toFixed(2)
+            );
+          }
+        }
+
+        normalizedQuestion.shouldHidden = undefined;
+
+        return normalizedQuestion;
+      })
+      .filter((question): question is Question => question !== null);
 
     postBody.create = newForm;
   }
@@ -177,12 +240,24 @@ export const areMcResponsesValid = (
     )
     .every((answer) => {
       const qidx = answer.questionIndex;
-      const isHidden = questions[qidx].shouldHidden;
-      const required = questions[qidx].required;
+      const question = getQuestionByIndex(questions as QuestionLike[], qidx) as
+        | Question
+        | TQuestion
+        | undefined;
 
-      return (
-        isHidden || (required ? answer.val && answer.val.length > 0 : true)
-      );
+      if (!question) {
+        return true;
+      }
+
+      const isHidden = (question as Question).shouldHidden;
+      const required = question.required;
+      const selectedCount = Array.isArray(answer.val)
+        ? answer.val.length
+        : answer.val
+          ? 1
+          : 0;
+
+      return isHidden || (required ? selectedCount > 0 : true);
     });
 
 export const areNumberResponsesValid = (
@@ -190,7 +265,10 @@ export const areNumberResponsesValid = (
   answers: QAnswer[]
 ): boolean => {
   return answers.every((ans) => {
-    const q = questions.find((q) => q.questionIndex === ans.questionIndex);
+    const q = getQuestionByIndex(
+      questions as QuestionLike[],
+      ans.questionIndex
+    );
     if (!q) return true; // no matching question → ignore
     if (q.numMin === undefined && q.numMax === undefined) return true; // no range set
 

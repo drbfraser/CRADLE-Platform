@@ -38,19 +38,42 @@ export const useFormQuestions = (
     return `${year}-${month}-${day}`;
   };
 
-  const isQuestion = (x: Question | TQuestion): x is Question => {
-    if (x) {
-      return 'questionText' in x;
+  const getQuestionIndex = (question: Question | TQuestion): number => {
+    if (
+      'questionIndex' in question &&
+      typeof question.questionIndex === 'number'
+    ) {
+      return question.questionIndex;
     }
-    return false;
+
+    if ('order' in question && typeof question.order === 'number') {
+      return question.order;
+    }
+
+    return -1;
   };
 
-  const isQuestionArr = (x: Question[] | TQuestion[]): x is Question[] => {
-    if (x && x[0]) {
-      return 'questionText' in x[0];
+  const getQuestionByIndex = (
+    questionIndex: number
+  ): Question | TQuestion | undefined =>
+    questions.find((question) => getQuestionIndex(question) === questionIndex);
+
+  const getMcOptionLabel = (
+    option: McOption | { translations?: Record<string, string> }
+  ) => {
+    if ('opt' in option) {
+      return option.opt;
     }
-    return false;
+
+    return (
+      option.translations?.english ??
+      Object.values(option.translations ?? {})[0] ??
+      ''
+    );
   };
+
+  const isQuestion = (x: Question | TQuestion): x is Question | TQuestion =>
+    Boolean(x);
 
   const handleNumericTypeVisCondition = (
     parentAnswer: QAnswer,
@@ -72,100 +95,135 @@ export const useFormQuestions = (
     }
   };
 
-  useEffect(() => {
-    const getValuesFromIDs = (
-      question: Question,
-      mcIdArray: number[] | undefined
-    ): string[] => {
-      const res: string[] = [];
+  const getValuesFromIDs = (
+    question: Question | TQuestion,
+    mcIdArray: number[] | undefined
+  ): string[] => {
+    const res: string[] = [];
 
-      const mcOptions: McOption[] = question.mcOptions ?? [];
-      mcIdArray?.forEach((optionIndex) => {
-        res.push(mcOptions[optionIndex].opt);
-      });
-
-      return res;
-    };
-
-    const getAnswerFromQuestion = (question: Question): QAnswer => {
-      const answer: QAnswer = {
-        questionIndex: question.questionIndex,
-        questionType: null,
-        answerType: null,
-        val: null,
-      };
-
-      answer.questionType = question.questionType;
-
-      switch (question.questionType) {
-        case QuestionTypeEnum.MULTIPLE_CHOICE:
-        case QuestionTypeEnum.MULTIPLE_SELECT:
-          answer.answerType = AnswerTypeEnum.MC_ID_ARRAY;
-          answer.val = getValuesFromIDs(question, question.answers?.mcIdArray);
-          break;
-
-        case QuestionTypeEnum.INTEGER:
-        case QuestionTypeEnum.DATE:
-        case QuestionTypeEnum.DATETIME:
-          answer.answerType = AnswerTypeEnum.NUM;
-          answer.val = question.answers?.number ?? null;
-          break;
-
-        case QuestionTypeEnum.STRING:
-          answer.answerType = AnswerTypeEnum.TEXT;
-          answer.val = question.answers?.text ?? null;
-          break;
-
-        case QuestionTypeEnum.CATEGORY:
-          answer.answerType = AnswerTypeEnum.CATEGORY;
-          answer.val = null;
-          break;
-
-        default:
-          console.log(question.questionType);
-          console.log('NOTE: INVALID QUESTION TYPE!!');
+    const mcOptions = question.mcOptions ?? [];
+    mcIdArray?.forEach((optionIndex) => {
+      const option = mcOptions[optionIndex];
+      if (option) {
+        res.push(getMcOptionLabel(option as McOption));
       }
+    });
 
-      return answer;
+    return res;
+  };
+
+  const getAnswerFromQuestion = (question: Question | TQuestion): QAnswer => {
+    const answer: QAnswer = {
+      questionIndex: getQuestionIndex(question),
+      questionType: null,
+      answerType: null,
+      val: null,
     };
 
-    if (isQuestionArr(questions)) {
-      const getAnswers = (questions: Question[]) =>
-        questions.map((question: Question) => getAnswerFromQuestion(question));
+    answer.questionType = question.questionType;
 
-      const answers: QAnswer[] = getAnswers(questions);
-      updateQuestionsConditionHidden(questions, answers);
-      setAnswers(answers);
-      handleAnswers(answers);
+    switch (question.questionType) {
+      case QuestionTypeEnum.MULTIPLE_CHOICE:
+      case QuestionTypeEnum.MULTIPLE_SELECT:
+        answer.answerType = AnswerTypeEnum.MC_ID_ARRAY;
+        answer.val =
+          'answers' in question
+            ? getValuesFromIDs(question, question.answers?.mcIdArray)
+            : [];
+        break;
+
+      case QuestionTypeEnum.INTEGER:
+      case QuestionTypeEnum.DATE:
+      case QuestionTypeEnum.DATETIME:
+        answer.answerType = AnswerTypeEnum.NUM;
+        answer.val =
+          'answers' in question ? (question.answers?.number ?? null) : null;
+        break;
+
+      case QuestionTypeEnum.STRING:
+        answer.answerType = AnswerTypeEnum.TEXT;
+        answer.val =
+          'answers' in question ? (question.answers?.text ?? null) : null;
+        break;
+
+      case QuestionTypeEnum.CATEGORY:
+        answer.answerType = AnswerTypeEnum.CATEGORY;
+        answer.val = null;
+        break;
+
+      default:
+        console.log(question.questionType);
+        console.log('NOTE: INVALID QUESTION TYPE!!');
     }
+
+    return answer;
+  };
+
+  const buildAnswersFromQuestions = (
+    nextQuestions: Question[] | TQuestion[]
+  ): QAnswer[] =>
+    nextQuestions.map((question) => getAnswerFromQuestion(question));
+
+  useEffect(() => {
+    if (!questions || questions.length === 0) {
+      setAnswers([]);
+      return;
+    }
+
+    const nextAnswers: QAnswer[] = buildAnswersFromQuestions(questions);
+    updateQuestionsConditionHidden(questions, nextAnswers);
+    setAnswers(nextAnswers);
   }, [questions]);
 
   function updateAnswersByValue(index: number, newValue: any) {
-    if (isQuestionArr(questions)) {
-      const ans = [...answers];
-      ans.forEach((a) => {
-        if (a.questionIndex === index) {
-          a.val = newValue;
+    setAnswers((previousAnswers) => {
+      const nextAnswers = [
+        ...(previousAnswers.length > 0
+          ? previousAnswers
+          : buildAnswersFromQuestions(questions)),
+      ];
+      nextAnswers.forEach((answer) => {
+        if (answer.questionIndex === index) {
+          answer.val = newValue;
         }
       });
-      updateQuestionsConditionHidden(questions, ans);
-      setAnswers(ans);
-      handleAnswers(ans);
-    }
+
+      updateQuestionsConditionHidden(questions, nextAnswers);
+      return nextAnswers;
+    });
   }
 
+  useEffect(() => {
+    handleAnswers(answers);
+  }, [answers, handleAnswers]);
+
   const updateQuestionsConditionHidden = (
-    questions: Question[],
+    questions: (Question | TQuestion)[],
     answers: QAnswer[]
   ) => {
     questions.forEach((question) => {
-      question.shouldHidden =
-        question.visibleCondition?.length !== 0 &&
-        question.visibleCondition.some((condition: QCondition) => {
-          const parentQuestion = questions[condition.questionIndex];
-          const parentAnswer: QAnswer = answers[parentQuestion.questionIndex];
+      const visibleCondition = question.visibleCondition ?? [];
 
-          if (!parentAnswer.val) {
+      (question as Question).shouldHidden =
+        visibleCondition.length !== 0 &&
+        visibleCondition.some((condition: QCondition) => {
+          const parentQuestion = getQuestionByIndex(condition.questionIndex);
+          if (!parentQuestion) {
+            return true;
+          }
+
+          const parentAnswer = answers.find(
+            (answer) =>
+              answer.questionIndex === getQuestionIndex(parentQuestion)
+          );
+
+          if (
+            !parentAnswer ||
+            parentAnswer.val === undefined ||
+            parentAnswer.val === null ||
+            parentAnswer.val === '' ||
+            (Array.isArray(parentAnswer.val) && parentAnswer.val.length === 0)
+          ) {
             return true;
           }
 
@@ -174,59 +232,38 @@ export const useFormQuestions = (
             // TODO: This does not work. The multiple choice and multiple select questions do not save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
             case QuestionTypeEnum.MULTIPLE_SELECT:
-              // switch (condition.relation) {
-              //   case QRelationEnum.EQUAL_TO:
-              //     isConditionMet =
-              //       condition.answers.mcIdArray!.length > 0 &&
-              //       parentAnswer.val?.length > 0 &&
-              //       parentAnswer.val?.length ===
-              //         condition.answers.mcIdArray?.length &&
-              //       condition.answers.mcIdArray!.every((item) =>
-              //         parentAnswer.val?.includes(
-              //           parentQuestion.mcOptions[item].opt
-              //         )
-              //       );
-              //     break;
-              // }
               break;
             case QuestionTypeEnum.STRING:
               switch (condition.relation) {
                 case QRelationEnum.EQUAL_TO:
-                  isConditionMet = parentAnswer.val === condition.answers.text;
+                  isConditionMet =
+                    String(parentAnswer.val) === String(condition.answers.text);
                   break;
                 case QRelationEnum.SMALLER_THAN:
                   if (!condition.answers.text) {
                     isConditionMet = false;
                     break;
                   }
-                  isConditionMet = parentAnswer.val < condition.answers.text;
+                  isConditionMet =
+                    String(parentAnswer.val) < String(condition.answers.text);
                   break;
                 case QRelationEnum.LARGER_THAN:
                   if (!condition.answers.text) {
                     isConditionMet = false;
                     break;
                   }
-                  isConditionMet = parentAnswer.val > condition.answers.text;
+                  isConditionMet =
+                    String(parentAnswer.val) > String(condition.answers.text);
                   break;
                 case QRelationEnum.CONTAINS:
-                  isConditionMet = parentAnswer.val.includes(
-                    condition.answers.text
+                  isConditionMet = String(parentAnswer.val).includes(
+                    String(condition.answers.text ?? '')
                   );
                   break;
               }
               break;
             case QuestionTypeEnum.INTEGER:
-              isConditionMet = handleNumericTypeVisCondition(
-                parentAnswer,
-                condition
-              );
-              break;
             case QuestionTypeEnum.DATE:
-              isConditionMet = handleNumericTypeVisCondition(
-                parentAnswer,
-                condition
-              );
-              break;
             case QuestionTypeEnum.DATETIME:
               isConditionMet = handleNumericTypeVisCondition(
                 parentAnswer,
