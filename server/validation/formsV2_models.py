@@ -237,6 +237,7 @@ class FormSubmission(CradleBaseModel, extra="forbid"):
     date_submitted: int
     last_edited: int
     lang: str
+    archived: bool
 
     @model_validator(mode="after")
     def validate_date_sequence(self) -> Self:

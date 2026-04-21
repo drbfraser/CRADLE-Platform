@@ -1,12 +1,19 @@
 import pytest
+from humps import decamelize
 
 import data.db_operations as crud
 from common.commonUtil import get_uuid
 from enums import QuestionTypeEnum, SexEnum
 from models import (
+    FormAnswerOrmV2,
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
     FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
     WorkflowInstanceOrm,
     WorkflowTemplateOrm,
 )
@@ -369,20 +376,36 @@ def sequential_workflow_view_with_db(sequential_workflow_view, patient_id):
 
 
 @pytest.fixture
-def form_with_db(api_post, form_classification, form_template, form):
+def form_with_db(api_post, form_template_v2_payload, form_submission_v2):
     # Setup
-    response = api_post(endpoint="/api/forms/classifications", json=form_classification)
+    template_payload = form_template_v2_payload()
+    response = api_post(endpoint="/api/forms/v2/templates/body", json=template_payload)
     assert response.status_code == 201
+    body = decamelize(response.json())
+    template_id = body["id"]
+    classification_id = body["form_classification_id"]
+    classification = crud.read(FormClassificationOrmV2, id=classification_id)
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+    lang_ids = []
+    lang_ids.append(classification.name_string_id)
+    for ques in template.questions:
+        lang_ids.append(ques.question_string_id)
 
-    response = api_post(endpoint="/api/forms/templates/body", json=form_template)
+    submission_payload = form_submission_v2(
+        template_id=body["id"], template_question_id=template.questions[1].id
+    )
+    response = api_post(endpoint="/api/forms/v2/submissions", json=submission_payload)
     assert response.status_code == 201
+    submission = decamelize(response.json())
+    submission_id = submission["id"]
 
-    response = api_post(endpoint="/api/forms/responses", json=form)
-    assert response.status_code == 201
-
-    yield form
+    yield submission
 
     # Teardown
-    crud.delete_all(FormOrm, id=form["id"])
-    crud.delete_all(FormTemplateOrm, id=form_template["id"])
-    crud.delete_all(FormClassificationOrm, name=form_classification["id"])
+    crud.delete_all(FormAnswerOrmV2, form_submission_id=submission_id)
+    crud.delete_all(FormSubmissionOrmV2, id=submission_id)
+    crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
+    crud.delete_all(FormTemplateOrmV2, id=template_id)
+    crud.delete_all(FormClassificationOrmV2, id=classification_id)
+    for lvid in lang_ids or []:
+        crud.delete_all(LangVersionOrmV2, string_id=lvid)

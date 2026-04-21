@@ -420,7 +420,7 @@ class WorkflowService:
 
         # NOTE: Perhaps use Pydantic form model to improve type safety and correctness
         workflow_instance_step.form["archived"] = True
-        workflow_instance_step.form["last_edited_by"] = editor_user_id
+        # workflow_instance_step.form["last_edited_by"] = editor_user_id **not yet implemented for forms v2**
         workflow_instance_step.form["last_edited"] = get_current_time()
         workflow_instance_step.form_id = None
 

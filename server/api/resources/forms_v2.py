@@ -94,6 +94,7 @@ def submit_form(body: CreateFormSubmissionRequest):
 
     form.date_submitted = get_current_time()
     form.last_edited = form.date_submitted
+    form.archived = False
 
     crud.create(form, refresh=True)
     result = orm_serializer.marshal(form, shallow=True)

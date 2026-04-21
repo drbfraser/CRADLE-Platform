@@ -1,5 +1,5 @@
 """
-Migrate V1 form template/submission references to V2
+Migrate V1 form template/submission references in workflows to V2
 
 Revision ID: 31_76866e61db26
 Revises: 30_wf_var_catalogue_types
