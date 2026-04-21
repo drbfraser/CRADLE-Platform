@@ -406,9 +406,7 @@ class WorkflowService:
             workflow_instance_step.assigned_to = patch.assigned_to
 
     @staticmethod
-    def archive_form(
-        workflow_instance_step: WorkflowInstanceStepModel, editor_user_id: int
-    ) -> None:
+    def archive_form(workflow_instance_step: WorkflowInstanceStepModel) -> None:
         """
         Archive the form associated with a workflow instance step and persist
         the update.
