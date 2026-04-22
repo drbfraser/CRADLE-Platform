@@ -2,19 +2,31 @@ import * as Blockly from 'blockly';
 
 export const jsonLogicGenerator = new Blockly.Generator('JSON_LOGIC');
 
-jsonLogicGenerator.forBlock['app_variable'] = function (block) {
-  const varName = block.getFieldValue('VAR_NAME');
-  return [JSON.stringify({ var: varName }), 0];
-};
+for (const bType of ['Number', 'String', 'Boolean', 'Date']) {
+  jsonLogicGenerator.forBlock[`app_variable_${bType}`] = function (block) {
+    const varName = block.getFieldValue('VAR_NAME');
+    return [JSON.stringify({ var: varName }), 0];
+  };
+}
 
 jsonLogicGenerator.forBlock['number_value'] = function (block) {
   const num = block.getFieldValue('NUM');
   return [JSON.stringify(num), 0];
 };
 
+jsonLogicGenerator.forBlock['string_value'] = function (block) {
+  const text = block.getFieldValue('TEXT');
+  return [JSON.stringify(text), 0];
+};
+
 jsonLogicGenerator.forBlock['boolean_value'] = function (block) {
   const val = block.getFieldValue('BOOL');
   return [JSON.stringify(val === 'TRUE'), 0];
+};
+
+jsonLogicGenerator.forBlock['date_value'] = function (block) {
+  const date = block.getFieldValue('DATE');
+  return [JSON.stringify({ date: date }), 0];
 };
 
 jsonLogicGenerator.forBlock['comparison'] = function (block) {
@@ -42,7 +54,6 @@ jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
 export function workspaceToJsonLogic(
   workspace: Blockly.Workspace
 ): string | null {
-  // Only the first top-level block is used; disconnected blocks are ignored
   const topBlocks = workspace.getTopBlocks(false);
   if (topBlocks.length === 0) return null;
 
@@ -54,6 +65,7 @@ export function workspaceToJsonLogic(
 export function validateJsonLogic(rule: unknown, isRoot = false): boolean {
   if (rule === null || rule === undefined) return false;
   if (typeof rule === 'number') return !isRoot;
+  if (typeof rule === 'string') return !isRoot;
   if (typeof rule === 'boolean') return true;
   if (typeof rule === 'object' && 'var' in (rule as object)) return !isRoot;
 
