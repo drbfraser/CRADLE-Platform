@@ -36,32 +36,34 @@ const edgeTypes: EdgeTypes = {
 type Position = { x: number; y: number };
 
 /**
- * Calculate the deepest level for each node using DFS.
- * Nodes with multiple parents get assigned the maximum level.
+ * Calculate each node using BFS.
+ * Nodes with multiple parents get assigned the level of their closest parent
  */
 function calculateNodeLevels(
   steps: WorkflowTemplateStepWithFormAndIndex[],
   firstStepId: string
 ): Map<string, number> {
   const stepLevels = new Map<string, number>();
+  const queue: string[] = [];
+  stepLevels.set(firstStepId, 0);
+  queue.push(firstStepId);
 
-  const dfs = (stepId: string, level: number) => {
-    const currentLevel = stepLevels.get(stepId);
-    if (currentLevel !== undefined && currentLevel >= level) {
-      return;
-    }
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
+    const currentLevel = stepLevels.get(currentId) ?? 0;
 
-    stepLevels.set(stepId, level);
+    const step = steps.find((s) => s.id === currentId);
+    step?.branches?.forEach((branch: WorkflowTemplateStepBranch) => {
+      const existingLevel = stepLevels.get(branch.targetStepId);
+      const newLevel = currentLevel + 1;
 
-    const step = steps.find((s) => s.id === stepId);
-    if (step?.branches && step.branches.length > 0) {
-      step.branches.forEach((branch: WorkflowTemplateStepBranch) => {
-        dfs(branch.targetStepId, level + 1);
-      });
-    }
-  };
-
-  dfs(firstStepId, 0);
+      //assign if not yet visited
+      if (existingLevel === undefined) {
+        stepLevels.set(branch.targetStepId, newLevel);
+        queue.push(branch.targetStepId);
+      }
+    });
+  }
   return stepLevels;
 }
 
@@ -71,43 +73,34 @@ function calculateStepPositions(
   stepLevels: Map<string, number>
 ): Map<string, Position> {
   const stepPositions = new Map<string, Position>();
-  const nextXAtLevel = new Map<number, number>(); // Tracks the right-most edge of each level
+  const levelNodes = new Map<number, string[]>();
 
-  const layout = (stepId: string, level: number): number => {
-    const step = steps.find((s) => s.id === stepId);
-    if (!step) return 0;
+  stepLevels.forEach((level, stepId) => {
+    if (!levelNodes.has(level)) levelNodes.set(level, []);
+    levelNodes.get(level)!.push(stepId);
+  });
 
+  levelNodes.forEach((nodeIds, level) => {
     const y = level * VERTICAL_SPACING;
-    let x: number;
+    const totalWidth = (nodeIds.length - 1) * HORIZONTAL_SPACING;
+    const startX = -totalWidth / 2;
 
-    if (!step.branches || step.branches.length === 0) {
-      // LEAF NODE: Place it at the next available spot at this depth
-      x = nextXAtLevel.get(level) || 0;
-      nextXAtLevel.set(level, x + HORIZONTAL_SPACING);
-    } else {
-      // PARENT NODE: Layout all children first
-      const childXPositions = step.branches.map((b) =>
-        layout(b.targetStepId, level + 1)
-      );
+    nodeIds.forEach((stepId, index) => {
+      stepPositions.set(stepId, {
+        x: startX + index * HORIZONTAL_SPACING,
+        y,
+      });
+    });
+  });
 
-      // Center parent over its children
-      const minChildX = Math.min(...childXPositions);
-      const maxChildX = Math.max(...childXPositions);
-      x = (minChildX + maxChildX) / 2;
-
-      // Ensure this parent doesn't overlap existing nodes at ITS level
-      const currentLevelMinX = nextXAtLevel.get(level) || 0;
-      if (x < currentLevelMinX) {
-        x = currentLevelMinX;
-      }
-      nextXAtLevel.set(level, x + HORIZONTAL_SPACING);
+  //put orphaned nodes above the graph
+  let orphanX = 0;
+  steps.forEach((step) => {
+    if (!stepPositions.has(step.id)) {
+      stepPositions.set(step.id, { x: orphanX, y: -VERTICAL_SPACING });
+      orphanX += HORIZONTAL_SPACING;
     }
-
-    stepPositions.set(stepId, { x, y });
-    return x;
-  };
-
-  layout(firstStepId, 0);
+  });
   return stepPositions;
 }
 /**
@@ -395,16 +388,6 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         return 'Invalid connection: step not found';
       }
 
-      // Calculate levels to ensure target is deeper than source
-      const stepLevels = calculateNodeLevels(steps, firstStepId);
-      const sourceLevel = stepLevels.get(sourceStepId) ?? 0;
-      const targetLevel = stepLevels.get(targetStepId) ?? 0;
-
-      // Target must be at a deeper level than source
-      if (targetLevel <= sourceLevel) {
-        return `Invalid connection: target node must be on a lower level. Source level: ${sourceLevel}, Target level: ${targetLevel}`;
-      }
-
       return null;
     },
     [steps, firstStepId]
@@ -460,7 +443,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        nodesDraggable={false}
+        nodesDraggable={true}
         nodesConnectable={isEditMode}
         elementsSelectable={isEditMode}
         fitView

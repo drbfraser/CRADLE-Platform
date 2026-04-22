@@ -168,7 +168,6 @@ export const WorkflowInfo: React.FC = () => {
   const columns: GridColDef[] = [
     { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
     { field: 'templateName', headerName: 'Workflow Template', width: 180 },
-    { field: 'collection', headerName: 'Collection', width: 125 },
     {
       field: 'status',
       headerName: 'Status',
