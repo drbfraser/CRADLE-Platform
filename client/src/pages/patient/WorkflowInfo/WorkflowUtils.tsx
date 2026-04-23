@@ -217,7 +217,18 @@ export function getWorkflowPossibleSteps(
     instance.possibleSteps,
     currentStepId
   );
-  return [...main, ...trimmed];
+  const dedupedSteps: PossibleStep[] = [];
+  const seenStepIds = new Set<string>();
+
+  for (const step of [...main, ...trimmed]) {
+    if (seenStepIds.has(step.id)) {
+      continue;
+    }
+    seenStepIds.add(step.id);
+    dedupedSteps.push(step);
+  }
+
+  return dedupedSteps;
 }
 
 /**
@@ -459,12 +470,22 @@ export const buildWorkflowInstanceRowList = async (
       const currentStep = instance.steps.find(
         (step) => step.status === StepStatus.ACTIVE
       );
-      const template = await getTemplate(instance.workflowTemplateId);
+      let templateName = 'Unknown template';
+
+      if (instance.workflowTemplateId) {
+        try {
+          const template = await getTemplate(instance.workflowTemplateId);
+          templateName = template.classification?.name || template.name || 'N/A';
+        } catch {
+          templateName = 'Unknown template';
+        }
+      }
+
       const workflowInfoRow: WorkflowInfoRow = {
         id: instance.id,
         instanceTitle: instance.name,
-        templateId: instance.workflowTemplateId,
-        templateName: template.classification?.name || template.name || 'N/A',
+        templateId: instance.workflowTemplateId || '',
+        templateName,
         collection: 'PAPAGAO', // TODO - To do when collections set up
         status: instance.status,
         lastEdited: instance.lastEdited,
