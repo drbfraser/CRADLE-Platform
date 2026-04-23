@@ -160,7 +160,7 @@ const hasAnswerValue = (
   }
 
   if (answer.text !== undefined) {
-    return answer.text.length > 0;
+    return (answer.text ?? '').length > 0;
   }
 
   if (

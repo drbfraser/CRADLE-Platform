@@ -91,36 +91,43 @@ export default function WorkflowFormModal({
             alignItems: 'center',
             justifyContent: 'center',
             height: '100vh',
+            p: { xs: 2, md: 4 },
+            overflowY: 'auto',
           }}>
           {formModalState.form && currentStep ? (
             <Paper
               sx={{
-                minHeight: '15vw',
-                maxHeight: '50vw',
-                minWidth: '60vw',
-                maxWidth: '90vw',
-                p: 8,
-                pt: 6,
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                width: 'min(1100px, 100%)',
+                maxHeight: 'calc(100vh - 32px)',
+                p: { xs: 3, md: 8 },
+                pt: { xs: 5, md: 6 },
                 borderRadius: 3,
+                overflowY: 'auto',
+                boxSizing: 'border-box',
               }}>
               {!formSubmitted ? (
                 <>
                   {/* Close Modal Button */}
-                  <Box sx={{ position: 'relative' }}>
-                    <IconButton
-                      onClick={handleCloseFormModal}
-                      sx={{ position: 'absolute', top: -30, right: -30 }}>
-                      <Close sx={{ color: red[500], fontSize: 30 }} />
-                    </IconButton>
-                  </Box>
+                  <IconButton
+                    onClick={handleCloseFormModal}
+                    sx={{
+                      position: 'absolute',
+                      top: 16,
+                      right: 16,
+                      zIndex: 1,
+                    }}>
+                    <Close sx={{ color: red[500], fontSize: 30 }} />
+                  </IconButton>
 
                   {/* Form Component */}
                   <Box
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'center',
-                      height: '100%',
+                      minHeight: 0,
                       width: '100%',
                     }}>
                     <Typography variant="h5" sx={{ mb: 1 }}>
@@ -132,7 +139,7 @@ export default function WorkflowFormModal({
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
+                        minHeight: 0,
                       }}>
                       <CustomizedForm
                         patientId={patientId}
