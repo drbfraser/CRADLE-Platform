@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import * as Blockly from 'blockly';
 import { Box, GlobalStyles } from '@mui/material';
 import { registerBlocks } from './blocks';
-import { toolboxConfig } from './toolboxConfig';
+import { buildToolboxConfig } from './toolboxConfig';
 import { workspaceToJsonLogic, validateJsonLogic } from './jsonLogicGenerator';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
 import { WorkflowVariable } from 'src/shared/api';
@@ -40,8 +40,9 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     registerBlocks(variables);
 
     const workspace = Blockly.inject(blocklyDiv.current, {
-      toolbox: toolboxConfig,
+      toolbox: buildToolboxConfig(variables),
       readOnly,
+      renderer: 'zelos',
       scrollbars: true,
       trashcan: true,
       zoom: {
@@ -57,7 +58,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
 
     if (initialJsonLogic) {
       isLoadingRef.current = true;
-      loadJsonLogicToWorkspace(workspace, initialJsonLogic);
+      loadJsonLogicToWorkspace(workspace, initialJsonLogic, variables);
       isLoadingRef.current = false;
     }
 
@@ -84,9 +85,18 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
         if (!jsonLogic || !validateJsonLogic(JSON.parse(jsonLogic), true)) {
           error =
             'The condition is incomplete. All inputs must be connected before saving.';
+        } else if (
+          workspace
+            .getAllBlocks(false)
+            .some(
+              (b) =>
+                b.type === 'date_value' &&
+                !/^\d{4}-\d{2}-\d{2}$/.test(b.getFieldValue('DATE') ?? '')
+            )
+        ) {
+          error = 'Date value must be in YYYY-MM-DD format (e.g. 2024-01-15).';
         }
       }
-      // topBlocks.length === 0: empty workspace, jsonLogic = null, error = null
 
       onChange(jsonLogic, error);
     });

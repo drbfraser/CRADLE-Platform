@@ -1,8 +1,11 @@
 import * as Blockly from 'blockly';
+import { WorkflowVariable } from 'src/shared/api';
+import { blocklyTypeFromVariableType } from './blocks';
 
 export function loadJsonLogicToWorkspace(
   workspace: Blockly.WorkspaceSvg,
-  jsonLogicStr: string
+  jsonLogicStr: string,
+  variables: WorkflowVariable[] = []
 ): void {
   workspace.clear();
 
@@ -13,7 +16,11 @@ export function loadJsonLogicToWorkspace(
     return;
   }
 
-  const block = createBlockFromRule(workspace, rule);
+  const tagToType = new Map(
+    variables.map((v) => [v.tag, blocklyTypeFromVariableType(v.type)])
+  );
+
+  const block = createBlockFromRule(workspace, rule, tagToType);
   if (block) {
     block.moveBy(20, 20);
   }
@@ -23,13 +30,22 @@ const COMPARISON_OPS = ['<', '>', '==', '<=', '>=', '!='];
 
 function createBlockFromRule(
   workspace: Blockly.WorkspaceSvg,
-  rule: unknown
+  rule: unknown,
+  tagToType: Map<string, string | null>
 ): Blockly.BlockSvg | null {
   if (rule === null || rule === undefined) return null;
 
   if (typeof rule === 'number') {
     const block = workspace.newBlock('number_value');
     block.setFieldValue(rule, 'NUM');
+    block.initSvg();
+    block.render();
+    return block;
+  }
+
+  if (typeof rule === 'string') {
+    const block = workspace.newBlock('string_value');
+    block.setFieldValue(rule, 'TEXT');
     block.initSvg();
     block.render();
     return block;
@@ -46,9 +62,19 @@ function createBlockFromRule(
   if (typeof rule !== 'object') return null;
   const ruleObj = rule as Record<string, unknown>;
 
+  if ('date' in ruleObj) {
+    const block = workspace.newBlock('date_value');
+    block.setFieldValue(String(ruleObj.date), 'DATE');
+    block.initSvg();
+    block.render();
+    return block;
+  }
+
   if ('var' in ruleObj) {
-    const block = workspace.newBlock('app_variable');
-    block.setFieldValue(String(ruleObj.var), 'VAR_NAME');
+    const tag = String(ruleObj.var);
+    const bType = tagToType.get(tag) ?? 'String';
+    const block = workspace.newBlock(`app_variable_${bType}`);
+    block.setFieldValue(tag, 'VAR_NAME');
     block.initSvg();
     block.render();
     return block;
@@ -62,8 +88,8 @@ function createBlockFromRule(
       block.initSvg();
       block.render();
 
-      const leftBlock = createBlockFromRule(workspace, args[0]);
-      const rightBlock = createBlockFromRule(workspace, args[1]);
+      const leftBlock = createBlockFromRule(workspace, args[0], tagToType);
+      const rightBlock = createBlockFromRule(workspace, args[1], tagToType);
       if (leftBlock) {
         block
           .getInput('LEFT')!
@@ -87,9 +113,9 @@ function createBlockFromRule(
         block.initSvg();
         block.render();
 
-        const aBlock = createBlockFromRule(workspace, args[0]);
+        const aBlock = createBlockFromRule(workspace, args[0], tagToType);
         const bRule = args.length === 2 ? args[1] : { [op]: args.slice(1) };
-        const bBlock = createBlockFromRule(workspace, bRule);
+        const bBlock = createBlockFromRule(workspace, bRule, tagToType);
 
         if (aBlock) {
           block.getInput('A')!.connection!.connect(aBlock.outputConnection!);
@@ -106,7 +132,7 @@ function createBlockFromRule(
     const block = workspace.newBlock('logic_negate');
     block.initSvg();
     block.render();
-    const valueBlock = createBlockFromRule(workspace, ruleObj['!']);
+    const valueBlock = createBlockFromRule(workspace, ruleObj['!'], tagToType);
     if (valueBlock) {
       block
         .getInput('VALUE')!

@@ -88,7 +88,7 @@ def __marshal_workflow_template_step(
     __pre_process(d)
 
     if wts.form:
-        d["form"] = __marshal_form_template_v2(wts.form)
+        d["form"] = __marshal_form_template_v2(wts.form, shallow=True)
 
     if not shallow:
         d["branches"] = [

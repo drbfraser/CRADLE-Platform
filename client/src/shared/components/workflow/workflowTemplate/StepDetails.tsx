@@ -29,11 +29,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   onStepChange,
   onCaptureState,
 }) => {
-  // Fetch all available form templates for the dropdown
   const formTemplatesQuery = useQuery({
-    queryKey: ['formTemplates', false],
+    queryKey: ['workflowStepFormTemplatesV2', false],
     queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
-    enabled: isEditMode, // Only fetch when in edit mode
   });
 
   if (!selectedStep) {
@@ -48,6 +46,17 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
       </Paper>
     );
   }
+
+  const selectedFormOption = formTemplatesQuery.data?.find(
+    (form: FormTemplateList) => form.id === selectedStep.formId
+  );
+
+  const selectedFormName =
+    selectedFormOption?.name ||
+    (typeof selectedStep.form?.classification?.name === 'string'
+      ? selectedStep.form.classification.name
+      : undefined) ||
+    (selectedStep.formId ? `Form ID: ${selectedStep.formId}` : undefined);
 
   return (
     <Paper sx={{ p: 3, height: '100%', overflow: 'auto' }}>
@@ -117,11 +126,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 fullWidth
                 options={formTemplatesQuery.data || []}
                 getOptionLabel={(option) => option.name}
-                value={
-                  formTemplatesQuery.data?.find(
-                    (form: FormTemplateList) => form.id === selectedStep.formId
-                  ) || null
-                }
+                value={selectedFormOption || null}
                 onChange={(_, newValue) => {
                   onStepChange?.(selectedStep.id, 'formId', newValue?.id || '');
                 }}
@@ -139,7 +144,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               />
             ) : (
               <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {selectedStep.form?.classification.name || 'No form associated'}
+                {selectedFormName || 'No form associated'}
               </Typography>
             )}
           </Box>

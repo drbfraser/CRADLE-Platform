@@ -34,9 +34,7 @@ from data.db_operations import M, db_session
 from data.db_operations.common_crud import delete, delete_by, read, read_by_filter
 from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowStatusEnum
 from models import (
-    FormClassificationOrm,
     FormOrm,
-    FormTemplateOrm,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceDataOrm,
@@ -80,15 +78,6 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
         # Delete each branch in the step
         for branch in step.branches:
             delete_workflow_step_branch(id=branch.id)
-
-        # TODO: Should the form template and classification associated also be deleted when the template step is deleted?
-
-        form_template = read(FormTemplateOrm, id=step.form_id)
-
-        if form_template:
-            delete_by(FormClassificationOrm, id=form_template.form_classification_id)
-
-        delete_by(FormTemplateOrm, id=step.form_id)
 
     elif isinstance(step, WorkflowInstanceStepOrm):
         delete_by(FormOrm, id=step.form_id)

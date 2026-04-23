@@ -9,7 +9,12 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['playwright-report/**/*', 'test-results/**/*', 'coverage/**/*'],
+    ignores: [
+      'build/**/*',
+      'playwright-report/**/*',
+      'test-results/**/*',
+      'coverage/**/*',
+    ],
   },
   ...pluginTanstackQuery.configs['flat/recommended'],
   js.configs.recommended,

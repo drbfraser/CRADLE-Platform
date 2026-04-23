@@ -1,5 +1,5 @@
 import { ID, ISODate, Nullable } from '../../constants';
-import { FormTemplate } from '../form/formTemplateTypes';
+import { FormTemplate, FormTemplateList } from '../form/formTemplateTypes';
 import { CForm } from '../form/formTypes';
 import {
   InstanceStatus,
@@ -33,7 +33,7 @@ export interface WorkflowTemplateStep {
 }
 
 export interface WorkflowTemplateStepWithFormAndIndex extends WorkflowTemplateStep {
-  form?: FormTemplate;
+  form?: FormTemplate | FormTemplateList;
   index: number;
   branchIndices?: number[];
 }

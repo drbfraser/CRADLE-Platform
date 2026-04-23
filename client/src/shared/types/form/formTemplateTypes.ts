@@ -65,10 +65,13 @@ export interface TQuestion {
   hasCommentAttached: boolean;
   id: string | undefined;
   order: number;
+  questionIndex?: number;
+  questionId?: string;
   questionStringId: string | undefined;
   questionText: Record<string, string>;
   questionType: QuestionTypeEnum;
   required: boolean;
+  shouldHidden?: OrNull<boolean>;
   userQuestionId: string | undefined;
   numMin?: OrNull<number>;
   numMax?: OrNull<number>;
