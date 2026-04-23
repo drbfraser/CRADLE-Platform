@@ -153,6 +153,7 @@ class FormQuestionTemplateOrmV2(db.Model):
             ...
             ]
 
+        Note: the mc_options uuid reference string_id in LangVersionOrmV2
     """
 
     __tablename__ = "form_question_template_v2"
@@ -228,6 +229,7 @@ class FormSubmissionOrmV2(db.Model):
     user_id = db.Column(
         db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
     date_submitted = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
         db.BigInteger,

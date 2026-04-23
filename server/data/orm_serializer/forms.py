@@ -198,7 +198,7 @@ def __marshal_form_submission_v2(
     __pre_process(d)
 
     if shallow:
-        if d.get("answers"):
+        if d.get("answers") is not None:
             del d["answers"]
     else:
         d["answers"] = [__marshal_form_answer_v2(a) for a in fs.answers]

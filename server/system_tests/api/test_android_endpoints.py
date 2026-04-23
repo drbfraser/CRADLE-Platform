@@ -542,5 +542,6 @@ def test_get_patient_form(
     assert response.status_code == 404
     response = api_get(endpoint="/api/mobile/forms/87356709247/dt9")
     assert response.status_code == 404
-    response = api_get(endpoint="/api/mobile/forms/49300028162/dt9")
-    assert response.status_code == 200
+    # this v1 form is no longer created in data seeding -> refactor when mobile endpoints are updated
+    # response = api_get(endpoint="/api/mobile/forms/49300028162/dt9")
+    # assert response.status_code == 200

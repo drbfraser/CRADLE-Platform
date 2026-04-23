@@ -11,9 +11,9 @@ from models import (
 )
 
 from .forms import (
-    __marshal_form,
+    __marshal_form_submission_v2,
     __marshal_form_template_v2,
-    __unmarshal_form,
+    __unmarshal_form_submission_v2,
     __unmarshal_form_template_v2,
 )
 from .utils import __load, __pre_process
@@ -160,7 +160,7 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
 
     if wis.form is not None:
         d["form_id"] = wis.form.id
-        d["form"] = __marshal_form(wis.form, shallow=True)
+        d["form"] = __marshal_form_submission_v2(wis.form, shallow=True)
     else:
         d["form"] = None
 
@@ -271,7 +271,7 @@ def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
     form = None
 
     if d.get("form") is not None:
-        form = __unmarshal_form(d.get("form"))
+        form = __unmarshal_form_submission_v2(d.get("form"))
         del d["form"]
 
     # __unmarshal filters out keys with value None. This is tricky because form_id

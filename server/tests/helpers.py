@@ -141,6 +141,52 @@ def make_form_template(**overrides) -> dict:
     return {**base, **overrides}
 
 
+def make_answer_v2(**overrides) -> dict:
+    base = {
+        "id": get_uuid(),
+        "question_id": "q-1",
+        "form_submission_id": "fs-1",
+        "answer": {"value:": "yes"},
+    }
+    return {**base, **overrides}
+
+
+def make_lang_version_v2(**overrides) -> dict:
+    base = {
+        "string_id": "q-abc",
+        "lang": "English",
+        "text": "Localized text",
+    }
+    return {**base, **overrides}
+
+
+def make_form_submission_v2(**overrides) -> dict:
+    base = {
+        "id": get_uuid(),
+        "form_template_id": "ft-001",
+        "patient_id": "p-001",
+        "user_id": 17,
+        "archived": False,
+        "date_submitted": 1_600_000_000,
+        "last_edited": 1_600_000_000,
+        "lang": "English",
+        "answers": [],
+    }
+    return {**base, **overrides}
+
+
+def make_form_template_v2(**overrides) -> dict:
+    base = {
+        "id": get_uuid(),
+        "version": 1,
+        "archived": False,
+        "form_classification_id": "fc-001",
+        "date_created": 1_600_000_000,
+        "questions": [],
+    }
+    return {**base, **overrides}
+
+
 def make_patient(**overrides) -> dict:
     payload = {
         "id": get_uuid(),

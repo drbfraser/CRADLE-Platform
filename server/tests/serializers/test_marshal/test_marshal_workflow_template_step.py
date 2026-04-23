@@ -1,7 +1,7 @@
 import data.orm_serializer as orm_seralizer
 from models import (
-    FormClassificationOrm,
-    FormTemplateOrm,
+    FormClassificationOrmV2,
+    FormTemplateOrmV2,
     RuleGroupOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
@@ -10,7 +10,7 @@ from models import (
 
 def _make_min_form_template(
     template_id: str, classification_id: str
-) -> FormTemplateOrm:
+) -> FormTemplateOrmV2:
     """
     Construct a minimal FormTemplateOrm instance with the given parameters.
 
@@ -18,11 +18,11 @@ def _make_min_form_template(
     :param classification_id: ID of the FormClassificationOrm associated with the form template.
     :return: Minimal FormTemplateOrm instance with the given parameters.
     """
-    form_classification = FormClassificationOrm()
+    form_classification = FormClassificationOrmV2()
     form_classification.id = classification_id
     form_classification.name = "Clinical"
 
-    form = FormTemplateOrm()
+    form = FormTemplateOrmV2()
     form.id = template_id
     form.name = "ANC Intake"
     form.description = "Initial antenatal visit"

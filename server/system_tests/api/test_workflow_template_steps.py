@@ -1,5 +1,3 @@
-import copy
-
 import pytest
 from humps import decamelize
 
@@ -7,8 +5,10 @@ import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from models import (
+    FormTemplateOrmV2,
     WorkflowTemplateOrm,
 )
+from server.data import orm_serializer
 
 
 def test_uploading_valid_workflow_template_steps(
@@ -251,12 +251,9 @@ def example_workflow_template():
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Example template steps for testing ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 @pytest.fixture
-def valid_workflow_template_step1(example_workflow_template, form_template):
+def valid_workflow_template_step1(example_workflow_template, form_template_with_db):
     step_id = get_uuid()
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = get_uuid()
-    form_template["form_classification_id"] = get_uuid()
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    form_template = form_template_with_db
     return {
         "id": step_id,
         "name": "valid_workflow_template_step1",
@@ -264,7 +261,7 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "branches": [],
     }
@@ -272,16 +269,12 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
 
 @pytest.fixture
 def valid_workflow_template_step2(
-    example_workflow_template, form_template, valid_workflow_template_step4
+    example_workflow_template, form_template_with_db, valid_workflow_template_step4
 ):
     step_id = get_uuid()
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = get_uuid()
-    form_template["version"] = "V2"
-    form_template["form_classification_id"] = get_uuid()
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    form_template = form_template_with_db
 
     return {
         "id": step_id,
@@ -290,7 +283,7 @@ def valid_workflow_template_step2(
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "branches": [
             {
@@ -310,13 +303,14 @@ def valid_workflow_template_step2(
 # This will cause an error if uploaded alongside valid_workflow_template_step1 because both of them are attempting to
 # upload the same form template version at the same time
 @pytest.fixture
-def valid_workflow_template_step3(example_workflow_template, form_template):
+def valid_workflow_template_step3(
+    example_workflow_template, valid_workflow_template_step1
+):
     step_id = get_uuid()
     branch_id = get_uuid()
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-2"
-    form_template["form_classification_id"] = "fc-5"
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    ft = crud.read(FormTemplateOrmV2, id=valid_workflow_template_step1["form_id"])
+    form_template = orm_serializer.marshal(ft, shallow=True)
+    form_template["questions"] = []
 
     return {
         "id": step_id,
@@ -340,18 +334,14 @@ def valid_workflow_template_step3(example_workflow_template, form_template):
 
 
 @pytest.fixture
-def valid_workflow_template_step4(example_workflow_template, form_template):
+def valid_workflow_template_step4(example_workflow_template, form_template_with_db):
     step_id = get_uuid()
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
     branch_condition_id2 = get_uuid()
     branch_id2 = get_uuid()
 
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = get_uuid()
-    form_template["version"] = "V3"
-    form_template["form_classification_id"] = get_uuid()
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    form_template = form_template_with_db
 
     return {
         "id": step_id,
@@ -360,7 +350,7 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "branches": [
             {
@@ -393,25 +383,29 @@ def valid_workflow_template_step5(
     example_workflow_template, valid_workflow_template_step1
 ):
     step_id = get_uuid()
-    ft = copy.deepcopy(valid_workflow_template_step1["form"])
+    # ft = copy.deepcopy(valid_workflow_template_step1["form"])
+    ft = crud.read(FormTemplateOrmV2, id=valid_workflow_template_step1["form_id"])
+    form_template = orm_serializer.marshal(ft, shallow=True)
+    form_template["questions"] = []
     return {
         "id": step_id,
         "name": "valid_workflow_template_step5_duplicate",
         "description": "duplicate version of step1",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "form_id": ft["id"],
-        "form": ft,
+        "form_id": form_template["id"],
+        "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "branches": [],
     }
 
 
 @pytest.fixture
-def invalid_workflow_template_step1(form_template):
+def invalid_workflow_template_step1(form_template_with_db):
     step_id = get_uuid()
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
+    form_template = form_template_with_db
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step1",
@@ -419,7 +413,7 @@ def invalid_workflow_template_step1(form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": "non-existent-template",  # This template does not exist
         "branches": [
             {
@@ -437,9 +431,10 @@ def invalid_workflow_template_step1(form_template):
 
 
 @pytest.fixture
-def invalid_workflow_template_step2(example_workflow_template, form_template):
+def invalid_workflow_template_step2(example_workflow_template, form_template_with_db):
     step_id = get_uuid()
     branch_id = get_uuid()
+    form_template = form_template_with_db
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step2",
@@ -447,7 +442,7 @@ def invalid_workflow_template_step2(example_workflow_template, form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "branches": [
             {

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from data import orm_serializer
 from models import (
-    FormTemplateOrm,
+    FormTemplateOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
@@ -10,7 +10,7 @@ from models import (
     WorkflowTemplateStepOrm,
 )
 from tests.helpers import (
-    make_form_template,
+    make_form_template_v2,
     make_workflow_template,
     make_workflow_template_branch,
     make_workflow_template_step,
@@ -41,7 +41,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
         name="Registration",
         description="Capture intake details",
         workflow_template_id=wt_id,
-        form=make_form_template(id="ft-001"),
+        form=make_form_template_v2(id="ft-001"),
         branches=branches1,
         expected_completion=3_600,
         last_edited=1_700_200_001,
@@ -94,7 +94,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     assert isinstance(s2, WorkflowTemplateStepOrm)
 
     # Step1 -> form + branch + condition
-    assert isinstance(s1.form, FormTemplateOrm)
+    assert isinstance(s1.form, FormTemplateOrmV2)
     assert s1.form.id == "ft-001"
     assert isinstance(s1.branches, list) and len(s1.branches) == 1
     b1 = s1.branches[0]

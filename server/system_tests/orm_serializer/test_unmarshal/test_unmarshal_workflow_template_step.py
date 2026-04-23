@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from data import orm_serializer
 from models import (
-    FormTemplateOrm,
+    FormTemplateOrmV2,
     RuleGroupOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
 from tests.helpers import (
-    make_form_template,
+    make_form_template_v2,
     make_workflow_template_branch,
     make_workflow_template_step,
 )
@@ -24,7 +24,7 @@ def test_unmarshal_step_with_form_and_branches():
     """
     step_id = "wts-100"
 
-    form_payload = make_form_template(id="ft-123")
+    form_payload = make_form_template_v2(id="ft-123")
 
     branches_payload = [
         make_workflow_template_branch(
@@ -64,7 +64,7 @@ def test_unmarshal_step_with_form_and_branches():
     assert obj.last_edited == 1_700_100_000
 
     # Form attached
-    assert isinstance(obj.form, FormTemplateOrm)
+    assert isinstance(obj.form, FormTemplateOrmV2)
     assert obj.form.id == "ft-123"
 
     # Branches attached

@@ -857,12 +857,12 @@ def upsert_multilang_versions(name_string_id: str, name_map: dict[str, str]):
             crud.create(lv)
 
 
-def fetch_form_or_404(form_id: str) -> FormOrm:
+def fetch_form_or_404(form_id: str) -> FormSubmissionOrmV2:
     """
     Fetch a form or raise a 404 if not found.
     Intended for use inside Flask endpoint handlers.
     """
-    form = crud.read(FormOrm, id=form_id)
+    form = crud.read(FormSubmissionOrmV2, id=form_id)
     if form is None:
         commonUtil.abort_not_found(FORM_NOT_FOUND_MSG.format(form_id))
 

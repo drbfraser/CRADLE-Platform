@@ -1,15 +1,15 @@
 # ruff: noqa: SLF001
 import data.orm_serializer as orm_seralizer
 from models import (
-    FormClassificationOrm,
-    FormTemplateOrm,
+    FormClassificationOrmV2,
+    FormTemplateOrmV2,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
 )
 
 
-def _make_form_template(template_id: str, fc_id: str) -> FormTemplateOrm:
+def _make_form_template(template_id: str, fc_id: str) -> FormTemplateOrmV2:
     """
     Construct a minimal FormTemplateOrm instance with the given parameters.
 
@@ -17,12 +17,12 @@ def _make_form_template(template_id: str, fc_id: str) -> FormTemplateOrm:
     :param fc_id: ID of the FormClassificationOrm associated with the form template.
     :return: Minimal FormTemplateOrm instance with the given parameters.
     """
-    form_classification = FormClassificationOrm()
+    form_classification = FormClassificationOrmV2()
     form_classification.id = fc_id
-    form_classification.name = "Clinical"
+    form_classification.name_string_id = "Clinical"
     form_classification._internal = "strip-me"
 
-    foem_template = FormTemplateOrm()
+    foem_template = FormTemplateOrmV2()
     foem_template.id = template_id
     foem_template.name = "ANC Intake"
     foem_template.description = "Initial antenatal visit"
