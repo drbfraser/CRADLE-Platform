@@ -20,13 +20,9 @@ depends_on = None
 def upgrade():
     op.add_column(
         "form_submission_v2",
-        sa.Column(
-            "archived",
-            sa.Boolean(),
-            nullable=False,
-            server_default=sa.false(),
-        ),
+        sa.Column("archived", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
+    # Remove the default so the DB doesn't keep it permanently
     op.alter_column("form_submission_v2", "archived", server_default=None)
 
 
