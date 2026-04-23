@@ -34,7 +34,7 @@ const createEmptyTemplate = (): WorkflowTemplate => {
       {
         id: defaultStepId,
         name: 'Step 1',
-        description: 'This is the Starting step',
+        description: '',
         lastEdited: now,
         branches: [],
       },

@@ -5,7 +5,7 @@ import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 // Default values for new workflow steps
 const DEFAULT_STEP_NAME = 'New Step';
 const DEFAULT_BRANCH_STEP_NAME = 'New Branch Step';
-const DEFAULT_STEP_DESCRIPTION = 'Add description here';
+const DEFAULT_STEP_DESCRIPTION = '';
 
 export interface UseWorkflowEditorOptions {
   initialWorkflow: WorkflowTemplate | null;
