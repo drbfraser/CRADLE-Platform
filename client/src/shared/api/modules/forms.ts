@@ -218,10 +218,12 @@ export const saveFormResponseAsync = async (
         .filter(
           (answer) =>
             answer.id.length > 0 &&
+            answer.questionId.length > 0 &&
             hasAnswerValue(answer.answers, answer.questionType)
         )
         .map((answer) => ({
           id: answer.id,
+          questionId: answer.questionId,
           answer: toV2AnswerValue(answer.answers, answer.questionType),
         })),
     };
@@ -301,6 +303,7 @@ export const getFormResponseAsync = async (formId: string): Promise<CForm> => {
 
       return {
         id: submissionAnswer?.id ?? question.id ?? '',
+        questionId: question.id ?? '',
         isBlank: !submissionAnswer,
         questionIndex: question.order,
         questionText: getLocalizedText(question.questionText, lang),

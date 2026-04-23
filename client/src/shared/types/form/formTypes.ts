@@ -63,6 +63,7 @@ export type Answer = {
 // Question is used in Form
 export type Question = {
   id: string;
+  questionId?: string;
   isBlank: boolean;
   questionIndex: number;
   questionText: string;

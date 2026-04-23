@@ -19,6 +19,7 @@ export type PostBody = {
 
 export type ApiAnswerForEdit = {
   id: string;
+  questionId: string;
   answers: Answer;
   questionType: QuestionTypeEnum;
 };
@@ -140,8 +141,10 @@ export const TransferQAnswerToPostBody = (
     postBody.edit = answers.map((answer) => {
       const question = getQuestionByIndex(questions, answer.qidx);
       const id = question?.id ?? '';
+      const questionId = question?.questionId ?? question?.id ?? '';
       return {
         id,
+        questionId,
         answers: answer.answer,
         questionType: question?.questionType ?? QuestionTypeEnum.STRING,
       };
@@ -270,7 +273,14 @@ export const areNumberResponsesValid = (
       ans.questionIndex
     );
     if (!q) return true; // no matching question → ignore
-    if (q.numMin === undefined && q.numMax === undefined) return true; // no range set
+    const isNumericQuestion =
+      q.questionType === QuestionTypeEnum.INTEGER ||
+      q.questionType === QuestionTypeEnum.DATE ||
+      q.questionType === QuestionTypeEnum.DATETIME;
+
+    if (!isNumericQuestion) return true;
+
+    if (q.numMin == null && q.numMax == null) return true; // no range set
 
     const val = Number(ans.val); // Formik stores raw string; coerce
     if (Number.isNaN(val)) return false; // not a number

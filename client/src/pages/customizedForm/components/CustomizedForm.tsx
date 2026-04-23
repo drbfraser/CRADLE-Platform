@@ -92,8 +92,11 @@ export const CustomizedForm = ({
     if (customSubmitHandler) {
       customSubmitHandler(form, postBody);
     } else {
+      const submittedFormId =
+        renderState === FormRenderStateEnum.FIRST_SUBMIT ? undefined : form.id;
+
       submitCustomForm.mutate(
-        { formId: form.id, postBody },
+        { formId: submittedFormId, postBody },
         {
           onSuccess: () => navigate(`/patients/${patientId}`),
         }
