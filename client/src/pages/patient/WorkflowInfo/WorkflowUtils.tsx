@@ -475,7 +475,8 @@ export const buildWorkflowInstanceRowList = async (
       if (instance.workflowTemplateId) {
         try {
           const template = await getTemplate(instance.workflowTemplateId);
-          templateName = template.classification?.name || template.name || 'N/A';
+          templateName =
+            template.classification?.name || template.name || 'N/A';
         } catch {
           templateName = 'Unknown template';
         }
