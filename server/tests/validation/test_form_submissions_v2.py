@@ -26,6 +26,7 @@ valid_form_submission = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP + 100,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 valid_form_submission_same_timestamps = {
@@ -36,6 +37,7 @@ valid_form_submission_same_timestamps = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,  # Same as date_submitted
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 # Missing required fields
@@ -46,6 +48,7 @@ submission_missing_id = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_missing_template_id = {
@@ -55,6 +58,7 @@ submission_missing_template_id = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_missing_patient_id = {
@@ -64,6 +68,7 @@ submission_missing_patient_id = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_missing_user_id = {
@@ -73,6 +78,7 @@ submission_missing_user_id = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_missing_date_submitted = {
@@ -82,6 +88,7 @@ submission_missing_date_submitted = {
     "user_id": VALID_USER_ID,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_missing_last_edited = {
@@ -91,6 +98,7 @@ submission_missing_last_edited = {
     "user_id": VALID_USER_ID,
     "date_submitted": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_missing_lang = {
@@ -100,6 +108,7 @@ submission_missing_lang = {
     "user_id": VALID_USER_ID,
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
+    "archived": False,
 }
 
 # Wrong types
@@ -111,6 +120,7 @@ submission_id_wrong_type = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_template_id_wrong_type = {
@@ -121,6 +131,7 @@ submission_template_id_wrong_type = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_date_submitted_wrong_type = {
@@ -131,6 +142,7 @@ submission_date_submitted_wrong_type = {
     "date_submitted": "2025-01-01",
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_last_edited_wrong_type = {
@@ -141,6 +153,7 @@ submission_last_edited_wrong_type = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": "2025-01-01",
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 submission_lang_wrong_type = {
@@ -151,6 +164,7 @@ submission_lang_wrong_type = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": 123,
+    "archived": False,
 }
 
 # Invalid date sequence (last_edited before date_submitted)
@@ -162,6 +176,7 @@ submission_invalid_date_sequence = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP - 100,  # Before submission date
     "lang": VALID_LANG,
+    "archived": False,
 }
 
 # Extra field
@@ -173,6 +188,7 @@ submission_with_extra_field = {
     "date_submitted": VALID_TIMESTAMP,
     "last_edited": VALID_TIMESTAMP,
     "lang": VALID_LANG,
+    "archived": False,
     "extra_field": "invalid",
 }
 
@@ -473,6 +489,7 @@ class TestFormSubmissionComplexScenarios:
             patient_id=VALID_PATIENT_ID,
             user_id=VALID_USER_ID,
             lang="English",
+            archived=False,
             answers=[
                 {
                     "id": "ans-1",
@@ -501,6 +518,7 @@ class TestFormSubmissionComplexScenarios:
                 date_submitted=VALID_TIMESTAMP,
                 last_edited=VALID_TIMESTAMP - 1000,
                 lang=VALID_LANG,
+                archived=False,
             )
         assert "last_edited cannot be before date_submitted" in str(exc_info.value)
 
@@ -515,6 +533,7 @@ class TestFormSubmissionComplexScenarios:
             date_submitted=VALID_TIMESTAMP,
             last_edited=VALID_TIMESTAMP,
             lang=VALID_LANG,
+            archived=False,
         )
         assert submission1.date_submitted == submission1.last_edited
 
@@ -527,5 +546,6 @@ class TestFormSubmissionComplexScenarios:
             date_submitted=VALID_TIMESTAMP,
             last_edited=VALID_TIMESTAMP + 1000,
             lang=VALID_LANG,
+            archived=False,
         )
         assert submission2.last_edited > submission2.date_submitted

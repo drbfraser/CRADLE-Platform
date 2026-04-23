@@ -4,16 +4,14 @@ import json
 
 from data import orm_serializer
 from models import (
-    FormOrm,
-    QuestionLangVersionOrm,
-    QuestionOrm,
+    FormAnswerOrmV2,
+    FormSubmissionOrmV2,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
 )
 from tests.helpers import (
-    make_form,
-    make_question,
-    make_question_lang_version,
+    make_answer_v2,
+    make_form_submission_v2,
     make_workflow_instance,
     make_workflow_instance_step,
 )
@@ -25,38 +23,19 @@ def test_unmarshal_workflow_instance_with_steps_mixed_form():
     nested form and another step with no form correctly attaches the nested form
     and its questions, and the other step without form.
     """
-    q_lang = make_question_lang_version(
-        question_id="q-1",
-        lang="en",
-        question_text="Do you have any symptoms?",
-        mc_options=[
-            {"label": "Yes", "value": "yes"},
-            {"label": "No", "value": "no"},
-        ],
-    )
-
     # --- Question payload (wire shape, not ORM) ---
-    question_payload = make_question(
+    answer_payload = make_answer_v2(
         id="q-1",
-        question_index=0,
-        question_text="Do you have any symptoms?",
-        question_type="MULTIPLE_CHOICE",
-        visible_condition={"op": "eq", "left": "age", "right": 18},
-        mc_options=[
-            {"label": "Yes", "value": "yes"},
-            {"label": "No", "value": "no"},
-        ],
-        answers={"default": "no"},
-        lang_versions=[q_lang],
+        question_id="q-1",
+        form_submission_id="form-1",
+        answer={"mc_id_array": [0]},
     )
 
     # --- Form payload with the question attached ---
-    form_payload = make_form(
+    form_payload = make_form_submission_v2(
         id="form-1",
-        name="ANC Intake",
         patient_id="p-1",
-        lang="en",
-        questions=[question_payload],
+        answers=[answer_payload],
     )
 
     # --- First step: with nested form ---
@@ -107,35 +86,15 @@ def test_unmarshal_workflow_instance_with_steps_mixed_form():
     assert isinstance(s2, WorkflowInstanceStepOrm)
 
     assert s1.id == "wis-1"
-    assert isinstance(s1.form, FormOrm)
+    assert isinstance(s1.form, FormSubmissionOrmV2)
     assert s1.form.id == "form-1"
-    assert isinstance(s1.form.questions, list) and len(s1.form.questions) == 1
+    assert isinstance(s1.form.answers, list) and len(s1.form.answers) == 1
 
-    q = s1.form.questions[0]
-    assert isinstance(q, QuestionOrm)
+    q = s1.form.answers[0]
+    assert isinstance(q, FormAnswerOrmV2)
 
-    assert isinstance(q.visible_condition, str)
-    assert json.loads(q.visible_condition) == {"op": "eq", "left": "age", "right": 18}
-
-    assert isinstance(q.answers, str)
-    assert json.loads(q.answers) == {"default": "no"}
-
-    assert isinstance(q.mc_options, str)
-    assert json.loads(q.mc_options) == [
-        {"label": "Yes", "value": "yes"},
-        {"label": "No", "value": "no"},
-    ]
-
-    assert isinstance(q.lang_versions, list)
-    assert len(q.lang_versions) == 1
-    qv = q.lang_versions[0]
-    assert isinstance(qv, QuestionLangVersionOrm)
-    assert qv.lang == "en"
-    assert isinstance(qv.mc_options, str)
-    assert json.loads(qv.mc_options) == [
-        {"label": "Yes", "value": "yes"},
-        {"label": "No", "value": "no"},
-    ]
+    assert isinstance(q.answer, str)
+    assert json.loads(q.answer) == {"mc_id_array": [0]}
 
     assert s2.id == "wis-2"
     assert s2.form is None

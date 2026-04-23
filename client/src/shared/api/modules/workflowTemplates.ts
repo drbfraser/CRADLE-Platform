@@ -133,7 +133,7 @@ export const getTemplate = async (
   return response.data;
 };
 
-// POST /workflow/templates
+// POST /workflow/templates/body
 export const createTemplate = (payload: TemplateInput) =>
   axiosFetch
     .post<WorkflowTemplate>(`${TEMPLATES}/body`, payload)

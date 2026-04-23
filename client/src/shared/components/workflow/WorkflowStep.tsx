@@ -23,6 +23,12 @@ export const WorkflowStep = ({
   isInstance,
   handleMakeCurrent,
 }: IProps) => {
+  const formName =
+    step.form?.name ||
+    step.form?.classification?.name ||
+    step.form?.classification?.name?.english ||
+    (step.formId ? `Form ID: ${step.formId}` : null);
+
   return (
     <>
       <Accordion>
@@ -31,9 +37,11 @@ export const WorkflowStep = ({
             <Box component="b">Step {step.index}: </Box> {step.name}
             {step.formId && (
               <Tooltip title="This step has an associated form" placement="top">
-                <IconButton component="span" size="small" disabled>
-                  <ArticleIcon />
-                </IconButton>
+                <span>
+                  <IconButton component="span" size="small" disabled>
+                    <ArticleIcon />
+                  </IconButton>
+                </span>
               </Tooltip>
             )}
             {isInstance && (
@@ -56,9 +64,9 @@ export const WorkflowStep = ({
           <Typography>
             <Box component="b">Description: </Box> {step.description}
           </Typography>
-          {step.form && (
+          {formName && (
             <Typography>
-              <Box component="b">Form: </Box> {step.form.classification.name}
+              <Box component="b">Form: </Box> {formName}
             </Typography>
           )}
           {step.expectedCompletion && (

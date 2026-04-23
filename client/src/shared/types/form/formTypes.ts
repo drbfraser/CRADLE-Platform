@@ -37,6 +37,7 @@ export interface CFormV2 {
   lang: string;
   questions: TQuestion[];
   patientId: string | undefined; //this is only used in client when we need to do the 'form creating' net post
+  archived: boolean;
 }
 
 export type QAnswer = {
@@ -62,6 +63,7 @@ export type Answer = {
 // Question is used in Form
 export type Question = {
   id: string;
+  questionId?: string;
   isBlank: boolean;
   questionIndex: number;
   questionText: string;

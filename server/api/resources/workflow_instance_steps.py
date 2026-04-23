@@ -149,10 +149,7 @@ def archive_form(path: WorkflowInstanceStepIdPath):
 
     form_utils.fetch_form_or_404(step.form_id)
 
-    current_user = user_utils.get_current_user_from_jwt()
-    user_id = int(current_user["id"])
-
-    WorkflowService.archive_form(step, user_id)
+    WorkflowService.archive_form(step)
 
     updated_step = WorkflowService.get_workflow_instance_step(
         path.workflow_instance_step_id

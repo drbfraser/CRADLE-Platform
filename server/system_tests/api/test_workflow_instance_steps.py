@@ -7,7 +7,7 @@ import data.db_operations as crud
 from common.api_utils import WorkflowInstanceStepIdPath
 from common.print_utils import pretty_print
 from models import (
-    FormOrm,
+    FormSubmissionOrmV2,
 )
 from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
@@ -234,7 +234,7 @@ def test_archive_workflow_instance_step_form(
     # Commit the test session to start a fresh transaction and see the latest DB values.
     crud.db_session.commit()
 
-    form_orm = crud.read(FormOrm, id=form["id"])
+    form_orm = crud.read(FormSubmissionOrmV2, id=form["id"])
     assert form_orm.archived == True
 
 

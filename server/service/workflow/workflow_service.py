@@ -406,9 +406,7 @@ class WorkflowService:
             workflow_instance_step.assigned_to = patch.assigned_to
 
     @staticmethod
-    def archive_form(
-        workflow_instance_step: WorkflowInstanceStepModel, editor_user_id: int
-    ) -> None:
+    def archive_form(workflow_instance_step: WorkflowInstanceStepModel) -> None:
         """
         Archive the form associated with a workflow instance step and persist
         the update.
@@ -420,7 +418,7 @@ class WorkflowService:
 
         # NOTE: Perhaps use Pydantic form model to improve type safety and correctness
         workflow_instance_step.form["archived"] = True
-        workflow_instance_step.form["last_edited_by"] = editor_user_id
+        # workflow_instance_step.form["last_edited_by"] = editor_user_id **not yet implemented for forms v2**
         workflow_instance_step.form["last_edited"] = get_current_time()
         workflow_instance_step.form_id = None
 

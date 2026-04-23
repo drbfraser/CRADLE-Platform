@@ -1,35 +1,37 @@
 # ruff: noqa: SLF001
 import data.orm_serializer as orm_seralizer
 from models import (
-    FormClassificationOrm,
-    FormOrm,
+    FormSubmissionOrmV2,
     RuleGroupOrm,
     WorkflowInstanceStepOrm,
 )
 
 
-def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormOrm:
+def _make_min_form(
+    form_id: str, fc_id: str, fc_name: str = "Clinical"
+) -> FormSubmissionOrmV2:
     """
     Construct a realistic FormOrm minimal for marshaling:
       - has a classification (required by __marshal_form),
       - has an empty questions list to verify shallow=False/True behavior,
       - includes a private attribute that must be stripped.
     """
-    form = FormOrm()
+    form = FormSubmissionOrmV2()
     form.id = form_id
     form.name = "ANC Intake"
     form.description = "Initial antenatal visit"
     form._private = "nope"
 
-    form_classification = FormClassificationOrm()
-    form_classification.id = fc_id
-    form_classification.name = fc_name
-    form_classification.templates = []  # __marshal_form_classification explicitly deletes this
-    form_classification._ephemeral = "nope"
-    form.classification = form_classification
+    """FormSubmissionOrmV2 does not contain classification"""
+    # form_classification = FormClassificationOrmV2()
+    # form_classification.id = fc_id
+    # form_classification.name_string_id = fc_name
+    # form_classification.templates = []  # __marshal_form_classification explicitly deletes this
+    # form_classification._ephemeral = "nope"
+    # form.classification = form_classification
 
-    # questions exists, but __marshal_form(..., shallow=True) must drop it
-    form.questions = []
+    # answers exists, but __marshal_form_submission_v2(..., shallow=True) must drop it
+    form.answers = []
     return form
 
 
@@ -103,15 +105,16 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
     assert "form" in marshalled and isinstance(marshalled["form"], dict)
     f = marshalled["form"]
     assert f["id"] == "f-10"
-    # classification is embedded and cleaned
-    assert "classification" in f and isinstance(f["classification"], dict)
-    fc = f["classification"]
-    assert fc["id"] == "fc-1"
-    assert fc["name"] == "Clinical"
-    assert "templates" not in fc  # removed by __marshal_form_classification
-    assert all(not k.startswith("_") for k in fc)  # no private attrs
-    # questions are omitted because shallow=True for 'form'
-    assert "questions" not in f
+    # classification is embedded and cleaned --> removed for v2 form submission orm
+    # assert "classification" in f and isinstance(f["classification"], dict)
+    # fc = f["classification"]
+    # assert fc["id"] == "fc-1"
+    # assert fc["name"] == "Clinical"
+    # assert "templates" not in fc  # removed by __marshal_form_classification
+    # assert all(not k.startswith("_") for k in fc)  # no private attrs
+
+    # answers are omitted because shallow=True for 'form'
+    assert "answers" not in f
     # ensure no private attrs on form
     assert "_private" not in f
 
