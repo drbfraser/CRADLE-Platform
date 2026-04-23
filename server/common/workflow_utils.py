@@ -25,7 +25,6 @@ from validation.formsV2_models import FormTemplateUploadRequest
 
 if TYPE_CHECKING:
     from data.crud import M
-
     from validation.workflow_models import (
         WorkflowInstanceModel,
         WorkflowInstanceStepModel,
