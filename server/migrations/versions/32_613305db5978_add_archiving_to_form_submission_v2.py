@@ -19,8 +19,11 @@ depends_on = None
 
 def upgrade():
     op.add_column(
-        "form_submission_v2", sa.Column("archived", sa.Boolean(), nullable=False)
+        "form_submission_v2", sa.Column("archived", sa.Boolean(), nullable=True)
     )
+    # fill existing records with default value of False (0)
+    op.execute("UPDATE form_submission_v2 SET archived = 0")
+    op.alter_column("form_submission_v2", "archived", nullable=False)
 
 
 def downgrade():
