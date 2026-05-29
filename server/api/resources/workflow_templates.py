@@ -279,7 +279,7 @@ def get_workflow_templates():
     workflow_classification_id = request.args.get("classification_id", default=None)
 
     archived_param = request.args.get("archived")
-    is_archived = convert_query_parameter_to_bool(archived_param)
+    is_archived = None if convert_query_parameter_to_bool(archived_param) else False
 
     workflow_templates = crud.read_workflow_templates(
         workflow_classification_id=workflow_classification_id,

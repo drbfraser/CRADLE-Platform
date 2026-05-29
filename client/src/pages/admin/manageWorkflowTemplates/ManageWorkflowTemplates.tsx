@@ -129,7 +129,7 @@ export const ManageWorkflowTemplates = () => {
             checked={showArchivedTemplates}
           />
         }
-        label="View Archived Workflow"
+        label="Include Archived Workflows"
       />
     </DataTableFooter>
   );
