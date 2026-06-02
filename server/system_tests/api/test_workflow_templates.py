@@ -333,13 +333,8 @@ def test_getting_workflow_templates(
         
         assert len(workflow_templates) == 2
         template_ids = {t["id"] for t in workflow_templates}
-        assert workflow_template1["id"] in template_ids  # archived
-        assert workflow_template3["id"] in template_ids  # non-archived
-
-        # assert (
-        #     len(workflow_templates) == 1
-        #     and workflow_templates[0]["id"] == workflow_template1["id"]
-        # )
+        assert workflow_template1["id"] in template_ids
+        assert workflow_template3["id"] in template_ids
 
         """
         Query for a specific workflow template

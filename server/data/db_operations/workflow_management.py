@@ -204,7 +204,6 @@ def read_workflow_templates(
             WorkflowTemplateOrm.classification_id == workflow_classification_id
         )
 
-    # TODO: Do we want to keep the is_archived filter? No toggle to only show archived
     if is_archived is not None:
         query = query.filter(WorkflowTemplateOrm.archived == is_archived)
 
