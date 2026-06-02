@@ -103,9 +103,9 @@ describe('Workflow Table', () => {
     );
   });
 
-  test('Renders archived Workflow', async () => {
+  test('Renders both archived and non archived Workflows', async () => {
     const viewArchivedSwitch = screen.getByRole('checkbox', {
-      name: 'View Archived Workflow',
+      name: 'Include Archived Workflows',
     });
     await userEvent.click(viewArchivedSwitch);
 
