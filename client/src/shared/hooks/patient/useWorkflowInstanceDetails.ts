@@ -16,7 +16,7 @@ import {
   WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';
 
-export function useWorkflowInstanceDetails(instanceId: string) {
+export function useWorkflowInstanceDetails(instanceId: string | undefined) {
   const [instanceDetails, setInstanceDetails] =
     useState<InstanceDetails | null>(null);
   const [template, setTemplate] = useState<WorkflowTemplate | null>(null);
@@ -29,8 +29,23 @@ export function useWorkflowInstanceDetails(instanceId: string) {
     currentIndex: 0,
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const fetchAll = useCallback(async () => {
+    if (!instanceId) {
+      setIsLoading(false);
+      setError('No workflow instance ID provided');
+      setInstanceDetails(null);
+      setTemplate(null);
+      setCurrentStep(null);
+      return;
+    }
+
     try {
+      setIsLoading(true);
+      setError(null);
+
       const instance = await getInstanceWithSteps(instanceId);
       const patient = await getPatientInfoAsync(instance.patientId);
       const template = await getTemplateWithStepsAndClassification(
@@ -47,7 +62,19 @@ export function useWorkflowInstanceDetails(instanceId: string) {
       const progress = computeProgressAndEta(details.steps);
       setProgressInfo(progress);
     } catch (err) {
-      console.error('Failed to load workflow instance details', err);
+      let message = 'Failed to load workflow instance details';
+      if (err && typeof err === 'object' && 'message' in err) {
+        message = String((err as { message: unknown }).message);
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+
+      setError(message);
+      setInstanceDetails(null);
+      setTemplate(null);
+      setCurrentStep(null);
+    } finally {
+      setIsLoading(false);
     }
   }, [instanceId]);
 
@@ -60,6 +87,8 @@ export function useWorkflowInstanceDetails(instanceId: string) {
     template,
     currentStep,
     progressInfo,
+    isLoading,
+    error,
     reload: fetchAll,
   };
 }

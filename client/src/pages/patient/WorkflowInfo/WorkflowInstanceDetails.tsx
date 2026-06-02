@@ -8,6 +8,7 @@ import {
   Divider,
   Snackbar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -51,8 +52,15 @@ export default function WorkflowInstanceDetailsPage() {
   });
   const [nextStep, setNextStep] = useState<string | null>(null);
 
-  const { instanceDetails, template, currentStep, progressInfo, reload } =
-    useWorkflowInstanceDetails(instanceId!);
+  const {
+    instanceDetails,
+    template,
+    currentStep,
+    progressInfo,
+    isLoading,
+    error,
+    reload,
+  } = useWorkflowInstanceDetails(instanceId);
   const {
     formModalState,
     handleOpenFormModal,
@@ -194,11 +202,26 @@ export default function WorkflowInstanceDetailsPage() {
 
         <Divider sx={{ my: 3 }} />
 
-        {!instanceDetails ? (
-          <Typography variant="h5" component="p">
-            Loading workflow instance...
-          </Typography>
-        ) : (
+        {isLoading ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CircularProgress size={24} />
+            <Typography variant="h5" component="p">
+              Loading workflow instance...
+            </Typography>
+          </Box>
+        ) : error ? (
+          <Box>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+            <Button variant="contained" onClick={reload} sx={{ mr: 2 }}>
+              Retry
+            </Button>
+            <Button variant="outlined" onClick={() => navigate(-1)}>
+              Go back
+            </Button>
+          </Box>
+        ) : instanceDetails ? (
           <>
             {/* Workflow Instance Name & Patient Heading */}
             <Box
@@ -310,7 +333,7 @@ export default function WorkflowInstanceDetailsPage() {
               setConfirmDialog={setConfirmDialog}
             />
           </>
-        )}
+        ) : null}
       </Paper>
 
       {/* Snackbar for Confirmation Dialog */}
