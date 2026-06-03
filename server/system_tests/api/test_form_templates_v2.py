@@ -97,6 +97,43 @@ def test_form_template_duplicate_version_rejected(
         for lvid in created_lang_versions:
             crud.delete_all(LangVersionOrmV2, string_id=lvid)
 
+def test_form_template_graceful_failure(
+    database, form_template_v2_payload, api_post
+):
+    classification_id = "rollback_test_classification"
+
+    payload = form_template_v2_payload(
+        overrides={
+            "classification": {
+                "id": classification_id,
+                "name": {"english": "Rollback Test Form"},
+            }
+        },
+        extra_questions=[
+            {
+                "question_type": "INTEGER",
+                "order": 2,
+                "required": True,
+                "question_text": {"english": "Duplicate heart rate"},
+                "num_min": 0,
+                "num_max": 300,
+                "category_index": 0,
+                "user_question_id": "heart_rate",
+                "mc_options": [],
+            }
+        ],
+    )
+
+    try:
+        response = api_post("/api/forms/v2/templates/body", json=payload)
+
+        assert response.status_code == 422
+
+        assert crud.read(FormClassificationOrmV2, id=classification_id) is None
+
+    finally:
+        crud.delete_all(FormClassificationOrmV2, id=classification_id)
+
 
 def test_archive_form_template_v2(
     database, form_template_v2_payload, api_post, api_put
