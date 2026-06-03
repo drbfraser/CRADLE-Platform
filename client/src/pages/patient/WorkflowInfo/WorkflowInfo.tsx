@@ -307,6 +307,17 @@ export const WorkflowInfo: React.FC = () => {
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
             sorting: { sortModel: [{ field: 'lastEdited', sort: 'desc' }] },
+            filter: {
+              filterModel: {
+                items: [
+                  {
+                    field: 'status',
+                    operator: 'not',
+                    value: InstanceStatus.COMPLETED,
+                  },
+                ],
+              },
+            },
           }}
           pageSizeOptions={[5, 10, 25]}
           disableRowSelectionOnClick
