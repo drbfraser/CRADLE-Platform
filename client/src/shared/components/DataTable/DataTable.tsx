@@ -52,6 +52,7 @@ type DataTableProps = {
   sortModel?: { field: string; sort: 'asc' | 'desc' }[];
   onSortModelChange?: (model: GridSortModel) => void;
   onRowClick?: (params: GridRowParams<any>) => void;
+  sortingMode?: 'client' | 'server';
 };
 
 export const DataTable = ({
@@ -67,6 +68,7 @@ export const DataTable = ({
   sortModel,
   onSortModelChange,
   onRowClick,
+  sortingMode = 'client',
   disableVirtualization,
   disablePagination,
 }: DataTableProps) => {
@@ -100,7 +102,7 @@ export const DataTable = ({
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         rowCount={effectiveRowCount}
-        sortingMode="server"
+        sortingMode={sortingMode}
         sortModel={sortModel}
         onSortModelChange={onSortModelChange}
         onRowClick={onRowClick}

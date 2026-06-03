@@ -188,7 +188,7 @@ def read_workflow_instances(
 
 def read_workflow_templates(
     workflow_classification_id: Optional[str] = None,
-    is_archived: bool = False,
+    is_archived: Optional[bool] = False,
 ) -> List[WorkflowTemplateOrm]:
     """
     Queries the database for all workflow templates that either belong to a classification or in total
@@ -204,7 +204,8 @@ def read_workflow_templates(
             WorkflowTemplateOrm.classification_id == workflow_classification_id
         )
 
-    query = query.filter(WorkflowTemplateOrm.archived == is_archived)
+    if is_archived is not None:
+        query = query.filter(WorkflowTemplateOrm.archived == is_archived)
 
     return query.all()
 
