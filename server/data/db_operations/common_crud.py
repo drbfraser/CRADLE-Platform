@@ -22,7 +22,7 @@ from models import (
 from service import invariant
 
 
-def create(model: M, refresh=False):
+def create(model: M, refresh=False, autocommit: bool = True):
     """
     Inserts a new model into the database.
 
@@ -36,13 +36,19 @@ def create(model: M, refresh=False):
     :param refresh: If true, immediately refresh ``model`` populating it with data from
                     the database; this involves an additional query so only use it if
                     necessary
+    :param autocommit: If true, the current transaction is committed before return; the
+                       default is true
     """
     # Ensures that any reading that is entered into the DB is correctly formatted
     if isinstance(model, ReadingOrm):
         invariant.resolve_reading_invariants(model)
 
     db_session.add(model)
-    db_session.commit()
+    if autocommit:
+        db_session.commit()
+    else:
+        db_session.flush()
+
     if refresh:
         db_session.refresh(model)
 

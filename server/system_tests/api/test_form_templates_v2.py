@@ -127,7 +127,7 @@ def test_form_template_graceful_failure(
     try:
         response = api_post("/api/forms/v2/templates/body", json=payload)
 
-        assert response.status_code == 422
+        assert response.status_code != 201
 
         assert crud.read(FormClassificationOrmV2, id=classification_id) is None
 

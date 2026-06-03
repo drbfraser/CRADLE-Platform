@@ -249,31 +249,37 @@ def handle_form_template_upload(
     form_template_dict["form_classification_id"] = form_classification_dict.get("id")
     form_template_orm = orm_serializer.unmarshal(FormTemplateOrmV2, form_template_dict)
 
-    crud.create_all(new_lang_versions, autocommit=False)
+    crud.db_session.commit()
+    try:
+        crud.create_all(new_lang_versions, autocommit=False)
 
-    if not form_classification_orm:
-        form_classification_orm = FormClassificationOrmV2(
-            id=form_classification_dict.get("id"),
-            name_string_id=form_classification_dict.get("name_string_id"),
-        )
-        crud.create(form_classification_orm, refresh=True)
+        if not form_classification_orm:
+            form_classification_orm = FormClassificationOrmV2(
+                id=form_classification_dict.get("id"),
+                name_string_id=form_classification_dict.get("name_string_id"),
+            )
+            crud.create(form_classification_orm, refresh=True, autocommit=False)
 
-    if archive_previous_template:
-        previous_template = crud.read(
-            FormTemplateOrmV2,
-            form_classification_id=form_classification_dict.get("id"),
-            archived=False,
-        )
-        if previous_template is not None:
-            previous_template.archived = True
+        if archive_previous_template:
+            previous_template = crud.read(
+                FormTemplateOrmV2,
+                form_classification_id=form_classification_dict.get("id"),
+                archived=False,
+            )
+            if previous_template is not None:
+                previous_template.archived = True
 
-    form_template_orm.classification = form_classification_orm
-    crud.create(form_template_orm, refresh=True)
+        form_template_orm.classification = form_classification_orm
+        crud.create(form_template_orm, refresh=True, autocommit=False)
 
-    created_form_template = orm_serializer.marshal(form_template_orm, shallow=True)
-    created_form_template["name"] = english_name
+        created_form_template = orm_serializer.marshal(form_template_orm, shallow=True)
+        created_form_template["name"] = english_name
 
-    return created_form_template
+        crud.db_session.commit()
+        return created_form_template
+    except Exception:
+        crud.db_session.rollback()
+        raise
 
 
 # /api/forms/v2/templates/body [POST]
@@ -292,7 +298,6 @@ def upload_form_template_body(body: FormTemplateUploadRequest):
 
     except ValueError as err:
         return abort(409, description=str(err))
-
 
 # /api/forms/v2/templates [POST]
 @api_form_templates_v2.post("", responses={201: FormTemplateV2Response})
