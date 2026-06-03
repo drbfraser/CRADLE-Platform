@@ -172,7 +172,7 @@ export const WorkflowInfo: React.FC = () => {
       field: 'status',
       headerName: 'Status',
       type: 'singleSelect',
-      valueOptions: ['ACTIVE', 'COMPLETED', 'CANCELLED'],
+      valueOptions: ['Active', 'Completed', 'Cancelled'],
       width: 120,
       renderCell: (p: GridRenderCellParams) => {
         const row = p.row as WorkflowInfoRow;
