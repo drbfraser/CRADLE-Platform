@@ -196,8 +196,9 @@ export const WorkflowInfo: React.FC = () => {
     {
       field: 'lastEdited',
       headerName: 'Last Edited',
-      type: 'string',
+      type: 'number',
       width: 130,
+      sortingOrder: ['desc', 'asc'],
       valueGetter: (_value: unknown, row: WorkflowInfoRow) => row.lastEdited,
       renderCell: (params: GridRenderCellParams) => {
         const d = params.value as number | undefined;
