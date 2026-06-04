@@ -195,7 +195,9 @@ export default function WorkflowInstanceDetailsPage() {
           </Tooltip>
           <Box sx={{ ml: 0.5 }}>
             <Typography variant="h4" component="h2">
-              Workflow Instance Details
+              {template
+                ? `Workflow: ${template.classification?.name ?? template.name ?? 'Instance Details'}`
+                : 'Workflow Instance Details'}
             </Typography>
           </Box>
         </Box>
