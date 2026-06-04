@@ -198,11 +198,12 @@ def seed_test_data():
 
     print("Creating a simple workflow template and form for the workflow template")
     form_template_id = create_simple_workflow_template_step_form_v2()
+    form_template_id_diverse = create_diverse_workflow_template_step_form_v2()
 
     WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
     WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
     WORKFLOW_TEMPLATE_ID3 = "workflow-template-3"
-    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
+    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id_diverse)
     create_simple_workflow_template_with_branching(
         WORKFLOW_TEMPLATE_ID2, form_template_id
     )
@@ -1758,6 +1759,199 @@ def create_simple_workflow_template_with_branching(
     db.session.add(workflow_template_orm)
     db.session.commit()
 
+
+def create_diverse_workflow_template_step_form_classification_v2():
+    id = "wt-diverse-1-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    lang_name_translation = LangVersionOrmV2(
+        string_id=lang_name_string_id,
+        lang="English",
+        text="Diverse Patient Details",
+    )
+    db.session.add(lang_name_translation)
+
+    simple_form_classification = {
+        "id": id,
+        "name_string_id": lang_name_string_id,
+    }
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        **simple_form_classification
+    )
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+    return id
+
+
+def create_diverse_workflow_template_step_form_v2():
+    form_template_id = "diverse-workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return None
+
+    # Add classification for form to DB
+    classification_id = create_diverse_workflow_template_step_form_classification_v2()
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    # Set up form template associated with workflow
+    form_template = {
+        "id": form_template_id,
+        "form_classification_id": form_classification_orm.id,
+        "version": 1,
+        "archived": False,
+    }
+
+    form_template_orm = FormTemplateOrmV2(**form_template)
+
+    # number with min and max
+    age_question_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=age_question_id,
+            lang="English",
+            text="What is the patient's age?",
+        )
+    )
+    age_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-age",
+        form_template_id=form_template_id,
+        order=0,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=age_question_id,
+        user_question_id="patient_age",
+        required=True,
+        units="years",
+        num_min=0,
+        num_max=150,
+        category_index=None,
+    )
+    form_template_orm.questions.append(age_question)
+
+    # Radio buttons (single select)
+    gender_question_id = get_uuid()
+    male_id = get_uuid()
+    female_id = get_uuid()
+    other_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=gender_question_id,
+                lang="English",
+                text="What is the patient's sex?",
+            ),
+            LangVersionOrmV2(
+                string_id=male_id,
+                lang="English",
+                text="Male",
+            ),
+            LangVersionOrmV2(
+                string_id=female_id,
+                lang="English",
+                text="Female",
+            ),
+            LangVersionOrmV2(
+                string_id=other_id,
+                lang="English",
+                text="Other",
+            ),
+        ]
+    )
+    gender_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-gender",
+        form_template_id=form_template_id,
+        order=1,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=gender_question_id,
+        user_question_id="patient_sex",
+        required=True,
+        mc_options=json.dumps([male_id, female_id, other_id]),
+        category_index=None,
+    )
+    form_template_orm.questions.append(gender_question)
+
+    # checkboxes
+    symptoms_question_id = get_uuid()
+    symptom_ids = [get_uuid() for _ in range(3)]
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=symptom_ids[0], lang="English", text="Headache"),
+            LangVersionOrmV2(string_id=symptom_ids[1], lang="English", text="Fever"),
+            LangVersionOrmV2(string_id=symptom_ids[2], lang="English", text="Nausea"),
+            LangVersionOrmV2(
+                string_id=symptoms_question_id,
+                lang="English",
+                text="Which symptoms is the patient experiencing?",
+            ),
+        ]
+    )
+    symptoms_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-symptoms",
+        form_template_id=form_template_id,
+        order=2,
+        question_type=QuestionTypeEnum.MULTIPLE_SELECT,
+        question_string_id=symptoms_question_id,
+        user_question_id="patient_symptoms",
+        required=False,
+        mc_options=json.dumps(symptom_ids),
+        category_index=None,
+    )
+    form_template_orm.questions.append(symptoms_question)
+
+    # nromal string
+    notes_question_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=notes_question_id,
+            lang="English",
+            text="Please provide any additional notes",
+        )
+    )
+    notes_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-notes",
+        form_template_id=form_template_id,
+        order=3,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=notes_question_id,
+        user_question_id="additional_notes",
+        required=False,
+        string_max_length=300,
+        string_max_lines=3,
+        category_index=None,
+    )
+    form_template_orm.questions.append(notes_question)
+
+    # date
+    visit_date_question_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=visit_date_question_id,
+            lang="English",
+            text="What is the date of the visit?",
+        )
+    )
+    visit_date_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-visit-date",
+        form_template_id=form_template_id,
+        order=4,
+        question_type=QuestionTypeEnum.DATE,
+        question_string_id=visit_date_question_id,
+        user_question_id="visit_date",
+        required=True,
+        allow_future_dates=False,
+        allow_past_dates=True,
+        category_index=None,
+    )
+    form_template_orm.questions.append(visit_date_question)
+
+    # add to db
+    db.session.add(form_template_orm)
+    db.session.commit()
+
+    return form_template["id"]
 
 def create_simple_workflow_template_step_form_classification_v2():
     id = "wt-simple-1-form-classification_v2"
