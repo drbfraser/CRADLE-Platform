@@ -201,10 +201,12 @@ def seed_test_data():
 
     WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
     WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
+    WORKFLOW_TEMPLATE_ID3 = "workflow-template-3"
     create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
     create_simple_workflow_template_with_branching(
         WORKFLOW_TEMPLATE_ID2, form_template_id
     )
+    create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id)
 
     print("Creating workflow instances")
     # Create forms to be used by workflow instance
@@ -264,6 +266,14 @@ def seed_test_data():
         patient_id=PATIENT_ID_3,
         workflow_template_id=WORKFLOW_TEMPLATE_ID2,
         num_steps=6,  # must be 6 for fixed template
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-5",
+        instance_name="Collect Patient Name Workflow Instance",
+        patient_id=PATIENT_ID_1,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID3,
+        num_steps=1
     )
 
     print("Finished seeding test data")
@@ -1535,6 +1545,23 @@ def create_relay_nums():
         db.session.commit()
 
 
+def create_single_step_workflow_classification():
+    classification_id = "wc-single-step-1"
+
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
+    
+    workflow_classification = {
+        "id": classification_id,
+        "name": "Get Patient Name Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+
 def create_simple_workflow_classification():
     classification_id = "wc-simple-1"
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
@@ -1552,6 +1579,47 @@ def create_simple_workflow_classification():
 
     return workflow_classification["id"]
 
+def create_single_step_workflow_template(workflow_template_id, form_template_id, num_steps=1):
+    
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
+        return
+    
+    classification_id = create_single_step_workflow_classification()
+
+    workflow_template = {
+        "id": workflow_template_id,
+        "description": "Collect patient name",
+        "archived": False,
+        "starting_step_id": f"{workflow_template_id}-step-1",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version":"V1",
+        "classification_id":classification_id
+    }
+
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
+
+    step = {
+        "id": f"{workflow_template_id}-step-1",
+        "name": "Get Patient Name",
+        "description": "Enter the patient's name",
+        "expected_completion": get_current_time()
+        + 86400,  # Expected completion is 24 hours after this step was created
+        "last_edited": get_current_time(),
+        "form_id": form_template_id,
+        "workflow_template_id": workflow_template["id"],
+    }
+
+    form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+    step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
+    workflow_template_orm.steps.append(step_orm)
+
+    
+    db.session.add(workflow_template_orm)
+    db.session.commit()
 
 def create_simple_workflow_template(
     workflow_template_id, form_template_id, num_steps=3
