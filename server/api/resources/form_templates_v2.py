@@ -299,6 +299,7 @@ def upload_form_template_body(body: FormTemplateUploadRequest):
     except ValueError as err:
         return abort(409, description=str(err))
 
+
 # /api/forms/v2/templates [POST]
 @api_form_templates_v2.post("", responses={201: FormTemplateV2Response})
 @roles_required([RoleEnum.ADMIN])

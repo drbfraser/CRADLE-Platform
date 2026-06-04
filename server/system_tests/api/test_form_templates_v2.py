@@ -97,9 +97,8 @@ def test_form_template_duplicate_version_rejected(
         for lvid in created_lang_versions:
             crud.delete_all(LangVersionOrmV2, string_id=lvid)
 
-def test_form_template_graceful_failure(
-    database, form_template_v2_payload, api_post
-):
+
+def test_form_template_graceful_failure(database, form_template_v2_payload, api_post):
     classification_id = "rollback_test_classification"
 
     payload = form_template_v2_payload(
