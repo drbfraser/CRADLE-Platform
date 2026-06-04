@@ -1590,7 +1590,7 @@ def create_simple_workflow_template(
             "workflow_template_id": workflow_template["id"],
         }
 
-        form_template_orm = crud.read(FormTemplateOrm, id=form_template_id)
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
         step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
 
         # Add branch if not last step
@@ -1659,7 +1659,7 @@ def create_simple_workflow_template_with_branching(
             "form_id": form_template_id,
             "workflow_template_id": workflow_template_id,
         }
-        form_template_orm = crud.read(FormTemplateOrm, id=form_template_id)
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
         steps_dict[step_id] = WorkflowTemplateStepOrm(
             form=form_template_orm, **step_data
         )
@@ -1958,7 +1958,7 @@ def create_complex_workflow_template_steps():
 def create_workflow_template_step_with_form_and_branches(
     template_step: dict, form_id: str, template_step_branches: List[dict]
 ) -> None:
-    form_template_orm = crud.read(FormTemplateOrm, id=form_id)
+    form_template_orm = crud.read(FormTemplateOrmV2, id=form_id)
     template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
 
     for branch in template_step_branches:
