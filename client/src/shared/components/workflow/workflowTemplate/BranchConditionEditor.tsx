@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   TextField,
@@ -54,6 +54,18 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   const [currentRule, setCurrentRule] = useState<string | null>(
     branch.condition?.rule || null
   );
+  // BlocklyEditor registers onChange once on mount, so handleBlocklyChange
+  // must read the latest name via a ref to avoid stale closure wiping the name.
+  const conditionNameRef = useRef(conditionName);
+  const currentRuleRef = useRef(currentRule);
+
+  useEffect(() => {
+    conditionNameRef.current = conditionName;
+  }, [conditionName]);
+
+  useEffect(() => {
+    currentRuleRef.current = currentRule;
+  }, [currentRule]);
 
   useEffect(() => {
     getWorkflowVariables()
@@ -82,14 +94,25 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   ) => {
     setCurrentRule(jsonLogic);
     if (onChange) {
-      onChange(stepId, branchIndex, jsonLogic ?? '', conditionName, error);
+      onChange(
+        stepId,
+        branchIndex,
+        jsonLogic ?? '',
+        conditionNameRef.current,
+        error
+      );
     }
   };
 
   const handleConditionNameChange = (name: string) => {
     setConditionName(name);
-    if (currentRule && onChange) {
-      onChange(stepId, branchIndex, currentRule, name);
+    if (onChange) {
+      onChange(
+        stepId,
+        branchIndex,
+        currentRuleRef.current ?? branch.condition?.rule ?? '',
+        name
+      );
     }
   };
 

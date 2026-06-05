@@ -153,6 +153,7 @@ export const CreateWorkflowTemplate = () => {
           hasChanges={workflowEditor.hasChanges}
           selectedStepId={workflowEditor.selectedStepId}
           selectedBranchIndex={workflowEditor.selectedBranchIndex}
+          setSelectedBranchIndex={workflowEditor.setSelectedBranchIndex}
           onTargetStepChange={workflowEditor.onTargetStepChange}
           onStepSelect={workflowEditor.setSelectedStepId}
           onFieldChange={workflowEditor.handleFieldChange}
