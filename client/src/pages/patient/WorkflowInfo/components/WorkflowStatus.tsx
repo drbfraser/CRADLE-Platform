@@ -22,10 +22,6 @@ export default function WorkflowStatus(props: {
     <>
       {/* Section 2: Workflow Status */}
       <Box sx={{ mx: 5, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Workflow Status
-        </Typography>
-
         <Box
           sx={{
             p: 3,
@@ -35,36 +31,26 @@ export default function WorkflowStatus(props: {
           }}>
           {/* Summary Row */}
           <Grid container spacing={3} sx={{ mb: 2 }}>
+            {/* Started - left */}
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                {workflowInstance.workflowCompletedOn ? (
-                  <CheckCircleOutlineIcon
-                    color="success"
-                    sx={{ fontSize: 32, mb: 1 }}
-                  />
-                ) : (
-                  <HourglassEmptyIcon
-                    color="disabled"
-                    sx={{ fontSize: 32, mb: 1 }}
-                  />
-                )}
+                <CalendarTodayOutlinedIcon
+                  color="success"
+                  sx={{ fontSize: 32, mb: 1 }}
+                />
                 <Typography variant="subtitle2" color="text.secondary">
-                  {workflowInstance.workflowCompletedOn
-                    ? 'Completed'
-                    : 'Last Edited'}
+                  Started
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {workflowInstance.workflowCompletedOn ||
-                    workflowInstance.lastEditedOn}
+                  {workflowInstance.workflowStartedOn}
                 </Typography>
-                {!workflowInstance.workflowCompletedOn && (
-                  <Typography variant="caption" color="text.secondary">
-                    by {workflowInstance?.lastEditedBy || 'N/A'}
-                  </Typography>
-                )}
+                <Typography variant="caption" color="text.secondary">
+                  by {workflowInstance.workflowStartedBy}
+                </Typography>
               </Box>
             </Grid>
 
+            {/* Progress - middle */}
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 <ReplayIcon
@@ -103,21 +89,34 @@ export default function WorkflowStatus(props: {
               </Box>
             </Grid>
 
+            {/* Last Edited / Completed - right */}
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                <CalendarTodayOutlinedIcon
-                  color="success"
-                  sx={{ fontSize: 32, mb: 1 }}
-                />
+                {workflowInstance.workflowCompletedOn ? (
+                  <CheckCircleOutlineIcon
+                    color="success"
+                    sx={{ fontSize: 32, mb: 1 }}
+                  />
+                ) : (
+                  <HourglassEmptyIcon
+                    color="disabled"
+                    sx={{ fontSize: 32, mb: 1 }}
+                  />
+                )}
                 <Typography variant="subtitle2" color="text.secondary">
-                  Started
+                  {workflowInstance.workflowCompletedOn
+                    ? 'Completed'
+                    : 'Last Edited'}
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  {workflowInstance.workflowStartedOn}
+                  {workflowInstance.workflowCompletedOn ||
+                    workflowInstance.lastEditedOn}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  by {workflowInstance.workflowStartedBy}
-                </Typography>
+                {!workflowInstance.workflowCompletedOn && (
+                  <Typography variant="caption" color="text.secondary">
+                    by {workflowInstance?.lastEditedBy || 'N/A'}
+                  </Typography>
+                )}
               </Box>
             </Grid>
           </Grid>

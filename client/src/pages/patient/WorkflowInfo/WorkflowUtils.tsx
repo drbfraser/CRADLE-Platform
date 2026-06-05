@@ -152,6 +152,7 @@ export function buildInstanceDetails(
   const instanceDetails: InstanceDetails = {
     id: instance.id,
     studyTitle: instance.name,
+    status: instance.status,
     patientName: patient.name,
     patientId: instance.patientId,
     description: instance.description,

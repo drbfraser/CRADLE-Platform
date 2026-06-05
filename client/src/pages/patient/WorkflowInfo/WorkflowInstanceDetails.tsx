@@ -17,7 +17,12 @@ import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplat
 import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { archiveInstanceStepForm } from 'src/shared/api';
+import {
+  archiveInstanceStepForm,
+  archiveInstance,
+  unArchiveInstance,
+  completeInstance,
+} from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
@@ -31,7 +36,7 @@ import { SnackbarSeverity } from 'src/shared/enums';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowNextStepOptions } from 'src/shared/hooks/patient/useWorkflowNextStepOptions';
 import { useWorkflowStepActions } from 'src/shared/hooks/patient/useWorkflowStepActions';
-import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
+import { InstanceStatus, StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -196,7 +201,7 @@ export default function WorkflowInstanceDetailsPage() {
           <Box sx={{ ml: 0.5 }}>
             <Typography variant="h4" component="h2">
               {template
-                ? `Workflow: ${template.classification?.name ?? template.name ?? 'Instance Details'}`
+                ? `Workflow: ${template.classification?.name ?? template.name ?? 'Unknown'}`
                 : 'Workflow Instance Details'}
             </Typography>
           </Box>
@@ -328,6 +333,85 @@ export default function WorkflowInstanceDetailsPage() {
               workflowInstance={instanceDetails}
               handleMakeCurrent={handleSetCurrentStep}
             />
+
+            {/* Section 5: Change Workflow Status */}
+            <Box sx={{ mx: 5, mt: 3 }}>
+              <Divider sx={{ mb: 3 }} />
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Change Workflow Status
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                {instanceDetails.status === InstanceStatus.ACTIVE && (
+                  <>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() =>
+                        setConfirmDialog({
+                          open: true,
+                          title: 'Cancel Workflow',
+                          message:
+                            'Are you sure you want to cancel this workflow?',
+                          onConfirm: async () => {
+                            await archiveInstance(instanceDetails.id);
+                            setConfirmDialog((prev) => ({
+                              ...prev,
+                              open: false,
+                            }));
+                            reload();
+                          },
+                        })
+                      }>
+                      Cancel Workflow
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={() =>
+                        setConfirmDialog({
+                          open: true,
+                          title: 'Mark Workflow Completed',
+                          message:
+                            'Are you sure you want to mark this workflow as completed?',
+                          onConfirm: async () => {
+                            await completeInstance(instanceDetails.id);
+                            setConfirmDialog((prev) => ({
+                              ...prev,
+                              open: false,
+                            }));
+                            reload();
+                          },
+                        })
+                      }>
+                      Mark Workflow Completed
+                    </Button>
+                  </>
+                )}
+                {(instanceDetails.status === InstanceStatus.COMPLETED ||
+                  instanceDetails.status === InstanceStatus.CANCELLED) && (
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      setConfirmDialog({
+                        open: true,
+                        title: 'Make Workflow Active',
+                        message:
+                          'Are you sure you want to reactivate this workflow?',
+                        onConfirm: async () => {
+                          await unArchiveInstance(instanceDetails.id);
+                          setConfirmDialog((prev) => ({
+                            ...prev,
+                            open: false,
+                          }));
+                          reload();
+                        },
+                      })
+                    }>
+                    Make Workflow Active
+                  </Button>
+                )}
+              </Box>
+            </Box>
 
             {/* Confirmation Dialog */}
             <WorkflowConfirmDialog
