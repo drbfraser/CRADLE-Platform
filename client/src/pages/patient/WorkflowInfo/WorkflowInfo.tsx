@@ -24,6 +24,7 @@ import {
   GridToolbarContainer,
   GridToolbarFilterButton,
   useGridApiContext,
+  GridRowParams,
 } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import { getInstancesByPatient } from 'src/shared/api';
@@ -172,7 +173,7 @@ export const WorkflowInfo: React.FC = () => {
       field: 'status',
       headerName: 'Status',
       type: 'singleSelect',
-      valueOptions: ['ACTIVE', 'COMPLETED', 'CANCELLED'],
+      valueOptions: ['Active', 'Completed', 'Cancelled'],
       width: 120,
       renderCell: (p: GridRenderCellParams) => {
         const row = p.row as WorkflowInfoRow;
@@ -195,8 +196,9 @@ export const WorkflowInfo: React.FC = () => {
     {
       field: 'lastEdited',
       headerName: 'Last Edited',
-      type: 'string',
+      type: 'number',
       width: 130,
+      sortingOrder: ['desc', 'asc'],
       valueGetter: (_value: unknown, row: WorkflowInfoRow) => row.lastEdited,
       renderCell: (params: GridRenderCellParams) => {
         const d = params.value as number | undefined;
@@ -205,29 +207,6 @@ export const WorkflowInfo: React.FC = () => {
     },
     { field: 'stepsCount', headerName: 'Steps', type: 'number', width: 105 },
     { field: 'currentStepLabel', headerName: 'Current Step', width: 140 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 120,
-      sortable: false,
-      filterable: false,
-      renderCell: (params: GridRenderCellParams) => {
-        const row = params.row as WorkflowInfoRow;
-        return (
-          <Button
-            size="small"
-            onClick={() => {
-              navigate(`/workflow-instance/view/${row.id}`, {
-                state: {
-                  viewWorkflowInstance: row,
-                },
-              });
-            }}>
-            View Details
-          </Button>
-        );
-      },
-    },
   ];
 
   const location = useLocation();
@@ -240,6 +219,10 @@ export const WorkflowInfo: React.FC = () => {
 
   const handleToastClose = () => {
     setToast(null);
+  };
+  const handleRowClick = (params: GridRowParams) => {
+    const row = params.row as WorkflowInfoRow;
+    navigate(`/workflow-instance/view/${row.id}`);
   };
 
   return (
@@ -304,9 +287,43 @@ export const WorkflowInfo: React.FC = () => {
           columns={columns}
           loading={loading}
           getRowId={(r) => (r as WorkflowInfoRow).id}
+          onRowClick={handleRowClick}
+          sx={{
+            '& .MuiDataGrid-row': {
+              cursor: 'pointer',
+            },
+            '& .MuiDataGrid-row:hover': {
+              cursor: 'pointer',
+              backgroundColor: (theme) => theme.palette.action.hover,
+            },
+            '& .MuiDataGrid-cell:focus': {
+              outline: 'none',
+            },
+            '& .MuiDataGrid-cell:focus-within': {
+              outline: 'none',
+            },
+            '& .MuiDataGrid-cell.MuiDataGrid-cell--withFocus': {
+              outline: 'none',
+              backgroundColor: 'transparent',
+            },
+            '& .MuiDataGrid-row:hover .MuiDataGrid-cell': {
+              backgroundColor: 'inherit',
+            },
+          }}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
             sorting: { sortModel: [{ field: 'lastEdited', sort: 'desc' }] },
+            filter: {
+              filterModel: {
+                items: [
+                  {
+                    field: 'status',
+                    operator: 'not',
+                    value: InstanceStatus.COMPLETED,
+                  },
+                ],
+              },
+            },
           }}
           pageSizeOptions={[5, 10, 25]}
           disableRowSelectionOnClick
