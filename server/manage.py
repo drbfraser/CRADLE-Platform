@@ -203,11 +203,16 @@ def seed_test_data():
     WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
     WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
     WORKFLOW_TEMPLATE_ID3 = "workflow-template-3"
-    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id_diverse)
+    WORKFLOW_TEMPLATE_ID4 = "workflow-template-4"
+
+
+    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
     create_simple_workflow_template_with_branching(
         WORKFLOW_TEMPLATE_ID2, form_template_id
     )
-    create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id)
+    create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id_diverse)
+    create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID4, form_template_id)
+
 
     print("Creating workflow instances")
     # Create forms to be used by workflow instance
@@ -241,21 +246,21 @@ def seed_test_data():
     # Create workflow instances
     create_workflow_instance(
         instance_id="test-workflow-instance-1",
-        instance_name="Patient Workflow Instance",
+        instance_name="Linear Workflow Instance",
         patient_id=PATIENT_ID_1,
         workflow_template_id=WORKFLOW_TEMPLATE_ID1,
     )
 
     create_workflow_instance(
         instance_id="test-workflow-instance-2",
-        instance_name="Patient Workflow Instance",
+        instance_name="Linear Workflow Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID1,
     )
 
     create_workflow_instance(
         instance_id="test-workflow-instance-3",
-        instance_name="Patient Workflow Instance V2",
+        instance_name="Branching Workflow Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID2,
         num_steps=6,  # must be 6 for fixed template
@@ -263,7 +268,7 @@ def seed_test_data():
 
     create_workflow_instance(
         instance_id="test-workflow-instance-4",
-        instance_name="Collect Readings Workflow Instance",
+        instance_name="Branching Workflow Instance",
         patient_id=PATIENT_ID_3,
         workflow_template_id=WORKFLOW_TEMPLATE_ID2,
         num_steps=6,  # must be 6 for fixed template
@@ -271,10 +276,18 @@ def seed_test_data():
 
     create_workflow_instance(
         instance_id="test-workflow-instance-5",
-        instance_name="Collect Patient Name Workflow Instance",
+        instance_name="Collect Patient Info Workflow Instance",
         patient_id=PATIENT_ID_1,
         workflow_template_id=WORKFLOW_TEMPLATE_ID3,
         num_steps=1
+    )
+
+    create_workflow_instance(
+    instance_id="test-workflow-instance-6",
+    instance_name="Complex Workflow with Looping Instance",
+    patient_id=PATIENT_ID_2,
+    workflow_template_id=WORKFLOW_TEMPLATE_ID4,
+    num_steps=1
     )
 
     print("Finished seeding test data")
@@ -1554,7 +1567,7 @@ def create_single_step_workflow_classification():
     
     workflow_classification = {
         "id": classification_id,
-        "name": "Get Patient Name Workflow",
+        "name": "Get Patient Info Workflow",
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1570,7 +1583,25 @@ def create_simple_workflow_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name": "Get Patient Name Workflow",
+        "name": "Making Tea Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+    return workflow_classification["id"]
+
+
+def create_simple_workflow_with_branching_classification():
+    classification_id = "wc-simple-branching"
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
+
+    workflow_classification = {
+        "id": classification_id,
+        "name": "Troubleshooting Wi-Fi Workflow",
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1589,7 +1620,7 @@ def create_single_step_workflow_template(workflow_template_id, form_template_id,
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Collect patient name",
+        "description": "Collect patient information",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1605,8 +1636,8 @@ def create_single_step_workflow_template(workflow_template_id, form_template_id,
 
     step = {
         "id": f"{workflow_template_id}-step-1",
-        "name": "Get Patient Name",
-        "description": "Enter the patient's name",
+        "name": "Get Patient Details",
+        "description": "Enter the patient's details",
         "expected_completion": get_current_time()
         + 86400,  # Expected completion is 24 hours after this step was created
         "last_edited": get_current_time(),
@@ -1633,7 +1664,7 @@ def create_simple_workflow_template(
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Collect name from patient",
+        "description": "Linear steps to make tea",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1647,11 +1678,12 @@ def create_simple_workflow_template(
         classification=classification, **workflow_template
     )
 
+    stepDetails = ["Boil water", "Place tea bag in cup", "Pour water over bag", "Wait for 3 minutes"]
     for step_number in range(1, num_steps + 1):
         step = {
             "id": f"{workflow_template_id}-step-{step_number}",
-            "name": "Get Patient Name",
-            "description": "Enter the patient's name",
+            "name": stepDetails[step_number - 1],
+            "description": "Indicate step is done",
             "expected_completion": get_current_time()
             + 86400,  # Expected completion is 24 hours after this step was created
             "last_edited": get_current_time(),
@@ -1688,11 +1720,11 @@ def create_simple_workflow_template_with_branching(
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
-    classification_id = create_simple_workflow_classification()
+    classification_id = create_simple_workflow_with_branching_classification()
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Collect name from patient",
+        "description": "Get responses from patient",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
