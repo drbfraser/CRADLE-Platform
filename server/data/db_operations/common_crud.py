@@ -36,8 +36,9 @@ def create(model: M, refresh=False, autocommit: bool = True):
     :param refresh: If true, immediately refresh ``model`` populating it with data from
                     the database; this involves an additional query so only use it if
                     necessary
-    :param autocommit: If true, the current transaction is committed before return; the
-                       default is true
+    :param autocommit: If true, the current transaction is committed before return. Use
+                       False when doing multiple atomic creates and then manually commit;
+                       the default is true
     """
     # Ensures that any reading that is entered into the DB is correctly formatted
     if isinstance(model, ReadingOrm):
