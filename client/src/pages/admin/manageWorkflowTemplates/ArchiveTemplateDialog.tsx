@@ -15,9 +15,10 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   template?: WorkflowTemplate;
+  onArchived?: () => void;
 }
 
-const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
+const ArchiveTemplateDialog = ({ open, onClose, template, onArchived }: IProps) => {
   const archiveTemplate = useArchiveWorkflowTemplate();
 
   const handleArchiveForm = async () => {
@@ -26,7 +27,10 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
     }
 
     archiveTemplate.mutate(template.id, {
-      onSuccess: () => onClose(),
+      onSuccess: () => {
+        onClose();
+        onArchived?.();
+      },
     });
   };
 
