@@ -199,6 +199,7 @@ def seed_test_data():
     print("Creating a simple workflow template and form for the workflow template")
     form_template_id = create_simple_workflow_template_step_form_v2()
     form_template_id_diverse = create_diverse_workflow_template_step_form_v2()
+    form_template_id_boolean = create_boolean_workflow_template_step_form_v2()
 
     WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
     WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
@@ -208,7 +209,7 @@ def seed_test_data():
 
     create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id, num_steps=4)
     create_simple_workflow_template_with_branching(
-        WORKFLOW_TEMPLATE_ID2, form_template_id
+        WORKFLOW_TEMPLATE_ID2, form_template_id_boolean
     )
     create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id_diverse)
     create_complex_workflow_with_loops_template(WORKFLOW_TEMPLATE_ID4, form_template_id)
@@ -1734,7 +1735,7 @@ def create_simple_workflow_template(
 def create_simple_workflow_template_with_branching(
     workflow_template_id, form_template_id
 ):
-    NUM_STEPS = 6
+    NUM_STEPS = 7
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
@@ -1742,7 +1743,7 @@ def create_simple_workflow_template_with_branching(
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Get responses from patient",
+        "description": "Troubleshoot Wi-Fi",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1759,20 +1760,44 @@ def create_simple_workflow_template_with_branching(
     db.session.add(workflow_template_orm)
     db.session.flush()
 
-    steps_dict = {}
+    step_details = {
+        1: ("Check All Devices",       "Do all devices have the problem?"),
+        2: ("Restart Router",          "Restart the router and wait 60 seconds. Is the issue solved?"),
+        3: ("Check Network Selection", "Ensure devices are connected to the correct network. Is it working now?"),
+        4: ("Restart Device",          "Restart the affected device. Is the issue solved?"),
+        5: ("Call ISP",                "Contact your Internet Service Provider."),
+        6: ("Consult Expert",          "Show devices to an expert for further diagnosis."),
+        7: ("Solved",                  "The connectivity issue has been resolved."),
+    }
 
-    paths = [
-        ["step-1", "step-3", "step-5"],
-        ["step-1", "step-2", "step-4", "step-6"],
-        ["step-1", "step-2", "step-3", "step-4", "step-5", "step-6"],
+
+    branches = [
+
+        # step 1
+        (1, 2, "yes"),  
+        (1, 3, "no"),  
+
+        # step 2
+        (2, 7, "yes"), 
+        (2, 5, "no"),  
+
+        # step 3
+        (3, 7, "yes"), 
+        (3, 4, "no"), 
+
+        # step 4
+        (4, 7, "yes"),   
+        (4, 6, "no"),   
     ]
 
+    steps_dict = {}
     for step_number in range(1, NUM_STEPS + 1):
         step_id = f"{workflow_template_id}-step-{step_number}"
+        name, description = step_details[step_number]
         step_data = {
             "id": step_id,
-            "name": f"Step {step_number}",
-            "description": "Enter the patient's name",
+            "name": name,
+            "description": description,
             "expected_completion": get_current_time() + 86400,
             "last_edited": get_current_time(),
             "form_id": form_template_id,
@@ -1783,32 +1808,28 @@ def create_simple_workflow_template_with_branching(
             form=form_template_orm, **step_data
         )
 
-    for path in paths:
-        for i in range(len(path) - 1):
-            source_step_id = f"{workflow_template_id}-{path[i]}"
-            target_step_id = f"{workflow_template_id}-{path[i+1]}"
-            branch_id = f"{source_step_id}-to-{path[i+1]}"
+    for (source, target, condition) in branches:
+        source_step_id = f"{workflow_template_id}-step-{source}"
+        target_step_id = f"{workflow_template_id}-step-{target}"
+        branch_id = f"{source_step_id}-to-step-{target}"
 
-            source_step = steps_dict[source_step_id]
+        source_step = steps_dict[source_step_id]
+        existing_branch_ids = {b.id for b in source_step.branches}
 
-            existing_branch_ids = {b.id for b in source_step.branches}
-
-            # Only add branch if it doesn't already exist
-            if branch_id not in existing_branch_ids:
-                branch_orm = WorkflowTemplateStepBranchOrm(
-                    id=branch_id,
-                    step_id=source_step_id,
-                    target_step_id=target_step_id,
-                    condition_id=None,
-                    condition=None,
-                )
-                source_step.branches.append(branch_orm)
+        if branch_id not in existing_branch_ids:
+            branch_orm = WorkflowTemplateStepBranchOrm(
+                id=branch_id,
+                step_id=source_step_id,
+                target_step_id=target_step_id,
+                condition_id=None,
+                condition=None,
+            )
+            source_step.branches.append(branch_orm)
 
     workflow_template_orm.steps.extend(steps_dict.values())
 
     db.session.add(workflow_template_orm)
     db.session.commit()
-
 
 def create_complex_workflow_with_loops_template( workflow_template_id, form_template_id):
     NUM_STEPS = 6
@@ -2080,6 +2101,84 @@ def create_diverse_workflow_template_step_form_v2():
     db.session.commit()
 
     return form_template["id"]
+
+def create_boolean_workflow_template_step_form_classification_v2():
+    id = "wt-boolean-1-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    lang_name_translation = LangVersionOrmV2(
+        string_id=lang_name_string_id,
+        lang="English",
+        text="Boolean Radio Form",
+    )
+    db.session.add(lang_name_translation)
+
+    simple_form_classification = {
+        "id": id,
+        "name_string_id": lang_name_string_id,
+    }
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        **simple_form_classification
+    )
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+    return id
+
+def create_boolean_workflow_template_step_form_v2():
+    form_template_id = "boolean-workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return None
+
+    # Add classification for form to DB
+    classification_id = create_boolean_workflow_template_step_form_classification_v2()
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    # Set up form template associated with workflow
+    form_template = {
+        "id": form_template_id,
+        "form_classification_id": form_classification_orm.id,
+        "version": 1,
+        "archived": False,
+    }
+
+    form_template_orm = FormTemplateOrmV2(**form_template)
+
+    db.session.add(form_template_orm)
+
+    yes_id = get_uuid()
+    no_id = get_uuid()
+    db.session.add_all([
+        LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
+        LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
+    ])
+
+
+    q_sid = get_uuid()
+    db.session.add(LangVersionOrmV2(string_id=q_sid, lang="English", text="Select Yes/No"))
+
+    # Create question associated with form
+    boolean_question = FormQuestionTemplateOrmV2(
+        id="fq-generic-boolean-q1",
+        form_template_id=form_template_id,
+        order=0,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q_sid,
+        user_question_id="step_response", 
+        mc_options=json.dumps([yes_id, no_id]),
+        required=True,
+        category_index=None
+    )
+
+    form_template_orm.questions.append(boolean_question)
+    db.session.commit()
+
+    return form_template_id
+
 
 def create_simple_workflow_template_step_form_classification_v2():
     id = "wt-simple-1-form-classification_v2"
