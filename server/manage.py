@@ -200,6 +200,7 @@ def seed_test_data():
     form_template_id = create_simple_workflow_template_step_form_v2()
     form_template_id_diverse = create_diverse_workflow_template_step_form_v2()
     form_template_id_boolean = create_boolean_workflow_template_step_form_v2()
+    form_template_id_integer_choice = create_integer_choice_workflow_template_step_form_v2()
 
     WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
     WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
@@ -212,7 +213,7 @@ def seed_test_data():
         WORKFLOW_TEMPLATE_ID2, form_template_id_boolean
     )
     create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id_diverse)
-    create_complex_workflow_with_loops_template(WORKFLOW_TEMPLATE_ID4, form_template_id)
+    create_complex_workflow_with_loops_template(WORKFLOW_TEMPLATE_ID4, form_template_id_integer_choice)
 
 
     print("Creating workflow instances")
@@ -1620,7 +1621,7 @@ def create_complex_workflow_with_loops_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name": "Mario Workflow",
+        "name": "Escape Room Workflow",
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1832,7 +1833,7 @@ def create_simple_workflow_template_with_branching(
     db.session.commit()
 
 def create_complex_workflow_with_loops_template( workflow_template_id, form_template_id):
-    NUM_STEPS = 6
+    NUM_STEPS = 11
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
@@ -1840,7 +1841,7 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Mario Game Workflow Desc",
+        "description": "Play an escape room game",
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1857,20 +1858,73 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
     db.session.add(workflow_template_orm)
     db.session.flush()
 
-    steps_dict = {}
+    step_details = {
+        1: ("Enter Room",       "Choose your action: 1. Examine Bookshelf, 2. Examine Desk, 3. Examine Painting"),
+        2: ("Examine Bookshelf",          "You find: 1. Hidden key, 2. Coded note"),
+        3: ("Examine Desk",  "You find: 1. Locked drawer, 2. UV pen"),
+        4: ("Examine Painting",          "Result: 1. Found safe 2. Found deadend"),
+        5: ("Use UV pen",                "You found a code! Options: 1. Next step"),
+        6: ("Open Locked Drawer",          "Result: 1. Found keycard 2. Wrong Action"),
+        7: ("Open Safe",                  "You find: 1. master key 2. another clue"),
+        8: ("Try Keycard on Door",      "result: 1. worked! 2. didn't work"),
+        9: ("Final Puzzle",        "Choose: 1. correct answer, 2. wrong answer, 3. use hint"),
+        10: ("Use Hint",        "Partial solution found. Options: 1. Back to final puzzle"),
+        11: ("Escaped!",        "Escaped!")
+    }
 
-    paths = [
-        ["step-1", "step-3", "step-5"],
-        ["step-1", "step-2", "step-4", "step-6"],
-        ["step-1", "step-2", "step-3", "step-4", "step-5", "step-6"],
+
+    branches = [
+
+        # step 1
+        (1, 2, 1),  
+        (1, 3, 2),  
+        (1, 4, 3),
+
+        # step 2
+        (2, 7, 1), 
+        (2, 3, 2),  
+
+        # step 3
+        (3, 6, 1), 
+        (3, 5, 2), 
+
+        # step 4
+        (4, 7, 1),   
+        (4, 1, 2),
+
+        #step 5
+        (5, 6, 1),   
+
+        #step 6
+        (6, 8, 1),
+        (6, 3, 2),
+
+        #step 7
+        (7, 9, 1),
+        (7, 5, 2),
+
+        #step 8
+        (8, 9, 1),
+        (8, 6, 2),
+
+        #step 9
+        (9, 11, 1),
+        (9, 1, 2),
+        (9, 10, 3),
+
+        #wstep 10
+        (10, 9, 1)
+
     ]
 
+    steps_dict = {}
     for step_number in range(1, NUM_STEPS + 1):
         step_id = f"{workflow_template_id}-step-{step_number}"
+        name, description = step_details[step_number]
         step_data = {
             "id": step_id,
-            "name": f"Step {step_number}",
-            "description": "Enter the patient's name",
+            "name": name,
+            "description": description,
             "expected_completion": get_current_time() + 86400,
             "last_edited": get_current_time(),
             "form_id": form_template_id,
@@ -1881,26 +1935,23 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
             form=form_template_orm, **step_data
         )
 
-    for path in paths:
-        for i in range(len(path) - 1):
-            source_step_id = f"{workflow_template_id}-{path[i]}"
-            target_step_id = f"{workflow_template_id}-{path[i+1]}"
-            branch_id = f"{source_step_id}-to-{path[i+1]}"
+    for (source, target, condition) in branches:
+        source_step_id = f"{workflow_template_id}-step-{source}"
+        target_step_id = f"{workflow_template_id}-step-{target}"
+        branch_id = f"{source_step_id}-to-step-{target}"
 
-            source_step = steps_dict[source_step_id]
+        source_step = steps_dict[source_step_id]
+        existing_branch_ids = {b.id for b in source_step.branches}
 
-            existing_branch_ids = {b.id for b in source_step.branches}
-
-            # Only add branch if it doesn't already exist
-            if branch_id not in existing_branch_ids:
-                branch_orm = WorkflowTemplateStepBranchOrm(
-                    id=branch_id,
-                    step_id=source_step_id,
-                    target_step_id=target_step_id,
-                    condition_id=None,
-                    condition=None,
-                )
-                source_step.branches.append(branch_orm)
+        if branch_id not in existing_branch_ids:
+            branch_orm = WorkflowTemplateStepBranchOrm(
+                id=branch_id,
+                step_id=source_step_id,
+                target_step_id=target_step_id,
+                condition_id=None,
+                condition=None,
+            )
+            source_step.branches.append(branch_orm)
 
     workflow_template_orm.steps.extend(steps_dict.values())
 
@@ -2175,6 +2226,70 @@ def create_boolean_workflow_template_step_form_v2():
     )
 
     form_template_orm.questions.append(boolean_question)
+    db.session.commit()
+
+    return form_template_id
+
+
+def create_integer_choice_workflow_template_step_form_classification_v2():
+    id = "wt-integer-choice-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=lang_name_string_id,
+            lang="English",
+            text="Integer Choice Form",
+        )
+    )
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        id=id,
+        name_string_id=lang_name_string_id,
+    )
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+    return id
+
+
+def create_integer_choice_workflow_template_step_form_v2():
+    form_template_id = "integer-choice-workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return form_template_id
+
+    classification_id = create_integer_choice_workflow_template_step_form_classification_v2()
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    form_template_orm = FormTemplateOrmV2(
+        id=form_template_id,
+        form_classification_id=form_classification_orm.id,
+        version=1,
+        archived=False,
+    )
+
+    db.session.add(form_template_orm)
+
+    q_sid = get_uuid()
+    db.session.add(LangVersionOrmV2(string_id=q_sid, lang="English", text="Enter your choice"))
+
+    choice_question = FormQuestionTemplateOrmV2(
+        id="fq-integer-choice-q1",
+        form_template_id=form_template_id,
+        order=0,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=q_sid,
+        user_question_id="step_response",
+        required=True,
+        num_min=1,
+        num_max=3,
+        category_index=None,
+    )
+
+    form_template_orm.questions.append(choice_question)
     db.session.commit()
 
     return form_template_id
