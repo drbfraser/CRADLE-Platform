@@ -36,7 +36,10 @@ import { SnackbarSeverity } from 'src/shared/enums';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowNextStepOptions } from 'src/shared/hooks/patient/useWorkflowNextStepOptions';
 import { useWorkflowStepActions } from 'src/shared/hooks/patient/useWorkflowStepActions';
-import { InstanceStatus, StepStatus } from 'src/shared/types/workflow/workflowEnums';
+import {
+  InstanceStatus,
+  StepStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -340,41 +343,65 @@ export default function WorkflowInstanceDetailsPage() {
                 Change Workflow Status
               </Typography>
               <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                {instanceDetails.status === InstanceStatus.ACTIVE && (
-                  <>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() =>
-                        setConfirmDialog({
-                          open: true,
-                          title: 'Cancel Workflow',
-                          message:
-                            'Are you sure you want to cancel this workflow?',
-                          onConfirm: async () => {
-                            await archiveInstance(instanceDetails.id);
-                            setConfirmDialog((prev) => ({
-                              ...prev,
-                              open: false,
-                            }));
-                            reload();
-                          },
-                        })
-                      }>
-                      Cancel Workflow
-                    </Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {instanceDetails.status === InstanceStatus.ACTIVE && (
+                    <>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() =>
+                          setConfirmDialog({
+                            open: true,
+                            title: 'Cancel Workflow',
+                            message:
+                              'Are you sure you want to cancel this workflow?',
+                            onConfirm: async () => {
+                              await archiveInstance(instanceDetails.id);
+                              setConfirmDialog((prev) => ({
+                                ...prev,
+                                open: false,
+                              }));
+                              reload();
+                            },
+                          })
+                        }>
+                        Cancel Workflow
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() =>
+                          setConfirmDialog({
+                            open: true,
+                            title: 'Mark Workflow Completed',
+                            message:
+                              'Are you sure you want to mark this workflow as completed?',
+                            onConfirm: async () => {
+                              await completeInstance(instanceDetails.id);
+                              setConfirmDialog((prev) => ({
+                                ...prev,
+                                open: false,
+                              }));
+                              reload();
+                            },
+                          })
+                        }>
+                        Mark Workflow Completed
+                      </Button>
+                    </>
+                  )}
+                  {(instanceDetails.status === InstanceStatus.COMPLETED ||
+                    instanceDetails.status === InstanceStatus.CANCELLED) && (
                     <Button
                       variant="contained"
-                      color="success"
                       onClick={() =>
                         setConfirmDialog({
                           open: true,
-                          title: 'Mark Workflow Completed',
+                          title: 'Make Workflow Active',
                           message:
-                            'Are you sure you want to mark this workflow as completed?',
+                            'Are you sure you want to reactivate this workflow?',
                           onConfirm: async () => {
-                            await completeInstance(instanceDetails.id);
+                            await unArchiveInstance(instanceDetails.id);
                             setConfirmDialog((prev) => ({
                               ...prev,
                               open: false,
@@ -383,34 +410,10 @@ export default function WorkflowInstanceDetailsPage() {
                           },
                         })
                       }>
-                      Mark Workflow Completed
+                      Make Workflow Active
                     </Button>
-                  </>
-                )}
-                {(instanceDetails.status === InstanceStatus.COMPLETED ||
-                  instanceDetails.status === InstanceStatus.CANCELLED) && (
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      setConfirmDialog({
-                        open: true,
-                        title: 'Make Workflow Active',
-                        message:
-                          'Are you sure you want to reactivate this workflow?',
-                        onConfirm: async () => {
-                          await unArchiveInstance(instanceDetails.id);
-                          setConfirmDialog((prev) => ({
-                            ...prev,
-                            open: false,
-                          }));
-                          reload();
-                        },
-                      })
-                    }>
-                    Make Workflow Active
-                  </Button>
-                )}
-              </Box>
+                  )}
+                </Box>
               </Paper>
             </Box>
 

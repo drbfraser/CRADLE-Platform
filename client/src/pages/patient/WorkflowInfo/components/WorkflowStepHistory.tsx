@@ -222,8 +222,7 @@ export default function WorkflowStepHistory({
                         )}
                       </Typography>
                       {currentStep.formSubmitted && currentStep.formId ? (
-                        <Box
-                          sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                           <Button
                             size="small"
                             color="primary"
@@ -248,8 +247,7 @@ export default function WorkflowStepHistory({
                           </Button>
                         </Box>
                       ) : (
-                        <Box
-                          sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                           <Button
                             size="small"
                             variant="contained"
@@ -328,159 +326,163 @@ export default function WorkflowStepHistory({
               {getWorkflowStepHistory(workflowInstance)
                 .filter((step) => step.status !== StepStatus.ACTIVE)
                 .map((step) => {
-                /* TODO: make workflow completion independent of workflow.step.length and move 
+                  /* TODO: make workflow completion independent of workflow.step.length and move 
                    getWorkflowStepHistory to WorkflowUtils.tsx when building workflow instance 
                    to minimize rendering inefficiencies */
-                const isExpanded = expandAll || expandedStep === step.id;
+                  const isExpanded = expandAll || expandedStep === step.id;
 
-                return (
-                  <Box key={step.id} sx={{ position: 'relative', mb: 3 }}>
-                    {/* Step Row */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        cursor: 'pointer',
-                        p: 2,
-                        borderRadius: '8px',
-                        '&:hover': { bgcolor: 'grey.50' },
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                      onClick={() =>
-                        !expandAll &&
-                        setExpandedStep(isExpanded ? null : step.id)
-                      }>
-                      {/* Status Icon */}
+                  return (
+                    <Box key={step.id} sx={{ position: 'relative', mb: 3 }}>
+                      {/* Step Row */}
                       <Box
                         sx={{
-                          width: 40,
-                          height: 40,
                           display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          bgcolor: 'background.paper',
-                          border: 2,
-                          borderColor: 'success.main',
-                          borderRadius: '50%',
-                          mr: 3,
-                        }}>
-                        <CheckCircleOutlineIcon
-                          color="success"
-                          sx={{ fontSize: 24 }}
-                        />
-                      </Box>
-
-                      {/* Step Content */}
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="h6"
-                          fontWeight={700}
-                          sx={{ mb: 0.5 }}>
-                          {step.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 1 }}>
-                          {formatWorkflowStepStatusText(step)}
-                        </Typography>
-                      </Box>
-
-                      {/* Expand Button */}
-                      {!expandAll && (
-                        <IconButton size="small" sx={{ ml: 1 }}>
-                          {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                        </IconButton>
-                      )}
-                    </Box>
-
-                    {/* Expanded Content */}
-                    <Collapse in={isExpanded} unmountOnExit>
-                      <Box
-                        sx={{
-                          ml: 7,
-                          p: 3,
-                          bgcolor: 'grey.50',
+                          alignItems: 'flex-start',
+                          cursor: 'pointer',
+                          p: 2,
                           borderRadius: '8px',
-                          border: 1,
-                          borderColor: 'grey.200',
-                        }}>
-                        {/* Description */}
-                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                          Description
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 3 }}>
-                          {step.description ?? 'No description available.'}
-                        </Typography>
-
-                        {/* Form Block */}
-                        {step.formTemplateId && (
-                          <Box sx={{ mb: 1 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                              Form
-                            </Typography>
-                            <Box
-                              sx={{
-                                p: 2,
-                                border: 1,
-                                borderColor: 'grey.300',
-                                borderRadius: '4px',
-                                bgcolor: 'background.paper',
-                              }}>
-                              <Typography
-                                component="span"
-                                variant="body2"
-                                sx={{
-                                  mb: 1,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                }}>
-                                {step.title} Form
-                                {step.formSubmitted && (
-                                  <Chip
-                                    icon={<CheckCircle />}
-                                    size="small"
-                                    label="Completed"
-                                    color="success"
-                                    variant="filled"
-                                    sx={{ ml: 1 }}
-                                  />
-                                )}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        )}
-
-                        {/* Make Current Button */}
+                          '&:hover': { bgcolor: 'grey.50' },
+                          position: 'relative',
+                          zIndex: 1,
+                        }}
+                        onClick={() =>
+                          !expandAll &&
+                          setExpandedStep(isExpanded ? null : step.id)
+                        }>
+                        {/* Status Icon */}
                         <Box
                           sx={{
+                            width: 40,
+                            height: 40,
                             display: 'flex',
-                            justifyContent: 'flex-end',
-                            mt: 2,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: 'background.paper',
+                            border: 2,
+                            borderColor: 'success.main',
+                            borderRadius: '50%',
+                            mr: 3,
                           }}>
-                          <Button
-                            size="small"
-                            variant="text"
-                            color="primary"
-                            onClick={() =>
-                              handleMakeCurrent(
-                                step.id,
-                                step.title,
-                                step.status
-                              )
-                            }>
-                            Make this current step
-                          </Button>
+                          <CheckCircleOutlineIcon
+                            color="success"
+                            sx={{ fontSize: 24 }}
+                          />
                         </Box>
+
+                        {/* Step Content */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight={700}
+                            sx={{ mb: 0.5 }}>
+                            {step.title}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 1 }}>
+                            {formatWorkflowStepStatusText(step)}
+                          </Typography>
+                        </Box>
+
+                        {/* Expand Button */}
+                        {!expandAll && (
+                          <IconButton size="small" sx={{ ml: 1 }}>
+                            {isExpanded ? (
+                              <ExpandLessIcon />
+                            ) : (
+                              <ExpandMoreIcon />
+                            )}
+                          </IconButton>
+                        )}
                       </Box>
-                    </Collapse>
-                  </Box>
-                );
-              })}
+
+                      {/* Expanded Content */}
+                      <Collapse in={isExpanded} unmountOnExit>
+                        <Box
+                          sx={{
+                            ml: 7,
+                            p: 3,
+                            bgcolor: 'grey.50',
+                            borderRadius: '8px',
+                            border: 1,
+                            borderColor: 'grey.200',
+                          }}>
+                          {/* Description */}
+                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            Description
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 3 }}>
+                            {step.description ?? 'No description available.'}
+                          </Typography>
+
+                          {/* Form Block */}
+                          {step.formTemplateId && (
+                            <Box sx={{ mb: 1 }}>
+                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                Form
+                              </Typography>
+                              <Box
+                                sx={{
+                                  p: 2,
+                                  border: 1,
+                                  borderColor: 'grey.300',
+                                  borderRadius: '4px',
+                                  bgcolor: 'background.paper',
+                                }}>
+                                <Typography
+                                  component="span"
+                                  variant="body2"
+                                  sx={{
+                                    mb: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                  }}>
+                                  {step.title} Form
+                                  {step.formSubmitted && (
+                                    <Chip
+                                      icon={<CheckCircle />}
+                                      size="small"
+                                      label="Completed"
+                                      color="success"
+                                      variant="filled"
+                                      sx={{ ml: 1 }}
+                                    />
+                                  )}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )}
+
+                          {/* Make Current Button */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              mt: 2,
+                            }}>
+                            <Button
+                              size="small"
+                              variant="text"
+                              color="primary"
+                              onClick={() =>
+                                handleMakeCurrent(
+                                  step.id,
+                                  step.title,
+                                  step.status
+                                )
+                              }>
+                              Make this current step
+                            </Button>
+                          </Box>
+                        </Box>
+                      </Collapse>
+                    </Box>
+                  );
+                })}
             </Box>
           )}
         </Paper>
