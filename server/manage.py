@@ -206,12 +206,12 @@ def seed_test_data():
     WORKFLOW_TEMPLATE_ID4 = "workflow-template-4"
 
 
-    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
+    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id, num_steps=4)
     create_simple_workflow_template_with_branching(
         WORKFLOW_TEMPLATE_ID2, form_template_id
     )
     create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id_diverse)
-    create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID4, form_template_id)
+    create_complex_workflow_with_loops_template(WORKFLOW_TEMPLATE_ID4, form_template_id)
 
 
     print("Creating workflow instances")
@@ -283,11 +283,11 @@ def seed_test_data():
     )
 
     create_workflow_instance(
-    instance_id="test-workflow-instance-6",
-    instance_name="Complex Workflow with Looping Instance",
-    patient_id=PATIENT_ID_2,
-    workflow_template_id=WORKFLOW_TEMPLATE_ID4,
-    num_steps=1
+        instance_id="test-workflow-instance-6",
+        instance_name="Complex Workflow with Looping Instance",
+        patient_id=PATIENT_ID_2,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID4,
+        num_steps=1
     )
 
     print("Finished seeding test data")
@@ -1575,6 +1575,7 @@ def create_single_step_workflow_classification():
     db.session.add(workflow_classification_orm)
     db.session.commit()
 
+    return workflow_classification["id"]
 
 def create_simple_workflow_classification():
     classification_id = "wc-simple-1"
@@ -1602,6 +1603,23 @@ def create_simple_workflow_with_branching_classification():
     workflow_classification = {
         "id": classification_id,
         "name": "Troubleshooting Wi-Fi Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+    return workflow_classification["id"]
+
+def create_complex_workflow_with_loops_classification():
+    classification_id = "wc-complex-loop"
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
+
+    workflow_classification = {
+        "id": classification_id,
+        "name": "Mario Workflow",
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1790,6 +1808,84 @@ def create_simple_workflow_template_with_branching(
 
     db.session.add(workflow_template_orm)
     db.session.commit()
+
+
+def create_complex_workflow_with_loops_template( workflow_template_id, form_template_id):
+    NUM_STEPS = 6
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
+        return
+
+    classification_id = create_complex_workflow_with_loops_classification()
+
+    workflow_template = {
+        "id": workflow_template_id,
+        "description": "Mario Game Workflow Desc",
+        "archived": False,
+        "starting_step_id": f"{workflow_template_id}-step-1",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version": "V1",
+        "classification_id": classification_id,
+    }
+
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
+
+    db.session.add(workflow_template_orm)
+    db.session.flush()
+
+    steps_dict = {}
+
+    paths = [
+        ["step-1", "step-3", "step-5"],
+        ["step-1", "step-2", "step-4", "step-6"],
+        ["step-1", "step-2", "step-3", "step-4", "step-5", "step-6"],
+    ]
+
+    for step_number in range(1, NUM_STEPS + 1):
+        step_id = f"{workflow_template_id}-step-{step_number}"
+        step_data = {
+            "id": step_id,
+            "name": f"Step {step_number}",
+            "description": "Enter the patient's name",
+            "expected_completion": get_current_time() + 86400,
+            "last_edited": get_current_time(),
+            "form_id": form_template_id,
+            "workflow_template_id": workflow_template_id,
+        }
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+        steps_dict[step_id] = WorkflowTemplateStepOrm(
+            form=form_template_orm, **step_data
+        )
+
+    for path in paths:
+        for i in range(len(path) - 1):
+            source_step_id = f"{workflow_template_id}-{path[i]}"
+            target_step_id = f"{workflow_template_id}-{path[i+1]}"
+            branch_id = f"{source_step_id}-to-{path[i+1]}"
+
+            source_step = steps_dict[source_step_id]
+
+            existing_branch_ids = {b.id for b in source_step.branches}
+
+            # Only add branch if it doesn't already exist
+            if branch_id not in existing_branch_ids:
+                branch_orm = WorkflowTemplateStepBranchOrm(
+                    id=branch_id,
+                    step_id=source_step_id,
+                    target_step_id=target_step_id,
+                    condition_id=None,
+                    condition=None,
+                )
+                source_step.branches.append(branch_orm)
+
+    workflow_template_orm.steps.extend(steps_dict.values())
+
+    db.session.add(workflow_template_orm)
+    db.session.commit()
+
 
 
 def create_diverse_workflow_template_step_form_classification_v2():
