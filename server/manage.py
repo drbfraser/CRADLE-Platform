@@ -251,6 +251,7 @@ def seed_test_data():
         instance_name="Linear Workflow Instance",
         patient_id=PATIENT_ID_1,
         workflow_template_id=WORKFLOW_TEMPLATE_ID1,
+        num_steps=4
     )
 
     create_workflow_instance(
@@ -258,6 +259,7 @@ def seed_test_data():
         instance_name="Linear Workflow Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID1,
+        num_steps=4
     )
 
     create_workflow_instance(
@@ -265,7 +267,7 @@ def seed_test_data():
         instance_name="Branching Workflow Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID2,
-        num_steps=6,  # must be 6 for fixed template
+        num_steps=7,
     )
 
     create_workflow_instance(
@@ -273,7 +275,7 @@ def seed_test_data():
         instance_name="Branching Workflow Instance",
         patient_id=PATIENT_ID_3,
         workflow_template_id=WORKFLOW_TEMPLATE_ID2,
-        num_steps=6,  # must be 6 for fixed template
+        num_steps=7,
     )
 
     create_workflow_instance(
@@ -289,7 +291,7 @@ def seed_test_data():
         instance_name="Complex Workflow with Looping Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID4,
-        num_steps=1
+        num_steps=11
     )
 
     print("Finished seeding test data")
@@ -3105,10 +3107,12 @@ def create_workflow_instance(
         workflow_instance_orm = WorkflowInstanceOrm(**workflow_instance)
 
         for step_number in range(1, num_steps + 1):
+            template_step_id = f"{workflow_template_id}-step-{step_number}"
+            template_step = crud.read(WorkflowTemplateStepOrm, id=template_step_id)
             workflow_instance_step = {
                 "id": f"{instance_id}-step{step_number}",
-                "name": f"{instance_name} Step {step_number}",
-                "description": f"{instance_name} Workflow Instance Step {step_number} Description",
+                "name": template_step.name if template_step else f"{instance_name} Step {step_number}",
+                "description": template_step.description if template_step else None,
                 "start_date": get_current_time(),
                 "triggered_by": None,
                 "last_edited": get_current_time(),
