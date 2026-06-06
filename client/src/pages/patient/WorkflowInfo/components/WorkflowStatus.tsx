@@ -31,7 +31,6 @@ export default function WorkflowStatus(props: {
           }}>
           {/* Summary Row */}
           <Grid container spacing={3} sx={{ mb: 2 }}>
-            {/* Started - left */}
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 <CalendarTodayOutlinedIcon
@@ -50,7 +49,6 @@ export default function WorkflowStatus(props: {
               </Box>
             </Grid>
 
-            {/* Progress - middle */}
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 <ReplayIcon
@@ -89,7 +87,6 @@ export default function WorkflowStatus(props: {
               </Box>
             </Grid>
 
-            {/* Last Edited / Completed - right */}
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
                 {workflowInstance.workflowCompletedOn ? (
