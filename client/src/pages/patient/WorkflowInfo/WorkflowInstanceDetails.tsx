@@ -336,10 +336,10 @@ export default function WorkflowInstanceDetailsPage() {
 
             {/* Section 5: Change Workflow Status */}
             <Box sx={{ mx: 5, mt: 3 }}>
-              <Divider sx={{ mb: 3 }} />
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Change Workflow Status
               </Typography>
+              <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
               <Box sx={{ display: 'flex', gap: 2 }}>
                 {instanceDetails.status === InstanceStatus.ACTIVE && (
                   <>
@@ -411,6 +411,7 @@ export default function WorkflowInstanceDetailsPage() {
                   </Button>
                 )}
               </Box>
+              </Paper>
             </Box>
 
             {/* Confirmation Dialog */}
