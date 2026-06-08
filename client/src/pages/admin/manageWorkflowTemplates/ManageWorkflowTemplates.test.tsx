@@ -10,7 +10,6 @@ import {
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getPrettyDate } from 'src/shared/utils';
 import { createFakeAccessToken } from 'src/testing/utils';
 import { WORKFLOW_TEMPLATE_TEST_DATA as TEST_DATA } from 'src/testing/testData';
 import ProviderWrapper from 'src/testing/ProviderWrapper';
