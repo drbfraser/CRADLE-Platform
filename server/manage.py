@@ -200,21 +200,27 @@ def seed_test_data():
     form_template_id = create_simple_workflow_template_step_form_v2()
     form_template_id_diverse = create_diverse_workflow_template_step_form_v2()
     form_template_id_boolean = create_boolean_workflow_template_step_form_v2()
-    form_template_id_integer_choice = create_integer_choice_workflow_template_step_form_v2()
+    form_template_id_integer_choice = (
+        create_integer_choice_workflow_template_step_form_v2()
+    )
 
     WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
     WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
     WORKFLOW_TEMPLATE_ID3 = "workflow-template-3"
     WORKFLOW_TEMPLATE_ID4 = "workflow-template-4"
 
-
-    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id, num_steps=4)
+    create_simple_workflow_template(
+        WORKFLOW_TEMPLATE_ID1, form_template_id, num_steps=4
+    )
     create_simple_workflow_template_with_branching(
         WORKFLOW_TEMPLATE_ID2, form_template_id_boolean
     )
-    create_single_step_workflow_template(WORKFLOW_TEMPLATE_ID3, form_template_id_diverse)
-    create_complex_workflow_with_loops_template(WORKFLOW_TEMPLATE_ID4, form_template_id_integer_choice)
-
+    create_single_step_workflow_template(
+        WORKFLOW_TEMPLATE_ID3, form_template_id_diverse
+    )
+    create_complex_workflow_with_loops_template(
+        WORKFLOW_TEMPLATE_ID4, form_template_id_integer_choice
+    )
 
     print("Creating workflow instances")
     # Create forms to be used by workflow instance
@@ -251,7 +257,7 @@ def seed_test_data():
         instance_name="Linear Workflow Instance",
         patient_id=PATIENT_ID_1,
         workflow_template_id=WORKFLOW_TEMPLATE_ID1,
-        num_steps=4
+        num_steps=4,
     )
 
     create_workflow_instance(
@@ -259,7 +265,7 @@ def seed_test_data():
         instance_name="Linear Workflow Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID1,
-        num_steps=4
+        num_steps=4,
     )
 
     create_workflow_instance(
@@ -283,7 +289,7 @@ def seed_test_data():
         instance_name="Collect Patient Info Workflow Instance",
         patient_id=PATIENT_ID_1,
         workflow_template_id=WORKFLOW_TEMPLATE_ID3,
-        num_steps=1
+        num_steps=1,
     )
 
     create_workflow_instance(
@@ -291,7 +297,7 @@ def seed_test_data():
         instance_name="Complex Workflow with Looping Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id=WORKFLOW_TEMPLATE_ID4,
-        num_steps=11
+        num_steps=11,
     )
 
     print("Finished seeding test data")
@@ -1581,6 +1587,7 @@ def create_single_step_workflow_classification():
 
     return workflow_classification["id"]
 
+
 def create_simple_workflow_classification():
     classification_id = "wc-simple-1"
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
@@ -1616,6 +1623,7 @@ def create_simple_workflow_with_branching_classification():
 
     return workflow_classification["id"]
 
+
 def create_complex_workflow_with_loops_classification():
     classification_id = "wc-complex-loop"
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
@@ -1633,7 +1641,10 @@ def create_complex_workflow_with_loops_classification():
 
     return workflow_classification["id"]
 
-def create_single_step_workflow_template(workflow_template_id, form_template_id, num_steps=1):
+
+def create_single_step_workflow_template(
+    workflow_template_id, form_template_id, num_steps=1
+):
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
@@ -1646,8 +1657,8 @@ def create_single_step_workflow_template(workflow_template_id, form_template_id,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "version":"V1",
-        "classification_id":classification_id
+        "version": "V1",
+        "classification_id": classification_id,
     }
 
     classification = crud.read(WorkflowClassificationOrm, id=classification_id)
@@ -1672,6 +1683,7 @@ def create_single_step_workflow_template(workflow_template_id, form_template_id,
 
     db.session.add(workflow_template_orm)
     db.session.commit()
+
 
 def create_simple_workflow_template(
     workflow_template_id, form_template_id, num_steps=3
@@ -1698,7 +1710,12 @@ def create_simple_workflow_template(
         classification=classification, **workflow_template
     )
 
-    stepDetails = ["Boil water", "Place tea bag in cup", "Pour water over bag", "Wait for 3 minutes"]
+    stepDetails = [
+        "Boil water",
+        "Place tea bag in cup",
+        "Pour water over bag",
+        "Wait for 3 minutes",
+    ]
     for step_number in range(1, num_steps + 1):
         step = {
             "id": f"{workflow_template_id}-step-{step_number}",
@@ -1718,7 +1735,7 @@ def create_simple_workflow_template(
         if step_number != num_steps:
             branch = {
                 "id": f"{workflow_template_id}-step-{step_number}-branch",
-                "target_step_id": f"{workflow_template_id}-step-{step_number+1}",
+                "target_step_id": f"{workflow_template_id}-step-{step_number + 1}",
                 "step_id": step["id"],
                 "condition_id": None,
                 "condition": None,
@@ -1762,33 +1779,34 @@ def create_simple_workflow_template_with_branching(
     db.session.flush()
 
     step_details = {
-        1: ("Check All Devices",       "Do all devices have the problem?"),
-        2: ("Restart Router",          "Restart the router and wait 60 seconds. Is the issue solved?"),
-        3: ("Check Network Selection", "Ensure devices are connected to the correct network. Is it working now?"),
-        4: ("Restart Device",          "Restart the affected device. Is the issue solved?"),
-        5: ("Call ISP",                "Contact your Internet Service Provider."),
-        6: ("Consult Expert",          "Show devices to an expert for further diagnosis."),
-        7: ("Solved",                  "The connectivity issue has been resolved."),
+        1: ("Check All Devices", "Do all devices have the problem?"),
+        2: (
+            "Restart Router",
+            "Restart the router and wait 60 seconds. Is the issue solved?",
+        ),
+        3: (
+            "Check Network Selection",
+            "Ensure devices are connected to the correct network. Is it working now?",
+        ),
+        4: ("Restart Device", "Restart the affected device. Is the issue solved?"),
+        5: ("Call ISP", "Contact your Internet Service Provider."),
+        6: ("Consult Expert", "Show devices to an expert for further diagnosis."),
+        7: ("Solved", "The connectivity issue has been resolved."),
     }
 
-
     branches = [
-
         # step 1
-        (1, 2, "yes"),  
-        (1, 3, "no"),  
-
+        (1, 2, "yes"),
+        (1, 3, "no"),
         # step 2
-        (2, 7, "yes"), 
-        (2, 5, "no"),  
-
+        (2, 7, "yes"),
+        (2, 5, "no"),
         # step 3
-        (3, 7, "yes"), 
-        (3, 4, "no"), 
-
+        (3, 7, "yes"),
+        (3, 4, "no"),
         # step 4
-        (4, 7, "yes"),   
-        (4, 6, "no"),   
+        (4, 7, "yes"),
+        (4, 6, "no"),
     ]
 
     steps_dict = {}
@@ -1809,7 +1827,7 @@ def create_simple_workflow_template_with_branching(
             form=form_template_orm, **step_data
         )
 
-    for (source, target, _condition) in branches:
+    for source, target, _condition in branches:
         source_step_id = f"{workflow_template_id}-step-{source}"
         target_step_id = f"{workflow_template_id}-step-{target}"
         branch_id = f"{source_step_id}-to-step-{target}"
@@ -1832,7 +1850,8 @@ def create_simple_workflow_template_with_branching(
     db.session.add(workflow_template_orm)
     db.session.commit()
 
-def create_complex_workflow_with_loops_template( workflow_template_id, form_template_id):
+
+def create_complex_workflow_with_loops_template(workflow_template_id, form_template_id):
     NUM_STEPS = 11
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
@@ -1859,62 +1878,53 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
     db.session.flush()
 
     step_details = {
-        1: ("Enter Room",       "Choose your action: 1. Examine Bookshelf, 2. Examine Desk, 3. Examine Painting"),
-        2: ("Examine Bookshelf",          "You find: 1. Hidden key, 2. Coded note"),
-        3: ("Examine Desk",  "You find: 1. Locked drawer, 2. UV pen"),
-        4: ("Examine Painting",          "Result: 1. Found safe 2. Found deadend"),
-        5: ("Use UV pen",                "You found a code! Options: 1. Next step"),
-        6: ("Open Locked Drawer",          "Result: 1. Found keycard 2. Wrong Action"),
-        7: ("Open Safe",                  "You find: 1. master key 2. another clue"),
-        8: ("Try Keycard on Door",      "result: 1. worked! 2. didn't work"),
-        9: ("Final Puzzle",        "Choose: 1. correct answer, 2. wrong answer, 3. use hint"),
-        10: ("Use Hint",        "Partial solution found. Options: 1. Back to final puzzle"),
-        11: ("Escaped!",        "Escaped!")
+        1: (
+            "Enter Room",
+            "Choose your action: 1. Examine Bookshelf, 2. Examine Desk, 3. Examine Painting",
+        ),
+        2: ("Examine Bookshelf", "You find: 1. Hidden key, 2. Coded note"),
+        3: ("Examine Desk", "You find: 1. Locked drawer, 2. UV pen"),
+        4: ("Examine Painting", "Result: 1. Found safe 2. Found deadend"),
+        5: ("Use UV pen", "You found a code! Options: 1. Next step"),
+        6: ("Open Locked Drawer", "Result: 1. Found keycard 2. Wrong Action"),
+        7: ("Open Safe", "You find: 1. master key 2. another clue"),
+        8: ("Try Keycard on Door", "result: 1. worked! 2. didn't work"),
+        9: ("Final Puzzle", "Choose: 1. correct answer, 2. wrong answer, 3. use hint"),
+        10: ("Use Hint", "Partial solution found. Options: 1. Back to final puzzle"),
+        11: ("Escaped!", "Escaped!"),
     }
 
-
     branches = [
-
         # step 1
-        (1, 2, 1),  
-        (1, 3, 2),  
+        (1, 2, 1),
+        (1, 3, 2),
         (1, 4, 3),
-
         # step 2
-        (2, 7, 1), 
-        (2, 3, 2),  
-
+        (2, 7, 1),
+        (2, 3, 2),
         # step 3
-        (3, 6, 1), 
-        (3, 5, 2), 
-
+        (3, 6, 1),
+        (3, 5, 2),
         # step 4
-        (4, 7, 1),   
+        (4, 7, 1),
         (4, 1, 2),
-
-        #step 5
-        (5, 6, 1),   
-
-        #step 6
+        # step 5
+        (5, 6, 1),
+        # step 6
         (6, 8, 1),
         (6, 3, 2),
-
-        #step 7
+        # step 7
         (7, 9, 1),
         (7, 5, 2),
-
-        #step 8
+        # step 8
         (8, 9, 1),
         (8, 6, 2),
-
-        #step 9
+        # step 9
         (9, 11, 1),
         (9, 1, 2),
         (9, 10, 3),
-
-        #wstep 10
-        (10, 9, 1)
-
+        # wstep 10
+        (10, 9, 1),
     ]
 
     steps_dict = {}
@@ -1935,7 +1945,7 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
             form=form_template_orm, **step_data
         )
 
-    for (source, target, _condition) in branches:
+    for source, target, _condition in branches:
         source_step_id = f"{workflow_template_id}-step-{source}"
         target_step_id = f"{workflow_template_id}-step-{target}"
         branch_id = f"{source_step_id}-to-step-{target}"
@@ -1957,7 +1967,6 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
 
     db.session.add(workflow_template_orm)
     db.session.commit()
-
 
 
 def create_diverse_workflow_template_step_form_classification_v2():
@@ -2153,6 +2162,7 @@ def create_diverse_workflow_template_step_form_v2():
 
     return form_template["id"]
 
+
 def create_boolean_workflow_template_step_form_classification_v2():
     id = "wt-boolean-1-form-classification_v2"
     if crud.read(FormClassificationOrmV2, id=id) is not None:
@@ -2180,6 +2190,7 @@ def create_boolean_workflow_template_step_form_classification_v2():
 
     return id
 
+
 def create_boolean_workflow_template_step_form_v2():
     form_template_id = "boolean-workflow-form-template_v2"
     if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
@@ -2203,14 +2214,17 @@ def create_boolean_workflow_template_step_form_v2():
 
     yes_id = get_uuid()
     no_id = get_uuid()
-    db.session.add_all([
-        LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
-        LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
-    ])
-
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
+            LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
+        ]
+    )
 
     q_sid = get_uuid()
-    db.session.add(LangVersionOrmV2(string_id=q_sid, lang="English", text="Select Yes/No"))
+    db.session.add(
+        LangVersionOrmV2(string_id=q_sid, lang="English", text="Select Yes/No")
+    )
 
     # Create question associated with form
     boolean_question = FormQuestionTemplateOrmV2(
@@ -2219,10 +2233,10 @@ def create_boolean_workflow_template_step_form_v2():
         order=0,
         question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
         question_string_id=q_sid,
-        user_question_id="step_response", 
+        user_question_id="step_response",
         mc_options=json.dumps([yes_id, no_id]),
         required=True,
-        category_index=None
+        category_index=None,
     )
 
     form_template_orm.questions.append(boolean_question)
@@ -2261,7 +2275,9 @@ def create_integer_choice_workflow_template_step_form_v2():
     if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
         return form_template_id
 
-    classification_id = create_integer_choice_workflow_template_step_form_classification_v2()
+    classification_id = (
+        create_integer_choice_workflow_template_step_form_classification_v2()
+    )
     form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
 
     form_template_orm = FormTemplateOrmV2(
@@ -2274,7 +2290,9 @@ def create_integer_choice_workflow_template_step_form_v2():
     db.session.add(form_template_orm)
 
     q_sid = get_uuid()
-    db.session.add(LangVersionOrmV2(string_id=q_sid, lang="English", text="Enter your choice"))
+    db.session.add(
+        LangVersionOrmV2(string_id=q_sid, lang="English", text="Enter your choice")
+    )
 
     choice_question = FormQuestionTemplateOrmV2(
         id="fq-integer-choice-q1",
@@ -3109,7 +3127,9 @@ def create_workflow_instance(
             template_step = crud.read(WorkflowTemplateStepOrm, id=template_step_id)
             workflow_instance_step = {
                 "id": f"{instance_id}-step{step_number}",
-                "name": template_step.name if template_step else f"{instance_name} Step {step_number}",
+                "name": template_step.name
+                if template_step
+                else f"{instance_name} Step {step_number}",
                 "description": template_step.description if template_step else None,
                 "start_date": get_current_time(),
                 "triggered_by": None,
