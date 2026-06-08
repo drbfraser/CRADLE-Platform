@@ -125,6 +125,11 @@ export const DataTable = ({
             borderBottom: '1px solid',
             borderColor: DATA_TABLE_BORDER_COLOR,
           },
+          // With a custom toolbar, MUI anchors the panel at the column-header row.
+          // Shift it up so it opens below the toolbar buttons instead.
+          '& .MuiDataGrid-panel': {
+            transform: 'translateY(calc(-1 * var(--DataGrid-headerHeight, 56px)))',
+          },
           '& .row-archived': {
             backgroundColor: ARCHIVED_ROW_COLOR,
           },
@@ -172,7 +177,8 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
+        gap: 1,
         borderBottom: '1px solid',
         borderRadius: '0px',
         borderColor: DATA_TABLE_BORDER_COLOR,
@@ -195,7 +201,7 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
         <GridToolbarFilterButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarDensitySelector slotProps={TOOLBAR_SLOT_PROPS} />
       </Box>
-      {children}
+      {children && <Box sx={{ marginLeft: 'auto' }}>{children}</Box>}
     </GridToolbarContainer>
   );
 };
