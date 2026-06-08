@@ -89,10 +89,7 @@ export const DataTable = ({
   const apiRef = useGridApiRef();
   const panelAnchorRef = useRef<HTMLButtonElement | null>(null);
 
-  const ToolbarSlot = useCallback(
-    () => toolbar({ panelAnchorRef }),
-    [toolbar]
-  );
+  const ToolbarSlot = useCallback(() => toolbar({ panelAnchorRef }), [toolbar]);
 
   const panelSlotProps = useMemo(
     () => ({

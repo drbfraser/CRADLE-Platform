@@ -18,7 +18,12 @@ interface IProps {
   onArchived?: () => void;
 }
 
-const ArchiveTemplateDialog = ({ open, onClose, template, onArchived }: IProps) => {
+const ArchiveTemplateDialog = ({
+  open,
+  onClose,
+  template,
+  onArchived,
+}: IProps) => {
   const archiveTemplate = useArchiveWorkflowTemplate();
 
   const handleArchiveForm = async () => {

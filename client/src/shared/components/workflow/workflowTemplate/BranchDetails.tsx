@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Paper, Button, Box, Alert } from '@mui/material';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
-import { validateJsonLogic, stripRuleMetadata } from '../blocklyEditor/jsonLogicGenerator';
+import {
+  validateJsonLogic,
+  stripRuleMetadata,
+} from '../blocklyEditor/jsonLogicGenerator';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -52,7 +55,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [validationError, setValidationError] = useState<string | null>(() => {
     if (!branch?.condition?.rule) return null;
     try {
-      return validateJsonLogic(stripRuleMetadata(JSON.parse(branch.condition.rule)), true)
+      return validateJsonLogic(
+        stripRuleMetadata(JSON.parse(branch.condition.rule)),
+        true
+      )
         ? null
         : 'The condition is incomplete. All inputs must be connected before saving.';
     } catch {

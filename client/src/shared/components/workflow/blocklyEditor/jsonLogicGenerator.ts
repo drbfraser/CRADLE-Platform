@@ -62,7 +62,16 @@ export function workspaceToJsonLogic(
   return codeStr || null;
 }
 
-const METADATA_KEYS = new Set(['name', 'label', 'id', 'description', 'comment', 'notes', 'enabled', 'version']);
+const METADATA_KEYS = new Set([
+  'name',
+  'label',
+  'id',
+  'description',
+  'comment',
+  'notes',
+  'enabled',
+  'version',
+]);
 
 export function stripRuleMetadata(rule: unknown): unknown {
   if (typeof rule !== 'object' || rule === null || Array.isArray(rule)) {
@@ -81,7 +90,8 @@ export function validateJsonLogic(rule: unknown, isRoot = false): boolean {
   if (typeof logicRule === 'number') return !isRoot;
   if (typeof logicRule === 'string') return !isRoot;
   if (typeof logicRule === 'boolean') return true;
-  if (typeof logicRule === 'object' && 'var' in (logicRule as object)) return !isRoot;
+  if (typeof logicRule === 'object' && 'var' in (logicRule as object))
+    return !isRoot;
 
   if (typeof logicRule === 'object') {
     const entries = Object.entries(logicRule as Record<string, unknown>);
