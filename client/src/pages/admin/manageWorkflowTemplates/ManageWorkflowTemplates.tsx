@@ -93,7 +93,7 @@ export const ManageWorkflowTemplates = () => {
     { flex: 1, field: 'name', headerName: 'Template Name' },
     { flex: 1, field: 'version', headerName: 'Version' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
-    { flex: 1, field: 'lastEdited', headerName: 'Last edit' },
+    { flex: 1, field: 'lastEdited', headerName: 'Last Edited' },
     {
       flex: 1,
       field: 'takeAction',
