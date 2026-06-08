@@ -114,4 +114,6 @@ the previously mentioned admin user is added along with a few additional users:
 | Josh Chung          | jca472@sfu.ca        |
 | Mekdim Dereje       | mda89@sfu.ca         |
 | Ananya Singh        | asa522@sfu.ca        |
+| Lucy Zhou           | lza168@sfu.ca        |
 | Zoe Wong            | zsw@sfu.ca           |
+
