@@ -15,7 +15,15 @@ import {
   GridAutosizeOptions,
   GridSortModel,
 } from '@mui/x-data-grid';
-import { PropsWithChildren, useEffect } from 'react';
+import {
+  PropsWithChildren,
+  Ref,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 const DATA_TABLE_BORDER_COLOR = 'rgb(224, 224, 224)';
 
@@ -29,10 +37,14 @@ const autosizeOptions: GridAutosizeOptions = {
   expand: true,
 } as const;
 
+export type DataTableToolbarSlotProps = {
+  panelAnchorRef?: RefObject<HTMLButtonElement | null>;
+};
+
 type DataTableProps = {
   rows?: readonly GridValidRowModel[];
   columns: GridColDef[];
-  toolbar?: () => JSX.Element;
+  toolbar?: (props: DataTableToolbarSlotProps) => JSX.Element;
   footer?: () => JSX.Element;
   sx?: SxProps;
   loading?: boolean;
@@ -58,7 +70,9 @@ type DataTableProps = {
 export const DataTable = ({
   rows,
   columns,
-  toolbar = () => <DataTableToolbar />,
+  toolbar = ({ panelAnchorRef }) => (
+    <DataTableToolbar panelAnchorRef={panelAnchorRef} />
+  ),
   footer = () => <DataTableFooter />,
   sx,
   getRowClassName,
@@ -73,6 +87,28 @@ export const DataTable = ({
   disablePagination,
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
+  const panelAnchorRef = useRef<HTMLButtonElement | null>(null);
+
+  const ToolbarSlot = useCallback(
+    () => toolbar({ panelAnchorRef }),
+    [toolbar]
+  );
+
+  const panelSlotProps = useMemo(
+    () => ({
+      panel: {
+        anchorEl: () => panelAnchorRef.current as HTMLElement,
+        placement: 'bottom-start' as const,
+        popperOptions: {
+          modifiers: [
+            { name: 'flip', enabled: false },
+            { name: 'offset', options: { offset: [0, 4] } },
+          ],
+        },
+      },
+    }),
+    []
+  );
 
   // When pagination is disabled (e2e tests), show all rows on a single page
   const pageSize = disablePagination ? (rows?.length ?? 10) : 10;
@@ -112,7 +148,11 @@ export const DataTable = ({
         initialState={{
           pagination: { paginationModel: { pageSize } },
         }}
-        slots={{ toolbar, footer }}
+        slots={{
+          toolbar: ToolbarSlot,
+          footer,
+        }}
+        slotProps={panelSlotProps}
         sx={{
           minHeight: '400px',
           maxWidth: '100%',
@@ -124,11 +164,6 @@ export const DataTable = ({
             borderTop: '1px solid',
             borderBottom: '1px solid',
             borderColor: DATA_TABLE_BORDER_COLOR,
-          },
-          // With a custom toolbar, MUI anchors the panel at the column-header row.
-          // Shift it up so it opens below the toolbar buttons instead.
-          '& .MuiDataGrid-panel': {
-            transform: 'translateY(calc(-1 * var(--DataGrid-headerHeight, 56px)))',
           },
           '& .row-archived': {
             backgroundColor: ARCHIVED_ROW_COLOR,
@@ -168,8 +203,13 @@ const TOOLBAR_SLOT_PROPS = {
     },
   },
 };
-type DataTableToolbarProps = PropsWithChildren;
-export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
+
+type DataTableToolbarProps = PropsWithChildren & DataTableToolbarSlotProps;
+
+export const DataTableToolbar = ({
+  children,
+  panelAnchorRef,
+}: DataTableToolbarProps) => {
   return (
     <GridToolbarContainer
       sx={{
@@ -186,7 +226,7 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
       }}>
       <Box
         sx={{
-          display: 'flex',
+          display: 'inline-flex',
           flexWrap: 'wrap',
           flexDirection: {
             sm: 'row',
@@ -195,9 +235,11 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
           gap: {
             xs: '4px',
           },
-          justifyContent: 'start',
         }}>
-        <GridToolbarColumnsButton slotProps={TOOLBAR_SLOT_PROPS} />
+        <GridToolbarColumnsButton
+          ref={panelAnchorRef as Ref<HTMLButtonElement>}
+          slotProps={TOOLBAR_SLOT_PROPS}
+        />
         <GridToolbarFilterButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarDensitySelector slotProps={TOOLBAR_SLOT_PROPS} />
       </Box>
