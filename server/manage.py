@@ -1568,7 +1568,7 @@ def create_single_step_workflow_classification():
 
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
         return None
-    
+
     workflow_classification = {
         "id": classification_id,
         "name": "Get Patient Info Workflow",
@@ -1634,10 +1634,9 @@ def create_complex_workflow_with_loops_classification():
     return workflow_classification["id"]
 
 def create_single_step_workflow_template(workflow_template_id, form_template_id, num_steps=1):
-    
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
-    
+
     classification_id = create_single_step_workflow_classification()
 
     workflow_template = {
@@ -1671,7 +1670,6 @@ def create_single_step_workflow_template(workflow_template_id, form_template_id,
     step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
     workflow_template_orm.steps.append(step_orm)
 
-    
     db.session.add(workflow_template_orm)
     db.session.commit()
 
@@ -1811,7 +1809,7 @@ def create_simple_workflow_template_with_branching(
             form=form_template_orm, **step_data
         )
 
-    for (source, target, condition) in branches:
+    for (source, target, _condition) in branches:
         source_step_id = f"{workflow_template_id}-step-{source}"
         target_step_id = f"{workflow_template_id}-step-{target}"
         branch_id = f"{source_step_id}-to-step-{target}"
@@ -1937,7 +1935,7 @@ def create_complex_workflow_with_loops_template( workflow_template_id, form_temp
             form=form_template_orm, **step_data
         )
 
-    for (source, target, condition) in branches:
+    for (source, target, _condition) in branches:
         source_step_id = f"{workflow_template_id}-step-{source}"
         target_step_id = f"{workflow_template_id}-step-{target}"
         branch_id = f"{source_step_id}-to-step-{target}"
