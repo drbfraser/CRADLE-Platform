@@ -374,6 +374,7 @@ function getWorkflowTree(
 
   const baseNode: PossibleStep = {
     ...instanceStepMap[stepId],
+    branches: [],
     indent,
     shortestPathLength: 1,
   };

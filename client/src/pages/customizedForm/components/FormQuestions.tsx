@@ -278,7 +278,6 @@ export const FormQuestions = ({
               fullWidth
               error={!!hook.numberErrors[qid]}
               helperText={hook.numberErrors[qid]}
-              suffix={question.units ?? ''}
               onValueChange={(values) => {
                 const value = values.floatValue;
                 let errorMessage = '';
