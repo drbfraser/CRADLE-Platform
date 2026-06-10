@@ -3,7 +3,7 @@ import {
   buildInstanceDetails,
   computeProgressAndEta,
   getWorkflowCurrentStep,
-} from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
+} from 'src/pages/patient/WorkflowInfo/utils';
 import {
   getInstanceWithSteps,
   getPatientInfoAsync,

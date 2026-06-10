@@ -15,7 +15,7 @@ import { InstanceDetails } from 'src/shared/types/workflow/workflowUiTypes';
 import {
   getWorkflowPossibleSteps,
   getWorkflowPossibleStepsLength,
-} from '../WorkflowUtils';
+} from '../utils';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowPossibleSteps(props: {

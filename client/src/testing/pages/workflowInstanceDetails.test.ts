@@ -12,7 +12,7 @@ import {
   buildInstanceDetails,
   mapWorkflowStep,
   initiateWorkflowPossibleSteps,
-} from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
+} from 'src/pages/patient/WorkflowInfo/utils';
 
 // Mock API calls
 vi.mock('src/shared/api', () => ({

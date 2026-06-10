@@ -10,7 +10,7 @@ import {
 import {
   formatWorkflowStepStatusText,
   getWorkflowShortestPath,
-} from '../WorkflowUtils';
+} from '../utils';
 
 export default function WorkflowStatus(props: {
   workflowInstance: InstanceDetails;
