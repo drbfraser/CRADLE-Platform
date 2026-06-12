@@ -148,8 +148,7 @@ export default function WorkflowStatus(props: {
                     workflowInstance.steps[progressInfo.currentIndex]
                   )}
                 </Typography>
-                {workflowInstance.status !== InstanceStatus.COMPLETED &&
-                  progressInfo.etaDate && (
+                {progressInfo.etaDate && (
                     <Typography variant="caption" color="text.secondary">
                       ~{progressInfo.estDaysRemaining} days remaining
                     </Typography>
