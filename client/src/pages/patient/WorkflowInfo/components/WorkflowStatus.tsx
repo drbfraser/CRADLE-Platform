@@ -7,6 +7,7 @@ import {
   InstanceDetails,
   WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';
+import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   formatWorkflowStepStatusText,
   getWorkflowShortestPath,
@@ -53,7 +54,9 @@ export default function WorkflowStatus(props: {
               <Box sx={{ textAlign: 'center' }}>
                 <ReplayIcon
                   color={
-                    workflowInstance.workflowCompletedOn ? 'success' : 'primary'
+                    workflowInstance.status === InstanceStatus.COMPLETED
+                      ? 'success'
+                      : 'primary'
                   }
                   sx={{ fontSize: 32, mb: 1 }}
                 />
@@ -62,15 +65,17 @@ export default function WorkflowStatus(props: {
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
                   {progressInfo.completed} /{' '}
-                  {workflowInstance.workflowCompletedOn
+                  {workflowInstance.status === InstanceStatus.COMPLETED
                     ? progressInfo.completed
                     : progressInfo.completed +
                       (getWorkflowShortestPath(workflowInstance) || 0)}
-                  {workflowInstance.workflowCompletedOn ? '' : '+'}
+                  {workflowInstance.status === InstanceStatus.COMPLETED
+                    ? ''
+                    : '+'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {/*TODO: handle edge cases caused by overriding steps (e.g. skipping back and forth between shortest branch and other branch) */}
-                  {workflowInstance.workflowCompletedOn
+                  {workflowInstance.status === InstanceStatus.COMPLETED
                     ? 'All steps completed'
                     : 'At least ' +
                       (getWorkflowShortestPath(workflowInstance) ||
@@ -89,7 +94,7 @@ export default function WorkflowStatus(props: {
 
             <Grid item xs={12} md={4}>
               <Box sx={{ textAlign: 'center' }}>
-                {workflowInstance.workflowCompletedOn ? (
+                {workflowInstance.status === InstanceStatus.COMPLETED ? (
                   <CheckCircleOutlineIcon
                     color="success"
                     sx={{ fontSize: 32, mb: 1 }}
@@ -101,7 +106,7 @@ export default function WorkflowStatus(props: {
                   />
                 )}
                 <Typography variant="subtitle2" color="text.secondary">
-                  {workflowInstance.workflowCompletedOn
+                  {workflowInstance.status === InstanceStatus.COMPLETED
                     ? 'Completed'
                     : 'Last Edited'}
                 </Typography>
@@ -109,7 +114,7 @@ export default function WorkflowStatus(props: {
                   {workflowInstance.workflowCompletedOn ||
                     workflowInstance.lastEditedOn}
                 </Typography>
-                {!workflowInstance.workflowCompletedOn && (
+                {workflowInstance.status !== InstanceStatus.COMPLETED && (
                   <Typography variant="caption" color="text.secondary">
                     by {workflowInstance?.lastEditedBy || 'N/A'}
                   </Typography>
@@ -119,7 +124,7 @@ export default function WorkflowStatus(props: {
           </Grid>
 
           {/* "Currently Working On" Section Details */}
-          {!workflowInstance.workflowCompletedOn &&
+          {workflowInstance.status !== InstanceStatus.COMPLETED &&
             workflowInstance.steps[progressInfo.currentIndex] && (
               <Box
                 sx={{
@@ -143,7 +148,7 @@ export default function WorkflowStatus(props: {
                     workflowInstance.steps[progressInfo.currentIndex]
                   )}
                 </Typography>
-                {!workflowInstance.workflowCompletedOn &&
+                {workflowInstance.status !== InstanceStatus.COMPLETED &&
                   progressInfo.etaDate && (
                     <Typography variant="caption" color="text.secondary">
                       ~{progressInfo.estDaysRemaining} days remaining
