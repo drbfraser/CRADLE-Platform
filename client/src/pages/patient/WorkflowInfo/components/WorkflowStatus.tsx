@@ -149,10 +149,10 @@ export default function WorkflowStatus(props: {
                   )}
                 </Typography>
                 {progressInfo.etaDate && (
-                    <Typography variant="caption" color="text.secondary">
-                      ~{progressInfo.estDaysRemaining} days remaining
-                    </Typography>
-                  )}
+                  <Typography variant="caption" color="text.secondary">
+                    ~{progressInfo.estDaysRemaining} days remaining
+                  </Typography>
+                )}
               </Box>
             )}
         </Box>
