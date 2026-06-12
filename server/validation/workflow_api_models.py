@@ -72,6 +72,7 @@ class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
     name: Optional[str] = None
     description: Optional[str] = None
     patient_id: Optional[str] = None
+    status: Optional[str] = None
 
 
 class WorkflowInstanceStepPatchModel(CradleBaseModel, extra="forbid"):

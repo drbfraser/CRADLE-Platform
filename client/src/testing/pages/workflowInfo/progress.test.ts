@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
+import { StepStatus, InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
@@ -125,6 +125,7 @@ describe('getWorkflowShortestPath', () => {
     studyTitle: 'Test',
     patientName: 'Alice',
     patientId: 'p1',
+    status: InstanceStatus.ACTIVE,
     description: '',
     collection: 'PAPAGO',
     version: '1',

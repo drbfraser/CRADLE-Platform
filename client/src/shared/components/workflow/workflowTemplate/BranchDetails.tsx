@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography, Paper, Button, Box, Alert } from '@mui/material';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
-import { validateJsonLogic } from '../blocklyEditor/jsonLogicGenerator';
+import {
+  validateJsonLogic,
+  stripRuleMetadata,
+} from '../blocklyEditor/jsonLogicGenerator';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -52,7 +55,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [validationError, setValidationError] = useState<string | null>(() => {
     if (!branch?.condition?.rule) return null;
     try {
-      return validateJsonLogic(JSON.parse(branch.condition.rule), true)
+      return validateJsonLogic(
+        stripRuleMetadata(JSON.parse(branch.condition.rule)),
+        true
+      )
         ? null
         : 'The condition is incomplete. All inputs must be connected before saving.';
     } catch {
@@ -62,6 +68,33 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [newTargetStepId, setNewTargetStepId] = useState<string | undefined>(
     undefined
   );
+
+  useEffect(() => {
+    setLocalConditionRule(branch?.condition?.rule || '');
+    setLocalConditionName(
+      branch?.condition?.rule
+        ? (() => {
+            try {
+              return JSON.parse(branch.condition.rule).name || '';
+            } catch {
+              return '';
+            }
+          })()
+        : ''
+    );
+    setValidationError(
+      branch?.condition?.rule
+        ? validateJsonLogic(
+            stripRuleMetadata(JSON.parse(branch.condition.rule)),
+            true
+          )
+          ? null
+          : 'The condition is incomplete. All inputs must be connected before saving.'
+        : null
+    );
+    setNewTargetStepId(undefined);
+  }, [branch, selectedBranchIndex]);
+
   const handleTargetStepChange = (
     stepId: string,
     branchIndex: number,

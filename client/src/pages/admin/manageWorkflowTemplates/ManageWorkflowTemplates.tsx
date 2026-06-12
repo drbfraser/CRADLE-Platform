@@ -90,25 +90,27 @@ export const ManageWorkflowTemplates = () => {
   );
 
   const tableColumns: GridColDef[] = [
-    { flex: 1, field: 'name', headerName: 'Workflow Name' },
+    { flex: 1, field: 'name', headerName: 'Template Name' },
     { flex: 1, field: 'version', headerName: 'Version' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
-    { flex: 1, field: 'lastEdited', headerName: 'Last edit' },
+    { flex: 1, field: 'lastEdited', headerName: 'Last Edited' },
     {
       flex: 1,
       field: 'takeAction',
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
+      hideable: false,
+      disableColumnMenu: true,
       renderCell: (params: GridRenderCellParams<WorkflowTemplateWithIndex>) => (
         <TableRowActions workflowTemplate={params.value} />
       ),
     },
   ];
   const tableRows = workflowTemplatesQuery.data?.map(
-    (template: WorkflowTemplate, index: number) => ({
-      id: index,
-      name: template.name,
+    (template: WorkflowTemplate) => ({
+      id: template.id,
+      name: template.name || template.classification?.name || 'N/A',
       version: template.version,
       dateCreated: getPrettyDate(template.dateCreated),
       lastEdited: getPrettyDate(template.lastEdited),
@@ -166,9 +168,9 @@ export const ManageWorkflowTemplates = () => {
         footer={TableFooter}
         loading={workflowTemplatesQuery.isLoading}
         getRowClassName={(params) => {
-          const index = params.row.id;
-          const workflowTemplate =
-            workflowTemplatesQuery.data?.at(index) ?? undefined;
+          const workflowTemplate = workflowTemplatesQuery.data?.find(
+            (template) => template.id === params.row.id
+          );
           if (!workflowTemplate) return '';
           return workflowTemplate.archived ? 'row-archived' : '';
         }}

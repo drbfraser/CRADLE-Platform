@@ -83,6 +83,7 @@ describe('loadInstanceById', () => {
     expect(result).toMatchObject({
       id: testWorkflowInstance.id,
       studyTitle: testWorkflowInstance.name,
+      status: testWorkflowInstance.status,
       patientName: 'Alice',
       patientId: testWorkflowInstance.patientId,
       description: testWorkflowInstance.description,

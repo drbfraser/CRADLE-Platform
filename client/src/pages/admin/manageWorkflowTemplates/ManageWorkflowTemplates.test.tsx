@@ -10,7 +10,6 @@ import {
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getPrettyDate } from 'src/shared/utils';
 import { createFakeAccessToken } from 'src/testing/utils';
 import { WORKFLOW_TEMPLATE_TEST_DATA as TEST_DATA } from 'src/testing/testData';
 import ProviderWrapper from 'src/testing/ProviderWrapper';
@@ -88,13 +87,6 @@ describe('Workflow Table', () => {
         const tableRow = tableRows[index];
         const displayName = name || classification?.name || 'N/A';
 
-        // Debug what's actually in the table row
-        console.log('Table row content:', tableRow.textContent);
-        console.log('Looking for name:', displayName);
-        console.log('Looking for date:', getPrettyDate(dateCreated));
-        console.log('Looking for version:', version.toString());
-
-        // If getByText finds the element, the test passes
         within(tableRow).getByText(displayName);
         // Skip date for now to see if other elements work
         // within(tableRow).getByText(getPrettyDate(dateCreated));
@@ -120,10 +112,6 @@ describe('Workflow Table', () => {
         const tableRow = tableRows![index];
         const displayName = name || classification?.name || 'N/A';
 
-        // Debug what's actually in the table row
-        console.log('Archived table row content:', tableRow.textContent);
-
-        // If getByText finds the element, the test passes
         within(tableRow).getByText(displayName);
         // Skip date for now to see if other elements work
         // within(tableRow).getByText(getPrettyDate(dateCreated));
