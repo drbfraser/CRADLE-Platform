@@ -62,15 +62,39 @@ export function workspaceToJsonLogic(
   return codeStr || null;
 }
 
-export function validateJsonLogic(rule: unknown, isRoot = false): boolean {
-  if (rule === null || rule === undefined) return false;
-  if (typeof rule === 'number') return !isRoot;
-  if (typeof rule === 'string') return !isRoot;
-  if (typeof rule === 'boolean') return true;
-  if (typeof rule === 'object' && 'var' in (rule as object)) return !isRoot;
+const METADATA_KEYS = new Set([
+  'name',
+  'label',
+  'id',
+  'description',
+  'comment',
+  'notes',
+  'enabled',
+  'version',
+]);
 
-  if (typeof rule === 'object') {
-    const entries = Object.entries(rule as Record<string, unknown>);
+export function stripRuleMetadata(rule: unknown): unknown {
+  if (typeof rule !== 'object' || rule === null || Array.isArray(rule)) {
+    return rule;
+  }
+  const obj = rule as Record<string, unknown>;
+  const logicOnly = Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !METADATA_KEYS.has(key))
+  );
+  return Object.keys(logicOnly).length === 1 ? logicOnly : obj;
+}
+
+export function validateJsonLogic(rule: unknown, isRoot = false): boolean {
+  const logicRule = stripRuleMetadata(rule);
+  if (logicRule === null || logicRule === undefined) return false;
+  if (typeof logicRule === 'number') return !isRoot;
+  if (typeof logicRule === 'string') return !isRoot;
+  if (typeof logicRule === 'boolean') return true;
+  if (typeof logicRule === 'object' && 'var' in (logicRule as object))
+    return !isRoot;
+
+  if (typeof logicRule === 'object') {
+    const entries = Object.entries(logicRule as Record<string, unknown>);
     if (entries.length !== 1) return false;
     const [, args] = entries[0];
     if (Array.isArray(args)) return args.every((arg) => validateJsonLogic(arg));

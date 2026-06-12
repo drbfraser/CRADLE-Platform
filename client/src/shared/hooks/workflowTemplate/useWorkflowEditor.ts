@@ -117,13 +117,16 @@ export const useWorkflowEditor = ({
             if (idx === branchIndex) {
               // Parse the existing rule to merge with the name
               let ruleWithName = conditionRule;
-              if (conditionName) {
+              if (conditionRule) {
                 try {
                   const ruleObj = JSON.parse(conditionRule);
-                  ruleObj.name = conditionName;
+                  if (conditionName) {
+                    ruleObj.name = conditionName;
+                  } else {
+                    delete ruleObj.name;
+                  }
                   ruleWithName = JSON.stringify(ruleObj);
                 } catch {
-                  // If parsing fails, just use the original rule
                   ruleWithName = conditionRule;
                 }
               }
