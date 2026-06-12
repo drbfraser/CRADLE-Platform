@@ -18,7 +18,7 @@ import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { archiveInstanceStepForm } from 'src/shared/api';
-import WorkflowStatus from './components/WorkflowStatus';
+import WorkflowStatus from './components/WorkflowStatus/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 import WorkflowConfirmDialog, {
