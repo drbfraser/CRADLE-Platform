@@ -6,6 +6,12 @@ export {
   getWorkflowShortestPath,
 } from './progress';
 export {
+  isWorkflowInstanceCompleted,
+  getWorkflowRemainingStepsCount,
+  formatWorkflowProgressValue,
+  formatWorkflowRemainingStepsText,
+} from './workflowProgressText';
+export {
   getWorkflowStepHistory,
   getWorkflowPossibleSteps,
   getWorkflowPossibleStepsLength,
