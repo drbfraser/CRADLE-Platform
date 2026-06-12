@@ -102,10 +102,7 @@ export const updateInstance = async (
  */
 export const archiveInstance = (instanceId: ID) =>
   axiosFetch
-    .put<WorkflowInstance>(instancePath(instanceId), {
-      status: 'Cancelled',
-      lastUpdated: new Date().toISOString(),
-    })
+    .patch<WorkflowInstance>(instancePath(instanceId), { status: 'Cancelled' })
     .then((r) => r.data);
 
 /**
@@ -115,10 +112,12 @@ export const archiveInstance = (instanceId: ID) =>
  */
 export const unArchiveInstance = (instanceId: ID) =>
   axiosFetch
-    .put<WorkflowInstance>(instancePath(instanceId), {
-      status: 'Active',
-      lastUpdated: new Date().toISOString(),
-    })
+    .patch<WorkflowInstance>(instancePath(instanceId), { status: 'Active' })
+    .then((r) => r.data);
+
+export const completeInstance = (instanceId: ID) =>
+  axiosFetch
+    .patch<WorkflowInstance>(instancePath(instanceId), { status: 'Completed' })
     .then((r) => r.data);
 
 // /**

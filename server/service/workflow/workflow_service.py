@@ -391,6 +391,9 @@ class WorkflowService:
         if patch.patient_id is not None:
             workflow_instance.patient_id = patch.patient_id
 
+        if patch.status is not None:
+            workflow_instance.status = patch.status
+
     @staticmethod
     def apply_workflow_instance_step_patch(
         workflow_instance_step: WorkflowInstanceStepModel,
