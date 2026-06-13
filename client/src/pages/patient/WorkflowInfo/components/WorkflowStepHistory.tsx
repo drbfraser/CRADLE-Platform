@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Paper, Typography, Button, Collapse, Chip } from '@mui/material';
+import { Box, Paper, Typography, Button, Collapse, Chip, Tooltip } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ReplayIcon from '@mui/icons-material/Replay';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -154,6 +154,8 @@ export default function WorkflowStepHistory({
                    getWorkflowStepHistory to WorkflowUtils.tsx when building workflow instance 
                    to minimize rendering inefficiencies */
                 const isExpanded = expandAll || expandedStep === step.id;
+                const needsFormSubmission =
+                  !!step.formTemplateId && !step.formSubmitted;
                 const statusIcon =
                   step.status === StepStatus.COMPLETED ? (
                     <CheckCircleOutlineIcon
@@ -373,14 +375,23 @@ export default function WorkflowStepHistory({
                             mt: 2,
                           }}>
                           {step.status == StepStatus.ACTIVE && (
-                            <Button
-                              size="small"
-                              variant="contained"
-                              color="primary"
-                              // disabled
-                              onClick={handleOpenNextStepModal}>
-                              Complete Step
-                            </Button>
+                            <Tooltip
+                              title={
+                                needsFormSubmission
+                                  ? 'Submit the form before completing this step'
+                                  : ''
+                              }>
+                              <span>
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  color="primary"
+                                  disabled={needsFormSubmission}
+                                  onClick={handleOpenNextStepModal}>
+                                  Complete Step
+                                </Button>
+                              </span>
+                            </Tooltip>
                           )}
                         </Box>
 
