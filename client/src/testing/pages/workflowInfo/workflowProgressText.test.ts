@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { StepStatus, InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
+import {
+  StepStatus,
+  InstanceStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
@@ -75,9 +78,9 @@ describe('workflowProgressText', () => {
       currentIndex: 0,
     };
 
-    expect(
-      formatWorkflowProgressValue(activeInstance, progressInfo, 2)
-    ).toBe('1 / 3+');
+    expect(formatWorkflowProgressValue(activeInstance, progressInfo, 2)).toBe(
+      '1 / 3+'
+    );
   });
 
   it('formats completed progress value without plus suffix', () => {
@@ -107,9 +110,9 @@ describe('workflowProgressText', () => {
       currentIndex: 0,
     };
 
-    expect(getWorkflowRemainingStepsCount(activeInstance, progressInfo, 2)).toBe(
-      2
-    );
+    expect(
+      getWorkflowRemainingStepsCount(activeInstance, progressInfo, 2)
+    ).toBe(2);
     expect(
       formatWorkflowRemainingStepsText(activeInstance, progressInfo, 2)
     ).toBe('At least 2 more steps remaining');

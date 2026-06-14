@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { StepStatus, InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
+import {
+  StepStatus,
+  InstanceStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,

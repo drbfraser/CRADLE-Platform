@@ -5,7 +5,9 @@ import {
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { getWorkflowShortestPath } from './progress';
 
-export function isWorkflowInstanceCompleted(instance: InstanceDetails): boolean {
+export function isWorkflowInstanceCompleted(
+  instance: InstanceDetails
+): boolean {
   return instance.status === InstanceStatus.COMPLETED;
 }
 
@@ -14,9 +16,7 @@ export function getWorkflowRemainingStepsCount(
   progressInfo: WorkflowInstanceProgress,
   shortestPath = getWorkflowShortestPath(workflowInstance)
 ): number {
-  return (
-    shortestPath || workflowInstance.steps.length - progressInfo.completed
-  );
+  return shortestPath || workflowInstance.steps.length - progressInfo.completed;
 }
 
 export function formatWorkflowProgressValue(
