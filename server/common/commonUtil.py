@@ -97,10 +97,12 @@ def filterNestedAttributeWithValueNone(payload: dict) -> dict:
 
 
 def is_valid_email_format(email: str) -> bool:
+    """Return True if the email matches the expected format."""
     return re.fullmatch(EMAIL_REGEX_PATTERN, email) is not None
 
 
 def format_phone_number(phone_number: str):
+    """Parse and return the phone number in E.164 format, raising ValueError if invalid."""
     try:
         parsed_phone_number = phonenumbers.parse(phone_number)
         if not phonenumbers.is_possible_number(parsed_phone_number):
@@ -125,27 +127,28 @@ def to_titlecase(string: str) -> str:
     return string.title()
 
 
-# returns formatted current time in utc timezone
 def get_current_time():
+    """Return the current UTC time as a Unix timestamp (seconds)."""
     return int(time.time())
 
 
 def get_future_date(days_after=1):
+    """Return a Unix timestamp for a date N days in the future."""
     return int(time.time()) + (days_after * 24 * 60 * 60)
 
 
 def get_past_date(days_before=1):
+    """Return a Unix timestamp for a date N days in the past."""
     return int(time.time()) - (days_before * 24 * 60 * 60)
 
 
 def get_uuid():
+    """Return a new random UUID string."""
     return str(uuid.uuid4())
 
 
-# use this to replace json.dumps if you want the different
-# language words in json string still to be visible in
-# database rather than unicode format
 def dumps(obj):
+    """Serialize obj to a JSON string, preserving non-ASCII characters."""
     return json.dumps(obj, ensure_ascii=False)
 
 
@@ -161,10 +164,12 @@ def filterPairsWithNone(payload: dict) -> dict:
 
 
 def hex2bytes(key):
+    """Convert a hex string to bytes."""
     return bytes.fromhex(key)
 
 
 def bytes2hex(key: bytes):
+    """Convert bytes to a hex string."""
     return key.hex()
 
 

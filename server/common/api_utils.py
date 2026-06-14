@@ -262,6 +262,7 @@ def get_user_id(d: dict, user_attribute: Optional[str] = None) -> Optional[int]:
 
 
 def convert_query_parameter_to_bool(value):
+    """Convert a query parameter string to a boolean, treating 'true' (case-insensitive) as True."""
     if value is None:
         return False
     return str(value).lower() == "true"

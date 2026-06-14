@@ -31,6 +31,7 @@ FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
 
 
 def filter_template_questions_dict(form_template: dict):
+    """Filter a form template dict to only include blank (non-submitted) questions."""
     form_template["questions"] = [
         question
         for question in form_template["questions"]
@@ -85,6 +86,7 @@ def assign_form_or_template_ids(model, req: dict) -> None:
 
 
 def _assign_id(obj, field: str):
+    """Assign a new UUID to obj.field if it is not already set."""
     if getattr(obj, field, None) is None:
         setattr(obj, field, commonUtil.get_uuid())
 
@@ -522,6 +524,7 @@ def format_template(template: dict, available_langs: list[str]) -> dict:
 
 
 def lang_version_exists(string_id: str, lang: str):
+    """Return True if a LangVersionOrmV2 entry exists for the given string_id and language."""
     return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
 
 
@@ -682,6 +685,7 @@ def handle_model_existence(
     version: int,
     english_name: str,
 ) -> tuple[bool, FormClassificationOrmV2]:
+    """Validate classification/version conflicts and return archiving flag and existing classification."""
     # Boolean to check whether to archive an existing form template version
     archive_previous_template: bool = False
     existing_classification = None
@@ -718,6 +722,7 @@ def handle_model_existence(
 def _extend_lang_version(
     translations: MultiLangText, string_id: str, new_template: bool = True
 ) -> list[LangVersionOrmV2]:
+    """Create or update LangVersionOrmV2 rows for each language in the translations map."""
     new_lang_versions = []
 
     for lang, text in translations.items():
@@ -749,6 +754,7 @@ def get_new_lang_versions_and_questions(
     new_template: bool,
     questions: list[FormTemplateUploadQuestion],
 ):
+    """Build lists of new LangVersionOrmV2 rows and question dicts from a classification and question list."""
     new_lang_versions = []
     new_questions = []
 
@@ -799,6 +805,7 @@ def get_new_lang_versions_and_questions(
 
 
 def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
+    """Attach question metadata to each answer in a form submission and return the enriched list."""
     answers = [
         FormAnswer(**(orm_serializer.marshal(answer))) for answer in submission.answers
     ]
