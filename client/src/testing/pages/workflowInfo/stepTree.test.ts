@@ -13,7 +13,9 @@ import {
   getWorkflowCurrentStep,
   getWorkflowPossibleStepsLength,
   getWorkflowPossibleSteps,
+  initiateWorkflowPossibleSteps,
 } from 'src/pages/patient/WorkflowInfo/utils/stepTree';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { Patient } from 'src/shared/types/patientTypes';
 import { buildInstanceDetails } from 'src/pages/patient/WorkflowInfo/utils';
 import {
@@ -186,5 +188,84 @@ describe('getWorkflowPossibleSteps', () => {
     }));
 
     expect(getWorkflowPossibleSteps(instance)).toEqual([]);
+  });
+});
+
+describe('initiateWorkflowPossibleSteps', () => {
+  const cyclicTemplate: WorkflowTemplate = {
+    id: 'cyclic-template',
+    description: 'Template with A -> B -> A cycle',
+    version: '1',
+    archived: false,
+    dateCreated: 1741373694,
+    lastEdited: 1741373694,
+    lastEditedBy: 'user-1',
+    startingStepId: 'template-a',
+    steps: [
+      {
+        id: 'template-a',
+        name: 'Step A',
+        description: 'Step A',
+        lastEdited: 1741373694,
+        branches: [
+          {
+            stepId: 'template-a',
+            targetStepId: 'template-b',
+          },
+        ],
+      },
+      {
+        id: 'template-b',
+        name: 'Step B',
+        description: 'Step B',
+        lastEdited: 1741373694,
+        branches: [
+          {
+            stepId: 'template-b',
+            targetStepId: 'template-a',
+          },
+        ],
+      },
+    ],
+  };
+
+  const cyclicInstanceSteps: InstanceStep[] = [
+    {
+      id: 'instance-a',
+      title: 'Step A',
+      status: StepStatus.ACTIVE,
+      workflowTemplateStepId: 'template-a',
+    },
+    {
+      id: 'instance-b',
+      title: 'Step B',
+      status: StepStatus.PENDING,
+      workflowTemplateStepId: 'template-b',
+    },
+  ];
+
+  it('handles cyclic templates without infinite recursion', () => {
+    const root = initiateWorkflowPossibleSteps(
+      cyclicInstanceSteps,
+      cyclicTemplate
+    );
+
+    expect(root.id).toBe('instance-a');
+    expect(root.branches).toHaveLength(1);
+
+    const stepB = root.branches[0];
+    expect(stepB.id).toBe('instance-b');
+    expect(stepB.branches).toHaveLength(1);
+
+    const cycleNode = stepB.branches[0];
+    expect(cycleNode.id).toBe('instance-a');
+    expect(cycleNode.shortestPathLength).toBe(Infinity);
+    expect(cycleNode.branches).toHaveLength(0);
+
+    // Cycle guard should cap the tree at 3 nodes (A -> B -> A), not grow further.
+    const countNodes = (node: PossibleStep): number =>
+      1 + node.branches.reduce((sum, branch) => sum + countNodes(branch), 0);
+
+    expect(countNodes(root)).toBe(3);
   });
 });
