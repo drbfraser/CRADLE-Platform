@@ -10,8 +10,38 @@ import {
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { BlocklyEditor } from '../blocklyEditor';
-import { WorkflowVariable, getWorkflowVariables } from 'src/shared/api';
+import {
+  WorkflowVariable,
+  getWorkflowVariables,
+  getFormTemplateAsyncV2,
+} from 'src/shared/api';
+import { QuestionTypeEnum } from 'src/shared/enums';
+
+const QUESTION_TYPE_TO_VAR_TYPE: Partial<
+  Record<QuestionTypeEnum, WorkflowVariable['type']>
+> = {
+  [QuestionTypeEnum.INTEGER]: 'integer',
+  [QuestionTypeEnum.STRING]: 'string',
+  [QuestionTypeEnum.MULTIPLE_CHOICE]: 'string',
+  [QuestionTypeEnum.DATE]: 'date',
+  [QuestionTypeEnum.DATETIME]: 'date',
+};
+
+function questionToWorkflowVariable(q: TQuestion): WorkflowVariable {
+  const englishText =
+    q.questionText['English'] ?? Object.values(q.questionText)[0] ?? '';
+  return {
+    tag: `forms[latest].${q.userQuestionId}`,
+    description: englishText,
+    type: QUESTION_TYPE_TO_VAR_TYPE[q.questionType]!,
+    namespace: 'forms',
+    collectionName: 'forms',
+    isComputed: false,
+    isDynamic: true,
+  };
+}
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -67,11 +97,36 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     currentRuleRef.current = currentRule;
   }, [currentRule]);
 
+  const currentStep = steps?.find((s) => s.id === stepId);
+  const formId = currentStep?.formId;
+
   useEffect(() => {
-    getWorkflowVariables()
-      .then(setVariables)
-      .finally(() => setVariablesLoading(false));
-  }, []);
+    let cancelled = false;
+    const load = async () => {
+      const globalVars = await getWorkflowVariables();
+      let formVars: WorkflowVariable[] = [];
+      if (formId) {
+        try {
+          const template = await getFormTemplateAsyncV2(formId);
+          formVars = template.questions
+            .filter(
+              (q) => q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
+            )
+            .map(questionToWorkflowVariable);
+        } catch {
+          // form fetch failure is non-fatal; branch editor still works with global vars
+        }
+      }
+      if (!cancelled) {
+        setVariables([...globalVars, ...formVars]);
+        setVariablesLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [formId]);
 
   useEffect(() => {
     if (branch.condition?.rule) {
