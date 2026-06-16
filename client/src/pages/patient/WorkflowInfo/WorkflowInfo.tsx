@@ -29,7 +29,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getInstancesByPatient } from 'src/shared/api';
 import { WorkflowInfoRow } from 'src/shared/types/workflow/workflowUiTypes';
-import { buildWorkflowInstanceRowList } from './WorkflowUtils';
+import { buildWorkflowInstanceRowList } from './utils';
 import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import RuleEngineDemoDialog from './components/RuleEngineDemoDialog';
 

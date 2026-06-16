@@ -12,7 +12,7 @@ import {
   buildInstanceDetails,
   mapWorkflowStep,
   initiateWorkflowPossibleSteps,
-} from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
+} from 'src/pages/patient/WorkflowInfo/utils';
 
 // Mock API calls
 vi.mock('src/shared/api', () => ({
@@ -83,6 +83,7 @@ describe('loadInstanceById', () => {
     expect(result).toMatchObject({
       id: testWorkflowInstance.id,
       studyTitle: testWorkflowInstance.name,
+      status: testWorkflowInstance.status,
       patientName: 'Alice',
       patientId: testWorkflowInstance.patientId,
       description: testWorkflowInstance.description,

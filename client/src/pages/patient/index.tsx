@@ -25,7 +25,7 @@ import {
   ReferralCancelledCard,
   ReferralNotAttendedCard,
   ReferralPendingCard,
-} from './Cards';
+} from './cards';
 import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';

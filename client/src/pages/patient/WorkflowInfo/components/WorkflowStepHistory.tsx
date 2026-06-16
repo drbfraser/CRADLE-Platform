@@ -21,10 +21,7 @@ import {
   InstanceDetails,
   InstanceStep,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import {
-  formatWorkflowStepStatusText,
-  getWorkflowStepHistory,
-} from '../WorkflowUtils';
+import { formatWorkflowStepStatusText, getWorkflowStepHistory } from '../utils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CheckCircle } from '@mui/icons-material';
 import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';

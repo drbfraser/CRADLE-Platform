@@ -23,7 +23,7 @@ import {
   unArchiveInstance,
   completeInstance,
 } from 'src/shared/api';
-import WorkflowStatus from './components/WorkflowStatus';
+import WorkflowStatus from './components/WorkflowStatus/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 import WorkflowConfirmDialog, {

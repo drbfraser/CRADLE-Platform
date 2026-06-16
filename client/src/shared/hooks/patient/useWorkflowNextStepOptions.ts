@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getWorkflowNextStepOptions } from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
+import { getWorkflowNextStepOptions } from 'src/pages/patient/WorkflowInfo/utils';
 import { evaluateInstanceStep } from 'src/shared/api';
 import { SnackbarSeverity } from 'src/shared/enums';
 import {
