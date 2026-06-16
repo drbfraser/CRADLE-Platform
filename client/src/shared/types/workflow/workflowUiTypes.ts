@@ -43,6 +43,8 @@ export type InstanceDetails = {
   patientName: string;
   patientId: string;
 
+  status: InstanceStatus;
+
   // Details section (sketch fields)
   description: string;
   collection: string;

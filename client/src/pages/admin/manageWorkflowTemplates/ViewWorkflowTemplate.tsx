@@ -12,6 +12,10 @@ import {
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteForever from '@mui/icons-material/DeleteForever';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -41,6 +45,9 @@ export const ViewWorkflowTemplate = () => {
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
     WorkflowViewMode.FLOW
   );
+
+  const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
+  const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
   // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
@@ -125,13 +132,32 @@ export const ViewWorkflowTemplate = () => {
           </Box>
 
           {!isEditMode && (
-            <Button
-              variant="contained"
-              startIcon={<EditIcon />}
-              onClick={handleEdit}
-              disabled={workflowTemplateQuery.data?.archived}>
-              Edit
-            </Button>
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="contained"
+                startIcon={<EditIcon />}
+                onClick={handleEdit}
+                disabled={workflowTemplateQuery.data?.archived}>
+                Edit
+              </Button>
+
+              {!workflowTemplateQuery.data?.archived ? (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteForever />}
+                  onClick={() => setIsArchivePopupOpen(true)}>
+                  Archive Workflow
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  startIcon={<UnarchiveIcon />}
+                  onClick={() => setIsUnarchivePopupOpen(true)}>
+                  Unarchive Workflow
+                </Button>
+              )}
+            </Stack>
           )}
         </Box>
 
@@ -144,6 +170,7 @@ export const ViewWorkflowTemplate = () => {
             hasChanges={workflowEditor.hasChanges}
             selectedStepId={workflowEditor.selectedStepId}
             selectedBranchIndex={workflowEditor.selectedBranchIndex}
+            setSelectedBranchIndex={workflowEditor.setSelectedBranchIndex}
             onTargetStepChange={workflowEditor.onTargetStepChange}
             onStepSelect={workflowEditor.setSelectedStepId}
             onFieldChange={workflowEditor.handleFieldChange}
@@ -245,6 +272,18 @@ export const ViewWorkflowTemplate = () => {
           </>
         )}
       </Paper>
+
+      <ArchiveTemplateDialog
+        open={isArchivePopupOpen}
+        onClose={() => setIsArchivePopupOpen(false)}
+        template={workflowTemplateQuery.data}
+        onArchived={() => navigate('/admin/workflow-templates')}
+      />
+      <UnarchiveTemplateDialog
+        open={isUnarchivePopupOpen}
+        onClose={() => setIsUnarchivePopupOpen(false)}
+        template={workflowTemplateQuery.data}
+      />
       <Toast
         severity="warning"
         message={workflowEditor.toastMsg}
