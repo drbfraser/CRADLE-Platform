@@ -8,6 +8,7 @@ import {
   Collapse,
   Chip,
   Divider,
+  Tooltip,
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -267,13 +268,26 @@ export default function WorkflowStepHistory({
                     justifyContent: 'flex-end',
                     mt: 2,
                   }}>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    color="primary"
-                    onClick={handleOpenNextStepModal}>
-                    Complete Step
-                  </Button>
+                  <Tooltip
+                    title={
+                      currentStep.formTemplateId && !currentStep.formSubmitted
+                        ? 'Submit the form before completing this step'
+                        : ''
+                    }>
+                    <span>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        disabled={
+                          !!currentStep.formTemplateId &&
+                          !currentStep.formSubmitted
+                        }
+                        onClick={handleOpenNextStepModal}>
+                        Complete Step
+                      </Button>
+                    </span>
+                  </Tooltip>
                 </Box>
               </Box>
             </Collapse>
