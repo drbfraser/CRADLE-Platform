@@ -59,7 +59,30 @@ export type InstanceDetails = {
 
   // Steps
   steps: InstanceStep[];
+  stepHistory: InstanceStep[];
   possibleSteps: PossibleStep; // tree of all possible steps
+};
+
+export type WorkflowStepHistoryActions = {
+  form: {
+    modalState: FormModalState;
+    onClose: () => void;
+    onRefetch: () => void;
+  };
+  formActions: {
+    onView: () => void;
+    onEdit: () => void;
+    onDiscard: () => void;
+    onCompleteNow: () => void;
+  };
+  stepActions: {
+    onCompleteStep: () => void;
+    onMakeCurrent: (
+      stepId: string,
+      title: string,
+      status: StepStatus
+    ) => void;
+  };
 };
 
 export type WorkflowInstanceProgress = {

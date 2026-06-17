@@ -97,6 +97,7 @@ describe('getWorkflowStepHistory', () => {
         shortestPathLength: 1,
         branches: [],
       },
+      stepHistory: [],
     };
 
     const history = getWorkflowStepHistory(instance);

@@ -18,7 +18,6 @@ import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  archiveInstanceStepForm,
   archiveInstance,
   unArchiveInstance,
   completeInstance,
@@ -26,20 +25,11 @@ import {
 import WorkflowStatus from './components/WorkflowStatus/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
-import WorkflowConfirmDialog, {
-  ConfirmDialogData,
-} from './components/WorkflowConfirmDialog';
-import axios from 'axios';
+import WorkflowConfirmDialog from './components/WorkflowConfirmDialog';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
-import { useWorkflowFormModal } from 'src/shared/hooks/patient/useWorkflowFormModal';
-import { SnackbarSeverity } from 'src/shared/enums';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
-import { useWorkflowNextStepOptions } from 'src/shared/hooks/patient/useWorkflowNextStepOptions';
-import { useWorkflowStepActions } from 'src/shared/hooks/patient/useWorkflowStepActions';
-import {
-  InstanceStatus,
-  StepStatus,
-} from 'src/shared/types/workflow/workflowEnums';
+import { useWorkflowInstanceActions } from 'src/shared/hooks/patient/useWorkflowInstanceActions';
+import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -47,17 +37,6 @@ export default function WorkflowInstanceDetailsPage() {
   const [openTemplateDetails, setOpenTemplateDetails] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
-    open: false,
-    title: '',
-    message: '',
-    onConfirm: () => {},
-  });
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
-  });
   const [nextStep, setNextStep] = useState<string | null>(null);
 
   const {
@@ -69,131 +48,40 @@ export default function WorkflowInstanceDetailsPage() {
     error,
     reload,
   } = useWorkflowInstanceDetails(instanceId);
-  const {
-    formModalState,
-    handleOpenFormModal,
-    handleCloseFormModal,
-    onRefetchForm,
-  } = useWorkflowFormModal(currentStep, reload);
-
-  const showSnackbar = (message: string, severity: SnackbarSeverity) => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
 
   const {
+    confirmDialog,
+    setConfirmDialog,
+    snackbar,
+    handleCloseSnackbar,
+    workflowStepHistoryActions,
     nextOptions,
-    currentStepEvaluation,
     openNextStepModal,
-    handleOpenNextStepModal,
     handleCloseNextStepModal,
-  } = useWorkflowNextStepOptions(
+    handleCompleteFinalStep,
+    handleCompleteAndStartNextStep,
+    handleMakeCurrent,
+  } = useWorkflowInstanceActions({
     instanceDetails,
     template,
     currentStep,
-    showSnackbar
-  );
+    reload,
+  });
 
-  const {
-    completeAndStartNextStep,
-    completeFinalStep,
-    setCurrentStep,
-    overrideCompletedStep,
-  } = useWorkflowStepActions(
-    instanceDetails,
-    currentStep,
-    currentStepEvaluation,
-    showSnackbar,
-    reload
-  );
-
-  const handleArchiveForm = async () => {
-    try {
-      if (!currentStep) {
-        console.error('Error deleting form (no current step)');
-        return false;
-      }
-
-      if (!currentStep.formId) {
-        console.error('No form associated with current step');
-        return false;
-      }
-
-      await archiveInstanceStepForm(currentStep.id);
-      console.log('Discarded form for current step successfully.');
-      reload();
-      setConfirmDialog((prev) => ({ ...prev, open: false }));
-      return true;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          'Error deleting form for current step:',
-          error.response?.status,
-          error.message
-        );
-      } else {
-        console.log('Unknown error deleting form:', error);
-      }
-      return false;
+  const onCompleteAndStartNextStep = async (stepId: string) => {
+    const expandedStepId = await handleCompleteAndStartNextStep(stepId);
+    if (expandedStepId) {
+      setExpandedStep(expandedStepId);
     }
   };
 
-  const handleSetCurrentStep = async (
-    stepId: string,
-    title: string,
-    status: StepStatus
-  ) => {
-    const statusNote =
-      status === StepStatus.COMPLETED
-        ? 'Note: A new step instance will be created.'
-        : '';
-    setConfirmDialog({
-      open: true,
-      title: 'Override Current Step',
-      message: `Override current step and move to ${title}? ${statusNote}`,
-      onConfirm: async () => {
-        if (status === StepStatus.COMPLETED) {
-          const { success } = await overrideCompletedStep(stepId);
-          if (!success) return;
-        } else {
-          const { success } = await setCurrentStep(stepId);
-          if (!success) return;
-        }
-
-        console.log('Make current step:', stepId);
-        setConfirmDialog((prev) => ({ ...prev, open: false }));
-      },
-    });
-  };
-
-  const handleCompleteFinalStep = async () => {
-    const { success } = await completeFinalStep();
-    if (!success) return;
-
-    handleCloseNextStepModal();
+  const onCompleteFinalStep = async () => {
+    await handleCompleteFinalStep();
     setExpandedStep(null);
-  };
-
-  const handleCompleteAndStartNextStep = async (stepId: string) => {
-    try {
-      const { success } = await completeAndStartNextStep(stepId);
-      if (!success) return;
-
-      handleCloseNextStepModal();
-      setExpandedStep(stepId);
-      showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-    } catch (e) {
-      console.error('Unable to complete step', e);
-      showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-    }
   };
 
   return (
     <>
-      {/* Main Workflow Instance Name Heading */}
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Go back" placement="top">
@@ -233,7 +121,6 @@ export default function WorkflowInstanceDetailsPage() {
           </Box>
         ) : instanceDetails ? (
           <>
-            {/* Workflow Instance Name & Patient Heading */}
             <Box
               sx={{
                 display: 'flex',
@@ -269,7 +156,6 @@ export default function WorkflowInstanceDetailsPage() {
               </Typography>
             </Box>
 
-            {/* Collapsible Workflow Template Details */}
             <Collapse in={openTemplateDetails} unmountOnExit>
               <Box sx={{ mx: 4, mb: 3 }}>
                 <Box
@@ -296,7 +182,6 @@ export default function WorkflowInstanceDetailsPage() {
               </Box>
             </Collapse>
 
-            {/*Show Description*/}
             <Box sx={{ mx: 5, mb: 3 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Description
@@ -306,38 +191,26 @@ export default function WorkflowInstanceDetailsPage() {
               </Typography>
             </Box>
 
-            {/* Section 2: Workflow Status */}
             <WorkflowStatus
               workflowInstance={instanceDetails}
               progressInfo={progressInfo}
             />
 
-            {/* Section 3: Step history */}
             <WorkflowStepHistory
               workflowInstance={instanceDetails}
+              currentStep={currentStep}
               expandedStep={expandedStep}
               setExpandedStep={setExpandedStep}
               expandAll={expandAll}
               setExpandAll={setExpandAll}
-              setConfirmDialog={setConfirmDialog}
-              handleMakeCurrent={handleSetCurrentStep}
-              handleOpenFormModal={handleOpenFormModal}
-              handleCloseFormModal={handleCloseFormModal}
-              formModalState={formModalState}
-              onRefetchForm={onRefetchForm}
-              handleArchiveForm={handleArchiveForm}
-              currentStep={currentStep}
-              showSnackbar={showSnackbar}
-              handleOpenNextStepModal={handleOpenNextStepModal}
+              actions={workflowStepHistoryActions}
             />
 
-            {/* Section 4: Possible Other Steps */}
             <WorkflowPossibleSteps
               workflowInstance={instanceDetails}
-              handleMakeCurrent={handleSetCurrentStep}
+              handleMakeCurrent={handleMakeCurrent}
             />
 
-            {/* Section 5: Change Workflow Status */}
             <Box sx={{ mx: 5, mt: 3 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Change Workflow Status
@@ -417,7 +290,6 @@ export default function WorkflowInstanceDetailsPage() {
               </Paper>
             </Box>
 
-            {/* Confirmation Dialog */}
             <WorkflowConfirmDialog
               confirmDialog={confirmDialog}
               setConfirmDialog={setConfirmDialog}
@@ -426,7 +298,6 @@ export default function WorkflowInstanceDetailsPage() {
         ) : null}
       </Paper>
 
-      {/* Snackbar for Confirmation Dialog */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={2000}
@@ -449,8 +320,8 @@ export default function WorkflowInstanceDetailsPage() {
         nextStep={nextStep}
         setNextStep={setNextStep}
         handleCloseNextStepModal={handleCloseNextStepModal}
-        handleCompleteFinalStep={handleCompleteFinalStep}
-        handleCompleteAndStartNextStep={handleCompleteAndStartNextStep}
+        handleCompleteFinalStep={onCompleteFinalStep}
+        handleCompleteAndStartNextStep={onCompleteAndStartNextStep}
         options={nextOptions}
       />
     </>
