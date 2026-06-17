@@ -1,6 +1,26 @@
 import pytest
+from humps import decamelize
 
-from enums import SexEnum
+import data.db_operations as crud
+from common.commonUtil import get_uuid
+from enums import QuestionTypeEnum, SexEnum
+from models import (
+    FormAnswerOrmV2,
+    FormClassificationOrm,
+    FormClassificationOrmV2,
+    FormOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
+    FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+    WorkflowInstanceOrm,
+    WorkflowTemplateOrm,
+)
+from service.workflow.workflow_service import WorkflowService
+from service.workflow.workflow_view import WorkflowView
+from tests import helpers
+from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 
 @pytest.fixture
@@ -128,30 +148,41 @@ def drug_record(patient_id):
 
 
 @pytest.fixture
-def form_classification():
-    return {
-        "id": "fc9",
-        "name": "fc9",
-    }
+def form_classification(database):
+    fc_id = get_uuid()
+    payload = {"id": fc_id, "name": fc_id}
+    try:
+        yield payload
+    finally:
+        crud.delete_all(FormClassificationOrm, id=fc_id)
+        crud.delete_all(FormClassificationOrm, name=fc_id)
+        database.session.commit()
 
 
 @pytest.fixture
-def form_template():
-    return {
-        "classification": {"id": "fc9", "name": "fc9"},
-        "id": "ft9",
+def form_template(database, form_classification):
+    ft_id = get_uuid()
+    payload = {
+        "classification": form_classification,
+        "id": ft_id,
         "version": "V1",
         "questions": [],
     }
+    try:
+        yield payload
+    finally:
+        crud.delete_all(FormOrm, form_template_id=ft_id)
+        crud.delete_all(FormTemplateOrm, id=ft_id)
+        database.session.commit()
 
 
 @pytest.fixture
-def form(patient_id):
+def form(patient_id, form_template, form_classification):
     return {
         "id": "f9",
         "lang": "english",
-        "form_template_id": "ft9",
-        "form_classification_id": "fc9",
+        "form_template_id": form_template["id"],
+        "form_classification_id": form_classification["id"],
         "patient_id": patient_id,
         "date_created": 1561011126,
         "questions": [
@@ -191,3 +222,216 @@ def form(patient_id):
             },
         ],
     }
+
+
+@pytest.fixture
+def form_template_v2_payload():
+    def _make(extra_questions=None, overrides=None):
+        base = {
+            "version": 1,
+            "classification": {
+                "name": {"english": "Vitals Form"},
+            },
+            "questions": [
+                {
+                    "question_type": QuestionTypeEnum.CATEGORY.value,
+                    "order": 0,
+                    "required": False,
+                    "question_text": {"english": "Vitals"},
+                    "mc_options": [],
+                },
+                {
+                    "question_type": QuestionTypeEnum.INTEGER.value,
+                    "order": 1,
+                    "required": True,
+                    "question_text": {"english": "Heart rate"},
+                    "num_min": 0,
+                    "num_max": 300,
+                    "category_index": 0,
+                    "user_question_id": "heart_rate",
+                    "mc_options": [],
+                },
+            ],
+        }
+
+        # Add new questions if provided
+        if extra_questions:
+            base["questions"].extend(extra_questions)
+
+        # Apply overrides to any top-level field
+        if overrides:
+            base.update(overrides)
+
+        return base
+
+    return _make
+
+
+@pytest.fixture
+def form_submission_v2(patient_id, vht_user_id):
+    def _make(template_id, template_question_id, extra_answers=None):
+        base = {
+            "patient_id": patient_id,
+            "user_id": vht_user_id,
+            "lang": "English",
+            "form_template_id": template_id,
+            "answers": [
+                {
+                    "question_id": template_question_id,
+                    "answer": {"number": 90},
+                }
+            ],
+        }
+
+        # Add new answers if provided
+        if extra_answers:
+            base["answers"].extend(extra_answers)
+
+        return base
+
+    return _make
+
+
+# TODO: Same as fixture in tests/service/workflow/conftest.py. May want to put unit tests
+#       and system tests under a common "tests" folder so fixtures like this can be shared
+#       inside a common conftest.py file instead of duplicated.
+@pytest.fixture
+def sequential_workflow_template() -> WorkflowTemplateModel:
+    step_template_1_id = "st-1"
+    step_template_2_id = "st-2"
+    workflow_template_id = "wt-1"
+
+    template_step_1 = helpers.make_workflow_template_step(
+        id=step_template_1_id,
+        workflow_template_id=workflow_template_id,
+        branches=[
+            helpers.make_workflow_template_branch(
+                id="b-1", step_id=step_template_1_id, target_step_id=step_template_2_id
+            )
+        ],
+    )
+    template_step_2 = helpers.make_workflow_template_step(
+        id=step_template_2_id,
+        workflow_template_id=workflow_template_id,
+    )
+    template_workflow = helpers.make_workflow_template(
+        id=workflow_template_id,
+        starting_step_id=step_template_1_id,
+        steps=[template_step_1, template_step_2],
+    )
+    return WorkflowTemplateModel(**template_workflow)
+
+
+@pytest.fixture
+def sequential_workflow_instance(sequential_workflow_template) -> WorkflowInstanceModel:
+    """Initial workflow instance"""
+    workflow_instance = WorkflowService.generate_workflow_instance(
+        sequential_workflow_template
+    )
+
+    # make IDs a bit more friendly to reference later
+    step_instance_1_id = "si-1"
+    step_instance_2_id = "si-2"
+    workflow_instance.steps[0].id = step_instance_1_id
+    workflow_instance.steps[1].id = step_instance_2_id
+
+    return workflow_instance
+
+
+@pytest.fixture
+def sequential_workflow_view(
+    sequential_workflow_template, sequential_workflow_instance
+) -> WorkflowView:
+    return WorkflowView(sequential_workflow_template, sequential_workflow_instance)
+
+
+@pytest.fixture
+def sequential_workflow_view_with_db(sequential_workflow_view, patient_id):
+    """
+    Fixture that takes the sequential_workflow_view, inserts it into the DB,
+    and cleans up after the test.
+    """
+    # NOTE: This workflow template and instance use hardcoded IDs. Easy to reference
+    #       step IDs in the test, but can make test cleanup more fragile. Consider
+    #       using randomly generated IDs?
+    workflow_view = sequential_workflow_view
+    workflow_view.instance.patient_id = patient_id
+
+    # Setup
+    WorkflowService.upsert_workflow_template(workflow_view.template)
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+    yield workflow_view
+
+    # Teardown
+    crud.delete_workflow(
+        m=WorkflowTemplateOrm,
+        delete_classification=True,
+        id=workflow_view.template.id,
+    )
+    crud.delete_workflow(
+        m=WorkflowInstanceOrm,
+        id=workflow_view.instance.id,
+    )
+
+
+@pytest.fixture
+def form_with_db(api_post, form_template_v2_payload, form_submission_v2):
+    # Setup
+    template_payload = form_template_v2_payload()
+    response = api_post(endpoint="/api/forms/v2/templates/body", json=template_payload)
+    assert response.status_code == 201
+    body = decamelize(response.json())
+    template_id = body["id"]
+    classification_id = body["form_classification_id"]
+    classification = crud.read(FormClassificationOrmV2, id=classification_id)
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+    lang_ids = []
+    lang_ids.append(classification.name_string_id)
+    for ques in template.questions:
+        lang_ids.append(ques.question_string_id)
+
+    submission_payload = form_submission_v2(
+        template_id=body["id"], template_question_id=template.questions[1].id
+    )
+    response = api_post(endpoint="/api/forms/v2/submissions", json=submission_payload)
+    assert response.status_code == 201
+    submission = decamelize(response.json())
+    submission_id = submission["id"]
+
+    yield submission
+
+    # Teardown
+    crud.delete_all(FormAnswerOrmV2, form_submission_id=submission_id)
+    crud.delete_all(FormSubmissionOrmV2, id=submission_id)
+    crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
+    crud.delete_all(FormTemplateOrmV2, id=template_id)
+    crud.delete_all(FormClassificationOrmV2, id=classification_id)
+    for lvid in lang_ids or []:
+        crud.delete_all(LangVersionOrmV2, string_id=lvid)
+
+
+@pytest.fixture
+def form_template_with_db(api_post, form_template_v2_payload):
+    # Setup
+    template_payload = form_template_v2_payload()
+    response = api_post(endpoint="/api/forms/v2/templates/body", json=template_payload)
+    assert response.status_code == 201
+    body = decamelize(response.json())
+    template_id = body["id"]
+    classification_id = body["form_classification_id"]
+    classification = crud.read(FormClassificationOrmV2, id=classification_id)
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+    lang_ids = []
+    lang_ids.append(classification.name_string_id)
+    for ques in template.questions:
+        lang_ids.append(ques.question_string_id)
+
+    yield body
+
+    # Teardown
+    crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
+    crud.delete_all(FormTemplateOrmV2, id=template_id)
+    crud.delete_all(FormClassificationOrmV2, id=classification_id)
+    for lvid in lang_ids or []:
+        crud.delete_all(LangVersionOrmV2, string_id=lvid)

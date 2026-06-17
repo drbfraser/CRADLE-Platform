@@ -106,3 +106,14 @@ the previously mentioned admin user is added along with a few additional users:
 | Jerry Deng Zhu      | jerrydngzh@gmail.com |
 | Elton Zhen          | ehz2@sfu.ca          |
 | Ellie Neufeld       | ena31@sfu.ca         |
+| Maria Zaman         | mza114@sfu.ca        |
+| Ilia Fatemi         | ifa6@sfu.ca          |
+| Poorvi Bhatia       | pba49@sfu.ca         |
+| Simone Motwani      | svm4@sfu.ca          |
+| Sheldon Liang       | qla52@sfu.ca         |
+| Josh Chung          | jca472@sfu.ca        |
+| Mekdim Dereje       | mda89@sfu.ca         |
+| Ananya Singh        | asa522@sfu.ca        |
+| Lucy Zhou           | lza168@sfu.ca        |
+| Zoe Wong            | zsw@sfu.ca           |
+

@@ -1,20 +1,10 @@
+import { QuestionTypeEnum } from 'src/shared/enums';
+import { QAnswer } from 'src/shared/types/form/formTypes';
 import {
-  AnswerTypeEnum,
-  QRelationEnum,
-  QuestionTypeEnum,
-} from 'src/shared/enums';
-import {
-  McOption,
-  QAnswer,
-  QCondition,
-  Question,
-} from 'src/shared/types/form/formTypes';
-import {
-  FormTemplateWithQuestions,
+  FormTemplateWithQuestionsV2,
   TQuestion,
 } from 'src/shared/types/form/formTemplateTypes';
-import { Field } from 'formik';
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, Fragment, SetStateAction } from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
@@ -33,29 +23,14 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
-
-const getCurrentDate = (): string => {
-  const today = new Date();
-  const year = today.getFullYear();
-  let month: number | string = today.getMonth() + 1;
-  let day: number | string = today.getDate();
-
-  if (month < 10) {
-    month = '0' + month;
-  }
-  if (day < 10) {
-    day = '0' + day;
-  }
-
-  return `${year}-${month}-${day}`;
-};
+import { useFormQuestions } from 'src/shared/hooks/forms/useFormQuestions';
 
 interface IProps {
-  questions: Question[] | TQuestion[];
+  questions: TQuestion[];
   renderState: FormRenderStateEnum;
   language: string;
   handleAnswers: (answers: QAnswer[]) => void;
-  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   multiSelectValidationFailed?: boolean;
   setDisableSubmit?: (disableSubmit: boolean) => void;
 }
@@ -69,218 +44,29 @@ export const FormQuestions = ({
   multiSelectValidationFailed,
   setDisableSubmit,
 }: IProps) => {
-  const [answers, setAnswers] = useState<QAnswer[]>([]);
-  const [stringMaxLinesError, setStringMaxLinesError] = useState<boolean[]>([]);
-  const [numberErrors, setNumberErrors] = useState<{ [key: number]: string }>(
-    {}
-  );
+  const hook = useFormQuestions(questions, handleAnswers);
+  const languageKey = (language || 'English').toLowerCase();
 
-  const isQuestion = (x: any): x is Question => {
-    if (x) {
-      return 'questionText' in x;
+  const resolveLocalizedText = (
+    value?: string | Record<string, string>,
+    fallback = ''
+  ): string => {
+    if (!value) {
+      return fallback;
     }
-    return false;
-  };
 
-  const isQuestionArr = (x: any): x is Question[] => {
-    if (x && x[0]) {
-      return 'questionText' in x[0];
+    if (typeof value === 'string') {
+      return value;
     }
-    return false;
-  };
 
-  const handleNumericTypeVisCondition = (
-    parentAnswer: QAnswer,
-    condition: QCondition
-  ): boolean => {
-    switch (condition.relation) {
-      case QRelationEnum.EQUAL_TO:
-        return Number(parentAnswer.val) === Number(condition.answers.number);
-      case QRelationEnum.SMALLER_THAN:
-        return Number(parentAnswer.val) < Number(condition.answers.number);
-      case QRelationEnum.LARGER_THAN:
-        return Number(parentAnswer.val) > Number(condition.answers.number);
-      case QRelationEnum.CONTAINS:
-        return String(parentAnswer.val).includes(
-          String(condition.answers.number)
-        );
-      default:
-        return true;
-    }
-  };
-
-  useEffect(() => {
-    const getValuesFromIDs = (
-      question: Question,
-      mcIdArray: number[] | undefined
-    ): string[] => {
-      const res: string[] = [];
-
-      const mcOptions: McOption[] = question.mcOptions ?? [];
-      mcIdArray?.forEach((optionIndex) => {
-        res.push(mcOptions[optionIndex].opt);
-      });
-
-      return res;
-    };
-
-    const getAnswerFromQuestion = (question: Question): QAnswer => {
-      const answer: QAnswer = {
-        questionIndex: question.questionIndex,
-        questionType: null,
-        answerType: null,
-        val: null,
-      };
-
-      answer.questionType = question.questionType;
-
-      switch (question.questionType) {
-        case QuestionTypeEnum.MULTIPLE_CHOICE:
-        case QuestionTypeEnum.MULTIPLE_SELECT:
-          answer.answerType = AnswerTypeEnum.MC_ID_ARRAY;
-          answer.val = getValuesFromIDs(question, question.answers?.mcIdArray);
-          break;
-
-        case QuestionTypeEnum.INTEGER:
-        case QuestionTypeEnum.DATE:
-        case QuestionTypeEnum.DATETIME:
-          answer.answerType = AnswerTypeEnum.NUM;
-          answer.val = question.answers?.number ?? null;
-          break;
-
-        case QuestionTypeEnum.STRING:
-          answer.answerType = AnswerTypeEnum.TEXT;
-          answer.val = question.answers?.text ?? null;
-          break;
-
-        case QuestionTypeEnum.CATEGORY:
-          answer.answerType = AnswerTypeEnum.CATEGORY;
-          answer.val = null;
-          break;
-
-        default:
-          console.log(question.questionType);
-          console.log('NOTE: INVALID QUESTION TYPE!!');
-      }
-
-      return answer;
-    };
-
-    if (isQuestionArr(questions)) {
-      const getAnswers = (questions: Question[]) =>
-        questions.map((question: Question) => getAnswerFromQuestion(question));
-
-      const answers: QAnswer[] = getAnswers(questions);
-      updateQuestionsConditionHidden(questions, answers);
-      setAnswers(answers);
-      handleAnswers(answers);
-    }
-  }, [questions]);
-
-  function updateAnswersByValue(index: number, newValue: any) {
-    if (isQuestionArr(questions)) {
-      const ans = [...answers];
-      ans.forEach((a) => {
-        if (a.questionIndex === index) {
-          a.val = newValue;
-        }
-      });
-      updateQuestionsConditionHidden(questions, ans);
-      setAnswers(ans);
-      handleAnswers(ans);
-    }
-  }
-
-  const updateQuestionsConditionHidden = (
-    questions: Question[],
-    answers: QAnswer[]
-  ) => {
-    questions.forEach((question) => {
-      question.shouldHidden =
-        question.visibleCondition?.length !== 0 &&
-        question.visibleCondition.some((condition: QCondition) => {
-          const parentQuestion = questions[condition.questionIndex];
-          const parentAnswer: QAnswer = answers[parentQuestion.questionIndex];
-
-          if (!parentAnswer.val) {
-            return true;
-          }
-
-          let isConditionMet = true;
-          switch (parentQuestion.questionType) {
-            // TODO: This does not work. The multiple choice and multiple select questions do not
-            //       save properly in the QCondition object type
-            case QuestionTypeEnum.MULTIPLE_CHOICE:
-            case QuestionTypeEnum.MULTIPLE_SELECT:
-              // switch (condition.relation) {
-              //   case QRelationEnum.EQUAL_TO:
-              //     isConditionMet =
-              //       condition.answers.mcIdArray!.length > 0 &&
-              //       parentAnswer.val?.length > 0 &&
-              //       parentAnswer.val?.length ===
-              //         condition.answers.mcIdArray?.length &&
-              //       condition.answers.mcIdArray!.every((item) =>
-              //         parentAnswer.val?.includes(
-              //           parentQuestion.mcOptions[item].opt
-              //         )
-              //       );
-              //     break;
-              // }
-              break;
-            case QuestionTypeEnum.STRING:
-              switch (condition.relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet = parentAnswer.val === condition.answers.text;
-                  break;
-                case QRelationEnum.SMALLER_THAN:
-                  if (!condition.answers.text) {
-                    isConditionMet = false;
-                    break;
-                  }
-                  isConditionMet = parentAnswer.val < condition.answers.text;
-                  break;
-                case QRelationEnum.LARGER_THAN:
-                  if (!condition.answers.text) {
-                    isConditionMet = false;
-                    break;
-                  }
-                  isConditionMet = parentAnswer.val > condition.answers.text;
-                  break;
-                case QRelationEnum.CONTAINS:
-                  isConditionMet = parentAnswer.val.includes(
-                    condition.answers.text
-                  );
-                  break;
-              }
-              break;
-            case QuestionTypeEnum.INTEGER:
-              isConditionMet = handleNumericTypeVisCondition(
-                parentAnswer,
-                condition
-              );
-              break;
-            case QuestionTypeEnum.DATE:
-              isConditionMet = handleNumericTypeVisCondition(
-                parentAnswer,
-                condition
-              );
-              break;
-            case QuestionTypeEnum.DATETIME:
-              isConditionMet = handleNumericTypeVisCondition(
-                parentAnswer,
-                condition
-              );
-              break;
-          }
-
-          return !isConditionMet;
-        });
-    });
+    return (
+      value[languageKey] ?? value.english ?? Object.values(value)[0] ?? fallback
+    );
   };
 
   //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
   const generateValidationLine = (
-    question: Question,
+    question: TQuestion,
     answer: QAnswer,
     type: any,
     required: boolean
@@ -288,7 +74,7 @@ export const FormQuestions = ({
     if (!multiSelectValidationFailed) {
       return null;
     }
-    if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) {
+    if (type === QuestionTypeEnum.MULTIPLE_SELECT) {
       if (!answer.val!.length) {
         return (
           <>
@@ -310,30 +96,42 @@ export const FormQuestions = ({
   };
 
   const generateHtmlForQuestion = (
-    question: Question | TQuestion,
+    question: TQuestion,
     answer: QAnswer,
     renderState: FormRenderStateEnum
   ) => {
-    if (isQuestion(question) && !answer) {
+    if (hook.isQuestion(question) && !answer) {
       return <></>;
     }
     if (!answer) {
       answer = {
-        questionIndex: question.questionIndex,
+        questionIndex:
+          typeof question.questionIndex === 'number'
+            ? question.questionIndex
+            : typeof question.order === 'number'
+              ? question.order
+              : -1,
         questionType: question.questionType,
-        answerType: null, //value,text,mc,me,comment
+        answerType: null,
         val: '',
       };
     }
 
     const type = question.questionType;
-    const qid = question.questionIndex;
-    const text = isQuestion(question)
-      ? question.questionText
-      : question.langVersions.find((x) => x.lang == language)?.questionText;
-    const mcOptions = isQuestion(question)
-      ? question.mcOptions
-      : question.langVersions.find((x) => x.lang == language)?.mcOptions;
+    const qid =
+      typeof question.questionIndex === 'number'
+        ? question.questionIndex
+        : typeof question.order === 'number'
+          ? question.order
+          : -1;
+    const text = resolveLocalizedText(
+      question.questionText,
+      'Untitled question'
+    );
+
+    const mcOptions = question.mcOptions?.map((option) =>
+      resolveLocalizedText(option.translations)
+    );
     const required = question.required;
 
     switch (type) {
@@ -368,7 +166,7 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <FormLabel id={`question_${question.questionIndex}`}>
+            <FormLabel id={`question_${qid}`}>
               <Typography variant="h6">
                 {`${text}`}
                 {required ? ' *' : ''}
@@ -377,16 +175,16 @@ export const FormQuestions = ({
 
             <RadioGroup
               row
-              aria-labelledby={`question_${question.questionIndex}`}
+              aria-labelledby={`question_${qid}`}
               value={answer.val ? answer.val[0] : ''}
               key={answer.val}
               onChange={function (_, value) {
-                updateAnswersByValue(qid, [value]);
+                hook.updateAnswersByValue(qid, [value]);
               }}>
               {mcOptions?.map((McOption, index) => (
                 <FormControlLabel
                   key={index}
-                  value={McOption.opt}
+                  value={McOption}
                   control={
                     <Radio
                       color="primary"
@@ -397,7 +195,7 @@ export const FormQuestions = ({
                       }
                     />
                   }
-                  label={McOption.opt}
+                  label={McOption}
                 />
               ))}
             </RadioGroup>
@@ -424,7 +222,7 @@ export const FormQuestions = ({
             <FormLabel>
               <Typography variant="h6">
                 {`${text}${required ? ' *' : ''}`}
-                {isQuestion(question)
+                {hook.isQuestion(question)
                   ? generateValidationLine(question, answer, type, required)
                   : null}
               </Typography>
@@ -433,18 +231,18 @@ export const FormQuestions = ({
               <FormControlLabel
                 control={
                   <Checkbox
-                    value={mcOption.opt}
-                    checked={answer.val?.includes(mcOption.opt)}
+                    value={mcOption}
+                    checked={answer.val?.includes(mcOption)}
                     onChange={(event, checked) => {
                       const newValue = checked
-                        ? [...answer.val, mcOption.opt]
-                        : answer.val.filter((val: any) => val !== mcOption.opt);
-                      updateAnswersByValue(question.questionIndex, newValue);
+                        ? [...answer.val, mcOption]
+                        : answer.val.filter((val: any) => val !== mcOption);
+                      hook.updateAnswersByValue(qid, newValue);
                     }}
                   />
                 }
-                label={mcOption.opt}
-                key={mcOption.opt} // Use a unique key
+                label={mcOption}
+                key={mcOption} // Use a unique key
                 disabled={
                   renderState === FormRenderStateEnum.VIEW ||
                   renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
@@ -478,9 +276,8 @@ export const FormQuestions = ({
               variant="outlined"
               required={required}
               fullWidth
-              error={!!numberErrors[question.questionIndex]}
-              helperText={numberErrors[question.questionIndex]}
-              suffix={question.units ?? ''}
+              error={!!hook.numberErrors[qid]}
+              helperText={hook.numberErrors[qid]}
               onValueChange={(values) => {
                 const value = values.floatValue;
                 let errorMessage = '';
@@ -502,12 +299,12 @@ export const FormQuestions = ({
                   }
                 }
 
-                setNumberErrors((prevErrors) => ({
+                hook.setNumberErrors((prevErrors) => ({
                   ...prevErrors,
-                  [question.questionIndex]: errorMessage,
+                  [qid]: errorMessage,
                 }));
 
-                updateAnswersByValue(question.questionIndex, value);
+                hook.updateAnswersByValue(qid, value);
               }}
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -529,11 +326,11 @@ export const FormQuestions = ({
         );
 
       case QuestionTypeEnum.STRING: {
-        const helperText = stringMaxLinesError[question.questionIndex]
+        const helperText = hook.stringMaxLinesError[qid]
           ? 'Exceeds maximum number of lines'
           : question.stringMaxLines
-          ? `Maximum ${question.stringMaxLines} line(s) allowed`
-          : '';
+            ? `Maximum ${question.stringMaxLines} line(s) allowed`
+            : '';
         return (
           <Grid
             item
@@ -550,10 +347,9 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <TextField
               label={text}
-              component={TextField}
-              defaultValue={answer.val ?? ''}
+              value={answer.val ?? ''}
               required={required}
               variant="outlined"
               fullWidth
@@ -564,7 +360,7 @@ export const FormQuestions = ({
               }
               multiline
               helperText={helperText}
-              error={stringMaxLinesError[question.questionIndex]}
+              error={hook.stringMaxLinesError[qid]}
               inputProps={{
                 maxLength:
                   question.stringMaxLength! > 0
@@ -579,9 +375,9 @@ export const FormQuestions = ({
                   : false;
 
                 // Using new array because setStringMaxLinesError does not update the state immediately
-                const nextErrors = [...stringMaxLinesError];
-                nextErrors[question.questionIndex] = exceedsMaxLines;
-                setStringMaxLinesError(nextErrors);
+                const nextErrors = [...hook.stringMaxLinesError];
+                nextErrors[qid] = exceedsMaxLines;
+                hook.setStringMaxLinesError(nextErrors);
 
                 // Checking if any of the values in stringMaxLinesError is set to true
                 // If so, setDisableSubmit to true
@@ -592,7 +388,7 @@ export const FormQuestions = ({
                 }
                 //it is originally a string type!! need transfer
                 if (!exceedsMaxLines) {
-                  updateAnswersByValue(question.questionIndex, inputValue);
+                  hook.updateAnswersByValue(qid, inputValue);
                 }
               }}
             />
@@ -616,11 +412,9 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <TextField
               label={text}
-              component={TextField}
-              defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
-              key={answer.val}
+              value={answer.val ? getPrettyDateTime(answer.val) : ''}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -639,7 +433,7 @@ export const FormQuestions = ({
                 const timestamp = getTimestampFromStringDate(
                   event.target.value
                 );
-                updateAnswersByValue(question.questionIndex, timestamp);
+                hook.updateAnswersByValue(qid, timestamp);
               }}
             />
           </Grid>
@@ -662,11 +456,9 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <TextField
               label={text}
-              component={TextField}
-              defaultValue={answer.val ? getPrettyDate(answer.val) : null}
-              key={answer.val}
+              value={answer.val ? getPrettyDate(answer.val) : ''}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -683,13 +475,15 @@ export const FormQuestions = ({
                 const timestamp = getTimestampFromStringDate(
                   event.target.value
                 );
-                updateAnswersByValue(question.questionIndex, timestamp);
+                hook.updateAnswersByValue(qid, timestamp);
               }}
               inputProps={{
                 ...(!question.allowFutureDates
-                  ? { max: getCurrentDate() }
+                  ? { max: hook.getCurrentDate() }
                   : {}),
-                ...(!question.allowPastDates ? { min: getCurrentDate() } : {}),
+                ...(!question.allowPastDates
+                  ? { min: hook.getCurrentDate() }
+                  : {}),
               }}
             />
           </Grid>
@@ -701,14 +495,20 @@ export const FormQuestions = ({
   };
 
   const generateHtmlForQuestions = (
-    questions: Question[] | TQuestion[],
+    questions: TQuestion[],
     answers: QAnswer[],
     renderState: FormRenderStateEnum
   ) => {
-    return questions.map((question: Question | TQuestion, index) => {
+    return questions.map((question: TQuestion, index) => {
+      const qid =
+        typeof question.questionIndex === 'number'
+          ? question.questionIndex
+          : typeof question.order === 'number'
+            ? question.order
+            : index;
       return (
-        <Fragment key={question.questionIndex}>
-          {isQuestion(question) && question.shouldHidden
+        <Fragment key={qid}>
+          {hook.isQuestion(question) && question.shouldHidden
             ? null
             : generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
@@ -716,5 +516,5 @@ export const FormQuestions = ({
     });
   };
 
-  return generateHtmlForQuestions(questions, answers, renderState);
+  return generateHtmlForQuestions(questions, hook.answers, renderState);
 };

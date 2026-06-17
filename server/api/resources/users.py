@@ -6,10 +6,11 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
-from data import crud, marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import UserOrm
 from validation import CradleBaseModel
@@ -62,24 +63,22 @@ class VhtList(RootModel):
 # /api/user/vhts [GET]
 @api_users.get("/vhts", responses={200: VhtList})
 @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
-def get_vht_list():
+def get_vhts():
     """Get VHT List"""
     vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
     vht_dictionary_list = []
     for vht in vht_model_list:
-        marshal.marshal(vht)
+        orm_serializer.marshal(vht)
         vht_dictionary_list.append(
             {
                 "user_id": vht.id,
                 "email": vht.email,
                 "health_facility_name": vht.health_facility_name,
-                "name": vht.name,
+                "first_name": vht.name,
             },
         )
 
-    if vht_dictionary_list is None:
-        return []
-    return vht_dictionary_list
+    return vht_dictionary_list or []
 
 
 # /api/user/<int:user_id>/change_pass [POST]

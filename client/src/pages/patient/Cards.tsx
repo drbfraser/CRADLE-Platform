@@ -114,7 +114,7 @@ export const CustomizedFormCard = ({ form }: ICustomizedFormCardProps) => (
   <CardContainer>
     <Typography variant={'h5'} component={'h5'}>
       <>
-        <AssignmentInd fontSize="large" /> {form.classification.name}
+        <AssignmentInd fontSize="large" /> {form.name}
       </>
     </Typography>
 

@@ -1,39 +1,122 @@
+from typing import Optional
+
 import pytest
 from humps import decamelize
 
+import data.db_operations as crud
+from common.api_utils import (
+    WorkflowInstanceIdPath,
+)
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from data import crud
 from models import WorkflowInstanceOrm, WorkflowTemplateOrm
+from service.workflow.workflow_service import WorkflowService
+from validation.workflow_api_models import (
+    ApplyActionRequest,
+    GetAvailableActionsResponse,
+    OverrideCurrentStepRequest,
+)
+from validation.workflow_models import (
+    CompleteStepActionModel,
+    CompleteWorkflowActionModel,
+    SkipStepActionModel,
+    StartStepActionModel,
+    WorkflowInstanceModel,
+    WorkflowTemplateModel,
+)
 
 
-def test_create_workflow_instance(
-    database, workflow_instance1, workflow_template1, api_post
+def test_create_workflow_instance__success(
+    patient_id, sequential_workflow_template, api_post
 ):
+    workflow_instance_id = None
+    workflow_template = sequential_workflow_template
+
     try:
-        # First create the workflow template
+        # Create workflow template
+        WorkflowService.upsert_workflow_template(workflow_template)
+
+        # Create workflow instance
         response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
+            endpoint="/api/workflow/instances",
+            json={
+                "workflow_template_id": workflow_template.id,
+                "patient_id": patient_id,
+                "name": "test_workflow_instance",
+                "description": "test_workflow_instance",
+            },
         )
-        database.session.commit()
+
         assert response.status_code == 201
 
-        # Then create the workflow instance with the template
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        assert response.status_code == 201
-        assert (
-            response_body["workflow_template_id"]
-            == workflow_instance1["workflow_template_id"]
-        )
+
+        # sanity check
+        assert response_body["workflow_template_id"] == workflow_template.id
+        # workflow automatically started
+        assert response_body["status"] == "Active"
+        assert response_body["patient_id"] == patient_id
+
+        # check instance actually persisted
+        workflow_instance = WorkflowService.get_workflow_instance(response_body["id"])
+        assert workflow_instance.status == "Active"
+        assert workflow_instance.patient_id == patient_id
+
+        workflow_instance_id = response_body["id"]
 
     finally:
+        if workflow_instance_id:
+            crud.delete_workflow(
+                m=WorkflowInstanceOrm,
+                id=workflow_instance_id,
+            )
         crud.delete_workflow(
-            m=WorkflowInstanceOrm,
-            id=workflow_instance1["id"],
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template.id,
         )
+
+
+def test_create_workflow_instance__workflow_template_not_found(patient_id, api_post):
+    response = api_post(
+        endpoint="/api/workflow/instances",
+        json={
+            "workflow_template_id": "this-template-shouldnt-exist",
+            "patient_id": patient_id,
+            "name": "test_workflow_instance",
+            "description": "test_workflow_instance",
+        },
+    )
+
+    assert response.status_code == 404
+
+    response_body = decamelize(response.json())
+    assert "Workflow template with ID" in response_body["description"]
+
+
+def test_create_workflow_instance__patient_not_found(workflow_template1, api_post):
+    try:
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
+        )
+
+        response = api_post(
+            endpoint="/api/workflow/instances",
+            json={
+                "workflow_template_id": workflow_template1["id"],
+                "patient_id": "this-patient-shouldnt-exist",
+                "name": "test_workflow_instance",
+                "description": "test_workflow_instance",
+            },
+        )
+
+        assert response.status_code == 404
+
+        response_body = decamelize(response.json())
+        assert "Patient with ID" in response_body["description"]
+
+    finally:
         crud.delete_workflow(
             m=WorkflowTemplateOrm,
             delete_classification=True,
@@ -42,36 +125,26 @@ def test_create_workflow_instance(
 
 
 def test_getting_workflow_instance(
-    database,
     workflow_instance1,
     workflow_instance2,
     workflow_template1,
-    api_post,
     api_get,
 ):
     try:
         # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
         )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        assert response.status_code == 201  # Verify template creation succeeded
-        print(f"Template created with ID: {workflow_template1['id']}")
 
         # Create the first workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        assert response.status_code == 201  # Verify first instance creation succeeded
-        print(f"Instance 1 created with ID: {workflow_instance1['id']}")
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance1)
+        )
 
         # Create the second workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance2)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        assert response.status_code == 201  # Verify second instance creation succeeded
-        print(f"Instance 2 created with ID: {workflow_instance2['id']}")
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance2)
+        )
 
         # Get without params first
         print("About to retrieve instances...")
@@ -151,23 +224,21 @@ def test_getting_workflow_instance(
 
 
 def test_patch_workflow_instance(
-    database, workflow_instance1, workflow_template1, api_post, api_patch, api_get
+    database, workflow_instance1, workflow_template1, api_patch, api_get
 ):
     try:
         # First create the workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
         )
-        database.session.commit()
-        assert response.status_code == 201
 
-        # Create the workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        assert response.status_code == 201
+        # Create the first workflow instance
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance1)
+        )
 
-        # Update the name and status
-        patch_data = {"name": "updated_workflow_name", "status": "Completed"}
+        # Update the name
+        patch_data = {"name": "updated_workflow_name"}
 
         response = api_patch(
             endpoint=f"/api/workflow/instances/{workflow_instance1['id']}",
@@ -179,7 +250,6 @@ def test_patch_workflow_instance(
 
         assert response.status_code == 200
         assert response_body["name"] == "updated_workflow_name"
-        assert response_body["status"] == "Completed"
         assert response_body["description"] == workflow_instance1["description"]
         assert response_body["patient_id"] == workflow_instance1["patient_id"]
 
@@ -191,7 +261,6 @@ def test_patch_workflow_instance(
 
         assert response.status_code == 200
         assert response_body["name"] == "updated_workflow_name"
-        assert response_body["status"] == "Completed"
 
     finally:
         crud.delete_workflow(
@@ -203,6 +272,191 @@ def test_patch_workflow_instance(
             delete_classification=True,
             id=workflow_template1["id"],
         )
+
+
+def api_get_actions(
+    api_get, path: WorkflowInstanceIdPath
+) -> GetAvailableActionsResponse:
+    """
+    Helper function to send API request to get the available actions
+    for a given workflow instance. Expects 200 OK.
+    """
+    response = api_get(
+        endpoint=f"/api/workflow/instances/{path.workflow_instance_id}/actions"
+    )
+    assert (
+        response.status_code == 200
+    ), f"Failed to get available actions: {response.text}"
+
+    actions_resp = decamelize(response.json())
+    return GetAvailableActionsResponse(**actions_resp)
+
+
+def api_apply_action(
+    api_post, path: WorkflowInstanceIdPath, request: ApplyActionRequest
+) -> WorkflowInstanceModel:
+    """
+    Helper function to send API request to apply the specified action
+    for a given workflow instance. Expects 200 OK.
+    """
+    response = api_post(
+        endpoint=f"/api/workflow/instances/{path.workflow_instance_id}/actions",
+        json=request.model_dump(),
+    )
+    assert response.status_code == 200, f"Failed to apply action: {response.text}"
+
+    workflow_instance_resp = decamelize(response.json())
+    return WorkflowInstanceModel(**workflow_instance_resp)
+
+
+def api_advance_workflow(
+    api_post, path: WorkflowInstanceIdPath
+) -> WorkflowInstanceModel:
+    """
+    Helper function to send API request to advance the workflow to the next step.
+    Expects 200 OK.
+    """
+    response = api_post(
+        endpoint=f"/api/workflow/instances/{path.workflow_instance_id}/advance",
+    )
+    assert response.status_code == 200, f"Failed to advance workflow: {response.text}"
+
+    workflow_instance_resp = decamelize(response.json())
+    return WorkflowInstanceModel(**workflow_instance_resp)
+
+
+def api_override_current_step(
+    api_post,
+    path: WorkflowInstanceIdPath,
+    request: OverrideCurrentStepRequest,
+    expected_code: int,
+) -> Optional[WorkflowInstanceModel]:
+    """
+    Helper function to send API request to override the current step of the workflow.
+    """
+    response = api_post(
+        endpoint=f"/api/workflow/instances/{path.workflow_instance_id}/override_current_step",
+        json=request.model_dump(),
+    )
+    if expected_code == 200:
+        assert (
+            response.status_code == 200
+        ), f"Failed to override current step: {response.text}"
+
+        workflow_instance_resp = decamelize(response.json())
+        return WorkflowInstanceModel(**workflow_instance_resp)
+    assert response.status_code == expected_code
+    return None
+
+
+def test_sequential_workflow_progression__in_order(
+    api_post, api_get, sequential_workflow_view_with_db
+):
+    workflow_view = sequential_workflow_view_with_db
+
+    workflow_instance_id_path = WorkflowInstanceIdPath(
+        workflow_instance_id=workflow_view.instance.id
+    )
+
+    # Start workflow
+    WorkflowService.start_workflow(workflow_view)
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+    # Complete step 1
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(
+        actions=[
+            CompleteStepActionModel(step_id="si-1"),
+            SkipStepActionModel(step_id="si-1"),
+        ]
+    )
+    assert resp == expected_resp
+
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteStepActionModel(step_id="si-1")),
+    )
+    # sanity check - state updates should already be tested by WorkflowService tests
+    assert resp.status == "Active"
+
+    resp = api_advance_workflow(api_post, workflow_instance_id_path)
+    assert resp.current_step_id == "si-2"
+
+    # Start step 2
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(
+        actions=[StartStepActionModel(step_id="si-2")]
+    )
+
+    assert resp == expected_resp
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=StartStepActionModel(step_id="si-2")),
+    )
+    assert resp.status == "Active"
+
+    # Complete step 2
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(
+        actions=[
+            CompleteStepActionModel(step_id="si-2"),
+            SkipStepActionModel(step_id="si-2"),
+        ]
+    )
+    assert resp == expected_resp
+
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteStepActionModel(step_id="si-2")),
+    )
+    assert resp.status == "Active"
+
+    # Complete workflow
+    resp = api_get_actions(api_get, workflow_instance_id_path)
+    expected_resp = GetAvailableActionsResponse(actions=[CompleteWorkflowActionModel()])
+    assert resp == expected_resp
+
+    resp = api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteWorkflowActionModel()),
+    )
+    assert resp.status == "Completed"
+
+
+def test_override_current_step(api_post, sequential_workflow_view_with_db):
+    workflow_view = sequential_workflow_view_with_db
+
+    workflow_instance_id_path = WorkflowInstanceIdPath(
+        workflow_instance_id=workflow_view.instance.id
+    )
+
+    # Start workflow
+    WorkflowService.start_workflow(workflow_view)
+    assert workflow_view.instance.current_step_id == "si-1"
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+    # Override current step to the second step
+    resp = api_override_current_step(
+        api_post,
+        workflow_instance_id_path,
+        OverrideCurrentStepRequest(workflow_instance_step_id="si-2"),
+        expected_code=200,
+    )
+    assert resp.current_step_id == "si-2"
+
+    # Override non-existent step
+    resp = api_override_current_step(
+        api_post,
+        workflow_instance_id_path,
+        OverrideCurrentStepRequest(
+            workflow_instance_step_id="this-step-shouldnt-exist"
+        ),
+        expected_code=404,
+    )
 
 
 @pytest.fixture
@@ -245,7 +499,6 @@ def workflow_instance2(vht_user_id, patient_id, workflow_template1):
 def workflow_template1(vht_user_id):
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "workflow_example1",
@@ -254,12 +507,6 @@ def workflow_template1(vht_user_id):
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,

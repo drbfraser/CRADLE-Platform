@@ -9,7 +9,7 @@ import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { useEditFormTemplate } from './mutations';
+import { useEditFormTemplateV2 } from './mutations';
 
 interface IProps {
   open: boolean;
@@ -18,7 +18,7 @@ interface IProps {
 }
 
 const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
-  const editForm = useEditFormTemplate();
+  const editForm = useEditFormTemplateV2();
 
   const handleArchiveForm = async () => {
     if (!template?.id) {

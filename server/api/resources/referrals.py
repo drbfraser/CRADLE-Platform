@@ -5,14 +5,14 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data
+import data.db_operations as crud
 from common import user_utils
 from common.api_utils import (
     ReferralIdPath,
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from data import crud, marshal
+from data import orm_serializer
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from validation.referrals import (
@@ -86,7 +86,7 @@ def create_new_referral(body: ReferralModel):
     if patient is None:
         return abort(404, description="Patient does not exist.")
 
-    referral = marshal.unmarshal(ReferralOrm, body.model_dump())
+    referral = orm_serializer.unmarshal(ReferralOrm, body.model_dump())
 
     crud.create(referral, refresh=True)
     # Creating a referral also associates the corresponding patient to the health
@@ -95,7 +95,7 @@ def create_new_referral(body: ReferralModel):
     facility = referral.health_facility
     if not assoc.has_association(patient, facility):
         assoc.associate(patient, facility=facility)
-    return marshal.marshal(referral), 201
+    return orm_serializer.marshal(referral), 201
 
 
 # /api/referrals/<string:referral_id> [GET]
@@ -105,7 +105,7 @@ def get_referral(path: ReferralIdPath):
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
         return abort(404, description=f"No Referral with ID: {path.referral_id}")
-    return marshal.marshal(referral)
+    return orm_serializer.marshal(referral)
 
 
 # /api/referrals/assess/<string:referral_id> [PUT]
@@ -122,10 +122,10 @@ def update_referral_assessed(path: ReferralIdPath):
     if not referral.is_assessed:
         referral.is_assessed = True
         referral.date_assessed = get_current_time()
-        data.db_session.commit()
-        data.db_session.refresh(referral)
+        crud.db_session.commit()
+        crud.db_session.refresh(referral)
 
-    return marshal.marshal(referral), 200
+    return orm_serializer.marshal(referral), 200
 
 
 # /api/referrals/cancel-status-switch/<string:referral_id> [PUT]
@@ -148,10 +148,10 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
     crud.update(ReferralOrm, cancel_status_model_dump, id=path.referral_id)
 
     referral = crud.read(ReferralOrm, id=path.referral_id)
-    data.db_session.commit()
-    data.db_session.refresh(referral)
+    crud.db_session.commit()
+    crud.db_session.refresh(referral)
 
-    return marshal.marshal(referral)
+    return orm_serializer.marshal(referral)
 
 
 # /api/referrals/not-attend/<string:referral_id> [PUT]
@@ -167,7 +167,7 @@ def update_referral_not_attend(path: ReferralIdPath, body: NotAttendReason):
         referral.not_attended = True
         referral.not_attend_reason = not_attend_model_dump["not_attend_reason"]
         referral.date_not_attended = get_current_time()
-        data.db_session.commit()
-        data.db_session.refresh(referral)
+        crud.db_session.commit()
+        crud.db_session.refresh(referral)
 
-    return marshal.marshal(referral)
+    return orm_serializer.marshal(referral)

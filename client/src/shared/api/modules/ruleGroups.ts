@@ -3,7 +3,7 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from 'src/shared/enums';
 import { ID } from '../../constants';
-import { RuleGroup } from '../../types/workflow/workflowTypes';
+import { RuleGroup } from '../../types/workflow/workflowApiTypes';
 
 const RULE_GROUPS = EndpointEnum.RULE_GROUPS;
 const ruleGroupPath = (id: ID) => `${RULE_GROUPS}/${id}`;
@@ -22,7 +22,6 @@ export const getRuleGroup = async (groupId: ID): Promise<RuleGroup> => {
 // POST /rules/groups - create a rule grouping
 export const createRuleGroup = async (payload: {
   rule: string;
-  data_sources: string[]; // list of wf datasource formatted strings
 }): Promise<RuleGroup> => {
   const response = await axiosFetch.post<RuleGroup>(RULE_GROUPS, payload);
   return response.data;
@@ -33,7 +32,6 @@ export const createRuleGroup = async (payload: {
 //   groupId: ID,
 //   payload: {
 //     rule?: string;
-//     data_sources?: string[];
 //   }
 // ): Promise<RuleGroup> => {
 //   const response = await axiosFetch.put<RuleGroup>(

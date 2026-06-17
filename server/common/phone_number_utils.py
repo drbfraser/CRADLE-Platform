@@ -1,6 +1,6 @@
 import phonenumbers
 
-from data import crud
+import data.db_operations as crud
 from models import (
     HealthFacilityOrm,
     RelayServerPhoneNumberOrm,

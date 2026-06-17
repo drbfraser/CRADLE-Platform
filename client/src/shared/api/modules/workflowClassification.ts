@@ -4,7 +4,7 @@ import { ID } from '../../constants';
 import {
   ClassificationInput,
   WorkflowClassification,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 // full path
 const CLASSIFICATIONS = EndpointEnum.WORKFLOW_CLASSIFICATIONS;
@@ -16,10 +16,10 @@ const classificationPath = (id: ID) => `${CLASSIFICATIONS}/${id}`;
 export const listWorkflowClassifications = async (): Promise<
   WorkflowClassification[]
 > => {
-  const response = await axiosFetch.get<WorkflowClassification[]>(
+  const response = await axiosFetch.get<{ items: WorkflowClassification[] }>(
     CLASSIFICATIONS
   );
-  return response.data;
+  return response.data.items;
 };
 
 // GET /workflow/classifications/{classificationId}

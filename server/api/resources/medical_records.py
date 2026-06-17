@@ -4,6 +4,7 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import patient_association_required
 from api.resources.patients import api_patients
 from common.api_utils import (
@@ -12,7 +13,7 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from data import crud, marshal
+from data import orm_serializer
 from models import MedicalRecordOrm
 from service import serialize, view
 from validation import CradleBaseModel
@@ -82,11 +83,11 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
     else:
         body.patient_id = path.patient_id
     new_medical_record = body.model_dump()
-    new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
+    new_record = orm_serializer.unmarshal(MedicalRecordOrm, new_medical_record)
 
     crud.create(new_record, refresh=True)
 
-    return marshal.marshal(new_record), 201
+    return orm_serializer.marshal(new_record), 201
 
 
 # /api/patients/<string:patient_id>/drug_history [PUT]
@@ -101,11 +102,11 @@ def update_patient_drug_history(path: PatientIdPath, body: DrugHistory):
     drug_history = body.model_dump()
     drug_history = _process_medical_history(drug_history)
     drug_history["patient_id"] = path.patient_id
-    new_record = marshal.unmarshal(MedicalRecordOrm, drug_history)
+    new_record = orm_serializer.unmarshal(MedicalRecordOrm, drug_history)
 
     crud.create(new_record, refresh=True)
 
-    return marshal.marshal(new_record), 201
+    return orm_serializer.marshal(new_record), 201
 
 
 # /api/medical_records
@@ -123,7 +124,7 @@ api_medical_records = APIBlueprint(
 def get_medical_record(path: RecordIdPath):
     """Get Medical Record"""
     record = _get_medical_record(path.record_id)
-    return marshal.marshal(record)
+    return orm_serializer.marshal(record)
 
 
 # /api/medical_records/<string:record_id> [PUT]
@@ -142,7 +143,7 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
     crud.update(MedicalRecordOrm, update_medical_record, id=path.record_id)
 
     new_record = crud.read(MedicalRecordOrm, id=path.record_id)
-    record_dict = marshal.marshal(new_record)
+    record_dict = orm_serializer.marshal(new_record)
     return record_dict, 200
 
 

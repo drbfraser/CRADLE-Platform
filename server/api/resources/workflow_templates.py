@@ -1,44 +1,33 @@
-# Create a simple CSV representation of the workflow template
-import csv
-import io
-import json
+import re
 from typing import List, Optional
 
-from flask import abort, make_response, request
+from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from sqlalchemy.exc import IntegrityError
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
-from common.api_utils import (
-    WorkflowTemplateIdPath,
-    convert_query_parameter_to_bool,
-)
+from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
-    apply_changes_to_model,
     assign_workflow_template_or_instance_ids,
+    generate_updated_workflow_template,
     validate_workflow_template_step,
 )
-from data import crud, db_session, marshal
+from data import orm_serializer
 from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.file_upload import FileUploadForm
-from validation.workflow_templates import (
-    WorkflowTemplateModel,
+from validation.workflow_api_models import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
-
-
-# Path model for CSV endpoint
-class WorkflowTemplateVersionPath(CradleBaseModel):
-    workflow_template_id: str
-    version: str
+from validation.workflow_models import WorkflowTemplateModel
 
 
 # Create a response model for the list endpoints
@@ -56,6 +45,65 @@ api_workflow_templates = APIBlueprint(
 )
 
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
+# Version values must be parsed numerically (V1, V2, ...), not lexically.
+# For example, lexical order would place V10 before V2, which is incorrect.
+# (since 1 comes before 2 lexically)
+workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
+
+
+def parse_workflow_template_version(version: Optional[str]) -> Optional[int]:
+    """Return numeric part for versions in the form V<number>, else None."""
+    if version is None:
+        return None
+
+    normalized_version = version.strip()
+    version_match = workflow_template_version_regex.match(normalized_version)
+    if version_match is None:
+        return None
+
+    return int(version_match.group("number"))
+
+
+def get_next_workflow_template_version(
+    workflow_classification_id: Optional[str],
+) -> str:
+    """
+    Compute the next template version for a classification.
+
+    - New classification starts at V1.
+    - Existing classification increments the max known V<number>.
+    """
+    if workflow_classification_id is None:
+        return "V1"
+
+    existing_templates = (
+        crud.db_session.query(WorkflowTemplateOrm)
+        .filter(WorkflowTemplateOrm.classification_id == workflow_classification_id)
+        .all()
+    )
+
+    max_version_number = 0
+    for existing_template in existing_templates:
+        parsed_version = parse_workflow_template_version(existing_template.version)
+        if parsed_version is not None:
+            max_version_number = max(max_version_number, parsed_version)
+
+    return f"V{max_version_number + 1}"
+
+
+def lock_workflow_classification_for_update(
+    workflow_classification_id: Optional[str],
+) -> Optional[WorkflowClassificationOrm]:
+    """Acquire a row lock for classification-scoped version sequencing."""
+    if workflow_classification_id is None:
+        return None
+
+    return (
+        crud.db_session.query(WorkflowClassificationOrm)
+        .filter(WorkflowClassificationOrm.id == workflow_classification_id)
+        .with_for_update()
+        .one_or_none()
+    )
 
 
 def find_and_archive_previous_workflow_template(
@@ -66,6 +114,7 @@ def find_and_archive_previous_workflow_template(
         classification_id=workflow_classification_id,
         archived=False,
     )
+
     if previous_template:
         # Update the existing template
         changes = {
@@ -85,11 +134,9 @@ def get_workflow_classification_from_dict(
 ) -> WorkflowClassificationOrm:
     """
     Retrieves or creates a WorkflowClassificationOrm object
-
     :param workflow_template_dict: Dictionary consisting of attributes for a workflow template that belongs
     to this classification
     :param workflow_classification_dict: Dictionary consisting of attributes for a workflow classification
-
     :return: A WorkflowClassificationOrm object
     """
     # Find workflow classification in DB, if it exists
@@ -107,7 +154,7 @@ def get_workflow_classification_from_dict(
 
     if workflow_classification_orm is None and workflow_classification_dict is not None:
         # If this workflow classification is completely new, then it will be returned
-        workflow_classification_orm = marshal.unmarshal(
+        workflow_classification_orm = orm_serializer.unmarshal(
             WorkflowClassificationOrm, workflow_classification_dict
         )
 
@@ -117,32 +164,9 @@ def get_workflow_classification_from_dict(
     return workflow_classification_orm
 
 
-def check_for_existing_template_version(
-    workflow_classification_id: str, workflow_template_version: str
-) -> None:
-    """
-    Checks if a workflow template with the same version under the same classification already exists
-
-    :param workflow_classification_id: ID of the workflow classification
-    :param workflow_template_dict: Dictionary consisting of attributes for a workflow template
-    """
-    existing_template_version = crud.read(
-        WorkflowTemplateOrm,
-        classification_id=workflow_classification_id,
-        version=workflow_template_version,
-    )
-
-    if existing_template_version is not None:
-        return abort(
-            code=409,
-            description="Workflow template with same version still exists - Change version before upload.",
-        )
-
-
 def handle_workflow_template_upload(workflow_template_dict: dict):
     """
-    Common logic for handling uploaded workflow template. Whether it was uploaded
-    as a file, or in the request body.
+    Common logic for handling workflow template creation from request body payloads.
     """
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
@@ -151,28 +175,36 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
 
+    if workflow_template_dict.get("name") is not None:
+        del workflow_template_dict["name"]
+
     # Validate each step in the template
-    if workflow_template_dict.get("steps") is None:
+    if workflow_template_dict.get("steps") is not None:
         for workflow_template_step in workflow_template_dict["steps"]:
-            validate_workflow_template_step(workflow_template_step)
+            validate_workflow_template_step(
+                workflow_template_step, allow_missing_template=True
+            )
 
-    workflow_template_orm = marshal.unmarshal(
-        WorkflowTemplateOrm, workflow_template_dict
-    )
-
-    with db_session.no_autoflush:
+    with crud.db_session.no_autoflush:
         workflow_classification_orm = get_workflow_classification_from_dict(
             workflow_template_dict, workflow_classification_dict
         )
 
         if workflow_classification_orm is not None:
-            check_for_existing_template_version(
-                workflow_classification_orm.id, workflow_template_dict["version"]
+            locked_classification = lock_workflow_classification_for_update(
+                workflow_classification_orm.id
             )
-            workflow_template_orm.classification = workflow_classification_orm
 
-            """ 
-            There should only be one unarchived version of the workflow template, so this 
+            if locked_classification is not None:
+                workflow_classification_orm = locked_classification
+
+            workflow_template_dict["classification_id"] = workflow_classification_orm.id
+            workflow_template_dict["version"] = get_next_workflow_template_version(
+                workflow_classification_orm.id
+            )
+
+            """
+            There should only be one unarchived version of the workflow template, so this
             checks if a previously unarchived version of the workflow template exists and
             archives it
             """
@@ -181,30 +213,48 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
                 workflow_classification_orm.id,
             )
 
-    crud.create(model=workflow_template_orm, refresh=True)
+        else:
+            workflow_template_dict["version"] = "V1"
 
-    return marshal.marshal(obj=workflow_template_orm, shallow=True)
+    workflow_template_orm = orm_serializer.unmarshal(
+        WorkflowTemplateOrm, workflow_template_dict
+    )
 
-
-# /api/workflow/templates [POST] - File upload (like form templates)
-@api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
-@roles_required([RoleEnum.ADMIN])
-def upload_workflow_template_file(form: FileUploadForm):
-    """
-    Upload Workflow Template VIA File
-    Accepts Workflow Template as a file.
-    Supports `.json` and `.csv` file formats.
-    """
-    file = form.file
-    file_str = str(file.stream.read(), "utf-8")
+    if workflow_classification_orm is not None:
+        workflow_template_orm.classification = workflow_classification_orm
 
     try:
-        workflow_template_dict = json.loads(file_str)
-    except json.JSONDecodeError as e:
-        return abort(400, description=f"Invalid JSON file: {e!s}")
+        crud.create(model=workflow_template_orm, refresh=True)
+    except IntegrityError as err:
+        crud.db_session.rollback()
 
-    result = handle_workflow_template_upload(workflow_template_dict)
-    return result, 201
+        db_error_msg = str(getattr(err, "orig", err)).lower()
+        is_version_conflict = (
+            "uq_workflow_template_classification_version" in db_error_msg
+            or (
+                "workflow_template" in db_error_msg
+                and "classification_id" in db_error_msg
+                and "version" in db_error_msg
+                and ("duplicate" in db_error_msg or "unique" in db_error_msg)
+            )
+        )
+
+        if not is_version_conflict:
+            return abort(
+                code=422,
+                description=(
+                    "Workflow template could not be created because one or more references are invalid."
+                ),
+            )
+
+        return abort(
+            code=409,
+            description=(
+                "Workflow template version conflict. Please retry the request."
+            ),
+        )
+
+    return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
 
 
 # /api/workflow/templates/body [POST] - JSON body (like form templates)
@@ -229,15 +279,16 @@ def get_workflow_templates():
     workflow_classification_id = request.args.get("classification_id", default=None)
 
     archived_param = request.args.get("archived")
-    is_archived = convert_query_parameter_to_bool(archived_param)
+    is_archived = None if convert_query_parameter_to_bool(archived_param) else False
 
     workflow_templates = crud.read_workflow_templates(
         workflow_classification_id=workflow_classification_id,
         is_archived=is_archived,
     )
-    print(f"Workflow Templates: {workflow_templates}")
+
     response_data = [
-        marshal.marshal(template, shallow=True) for template in workflow_templates
+        orm_serializer.marshal(template, shallow=True)
+        for template in workflow_templates
     ]
 
     return {"items": response_data}, 200
@@ -265,11 +316,11 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_template, shallow=False)
+    response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
 
     if not with_steps:
         del response_data["steps"]
-    if not with_classification:
+    if not with_classification and "classification" in response_data:
         del response_data["classification"]
 
     return response_data, 200
@@ -301,7 +352,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
         workflow_template_id=path.workflow_template_id
     )
     template_steps = [
-        marshal.marshal(template_step) for template_step in template_steps
+        orm_serializer.marshal(template_step) for template_step in template_steps
     ]
 
     return {"items": template_steps}, 200
@@ -341,30 +392,28 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
     response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
+@roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-@roles_required([RoleEnum.ADMIN])
 def update_workflow_template_patch(
     path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
 ):
     """
     Update Workflow Template with only specific fields
-
     Because workflow templates are large objects, this endpoint allows only the necessary attributes to be sent
     from the frontend to the backend, instead of the entire object itself
     """
-    body = body.model_dump(
-        exclude_unset=True
-    )  # Only include the fields that are set in the request body
+    body_dict = body.model_dump(exclude_unset=True)
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+
     if workflow_template is None:
         return abort(
             code=404,
@@ -373,44 +422,70 @@ def update_workflow_template_patch(
             ),
         )
 
-    # Create an entirely new workflow template with the new attributes
-    copy_workflow_template_dict = marshal.marshal(workflow_template)
-    assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=True
-    )
-    new_workflow_template = marshal.unmarshal(
-        WorkflowTemplateOrm, copy_workflow_template_dict
-    )
-
-    # If the request body includes a new workflow classification, process it
-    if body.get("classification", None):
-        assign_workflow_template_or_instance_ids(
-            m=WorkflowTemplateOrm, workflow=body["classification"]
-        )
-        body["classification"] = get_workflow_classification_from_dict(
-            body, body["classification"]
+    if body_dict.get("name") is not None:
+        return abort(
+            code=400,
+            description=(
+                "Template name is derived from classification. "
+                "Update classification.name instead."
+            ),
         )
 
-    # This assumes that the request body has every step in the workflow template, all old steps will be overwritten
-    # If the request body includes any new/modified steps, process it
-    if body.get("steps", None):
-        for step in body["steps"]:
-            validate_workflow_template_step(step)
+    # If classification is provided during template edit, rename the existing
+    # classification in place (do not create or relink classifications).
+    if body_dict.get("classification") is not None:
+        existing_classification_id = workflow_template.classification_id
+        if existing_classification_id is None:
+            return abort(code=404, description="Classification not found.")
 
-    apply_changes_to_model(new_workflow_template, body)
+        classification_orm = crud.read(
+            WorkflowClassificationOrm, id=existing_classification_id
+        )
+        if classification_orm is None:
+            return abort(code=404, description="Classification not found.")
 
-    check_for_existing_template_version(
-        new_workflow_template.classification.id, new_workflow_template.version
+        classification_name = body_dict["classification"].get("name")
+        if classification_name is not None:
+            crud.update(
+                WorkflowClassificationOrm,
+                changes={"name": classification_name},
+                autocommit=False,
+                id=existing_classification_id,
+            )
+
+        # Always keep template bound to its existing classification ID.
+        body_dict["classification_id"] = existing_classification_id
+        # Avoid passing nested classification dict into template generator
+        del body_dict["classification"]
+
+    classification_id = (
+        body_dict.get("classification_id") or workflow_template.classification_id
     )
 
-    # Archive the old workflow template
-    find_and_archive_previous_workflow_template(workflow_template.classification_id)
+    lock_workflow_classification_for_update(classification_id)
 
-    crud.create(model=new_workflow_template, refresh=True)
+    body_dict["version"] = get_next_workflow_template_version(classification_id)
 
-    response_data = crud.read(WorkflowTemplateOrm, id=copy_workflow_template_dict["id"])
+    new_workflow_template = generate_updated_workflow_template(
+        existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
+    )
 
-    response_data = marshal.marshal(response_data, shallow=True)
+    workflow_template.archived = True
+
+    try:
+        crud.create(model=new_workflow_template, refresh=True)
+    except IntegrityError:
+        crud.db_session.rollback()
+        return abort(
+            code=409,
+            description=(
+                "Workflow template version conflict. Please retry the request."
+            ),
+        )
+
+    response_data = crud.read(WorkflowTemplateOrm, id=new_workflow_template.id)
+
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -469,64 +544,4 @@ def archive_workflow_template(
     )
 
     updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
-    return marshal.marshal(updated_template, shallow=True), 200
-
-
-# /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]
-@api_workflow_templates.get(
-    "/<string:workflow_template_id>/versions/<string:version>/csv",
-    responses={
-        200: {"content": {"text/csv": {"schema": {"type": "string"}}}},
-        404: {"description": "Workflow template not found"},
-    },
-)
-def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
-    """Get Workflow Template Version as CSV"""
-    filters: dict = {
-        "id": path.workflow_template_id,
-        "version": path.version,
-    }
-
-    workflow_template = crud.read(
-        WorkflowTemplateOrm,
-        **filters,
-    )
-
-    if workflow_template is None:
-        return abort(
-            404,
-            description=f"No workflow template with ID: {path.workflow_template_id}",
-        )
-
-    csv_data = io.StringIO()
-    writer = csv.writer(csv_data)
-
-    # Write header
-    writer.writerow(["Field", "Value"])
-
-    # Write template data
-    writer.writerow(["ID", workflow_template.id])
-    writer.writerow(["Name", workflow_template.name])
-    writer.writerow(["Description", workflow_template.description or ""])
-    writer.writerow(["Version", workflow_template.version])
-    writer.writerow(
-        [
-            "Classification",
-            workflow_template.classification.name
-            if workflow_template.classification
-            else "",
-        ]
-    )
-    writer.writerow(["Date Created", workflow_template.date_created])
-    writer.writerow(["Last Edited", workflow_template.last_edited])
-    writer.writerow(["Archived", workflow_template.archived])
-
-    csv_content = csv_data.getvalue()
-    csv_data.close()
-
-    response = make_response(csv_content)
-    response.headers["Content-Disposition"] = (
-        f"attachment; filename=workflow_template_{workflow_template.id}.csv"
-    )
-    response.headers["Content-Type"] = "text/csv"
-    return response
+    return orm_serializer.marshal(updated_template, shallow=True), 200

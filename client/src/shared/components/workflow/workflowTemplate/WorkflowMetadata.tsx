@@ -11,15 +11,19 @@ import {
 } from '@mui/material';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { ReactNode } from 'react';
-import { getPrettyDate } from 'src/shared/utils';
+import { getPrettyDateTime } from 'src/shared/utils';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface WorkflowMetadataProps {
+  classificationName?: string;
   description?: string;
-  collectionName?: string;
-  version?: number;
-  lastEdited?: string;
+  version?: string;
+  lastEdited?: number;
   archived?: boolean;
-  dateCreated?: string;
+  dateCreated?: number;
+  isEditMode?: boolean;
+  isClassificationEditable?: boolean;
+  onFieldChange?: (field: keyof WorkflowTemplate, value: unknown) => void;
 }
 
 const InlineField = ({
@@ -27,15 +31,33 @@ const InlineField = ({
   value,
   minLabelWidth = 108,
   tooltipTitle,
+  isEditable = false,
+  onChange,
+  fieldName,
 }: {
   label: string;
   value: string;
   minLabelWidth?: number;
   tooltipTitle?: ReactNode;
+  isEditable?: boolean;
+  onChange?: (value: string) => void;
+  fieldName?: keyof WorkflowTemplate;
 }) => {
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
 
-  const inputEl = (
+  const inputEl = isEditable ? (
+    <TextField
+      value={dash(value)}
+      onChange={(e) => onChange?.(e.target.value)}
+      fullWidth
+      size="small"
+      variant="outlined"
+      sx={{
+        minWidth: 120,
+        maxWidth: '100%',
+      }}
+    />
+  ) : (
     <Input
       value={dash(value)}
       inputProps={{ readOnly: true }}
@@ -66,48 +88,69 @@ const InlineField = ({
 };
 
 export const WorkflowMetadata = ({
+  classificationName,
   description,
-  collectionName,
   version,
   lastEdited,
   archived,
   dateCreated,
+  isEditMode = false,
+  isClassificationEditable = false,
+  onFieldChange,
 }: WorkflowMetadataProps) => {
-  const versionText = `V${version ?? '1'}`;
+  const versionText = `${version ?? ''}`;
   const lastEditedDate = lastEdited
-    ? getPrettyDate(new Date(lastEdited).getTime() / 1000)
-    : '';
+    ? getPrettyDateTime(new Date(lastEdited).getTime())
+    : 'N/A';
+
+  const handleFieldChange = (field: keyof WorkflowTemplate, value: unknown) => {
+    onFieldChange?.(field, value);
+  };
 
   return (
     <>
-      {/* Row 1: Description | Collection */}
+      {/* Row 1: Classification + Description */}
       <Grid
         container
         columnSpacing={6}
         rowSpacing={{ xs: 2, md: 0 }}
-        justifyContent="space-around"
+        justifyContent="flex-start"
         alignItems="flex-start"
         sx={{ mb: 3 }}>
         <Grid item xs={12} md={5}>
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle1">Description:</Typography>
-            <TextField
-              value={description}
-              placeholder="Enter description"
-              multiline
-              minRows={3}
-              fullWidth
-              InputProps={{ readOnly: true }}
-            />
-          </Stack>
-        </Grid>
-
-        <Grid item xs={12} md={5}>
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle1">Collection:</Typography>
-            <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>
-              {collectionName}
-            </Typography>
+          <Stack spacing={2}>
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle1">Template Name:</Typography>
+              <TextField
+                value={classificationName || ''}
+                placeholder="Enter template name"
+                fullWidth
+                InputProps={{
+                  readOnly: !isEditMode || !isClassificationEditable,
+                }}
+                onChange={
+                  isEditMode && isClassificationEditable
+                    ? (e) => handleFieldChange('name', e.target.value)
+                    : undefined
+                }
+              />
+            </Stack>
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle1">Description:</Typography>
+              <TextField
+                value={description || ''}
+                placeholder="Enter description"
+                multiline
+                minRows={3}
+                fullWidth
+                InputProps={{ readOnly: !isEditMode }}
+                onChange={
+                  isEditMode
+                    ? (e) => handleFieldChange('description', e.target.value)
+                    : undefined
+                }
+              />
+            </Stack>
           </Stack>
         </Grid>
       </Grid>
@@ -147,7 +190,17 @@ export const WorkflowMetadata = ({
                 </Tooltip>
               </Box>
             }
-            control={<Switch checked={!!archived} readOnly />}
+            control={
+              <Switch
+                checked={!!archived}
+                readOnly={!isEditMode}
+                onChange={
+                  isEditMode
+                    ? (e) => handleFieldChange('archived', e.target.checked)
+                    : undefined
+                }
+              />
+            }
           />
         </Grid>
 
@@ -156,8 +209,8 @@ export const WorkflowMetadata = ({
             label="First Create:"
             value={
               dateCreated
-                ? getPrettyDate(new Date(dateCreated).getTime() / 1000)
-                : ''
+                ? getPrettyDateTime(new Date(dateCreated).getTime())
+                : 'N/A'
             }
           />
         </Grid>

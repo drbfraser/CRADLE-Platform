@@ -1,14 +1,14 @@
-import copy
-
 import pytest
 from humps import decamelize
 
+import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from data import crud
 from models import (
+    FormTemplateOrmV2,
     WorkflowTemplateOrm,
 )
+from server.data import orm_serializer
 
 
 def test_uploading_valid_workflow_template_steps(
@@ -17,6 +17,7 @@ def test_uploading_valid_workflow_template_steps(
     valid_workflow_template_step2,
     valid_workflow_template_step4,
     example_workflow_template,
+    valid_workflow_template_step5,
     api_post,
 ):
     try:
@@ -28,6 +29,7 @@ def test_uploading_valid_workflow_template_steps(
             endpoint="/api/workflow/templates/body", json=example_workflow_template
         )
 
+        # upload step1
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step1
         )
@@ -36,6 +38,7 @@ def test_uploading_valid_workflow_template_steps(
         pretty_print(response_body)
         assert response.status_code == 201
 
+        # upload step 2
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step2
         )
@@ -44,6 +47,7 @@ def test_uploading_valid_workflow_template_steps(
         pretty_print(response_body)
         assert response.status_code == 201
 
+        # upload step 4
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step4
         )
@@ -61,6 +65,15 @@ def test_uploading_valid_workflow_template_steps(
         """
         assert len(workflow_template_orm.steps) == 3
 
+        # upload duplicate step -> should fail with 409
+        response = api_post(
+            endpoint="/api/workflow/template/steps", json=valid_workflow_template_step5
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 409
+
     finally:
         crud.delete_workflow(
             WorkflowTemplateOrm,
@@ -73,7 +86,6 @@ def test_uploading_invalid_workflow_template_steps(
     database,
     invalid_workflow_template_step1,
     invalid_workflow_template_step2,
-    invalid_workflow_template_step3,
     valid_workflow_template_step1,
     valid_workflow_template_step3,
     example_workflow_template,
@@ -87,19 +99,9 @@ def test_uploading_invalid_workflow_template_steps(
         """
         Try to upload 3 invalid template steps to the example workflow template
         """
-
         response = api_post(
             endpoint="/api/workflow/template/steps",
             json=invalid_workflow_template_step1,
-        )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 422
-
-        response = api_post(
-            endpoint="/api/workflow/template/steps",
-            json=invalid_workflow_template_step2,
         )
         database.session.commit()
         response_body = decamelize(response.json())
@@ -108,7 +110,7 @@ def test_uploading_invalid_workflow_template_steps(
 
         response = api_post(
             endpoint="/api/workflow/template/steps",
-            json=invalid_workflow_template_step3,
+            json=invalid_workflow_template_step2,
         )
         database.session.commit()
         response_body = decamelize(response.json())
@@ -229,7 +231,6 @@ def test_getting_workflow_template_steps(
 def example_workflow_template():
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "workflow_example1",
@@ -239,12 +240,6 @@ def example_workflow_template():
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -256,13 +251,9 @@ def example_workflow_template():
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Example template steps for testing ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 @pytest.fixture
-def valid_workflow_template_step1(example_workflow_template, form_template):
+def valid_workflow_template_step1(example_workflow_template, form_template_with_db):
     step_id = get_uuid()
-    condition_id = get_uuid()
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-2"
-    form_template["form_classification_id"] = "fc-5"
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    form_template = form_template_with_db
     return {
         "id": step_id,
         "name": "valid_workflow_template_step1",
@@ -270,30 +261,20 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "branches": [],
     }
 
 
 @pytest.fixture
 def valid_workflow_template_step2(
-    example_workflow_template, form_template, valid_workflow_template_step4
+    example_workflow_template, form_template_with_db, valid_workflow_template_step4
 ):
     step_id = get_uuid()
-    condition_id = get_uuid()
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-2"
-    form_template["form_classification_id"] = get_uuid()
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    form_template = form_template_with_db
 
     return {
         "id": step_id,
@@ -302,14 +283,8 @@ def valid_workflow_template_step2(
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "branches": [
             {
                 "id": branch_id,
@@ -319,7 +294,6 @@ def valid_workflow_template_step2(
                 "condition": {
                     "id": branch_condition_id,
                     "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
-                    "data_sources": "[]",
                 },
             }
         ],
@@ -329,14 +303,14 @@ def valid_workflow_template_step2(
 # This will cause an error if uploaded alongside valid_workflow_template_step1 because both of them are attempting to
 # upload the same form template version at the same time
 @pytest.fixture
-def valid_workflow_template_step3(example_workflow_template, form_template):
+def valid_workflow_template_step3(
+    example_workflow_template, valid_workflow_template_step1
+):
     step_id = get_uuid()
-    condition_id = get_uuid()
     branch_id = get_uuid()
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-2"
-    form_template["form_classification_id"] = "fc-5"
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    ft = crud.read(FormTemplateOrmV2, id=valid_workflow_template_step1["form_id"])
+    form_template = orm_serializer.marshal(ft, shallow=True)
+    form_template["questions"] = []
 
     return {
         "id": step_id,
@@ -347,12 +321,6 @@ def valid_workflow_template_step3(example_workflow_template, form_template):
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "branches": [
             {
                 "id": branch_id,
@@ -366,18 +334,14 @@ def valid_workflow_template_step3(example_workflow_template, form_template):
 
 
 @pytest.fixture
-def valid_workflow_template_step4(example_workflow_template, form_template):
+def valid_workflow_template_step4(example_workflow_template, form_template_with_db):
     step_id = get_uuid()
-    condition_id = get_uuid()
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
     branch_condition_id2 = get_uuid()
     branch_id2 = get_uuid()
 
-    form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-3"
-    form_template["form_classification_id"] = get_uuid()
-    form_template["classification"]["id"] = form_template["form_classification_id"]
+    form_template = form_template_with_db
 
     return {
         "id": step_id,
@@ -386,14 +350,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "branches": [
             {
                 "id": branch_id,
@@ -403,7 +361,6 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 "condition": {
                     "id": branch_condition_id,
                     "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
-                    "data_sources": "[]",
                 },
             },
             {
@@ -414,19 +371,41 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 "condition": {
                     "id": branch_condition_id2,
                     "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-                    "data_sources": "[]",
                 },
             },
         ],
     }
 
 
+#  This step reuses the same form template as Step 1 (same form_classification_id), which causes a logical conflict — and is expected to return 409 Conflict
 @pytest.fixture
-def invalid_workflow_template_step1(example_workflow_template, form_template):
+def valid_workflow_template_step5(
+    example_workflow_template, valid_workflow_template_step1
+):
     step_id = get_uuid()
-    condition_id = get_uuid()
+    # ft = copy.deepcopy(valid_workflow_template_step1["form"])
+    ft = crud.read(FormTemplateOrmV2, id=valid_workflow_template_step1["form_id"])
+    form_template = orm_serializer.marshal(ft, shallow=True)
+    form_template["questions"] = []
+    return {
+        "id": step_id,
+        "name": "valid_workflow_template_step5_duplicate",
+        "description": "duplicate version of step1",
+        "expected_completion": get_current_time(),
+        "last_edited": get_current_time(),
+        "form_id": form_template["id"],
+        "form": form_template,
+        "workflow_template_id": example_workflow_template["id"],
+        "branches": [],
+    }
+
+
+@pytest.fixture
+def invalid_workflow_template_step1(form_template_with_db):
+    step_id = get_uuid()
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
+    form_template = form_template_with_db
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step1",
@@ -434,14 +413,8 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
-        "workflow_template_id": example_workflow_template["id"],
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": "Hello",  # Invalid rule
-            "data_sources": "[]",
-        },
+        # "form": form_template,
+        "workflow_template_id": "non-existent-template",  # This template does not exist
         "branches": [
             {
                 "id": branch_id,
@@ -451,7 +424,6 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
                 "condition": {
                     "id": branch_condition_id,
                     "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
-                    "data_sources": "[]",
                 },
             }
         ],
@@ -459,11 +431,10 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
 
 
 @pytest.fixture
-def invalid_workflow_template_step2(form_template):
+def invalid_workflow_template_step2(example_workflow_template, form_template_with_db):
     step_id = get_uuid()
-    condition_id = get_uuid()
     branch_id = get_uuid()
-    branch_condition_id = get_uuid()
+    form_template = form_template_with_db
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step2",
@@ -471,50 +442,8 @@ def invalid_workflow_template_step2(form_template):
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
-        "form": form_template,
-        "workflow_template_id": "non-existent-template",  # This template does not exist
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
-        "branches": [
-            {
-                "id": branch_id,
-                "target_step_id": "example_step",
-                "step_id": step_id,
-                "condition_id": branch_condition_id,
-                "condition": {
-                    "id": branch_condition_id,
-                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
-                    "data_sources": "[]",
-                },
-            }
-        ],
-    }
-
-
-@pytest.fixture
-def invalid_workflow_template_step3(example_workflow_template, form_template):
-    step_id = get_uuid()
-    condition_id = get_uuid()
-    branch_id = get_uuid()
-    return {
-        "id": step_id,
-        "name": "invalid_workflow_template_step3",
-        "description": "invalid_workflow_template_step3",
-        "expected_completion": get_current_time(),
-        "last_edited": get_current_time(),
-        "form_id": form_template["id"],
-        "form": form_template,
+        # "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
-        "condition_id": condition_id,
-        "condition": {
-            "id": condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "branches": [
             {
                 "id": branch_id,

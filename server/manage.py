@@ -10,13 +10,20 @@ import click
 import numpy as np
 from flask.cli import FlaskGroup
 
-import models
-from common.commonUtil import get_current_time
-from data import crud, marshal
+import data.db_operations as crud
+from common.commonUtil import get_current_time, get_uuid
+from data import orm_serializer
+from enums import QuestionTypeEnum, SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
 from models import (
+    FormAnswerOrmV2,
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
     FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
@@ -120,8 +127,12 @@ def seed_test_data():
     seed_test_users()
 
     print("Creating test patients, readings, referrals, and records...")
+    PATIENT_ID_1 = "49300028161"
+    PATIENT_ID_2 = "49300028162"
+    PATIENT_ID_3 = "49300028163"
+
     create_patient_reading_referral_pregnancy(
-        "49300028161",
+        PATIENT_ID_1,
         "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         4,
         "BB",
@@ -133,7 +144,7 @@ def seed_test_data():
         True,
     )
     create_patient_reading_referral_pregnancy(
-        "49300028162",
+        PATIENT_ID_2,
         "11111111-d974-4059-a0a2-4b0a9c8e3a10",
         3,
         "AA",
@@ -147,7 +158,7 @@ def seed_test_data():
         1610925778,
     )
     create_patient_reading_referral_pregnancy(
-        "49300028163",
+        PATIENT_ID_3,
         "22222222-d974-4059-a0a2-4b0a9c8e3a10",
         3,
         "AB",
@@ -158,46 +169,135 @@ def seed_test_data():
         "H1000",
         False,
     )
-    create_pregnancy("49300028162", 1547341217, 1570928417)
+    create_pregnancy(PATIENT_ID_2, 1547341217, 1570928417)
     create_medical_record(
-        "49300028162",
+        PATIENT_ID_2,
         "Pregnancy induced hypertension\nStarted on Labetalol 200mg three times daily two weeks ago",
         False,
     )
     create_medical_record(
-        "49300028162",
+        PATIENT_ID_2,
         "Aspirin 75mg\nLabetalol 200mg three times daily",
         True,
     )
-    create_patient_association("49300028162", 3)
-    create_patient_association("49300028163", 4)
+    create_patient_association(PATIENT_ID_2, 3)
+    create_patient_association(PATIENT_ID_3, 4)
 
     print("Creating form template, form classification, and forms...")
-    create_form_classification()
-    create_form_template()
-    create_form("49300028162", "Anna", "Bee", 31)
-    create_form("49300028163", "Dianna", "Ele", 25)
+    # legacy v1 form seeding - delete when migration is complete
+    # create_form_classification()
+    # create_form_template()
+    # create_form(PATIENT_ID_2, "Anna", "Bee", 31)
+    # create_form(PATIENT_ID_3, "Dianna", "Ele", 25)
+
+    # Add V2 forms
+    seed_forms_v2()
 
     print("Adding relay server numbers to admin page...")
     create_relay_nums()
 
-    print("Creating a simple workflow template and workflow classification")
-    create_simple_workflow_classification()
-    create_simple_workflow_template()
-
-    print("Creating a simple workflow instance")
-    create_simple_workflow_instance_form(
-        patient_id="49300028162",
-        user_id=3,
-        form_template_id="wt-simple-1-step-1-form",
-        form_classification_id="wt-simple-1-form-classification",
-        fname="Anna",
+    print("Creating a simple workflow template and form for the workflow template")
+    form_template_id = create_simple_workflow_template_step_form_v2()
+    form_template_id_diverse = create_diverse_workflow_template_step_form_v2()
+    form_template_id_boolean = create_boolean_workflow_template_step_form_v2()
+    form_template_id_integer_choice = (
+        create_integer_choice_workflow_template_step_form_v2()
     )
 
-    create_simple_workflow_instance(
-        patient_id="49300028162",
-        step_id="simple-workflow-instance-step-1",
-        workflow_template_id="wt-simple-1",
+    WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
+    WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
+    WORKFLOW_TEMPLATE_ID3 = "workflow-template-3"
+    WORKFLOW_TEMPLATE_ID4 = "workflow-template-4"
+
+    create_simple_workflow_template(
+        WORKFLOW_TEMPLATE_ID1, form_template_id, num_steps=4
+    )
+    create_simple_workflow_template_with_branching(
+        WORKFLOW_TEMPLATE_ID2, form_template_id_boolean
+    )
+    create_single_step_workflow_template(
+        WORKFLOW_TEMPLATE_ID3, form_template_id_diverse
+    )
+    create_complex_workflow_with_loops_template(
+        WORKFLOW_TEMPLATE_ID4, form_template_id_integer_choice
+    )
+
+    print("Creating workflow instances")
+    # Create forms to be used by workflow instance
+    create_workflow_instance_form_v2(
+        form_id="workflow-instance-form-1",
+        patient_id=PATIENT_ID_1,
+        user_id=3,
+        form_template_id=form_template_id,
+        form_classification_id="wt-simple-1-form-classification",
+        first_name="Anna",
+    )
+
+    create_workflow_instance_form_v2(
+        form_id="workflow-instance-form-2",
+        patient_id=PATIENT_ID_2,
+        user_id=3,
+        form_template_id=form_template_id,
+        form_classification_id="wt-simple-1-form-classification",
+        first_name="Anna",
+    )
+
+    create_workflow_instance_form_v2(
+        form_id="workflow-instance-form-3",
+        patient_id=PATIENT_ID_3,
+        user_id=3,
+        form_template_id=form_template_id,
+        form_classification_id="wt-simple-1-form-classification",
+        first_name="Anna",
+    )
+
+    # Create workflow instances
+    create_workflow_instance(
+        instance_id="test-workflow-instance-1",
+        instance_name="Linear Workflow Instance",
+        patient_id=PATIENT_ID_1,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID1,
+        num_steps=4,
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-2",
+        instance_name="Linear Workflow Instance",
+        patient_id=PATIENT_ID_2,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID1,
+        num_steps=4,
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-3",
+        instance_name="Branching Workflow Instance",
+        patient_id=PATIENT_ID_2,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID2,
+        num_steps=7,
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-4",
+        instance_name="Branching Workflow Instance",
+        patient_id=PATIENT_ID_3,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID2,
+        num_steps=7,
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-5",
+        instance_name="Collect Patient Info Workflow Instance",
+        patient_id=PATIENT_ID_1,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID3,
+        num_steps=1,
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-6",
+        instance_name="Complex Workflow with Looping Instance",
+        patient_id=PATIENT_ID_2,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID4,
+        num_steps=11,
     )
 
     print("Finished seeding test data")
@@ -284,14 +384,14 @@ def seed():
 
         generated_names.add(name + last_name)
 
-        if sex == models.SexEnum.MALE.value:
+        if sex == SexEnum.MALE.value:
             pregnant = False
         else:
             pregnant = bool(random.getrandbits(1))
 
         pregnancy_start_date = None
 
-        if sex == models.SexEnum.FEMALE.value and pregnant:
+        if sex == SexEnum.FEMALE.value and pregnant:
             pregnancy_start_date = get_random_pregnancy_date()
 
         patient = {
@@ -305,7 +405,7 @@ def seed():
             "is_archived": False,
         }
 
-        db.session.add(marshal.unmarshal(PatientOrm, patient))
+        db.session.add(orm_serializer.unmarshal(PatientOrm, patient))
         db.session.commit()
 
         if pregnant:
@@ -336,7 +436,7 @@ def seed():
                 "symptoms": get_random_symptoms(),
             }
 
-            reading_orm = marshal.unmarshal(ReadingOrm, reading)
+            reading_orm = orm_serializer.unmarshal(ReadingOrm, reading)
 
             referral_comments = [
                 " needs help!",
@@ -448,7 +548,7 @@ def create_patient_reading_referral_pregnancy(
     db.session.add(PatientOrm(**patient))
     db.session.commit()
 
-    reading_orm = marshal.unmarshal(models.ReadingOrm, reading)
+    reading_orm = orm_serializer.unmarshal(ReadingOrm, reading)
     crud.create(reading_orm, refresh=True)
 
     db.session.add(ReferralOrm(**referral))
@@ -699,6 +799,749 @@ def create_form(patient_id, fname, lname, age):
     db.session.commit()
 
 
+def create_form_classification_v2():
+    """Create sample form classifications V2 with translations"""
+    if crud.read(FormClassificationOrmV2, id="fc-v2-intake") is not None:
+        return
+
+    # Create "Patient Intake Form" classification
+    intake_name_string_id = get_uuid()
+    intake_name_translation = LangVersionOrmV2(
+        string_id=intake_name_string_id,
+        lang="English",
+        text="Patient Intake Form",
+    )
+    db.session.add(intake_name_translation)
+
+    # Add French translation
+    intake_name_translation_fr = LangVersionOrmV2(
+        string_id=intake_name_string_id,
+        lang="French",
+        text="Formulaire d'admission du patient",
+    )
+    db.session.add(intake_name_translation_fr)
+
+    intake_classification = FormClassificationOrmV2(
+        id="fc-v2-intake",
+        name_string_id=intake_name_string_id,
+    )
+    db.session.add(intake_classification)
+
+    # Create "Medical History Form" classification
+    history_name_string_id = get_uuid()
+    history_name_translation = LangVersionOrmV2(
+        string_id=history_name_string_id,
+        lang="English",
+        text="Medical History Form",
+    )
+    db.session.add(history_name_translation)
+
+    history_name_translation_fr = LangVersionOrmV2(
+        string_id=history_name_string_id,
+        lang="French",
+        text="Formulaire d'antécédents médicaux",
+    )
+    db.session.add(history_name_translation_fr)
+
+    history_classification = FormClassificationOrmV2(
+        id="fc-v2-history",
+        name_string_id=history_name_string_id,
+    )
+    db.session.add(history_classification)
+
+    db.session.commit()
+    print("Created form classifications V2")
+
+
+def create_form_template_v2():
+    """Create sample form templates V2 with categories and questions"""
+    if crud.read(FormTemplateOrmV2, id="ft-v2-intake-v1") is not None:
+        return
+
+    create_form_classification_v2()
+
+    intake_classification = crud.read(FormClassificationOrmV2, id="fc-v2-intake")
+
+    intake_template_v1 = FormTemplateOrmV2(
+        id="ft-v2-intake-v1",
+        form_classification_id=intake_classification.id,
+        version=1,
+        archived=False,
+    )
+    db.session.add(intake_template_v1)
+    db.session.flush()
+
+    # Category 1: basic info
+    cat1_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=cat1_string_id, lang="English", text="Basic Information"
+            ),
+            LangVersionOrmV2(
+                string_id=cat1_string_id, lang="French", text="Informations de base"
+            ),
+        ]
+    )
+
+    category1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-cat-basic",
+        form_template_id=intake_template_v1.id,
+        order=0,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=cat1_string_id,
+        required=False,
+        category_index=None,
+    )
+    db.session.add(category1)
+
+    # Q1: Patient Name
+    q1_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="English",
+                text="What is the patient's full name?",
+            ),
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="French",
+                text="Quel est le nom complet du patient?",
+            ),
+        ]
+    )
+    question1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-name",
+        form_template_id=intake_template_v1.id,
+        order=1,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q1_string_id,
+        user_question_id="patient_full_name",
+        required=True,
+        string_max_length=100,
+        category_index=category1.order,
+    )
+    db.session.add(question1)
+
+    # Q2: Age
+    q2_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q2_string_id,
+                lang="English",
+                text="What is the patient's age?",
+            ),
+            LangVersionOrmV2(
+                string_id=q2_string_id, lang="French", text="Quel est l'âge du patient?"
+            ),
+        ]
+    )
+    question2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-age",
+        form_template_id=intake_template_v1.id,
+        order=2,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=q2_string_id,
+        user_question_id="patient_age",
+        required=True,
+        num_min=0,
+        num_max=150,
+        units="years",
+        category_index=category1.order,
+    )
+    db.session.add(question2)
+
+    # Q3: Sex
+    q3_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="English",
+                text="What is the patient's sex?",
+            ),
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="French",
+                text="Quel est le sexe du patient?",
+            ),
+        ]
+    )
+
+    mc_male_id, mc_female_id, mc_other_id = get_uuid(), get_uuid(), get_uuid()
+    mc_options = [
+        (mc_male_id, "Male", "Homme"),
+        (mc_female_id, "Female", "Femme"),
+        (mc_other_id, "Other", "Autre"),
+    ]
+    for opt_id, en, fr in mc_options:
+        db.session.add(LangVersionOrmV2(string_id=opt_id, lang="English", text=en))
+        db.session.add(LangVersionOrmV2(string_id=opt_id, lang="French", text=fr))
+
+    question3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-sex",
+        form_template_id=intake_template_v1.id,
+        order=3,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q3_string_id,
+        user_question_id="patient_sex",
+        mc_options=json.dumps([mc_male_id, mc_female_id, mc_other_id]),
+        required=True,
+        category_index=category1.order,
+    )
+    db.session.add(question3)
+
+    # Q4: Date of Birth
+    q4_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q4_string_id,
+                lang="English",
+                text="What is the patient's date of birth?",
+            ),
+            LangVersionOrmV2(
+                string_id=q4_string_id,
+                lang="French",
+                text="Quelle est la date de naissance du patient?",
+            ),
+        ]
+    )
+    question4 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-dob",
+        form_template_id=intake_template_v1.id,
+        order=4,
+        question_type=QuestionTypeEnum.DATE,
+        question_string_id=q4_string_id,
+        user_question_id="patient_dob",
+        required=False,
+        allow_future_dates=False,
+        allow_past_dates=True,
+        category_index=category1.order,
+    )
+    db.session.add(question4)
+
+    # Category 2: vitals
+    cat2_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=cat2_string_id, lang="English", text="Vitals"),
+            LangVersionOrmV2(
+                string_id=cat2_string_id, lang="French", text="Signes vitaux"
+            ),
+        ]
+    )
+
+    category2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-cat-vitals",
+        form_template_id=intake_template_v1.id,
+        order=5,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=cat2_string_id,
+        required=False,
+        category_index=None,
+    )
+    db.session.add(category2)
+
+    # Q5: Blood Pressure
+    q5_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q5_string_id,
+                lang="English",
+                text="What is the patient's systolic blood pressure?",
+            ),
+            LangVersionOrmV2(
+                string_id=q5_string_id,
+                lang="French",
+                text="Quelle est la pression artérielle systolique du patient?",
+            ),
+        ]
+    )
+    question5 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-bp-systolic",
+        form_template_id=intake_template_v1.id,
+        order=6,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=q5_string_id,
+        user_question_id="systolic_bp",
+        required=True,
+        num_min=40.0,
+        num_max=300.0,
+        units="mmHg",
+        category_index=category2.order,
+    )
+    db.session.add(question5)
+
+    # Category 3: symptoms and notes
+    cat3_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=cat3_string_id, lang="English", text="Symptoms and Notes"
+            ),
+            LangVersionOrmV2(
+                string_id=cat3_string_id, lang="French", text="Symptômes et notes"
+            ),
+        ]
+    )
+
+    category3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-cat-symptoms",
+        form_template_id=intake_template_v1.id,
+        order=7,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=cat3_string_id,
+        required=False,
+        category_index=None,
+    )
+    db.session.add(category3)
+
+    # Q6: Symptoms
+    q6_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q6_string_id,
+                lang="English",
+                text="What symptoms is the patient experiencing? (Select all that apply)",
+            ),
+            LangVersionOrmV2(
+                string_id=q6_string_id,
+                lang="French",
+                text="Quels symptômes le patient présente-t-il? (Sélectionner tout ce qui s'applique)",
+            ),
+        ]
+    )
+
+    # MC Options
+    symptoms = [
+        ("Headache", "Mal de tête"),
+        ("Fever", "Fièvre"),
+        ("Nausea", "Nausée"),
+        ("Dizziness", "Étourdissement"),
+        ("None", "Aucun"),
+    ]
+    mc_symptom_ids = []
+    for en, fr in symptoms:
+        sid = get_uuid()
+        mc_symptom_ids.append(sid)
+        db.session.add(LangVersionOrmV2(string_id=sid, lang="English", text=en))
+        db.session.add(LangVersionOrmV2(string_id=sid, lang="French", text=fr))
+
+    question6 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-symptoms",
+        form_template_id=intake_template_v1.id,
+        order=8,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q6_string_id,
+        user_question_id="patient_symptoms",
+        mc_options=json.dumps(mc_symptom_ids),
+        required=True,
+        has_comment_attached=True,
+        category_index=category3.order,
+    )
+    db.session.add(question6)
+
+    # Q7: Additional Notes
+    q7_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q7_string_id,
+                lang="English",
+                text="Additional notes about the patient:",
+            ),
+            LangVersionOrmV2(
+                string_id=q7_string_id,
+                lang="French",
+                text="Notes supplémentaires sur le patient:",
+            ),
+        ]
+    )
+    question7 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-notes",
+        form_template_id=intake_template_v1.id,
+        order=9,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q7_string_id,
+        user_question_id="additional_notes",
+        required=False,
+        string_max_length=500,
+        string_max_lines=5,
+        category_index=category3.order,
+    )
+    db.session.add(question7)
+
+    db.session.commit()
+    print("Created form template V2 (Patient Intake v1)")
+
+
+def create_form_template_v2_version2():
+    if crud.read(FormTemplateOrmV2, id="ft-v2-intake-v2") is not None:
+        return
+
+    create_form_template_v2()
+
+    intake_classification = crud.read(FormClassificationOrmV2, id="fc-v2-intake")
+
+    # Archive previous template
+    previous_template = crud.read(
+        FormTemplateOrmV2,
+        form_classification_id=intake_classification.id,
+        archived=False,
+    )
+    if previous_template:
+        previous_template.archived = True
+
+    intake_template_v2 = FormTemplateOrmV2(
+        id="ft-v2-intake-v2",
+        form_classification_id=intake_classification.id,
+        version=2,
+        archived=False,
+    )
+    db.session.add(intake_template_v2)
+    db.session.flush()
+
+    category_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=category_string_id, lang="English", text="Patient Information"
+            ),
+            LangVersionOrmV2(
+                string_id=category_string_id,
+                lang="French",
+                text="Informations sur le patient",
+            ),
+        ]
+    )
+
+    category_question = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-category-info",
+        form_template_id=intake_template_v2.id,
+        order=0,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=category_string_id,
+        required=False,
+        category_index=0,
+    )
+    db.session.add(category_question)
+
+    # Reuse questions 1-6 from v1
+    v1_template = crud.read(FormTemplateOrmV2, id="ft-v2-intake-v1")
+    v1_questions = crud.read_all(
+        FormQuestionTemplateOrmV2,
+        form_template_id=v1_template.id,
+    )
+
+    for idx, old_q in enumerate(v1_questions, start=1):  # start after category
+        new_question = FormQuestionTemplateOrmV2(
+            id=f"{old_q.id}-v2",
+            form_template_id=intake_template_v2.id,
+            order=idx,
+            question_type=old_q.question_type,
+            question_string_id=old_q.question_string_id,
+            user_question_id=old_q.user_question_id,
+            mc_options=old_q.mc_options,
+            required=old_q.required,
+            has_comment_attached=old_q.has_comment_attached,
+            category_index=category_question.order,  # under "Patient Information"
+            visible_condition=old_q.visible_condition,
+            units=old_q.units,
+            num_min=old_q.num_min,
+            num_max=old_q.num_max,
+            string_max_length=old_q.string_max_length,
+            string_max_lines=old_q.string_max_lines,
+            allow_future_dates=old_q.allow_future_dates,
+            allow_past_dates=old_q.allow_past_dates,
+        )
+        db.session.add(new_question)
+
+    # Add new question (Emergency contact)
+    q8_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q8_string_id,
+                lang="English",
+                text="Emergency contact phone number:",
+            ),
+            LangVersionOrmV2(
+                string_id=q8_string_id,
+                lang="French",
+                text="Numéro de téléphone d'urgence:",
+            ),
+        ]
+    )
+
+    question8 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-emergency-contact",
+        form_template_id=intake_template_v2.id,
+        order=len(v1_questions) + 1,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q8_string_id,
+        user_question_id="emergency_contact_phone",
+        required=False,
+        string_max_length=20,
+        category_index=category_question.order,
+    )
+    db.session.add(question8)
+
+    db.session.commit()
+    print("Created form template V2 (Patient Intake v2).")
+
+
+def create_followup_form_template_v2():
+    if crud.read(FormTemplateOrmV2, id="ft-v2-followup-v1") is not None:
+        return
+
+    followup_classification = crud.read(FormClassificationOrmV2, id="fc-v2-followup")
+    if not followup_classification:
+        followup_name_string_id = get_uuid()
+        db.session.add_all(
+            [
+                LangVersionOrmV2(
+                    string_id=followup_name_string_id,
+                    lang="English",
+                    text="Follow-Up Visit Form",
+                ),
+                LangVersionOrmV2(
+                    string_id=followup_name_string_id,
+                    lang="French",
+                    text="Formulaire de visite de suivi",
+                ),
+            ]
+        )
+        followup_classification = FormClassificationOrmV2(
+            id="fc-v2-followup",
+            name_string_id=followup_name_string_id,
+        )
+        db.session.add(followup_classification)
+        db.session.flush()
+
+    # Create Template
+    followup_template = FormTemplateOrmV2(
+        id="ft-v2-followup-v1",
+        form_classification_id=followup_classification.id,
+        version=1,
+        archived=False,
+    )
+    db.session.add(followup_template)
+    db.session.flush()
+
+    category_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=category_string_id, lang="English", text="Follow-Up Details"
+            ),
+            LangVersionOrmV2(
+                string_id=category_string_id, lang="French", text="Détails du suivi"
+            ),
+        ]
+    )
+
+    category_question = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-category",
+        form_template_id=followup_template.id,
+        order=0,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=category_string_id,
+        category_index=0,
+    )
+    db.session.add(category_question)
+
+    # Question 1
+    q1_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="English",
+                text="How is the patient feeling today?",
+            ),
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="French",
+                text="Comment le patient se sent-il aujourd'hui?",
+            ),
+        ]
+    )
+
+    q1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-feeling",
+        form_template_id=followup_template.id,
+        order=1,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q1_string_id,
+        user_question_id="patient_feeling",
+        required=True,
+        string_max_length=200,
+        category_index=category_question.order,
+    )
+    db.session.add(q1)
+
+    # Question 2
+    q2_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q2_string_id,
+                lang="English",
+                text="Has the patient developed any new symptoms?",
+            ),
+            LangVersionOrmV2(
+                string_id=q2_string_id,
+                lang="French",
+                text="Le patient a-t-il développé de nouveaux symptômes?",
+            ),
+        ]
+    )
+
+    q2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-new-symptoms",
+        form_template_id=followup_template.id,
+        order=2,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q2_string_id,
+        user_question_id="new_symptoms",
+        required=False,
+        string_max_length=300,
+        category_index=category_question.order,
+    )
+    db.session.add(q2)
+
+    # Question 3 (MC)
+    q3_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="English",
+                text="Has medication changed since last visit?",
+            ),
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="French",
+                text="Le traitement a-t-il changé depuis la dernière visite?",
+            ),
+        ]
+    )
+
+    yes_id = get_uuid()
+    no_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
+            LangVersionOrmV2(string_id=yes_id, lang="French", text="Oui"),
+            LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
+            LangVersionOrmV2(string_id=no_id, lang="French", text="Non"),
+        ]
+    )
+
+    q3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-med-change",
+        form_template_id=followup_template.id,
+        order=3,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q3_string_id,
+        user_question_id="medication_changed",
+        mc_options=json.dumps([yes_id, no_id]),
+        required=True,
+        category_index=category_question.order,
+    )
+    db.session.add(q3)
+
+    db.session.commit()
+    print("Created Follow-Up Visit form template V2.")
+
+
+def create_form_submission_v2(patient_id: str, user_id: int):
+    """Create sample form submissions V2"""
+    submission_id = f"fs-v2-{patient_id}"
+    if crud.read(FormSubmissionOrmV2, id=submission_id) is not None:
+        return
+
+    create_form_template_v2()
+
+    # Get the latest template
+    template = crud.read(
+        FormTemplateOrmV2,
+        form_classification_id="fc-v2-intake",
+        archived=False,
+    )
+
+    if not template:
+        print("No template found for submission")
+        return
+
+    # Create submission
+    submission = FormSubmissionOrmV2(
+        id=submission_id,
+        form_template_id=template.id,
+        patient_id=patient_id,
+        user_id=user_id,
+        lang="English",
+    )
+    db.session.add(submission)
+    db.session.flush()
+
+    # Get questions for this template
+    questions = crud.read_all(FormQuestionTemplateOrmV2, form_template_id=template.id)
+
+    # Create sample answers
+    sample_answers = {
+        "patient_full_name": {"text": "Jane Doe"},
+        "patient_age": {"number": 32},
+        "patient_sex": {"mc_id_array": [1]},  # Female (index 1)
+        "patient_dob": {"date": "1993-05-15"},
+        "systolic_bp": {"number": 118.5},
+        "patient_symptoms": {
+            "mc_id_array": [0, 2],
+            "comment": "Mild symptoms, started yesterday",
+        },
+        "additional_notes": {
+            "text": "Patient is responsive and alert. No immediate concerns."
+        },
+    }
+
+    for question in questions:
+        if question.user_question_id in sample_answers:
+            answer_data = sample_answers[question.user_question_id]
+            answer = FormAnswerOrmV2(
+                id=f"fa-v2-{submission_id}-{question.user_question_id}",
+                question_id=question.id,
+                form_submission_id=submission.id,
+                answer=json.dumps(answer_data),
+            )
+            db.session.add(answer)
+
+    db.session.commit()
+    print(f"Created form submission V2 for patient {patient_id}")
+
+
+def seed_forms_v2():
+    """Seed all V2 form data"""
+    print("\nSeeding Forms V2 (updated)")
+    create_form_classification_v2()
+    create_form_template_v2()
+    create_form_template_v2_version2()
+    create_followup_form_template_v2()
+
+    # Create submissions for test patients if they exist
+    test_patient_ids = ["49300028161", "49300028162", "49300028163"]
+    for patient_id in test_patient_ids:
+        patient = crud.read(PatientOrm, id=patient_id)
+        if patient:
+            create_form_submission_v2(patient_id, 3)  # user_id 3
+
+    print("Finished seeding Forms V2\n")
+
+
 def create_relay_nums():
     relay_nums = [
         {
@@ -726,13 +1569,15 @@ def create_relay_nums():
         db.session.commit()
 
 
-def create_simple_workflow_classification():
-    if crud.read(WorkflowClassificationOrm, id="wc-simple-1") is not None:
-        return
+def create_single_step_workflow_classification():
+    classification_id = "wc-single-step-1"
+
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
 
     workflow_classification = {
-        "id": "wc-simple-1",
-        "name": "Get Patient Name Workflow",
+        "id": classification_id,
+        "name": "Get Patient Info Workflow",
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -740,136 +1585,820 @@ def create_simple_workflow_classification():
     db.session.add(workflow_classification_orm)
     db.session.commit()
 
+    return workflow_classification["id"]
 
-def create_simple_workflow_template():
-    if crud.read(WorkflowTemplateOrm, id="wt-simple-1") is not None:
+
+def create_simple_workflow_classification():
+    classification_id = "wc-simple-1"
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
+
+    workflow_classification = {
+        "id": classification_id,
+        "name": "Making Tea Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+    return workflow_classification["id"]
+
+
+def create_simple_workflow_with_branching_classification():
+    classification_id = "wc-simple-branching"
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
+
+    workflow_classification = {
+        "id": classification_id,
+        "name": "Troubleshooting Wi-Fi Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+    return workflow_classification["id"]
+
+
+def create_complex_workflow_with_loops_classification():
+    classification_id = "wc-complex-loop"
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
+        return None
+
+    workflow_classification = {
+        "id": classification_id,
+        "name": "Escape Room Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+    return workflow_classification["id"]
+
+
+def create_single_step_workflow_template(
+    workflow_template_id, form_template_id, num_steps=1
+):
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
-    create_simple_workflow_classification()
+    classification_id = create_single_step_workflow_classification()
 
     workflow_template = {
-        "id": "wt-simple-1",
-        "name": "Get Patient Name Workflow",
-        "description": "Collect name from patient",
+        "id": workflow_template_id,
+        "description": "Collect patient information",
         "archived": False,
-        "starting_step_id": "wt-simple-1-step-1",
+        "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
-        "classification_id": "wc-simple-1",
-        "initial_condition_id": None,
-        "initial_condition": None,
+        "classification_id": classification_id,
     }
 
-    classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
     workflow_template_orm = WorkflowTemplateOrm(
         classification=classification, **workflow_template
     )
 
-    create_simple_workflow_template_step_form_classification()
-    create_simple_workflow_template_step_form()
-
     step = {
-        "id": "wt-simple-1-step-1",
-        "name": "Get Patient Name",
-        "description": "Enter the patient's name",
+        "id": f"{workflow_template_id}-step-1",
+        "name": "Get Patient Details",
+        "description": "Enter the patient's details",
         "expected_completion": get_current_time()
         + 86400,  # Expected completion is 24 hours after this step was created
         "last_edited": get_current_time(),
-        "form_id": "wt-simple-1-step-1-form",
-        "workflow_template_id": "wt-simple-1",
-        "condition_id": None,
-        "condition": None,
+        "form_id": form_template_id,
+        "workflow_template_id": workflow_template["id"],
     }
 
-    branch = {
-        "id": "wt-simple-1-step-1-branch",
-        "target_step_id": None,
-        "step_id": "wt-simple-1-step-1",
-        "condition_id": None,
-        "condition": None,
-    }
-
-    branch_orm = WorkflowTemplateStepBranchOrm(**branch)
-    form_template_orm = crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form")
-
+    form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
     step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
-    step_orm.branches.append(branch_orm)
     workflow_template_orm.steps.append(step_orm)
 
     db.session.add(workflow_template_orm)
     db.session.commit()
 
 
-def create_simple_workflow_template_step_form_classification():
-    if (
-        crud.read(FormClassificationOrm, id="wt-simple-1-form-classification")
-        is not None
-    ):
+def create_simple_workflow_template(
+    workflow_template_id, form_template_id, num_steps=3
+):
+    # workflow_template_id = "workflow-template-simple-1"
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
-    simple_form_classification = {
-        "id": "wt-simple-1-form-classification",
-        "name": "Patient Name Form",
+    classification_id = create_simple_workflow_classification()
+
+    workflow_template = {
+        "id": workflow_template_id,
+        "description": "Linear steps to make tea",
+        "archived": False,
+        "starting_step_id": f"{workflow_template_id}-step-1",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version": "V1",
+        "classification_id": classification_id,
     }
 
-    simple_form_classification_orm = FormClassificationOrm(**simple_form_classification)
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
+
+    stepDetails = [
+        "Boil water",
+        "Place tea bag in cup",
+        "Pour water over bag",
+        "Wait for 3 minutes",
+    ]
+    for step_number in range(1, num_steps + 1):
+        step = {
+            "id": f"{workflow_template_id}-step-{step_number}",
+            "name": stepDetails[step_number - 1],
+            "description": "Indicate step is done",
+            "expected_completion": get_current_time()
+            + 86400,  # Expected completion is 24 hours after this step was created
+            "last_edited": get_current_time(),
+            "form_id": form_template_id,
+            "workflow_template_id": workflow_template["id"],
+        }
+
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+        step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
+
+        # Add branch if not last step
+        if step_number != num_steps:
+            branch = {
+                "id": f"{workflow_template_id}-step-{step_number}-branch",
+                "target_step_id": f"{workflow_template_id}-step-{step_number + 1}",
+                "step_id": step["id"],
+                "condition_id": None,
+                "condition": None,
+            }
+
+            branch_orm = WorkflowTemplateStepBranchOrm(**branch)
+            step_orm.branches.append(branch_orm)
+
+        workflow_template_orm.steps.append(step_orm)
+
+    db.session.add(workflow_template_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template_with_branching(
+    workflow_template_id, form_template_id
+):
+    NUM_STEPS = 7
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
+        return
+
+    classification_id = create_simple_workflow_with_branching_classification()
+
+    workflow_template = {
+        "id": workflow_template_id,
+        "description": "Troubleshoot Wi-Fi",
+        "archived": False,
+        "starting_step_id": f"{workflow_template_id}-step-1",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version": "V1",
+        "classification_id": classification_id,
+    }
+
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
+
+    db.session.add(workflow_template_orm)
+    db.session.flush()
+
+    step_details = {
+        1: ("Check All Devices", "Do all devices have the problem?"),
+        2: (
+            "Restart Router",
+            "Restart the router and wait 60 seconds. Is the issue solved?",
+        ),
+        3: (
+            "Check Network Selection",
+            "Ensure devices are connected to the correct network. Is it working now?",
+        ),
+        4: ("Restart Device", "Restart the affected device. Is the issue solved?"),
+        5: ("Call ISP", "Contact your Internet Service Provider."),
+        6: ("Consult Expert", "Show devices to an expert for further diagnosis."),
+        7: ("Solved", "The connectivity issue has been resolved."),
+    }
+
+    branches = [
+        # step 1
+        (1, 2, "yes"),
+        (1, 3, "no"),
+        # step 2
+        (2, 7, "yes"),
+        (2, 5, "no"),
+        # step 3
+        (3, 7, "yes"),
+        (3, 4, "no"),
+        # step 4
+        (4, 7, "yes"),
+        (4, 6, "no"),
+    ]
+
+    steps_dict = {}
+    for step_number in range(1, NUM_STEPS + 1):
+        step_id = f"{workflow_template_id}-step-{step_number}"
+        name, description = step_details[step_number]
+        step_data = {
+            "id": step_id,
+            "name": name,
+            "description": description,
+            "expected_completion": get_current_time() + 86400,
+            "last_edited": get_current_time(),
+            "form_id": form_template_id,
+            "workflow_template_id": workflow_template_id,
+        }
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+        steps_dict[step_id] = WorkflowTemplateStepOrm(
+            form=form_template_orm, **step_data
+        )
+
+    for source, target, _condition in branches:
+        source_step_id = f"{workflow_template_id}-step-{source}"
+        target_step_id = f"{workflow_template_id}-step-{target}"
+        branch_id = f"{source_step_id}-to-step-{target}"
+
+        source_step = steps_dict[source_step_id]
+        existing_branch_ids = {b.id for b in source_step.branches}
+
+        if branch_id not in existing_branch_ids:
+            branch_orm = WorkflowTemplateStepBranchOrm(
+                id=branch_id,
+                step_id=source_step_id,
+                target_step_id=target_step_id,
+                condition_id=None,
+                condition=None,
+            )
+            source_step.branches.append(branch_orm)
+
+    workflow_template_orm.steps.extend(steps_dict.values())
+
+    db.session.add(workflow_template_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_with_loops_template(workflow_template_id, form_template_id):
+    NUM_STEPS = 11
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
+        return
+
+    classification_id = create_complex_workflow_with_loops_classification()
+
+    workflow_template = {
+        "id": workflow_template_id,
+        "description": "Play an escape room game",
+        "archived": False,
+        "starting_step_id": f"{workflow_template_id}-step-1",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version": "V1",
+        "classification_id": classification_id,
+    }
+
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
+
+    db.session.add(workflow_template_orm)
+    db.session.flush()
+
+    step_details = {
+        1: (
+            "Enter Room",
+            "Choose your action: 1. Examine Bookshelf, 2. Examine Desk, 3. Examine Painting",
+        ),
+        2: ("Examine Bookshelf", "You find: 1. Hidden key, 2. Coded note"),
+        3: ("Examine Desk", "You find: 1. Locked drawer, 2. UV pen"),
+        4: ("Examine Painting", "Result: 1. Found safe 2. Found deadend"),
+        5: ("Use UV pen", "You found a code! Options: 1. Next step"),
+        6: ("Open Locked Drawer", "Result: 1. Found keycard 2. Wrong Action"),
+        7: ("Open Safe", "You find: 1. master key 2. another clue"),
+        8: ("Try Keycard on Door", "result: 1. worked! 2. didn't work"),
+        9: ("Final Puzzle", "Choose: 1. correct answer, 2. wrong answer, 3. use hint"),
+        10: ("Use Hint", "Partial solution found. Options: 1. Back to final puzzle"),
+        11: ("Escaped!", "Escaped!"),
+    }
+
+    branches = [
+        # step 1
+        (1, 2, 1),
+        (1, 3, 2),
+        (1, 4, 3),
+        # step 2
+        (2, 7, 1),
+        (2, 3, 2),
+        # step 3
+        (3, 6, 1),
+        (3, 5, 2),
+        # step 4
+        (4, 7, 1),
+        (4, 1, 2),
+        # step 5
+        (5, 6, 1),
+        # step 6
+        (6, 8, 1),
+        (6, 3, 2),
+        # step 7
+        (7, 9, 1),
+        (7, 5, 2),
+        # step 8
+        (8, 9, 1),
+        (8, 6, 2),
+        # step 9
+        (9, 11, 1),
+        (9, 1, 2),
+        (9, 10, 3),
+        # wstep 10
+        (10, 9, 1),
+    ]
+
+    steps_dict = {}
+    for step_number in range(1, NUM_STEPS + 1):
+        step_id = f"{workflow_template_id}-step-{step_number}"
+        name, description = step_details[step_number]
+        step_data = {
+            "id": step_id,
+            "name": name,
+            "description": description,
+            "expected_completion": get_current_time() + 86400,
+            "last_edited": get_current_time(),
+            "form_id": form_template_id,
+            "workflow_template_id": workflow_template_id,
+        }
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+        steps_dict[step_id] = WorkflowTemplateStepOrm(
+            form=form_template_orm, **step_data
+        )
+
+    for source, target, _condition in branches:
+        source_step_id = f"{workflow_template_id}-step-{source}"
+        target_step_id = f"{workflow_template_id}-step-{target}"
+        branch_id = f"{source_step_id}-to-step-{target}"
+
+        source_step = steps_dict[source_step_id]
+        existing_branch_ids = {b.id for b in source_step.branches}
+
+        if branch_id not in existing_branch_ids:
+            branch_orm = WorkflowTemplateStepBranchOrm(
+                id=branch_id,
+                step_id=source_step_id,
+                target_step_id=target_step_id,
+                condition_id=None,
+                condition=None,
+            )
+            source_step.branches.append(branch_orm)
+
+    workflow_template_orm.steps.extend(steps_dict.values())
+
+    db.session.add(workflow_template_orm)
+    db.session.commit()
+
+
+def create_diverse_workflow_template_step_form_classification_v2():
+    id = "wt-diverse-1-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    lang_name_translation = LangVersionOrmV2(
+        string_id=lang_name_string_id,
+        lang="English",
+        text="Diverse Patient Details",
+    )
+    db.session.add(lang_name_translation)
+
+    simple_form_classification = {
+        "id": id,
+        "name_string_id": lang_name_string_id,
+    }
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        **simple_form_classification
+    )
 
     db.session.add(simple_form_classification_orm)
     db.session.commit()
 
+    return id
 
-def create_simple_workflow_template_step_form():
-    if crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form") is not None:
-        return
 
-    simple_workflow_template_form = {
-        "id": "wt-simple-1-step-1-form",
-        "version": "V1",
+def create_diverse_workflow_template_step_form_v2():
+    form_template_id = "diverse-workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return None
+
+    # Add classification for form to DB
+    classification_id = create_diverse_workflow_template_step_form_classification_v2()
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    # Set up form template associated with workflow
+    form_template = {
+        "id": form_template_id,
+        "form_classification_id": form_classification_orm.id,
+        "version": 1,
+        "archived": False,
     }
 
+    form_template_orm = FormTemplateOrmV2(**form_template)
+
+    # number with min and max
+    age_question_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=age_question_id,
+            lang="English",
+            text="What is the patient's age?",
+        )
+    )
+    age_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-age",
+        form_template_id=form_template_id,
+        order=0,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=age_question_id,
+        user_question_id="patient_age",
+        required=True,
+        units="years",
+        num_min=0,
+        num_max=150,
+        category_index=None,
+    )
+    form_template_orm.questions.append(age_question)
+
+    # Radio buttons (single select)
+    gender_question_id = get_uuid()
+    male_id = get_uuid()
+    female_id = get_uuid()
+    other_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=gender_question_id,
+                lang="English",
+                text="What is the patient's sex?",
+            ),
+            LangVersionOrmV2(
+                string_id=male_id,
+                lang="English",
+                text="Male",
+            ),
+            LangVersionOrmV2(
+                string_id=female_id,
+                lang="English",
+                text="Female",
+            ),
+            LangVersionOrmV2(
+                string_id=other_id,
+                lang="English",
+                text="Other",
+            ),
+        ]
+    )
+    gender_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-gender",
+        form_template_id=form_template_id,
+        order=1,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=gender_question_id,
+        user_question_id="patient_sex",
+        required=True,
+        mc_options=json.dumps([male_id, female_id, other_id]),
+        category_index=None,
+    )
+    form_template_orm.questions.append(gender_question)
+
+    # checkboxes
+    symptoms_question_id = get_uuid()
+    symptom_ids = [get_uuid() for _ in range(3)]
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=symptom_ids[0], lang="English", text="Headache"),
+            LangVersionOrmV2(string_id=symptom_ids[1], lang="English", text="Fever"),
+            LangVersionOrmV2(string_id=symptom_ids[2], lang="English", text="Nausea"),
+            LangVersionOrmV2(
+                string_id=symptoms_question_id,
+                lang="English",
+                text="Which symptoms is the patient experiencing?",
+            ),
+        ]
+    )
+    symptoms_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-symptoms",
+        form_template_id=form_template_id,
+        order=2,
+        question_type=QuestionTypeEnum.MULTIPLE_SELECT,
+        question_string_id=symptoms_question_id,
+        user_question_id="patient_symptoms",
+        required=False,
+        mc_options=json.dumps(symptom_ids),
+        category_index=None,
+    )
+    form_template_orm.questions.append(symptoms_question)
+
+    # nromal string
+    notes_question_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=notes_question_id,
+            lang="English",
+            text="Please provide any additional notes",
+        )
+    )
+    notes_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-notes",
+        form_template_id=form_template_id,
+        order=3,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=notes_question_id,
+        user_question_id="additional_notes",
+        required=False,
+        string_max_length=300,
+        string_max_lines=3,
+        category_index=None,
+    )
+    form_template_orm.questions.append(notes_question)
+
+    # date
+    visit_date_question_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=visit_date_question_id,
+            lang="English",
+            text="What is the date of the visit?",
+        )
+    )
+    visit_date_question = FormQuestionTemplateOrmV2(
+        id=f"{form_template_id}-visit-date",
+        form_template_id=form_template_id,
+        order=4,
+        question_type=QuestionTypeEnum.DATE,
+        question_string_id=visit_date_question_id,
+        user_question_id="visit_date",
+        required=True,
+        allow_future_dates=False,
+        allow_past_dates=True,
+        category_index=None,
+    )
+    form_template_orm.questions.append(visit_date_question)
+
+    # add to db
+    db.session.add(form_template_orm)
+    db.session.commit()
+
+    return form_template["id"]
+
+
+def create_boolean_workflow_template_step_form_classification_v2():
+    id = "wt-boolean-1-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    lang_name_translation = LangVersionOrmV2(
+        string_id=lang_name_string_id,
+        lang="English",
+        text="Boolean Radio Form",
+    )
+    db.session.add(lang_name_translation)
+
+    simple_form_classification = {
+        "id": id,
+        "name_string_id": lang_name_string_id,
+    }
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        **simple_form_classification
+    )
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+    return id
+
+
+def create_boolean_workflow_template_step_form_v2():
+    form_template_id = "boolean-workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return None
+
+    # Add classification for form to DB
+    classification_id = create_boolean_workflow_template_step_form_classification_v2()
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    # Set up form template associated with workflow
+    form_template = {
+        "id": form_template_id,
+        "form_classification_id": form_classification_orm.id,
+        "version": 1,
+        "archived": False,
+    }
+
+    form_template_orm = FormTemplateOrmV2(**form_template)
+
+    db.session.add(form_template_orm)
+
+    yes_id = get_uuid()
+    no_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
+            LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
+        ]
+    )
+
+    q_sid = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(string_id=q_sid, lang="English", text="Select Yes/No")
+    )
+
+    # Create question associated with form
+    boolean_question = FormQuestionTemplateOrmV2(
+        id="fq-generic-boolean-q1",
+        form_template_id=form_template_id,
+        order=0,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q_sid,
+        user_question_id="step_response",
+        mc_options=json.dumps([yes_id, no_id]),
+        required=True,
+        category_index=None,
+    )
+
+    form_template_orm.questions.append(boolean_question)
+    db.session.commit()
+
+    return form_template_id
+
+
+def create_integer_choice_workflow_template_step_form_classification_v2():
+    id = "wt-integer-choice-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=lang_name_string_id,
+            lang="English",
+            text="Integer Choice Form",
+        )
+    )
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        id=id,
+        name_string_id=lang_name_string_id,
+    )
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+    return id
+
+
+def create_integer_choice_workflow_template_step_form_v2():
+    form_template_id = "integer-choice-workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return form_template_id
+
+    classification_id = (
+        create_integer_choice_workflow_template_step_form_classification_v2()
+    )
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    form_template_orm = FormTemplateOrmV2(
+        id=form_template_id,
+        form_classification_id=form_classification_orm.id,
+        version=1,
+        archived=False,
+    )
+
+    db.session.add(form_template_orm)
+
+    q_sid = get_uuid()
+    db.session.add(
+        LangVersionOrmV2(string_id=q_sid, lang="English", text="Enter your choice")
+    )
+
+    choice_question = FormQuestionTemplateOrmV2(
+        id="fq-integer-choice-q1",
+        form_template_id=form_template_id,
+        order=0,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=q_sid,
+        user_question_id="step_response",
+        required=True,
+        num_min=1,
+        num_max=3,
+        category_index=None,
+    )
+
+    form_template_orm.questions.append(choice_question)
+    db.session.commit()
+
+    return form_template_id
+
+
+def create_simple_workflow_template_step_form_classification_v2():
+    id = "wt-simple-1-form-classification_v2"
+    if crud.read(FormClassificationOrmV2, id=id) is not None:
+        return None
+
+    lang_name_string_id = get_uuid()
+    lang_name_translation = LangVersionOrmV2(
+        string_id=lang_name_string_id,
+        lang="English",
+        text="Patient Name Form",
+    )
+    db.session.add(lang_name_translation)
+
+    simple_form_classification = {
+        "id": id,
+        "name_string_id": lang_name_string_id,
+    }
+
+    simple_form_classification_orm = FormClassificationOrmV2(
+        **simple_form_classification
+    )
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+    return id
+
+
+def create_simple_workflow_template_step_form_v2():
+    form_template_id = "workflow-form-template_v2"
+    if crud.read(FormTemplateOrmV2, id=form_template_id) is not None:
+        return None
+
+    # Add classification for form to DB
+    classification_id = create_simple_workflow_template_step_form_classification_v2()
+    form_classification_orm = crud.read(FormClassificationOrmV2, id=classification_id)
+
+    # Set up form template associated with workflow
+    form_template = {
+        "id": form_template_id,
+        "form_classification_id": form_classification_orm.id,
+        "version": 1,
+        "archived": False,
+    }
+
+    form_template_orm = FormTemplateOrmV2(**form_template)
+
+    question_id = get_uuid()
+
+    db.session.add(
+        LangVersionOrmV2(
+            string_id=question_id,
+            lang="English",
+            text="What is the patient's name?",
+        )
+    )
+
+    # Create question associated with form
     question = {
-        "id": "wt-simple-1-step-1-form-question",
-        "category_index": None,
-        "question_index": 0,
-        "is_blank": True,
+        "id": f"{form_template_id}-question",
+        "form_template_id": form_template_id,
+        "order": 0,
         "question_type": "STRING",
+        "question_string_id": question_id,
+        "category_index": None,
         "required": True,
+        "visible_condition": "[]",
+        "units": None,
         "allow_future_dates": True,
         "allow_past_dates": True,
         "num_min": None,
         "num_max": None,
         "string_max_length": None,
-        "units": None,
-        "visible_condition": "[]",
         "string_max_lines": None,
     }
 
-    create_simple_workflow_template_step_form_classification()
-    form_classification_orm = crud.read(
-        FormClassificationOrm, id="wt-simple-1-form-classification"
-    )
+    question_orm = FormQuestionTemplateOrmV2(**question)
 
-    simple_workflow_template_form_orm = FormTemplateOrm(
-        classification=form_classification_orm, **simple_workflow_template_form
-    )
+    # Add question to form template and
+    form_template_orm.questions.append(question_orm)
 
-    question_orm = QuestionOrm(**question)
-
-    simple_workflow_template_form_orm.questions.append(question_orm)
-
-    db.session.add(simple_workflow_template_form_orm)
+    # Add form template to DB
+    db.session.add(form_template_orm)
     db.session.commit()
 
-    lang_version = {
-        "id": 104,
-        "lang": "English",
-        "question_text": "Enter the Patient's Name",
-        "question_id": "wt-simple-1-step-1-form-question",
-    }
-
-    db.session.add(QuestionLangVersionOrm(**lang_version))
-    db.session.commit()
+    return form_template["id"]
 
 
 def create_complex_workflow_classification():
@@ -904,7 +2433,6 @@ def create_complex_workflow_template():
 
     papagaio_study_workflow_template = {
         "id": "papagaio_study_workflow_template",
-        "name": "PAPAGAO Research Study",
         "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
         "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
         "archived": True,
@@ -912,8 +2440,6 @@ def create_complex_workflow_template():
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
-        "initial_condition_id": None,
-        "initial_condition": None,
         "classification_id": "papagaio_study_workflow_classification",
     }
 
@@ -937,9 +2463,8 @@ def create_complex_workflow_template():
 
 
 def create_complex_workflow_template_steps():
-    create_complex_workflow_template_step_form_classifications()
-    create_complex_workflow_template_step_forms()
-    create_complex_workflow_template_step_form_questions()
+    create_complex_workflow_template_step_form_classifications_v2()
+    create_complex_workflow_template_step_forms_v2()
 
     if crud.read(WorkflowTemplateStepOrm, id="prerequisites_template_step") is None:
         prerequisites_template_step = {
@@ -950,8 +2475,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "prerequisites_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         prerequisites_template_step_branch = {
@@ -977,8 +2500,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_consent_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         papagaio_consent_template_step_branch = {
@@ -1009,8 +2530,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_randomized_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         papagaio_randomized_treatment_template_step_branch = {
@@ -1041,8 +2560,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_observation_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         papagaio_observation_treatment_template_step_branch = {
@@ -1063,7 +2580,7 @@ def create_complex_workflow_template_steps():
 def create_workflow_template_step_with_form_and_branches(
     template_step: dict, form_id: str, template_step_branches: List[dict]
 ) -> None:
-    form_template_orm = crud.read(FormTemplateOrm, id=form_id)
+    form_template_orm = crud.read(FormTemplateOrmV2, id=form_id)
     template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
 
     for branch in template_step_branches:
@@ -1074,72 +2591,107 @@ def create_workflow_template_step_with_form_and_branches(
     db.session.commit()
 
 
-def create_complex_workflow_template_step_form_classifications():
-    if crud.read(FormClassificationOrm, id="prerequisites_classification") is None:
+def create_complex_workflow_template_step_form_classifications_v2():
+    if crud.read(FormClassificationOrmV2, id="prerequisites_classification") is None:
+        prerequisites_name_string_id = get_uuid()
+        prerequisites_name_translation = LangVersionOrmV2(
+            string_id=prerequisites_name_string_id,
+            lang="English",
+            text="Prerequisites Form",
+        )
+        db.session.add(prerequisites_name_translation)
+
         prerequisites_classification = {
             "id": "prerequisites_classification",
-            "name": "Prerequisites Classification",
+            "name_string_id": prerequisites_name_string_id,
         }
-        prerequisites_classification_orm = FormClassificationOrm(
+        prerequisites_classification_orm = FormClassificationOrmV2(
             **prerequisites_classification
         )
         db.session.add(prerequisites_classification_orm)
 
-    if crud.read(FormClassificationOrm, id="papagaio_consent_classification") is None:
+    if crud.read(FormClassificationOrmV2, id="papagaio_consent_classification") is None:
+        papagaio_consent_name_string_id = get_uuid()
+        papagaio_consent_name_translation = LangVersionOrmV2(
+            string_id=papagaio_consent_name_string_id,
+            lang="English",
+            text="PAPAGAIO Consent Form",
+        )
+        db.session.add(papagaio_consent_name_translation)
+
         papagaio_consent_classification = {
             "id": "papagaio_consent_classification",
-            "name": "PAPAGAIO Consent Classification",
+            "name_string_id": papagaio_consent_name_string_id,
         }
-        papagaio_consent_classification_orm = FormClassificationOrm(
+        papagaio_consent_classification_orm = FormClassificationOrmV2(
             **papagaio_consent_classification
         )
         db.session.add(papagaio_consent_classification_orm)
 
     if (
         crud.read(
-            FormClassificationOrm,
+            FormClassificationOrmV2,
             id="papagaio_randomized_treatment_plan_classification",
         )
         is None
     ):
+        randomized_treatment_plan_name_string_id = get_uuid()
+        randomized_treatment_plan_name_translation = LangVersionOrmV2(
+            string_id=randomized_treatment_plan_name_string_id,
+            lang="English",
+            text="PAPAGAIO Randomized Treatment Plan Form",
+        )
+        db.session.add(randomized_treatment_plan_name_translation)
+
         randomized_treatment_plan_classification = {
             "id": "papagaio_randomized_treatment_plan_classification",
-            "name": "Randomized Treatment plan Classification",
+            "name_string_id": randomized_treatment_plan_name_string_id,
         }
-        randomized_treatment_plan_classification_orm = FormClassificationOrm(
+        randomized_treatment_plan_classification_orm = FormClassificationOrmV2(
             **randomized_treatment_plan_classification
         )
         db.session.add(randomized_treatment_plan_classification_orm)
 
     if (
         crud.read(
-            FormClassificationOrm,
+            FormClassificationOrmV2,
             id="papagaio_observation_treatment_plan_classification",
         )
         is None
     ):
+        papagio_ovservation_treatment_plan_name_string_id = get_uuid()
+        papagio_ovservation_treatment_plan_name_translation = LangVersionOrmV2(
+            string_id=papagio_ovservation_treatment_plan_name_string_id,
+            lang="English",
+            text="PAPAGAIO Observation Treatment Plan Form",
+        )
+        db.session.add(papagio_ovservation_treatment_plan_name_translation)
+
         papagaio_observation_treatment_plan_classification = {
             "id": "papagaio_observation_treatment_plan_classification",
-            "name": "Observation Treatment Plan Classification",
+            "name_string_id": papagio_ovservation_treatment_plan_name_string_id,
         }
-        papagaio_observation_treatment_plan_classification_orm = FormClassificationOrm(
-            **papagaio_observation_treatment_plan_classification
+        papagaio_observation_treatment_plan_classification_orm = (
+            FormClassificationOrmV2(
+                **papagaio_observation_treatment_plan_classification
+            )
         )
         db.session.add(papagaio_observation_treatment_plan_classification_orm)
 
     db.session.commit()
 
 
-def create_complex_workflow_template_step_forms():
-    create_complex_workflow_template_step_form_classifications()
+def create_complex_workflow_template_step_forms_v2():
+    create_complex_workflow_template_step_form_classifications_v2()
 
-    if crud.read(FormTemplateOrm, id="prerequisites_form_template") is None:
+    if crud.read(FormTemplateOrmV2, id="prerequisites_form_template") is None:
         prerequisites_form_template = {
             "id": "prerequisites_form_template",
-            "version": "V1",
+            "version": 1,
+            "form_classification_id": "prerequisites_classification",
         }
 
-        create_form_template_for_workflow(
+        create_form_template_for_workflow_v2(
             prerequisites_form_template,
             "prerequisites_classification",
             [
@@ -1149,13 +2701,14 @@ def create_complex_workflow_template_step_forms():
             ],
         )
 
-    if crud.read(FormTemplateOrm, id="papagaio_consent_form_template") is None:
+    if crud.read(FormTemplateOrmV2, id="papagaio_consent_form_template") is None:
         papagaio_consent_form_template = {
             "id": "papagaio_consent_form_template",
-            "version": "V1",
+            "version": 1,
+            "form_classification_id": "papagaio_consent_classification",
         }
 
-        create_form_template_for_workflow(
+        create_form_template_for_workflow_v2(
             papagaio_consent_form_template,
             "papagaio_consent_classification",
             ["papagaio_consent_question"],
@@ -1163,16 +2716,17 @@ def create_complex_workflow_template_step_forms():
 
     if (
         crud.read(
-            FormTemplateOrm, id="papagaio_randomized_treatment_plan_form_template"
+            FormTemplateOrmV2, id="papagaio_randomized_treatment_plan_form_template"
         )
         is None
     ):
         papagaio_randomized_treatment_plan_form_template = {
             "id": "papagaio_randomized_treatment_plan_form_template",
-            "version": "V1",
+            "version": 1,
+            "form_classification_id": "papagaio_randomized_treatment_plan_classification",
         }
 
-        create_form_template_for_workflow(
+        create_form_template_for_workflow_v2(
             papagaio_randomized_treatment_plan_form_template,
             "papagaio_randomized_treatment_plan_classification",
             ["papagaio_randomized_treatment_plan_question"],
@@ -1180,160 +2734,190 @@ def create_complex_workflow_template_step_forms():
 
     if (
         crud.read(
-            FormTemplateOrm, id="papagaio_observation_treatment_plan_form_template"
+            FormTemplateOrmV2, id="papagaio_observation_treatment_plan_form_template"
         )
         is None
     ):
         papagaio_observation_treatment_plan_form_template = {
             "id": "papagaio_observation_treatment_plan_form_template",
-            "version": "V1",
+            "version": 1,
+            "form_classification_id": "papagaio_observation_treatment_plan_classification",
         }
 
-        create_form_template_for_workflow(
+        create_form_template_for_workflow_v2(
             papagaio_observation_treatment_plan_form_template,
             "papagaio_observation_treatment_plan_classification",
             ["papagaio_observation_treatment_plan_question"],
         )
 
 
-def create_form_template_for_workflow(
+def create_form_template_for_workflow_v2(
     workflow_template_step_form_template: dict,
     classification_id: str,
     question_ids: List[str],
 ):
     """Seeds the DB with an example form template used in a workflow template"""
-    classification_orm = crud.read(FormClassificationOrm, id=classification_id)
-    form_template_orm = FormTemplateOrm(
-        classification=classification_orm, **workflow_template_step_form_template
-    )
-    create_complex_workflow_template_step_form_questions()
+    form_template_orm = FormTemplateOrmV2(**workflow_template_step_form_template)
+    db.session.add(form_template_orm)
+    db.session.commit()
+    create_complex_workflow_template_step_form_questions_v2(classification_id)
 
     for question_id in question_ids:
-        question = crud.read(QuestionOrm, id=question_id)
+        question = crud.read(FormQuestionTemplateOrmV2, id=question_id)
         form_template_orm.questions.append(question)
 
     db.session.add(form_template_orm)
     db.session.commit()
 
 
-def create_complex_workflow_template_step_form_questions():
-    if crud.read(QuestionOrm, id="prerequisites_question1") is None:
-        prerequisites_question1 = {
-            "id": "prerequisites_question1",
-            "category_index": None,
-            "question_index": 0,
-            "is_blank": True,
-            "question_type": "MULTIPLE_CHOICE",
-            "required": True,
-            "allow_future_dates": True,
-            "allow_past_dates": True,
-            "num_min": None,
-            "num_max": None,
-            "string_max_length": None,
-            "units": None,
-            "visible_condition": "[]",
-            "string_max_lines": None,
-            "mc_options": '[{"mcId": 0, "opt": "Yes" }, {"mcId": 1, "opt": "No"}]',
-        }
+def create_complex_workflow_template_step_form_questions_v2(classification_id):
+    """
+    Chooses which question to seed based on the classification_id provided.
+    This is to prevent premature seeding of a question when the form template does not yet exist (as questions require a form_template_id to be created).
+    TODO: Consider refactoring (this is a temporary stop-gap solution at the end of a previous semester in order to meet the cutoff)
+    """
+    if classification_id == "prerequisites_classification":
+        # uuids for Yes/No translations in multiple choice options
+        yes_id = get_uuid()
+        no_id = get_uuid()
 
-        prerequisites_lang_version1 = {
-            "id": 105,
-            "lang": "English",
-            "question_text": "Is there any indication for immediate delivery?",
-            "question_id": "prerequisites_question1",
-        }
+        if crud.read(FormQuestionTemplateOrmV2, id="prerequisites_question1") is None:
+            prerequisites_string_id_question1 = get_uuid()
+            prerequisites_lang_question1 = {
+                "lang": "English",
+                "text": "Is there any indication for immediate delivery?",
+                "string_id": prerequisites_string_id_question1,
+            }
+            db.session.add(LangVersionOrmV2(**prerequisites_lang_question1))
 
-        prerequisites_question1_orm = QuestionOrm(**prerequisites_question1)
-        db.session.add(prerequisites_question1_orm)
-        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version1))
+            if crud.read(LangVersionOrmV2, string_id=yes_id) is None:
+                db.session.add(
+                    LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes")
+                )
+            if crud.read(LangVersionOrmV2, string_id=no_id) is None:
+                db.session.add(
+                    LangVersionOrmV2(string_id=no_id, lang="English", text="No")
+                )
 
-    if crud.read(QuestionOrm, id="prerequisites_question2") is None:
-        prerequisites_question2 = {
-            "id": "prerequisites_question2",
-            "category_index": None,
-            "question_index": 1,
-            "is_blank": True,
-            "question_type": "MULTIPLE_CHOICE",
-            "required": True,
-            "allow_future_dates": True,
-            "allow_past_dates": True,
-            "num_min": None,
-            "num_max": None,
-            "string_max_length": None,
-            "units": None,
-            "visible_condition": "[]",
-            "string_max_lines": None,
-            "mc_options": '[{"mcId": 0, "opt": "Yes" }, {"mcId": 1, "opt": "No"}]',
-        }
+            prerequisites_question1 = {
+                "id": "prerequisites_question1",
+                "form_template_id": "prerequisites_form_template",
+                "category_index": None,
+                "order": 0,
+                "question_string_id": prerequisites_string_id_question1,
+                "question_type": "MULTIPLE_CHOICE",
+                "required": True,
+                "allow_future_dates": True,
+                "allow_past_dates": True,
+                "num_min": None,
+                "num_max": None,
+                "string_max_length": None,
+                "units": None,
+                "visible_condition": "[]",
+                "string_max_lines": None,
+                "mc_options": json.dumps([yes_id, no_id]),
+            }
 
-        prerequisites_lang_version2 = {
-            "id": 106,
-            "lang": "English",
-            "question_text": "Has the patient decided to deliver in the next 48 hours?",
-            "question_id": "prerequisites_question2",
-        }
+            prerequisites_question1_orm = FormQuestionTemplateOrmV2(
+                **prerequisites_question1
+            )
+            db.session.add(prerequisites_question1_orm)
+            db.session.commit()
 
-        prerequisites_question2_orm = QuestionOrm(**prerequisites_question2)
-        db.session.add(prerequisites_question2_orm)
-        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version2))
+        if crud.read(FormQuestionTemplateOrmV2, id="prerequisites_question2") is None:
+            prerequisites_string_id_question2 = get_uuid()
+            prerequisites_lang_question2 = {
+                "lang": "English",
+                "text": "Has the patient decided to deliver in the next 48 hours?",
+                "string_id": prerequisites_string_id_question2,
+            }
+            db.session.add(LangVersionOrmV2(**prerequisites_lang_question2))
 
-    if crud.read(QuestionOrm, id="prerequisites_question3") is None:
-        prerequisites_question3 = {
-            "id": "prerequisites_question3",
-            "category_index": None,
-            "question_index": 2,
-            "is_blank": True,
-            "question_type": "MULTIPLE_CHOICE",
-            "required": True,
-            "allow_future_dates": True,
-            "allow_past_dates": True,
-            "num_min": None,
-            "num_max": None,
-            "string_max_length": None,
-            "units": None,
-            "visible_condition": "[]",
-            "string_max_lines": None,
-            "mc_options": '[{"mcId": 0, "opt": "Yes" }, {"mcId": 1, "opt": "No"}]',
-        }
+            if crud.read(LangVersionOrmV2, string_id=yes_id) is None:
+                db.session.add(
+                    LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes")
+                )
+            if crud.read(LangVersionOrmV2, string_id=no_id) is None:
+                db.session.add(
+                    LangVersionOrmV2(string_id=no_id, lang="English", text="No")
+                )
 
-        prerequisites_lang_version3 = {
-            "id": 107,
-            "lang": "English",
-            "question_text": "Does the patient have the capacity to provide informed consent?",
-            "question_id": "prerequisites_question3",
-        }
+            prerequisites_question2 = {
+                "id": "prerequisites_question2",
+                "form_template_id": "prerequisites_form_template",
+                "category_index": None,
+                "order": 1,
+                "question_string_id": prerequisites_string_id_question2,
+                "question_type": "MULTIPLE_CHOICE",
+                "required": True,
+                "allow_future_dates": True,
+                "allow_past_dates": True,
+                "num_min": None,
+                "num_max": None,
+                "string_max_length": None,
+                "units": None,
+                "visible_condition": "[]",
+                "string_max_lines": None,
+                "mc_options": json.dumps([yes_id, no_id]),
+            }
 
-        prerequisites_question3_orm = QuestionOrm(**prerequisites_question3)
-        db.session.add(prerequisites_question3_orm)
-        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version3))
+            prerequisites_question2_orm = FormQuestionTemplateOrmV2(
+                **prerequisites_question2
+            )
+            db.session.add(prerequisites_question2_orm)
+            db.session.commit()
 
-    if crud.read(QuestionOrm, id="papagaio_consent_question") is None:
-        papagaio_consent_question = {
-            "id": "papagaio_consent_question",
-            "category_index": None,
-            "question_index": 3,
-            "is_blank": True,
-            "question_type": "MULTIPLE_CHOICE",
-            "required": True,
-            "allow_future_dates": True,
-            "allow_past_dates": True,
-            "num_min": None,
-            "num_max": None,
-            "string_max_length": None,
-            "units": None,
-            "visible_condition": "[]",
-            "string_max_lines": None,
-            "mc_options": "["
-            '{"mcId": 0, "opt": "Give Consent"}'
-            ", "
-            '{"mcId": 1, "opt": "Deny Consent"}'
-            "]",
-        }
+        if crud.read(FormQuestionTemplateOrmV2, id="prerequisites_question3") is None:
+            prerequisites_string_id_question3 = get_uuid()
+            prerequisites_lang_question3 = {
+                "lang": "English",
+                "text": "Does the patient have the capacity to provide informed consent?",
+                "string_id": prerequisites_string_id_question3,
+            }
+            db.session.add(LangVersionOrmV2(**prerequisites_lang_question3))
 
+            if crud.read(LangVersionOrmV2, string_id=yes_id) is None:
+                db.session.add(
+                    LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes")
+                )
+            if crud.read(LangVersionOrmV2, string_id=no_id) is None:
+                db.session.add(
+                    LangVersionOrmV2(string_id=no_id, lang="English", text="No")
+                )
+
+            prerequisites_question3 = {
+                "id": "prerequisites_question3",
+                "form_template_id": "prerequisites_form_template",
+                "category_index": None,
+                "order": 2,
+                "question_string_id": prerequisites_string_id_question3,
+                "question_type": "MULTIPLE_CHOICE",
+                "required": True,
+                "allow_future_dates": True,
+                "allow_past_dates": True,
+                "num_min": None,
+                "num_max": None,
+                "string_max_length": None,
+                "units": None,
+                "visible_condition": "[]",
+                "string_max_lines": None,
+                "mc_options": json.dumps([yes_id, no_id]),
+            }
+
+            prerequisites_question3_orm = FormQuestionTemplateOrmV2(
+                **prerequisites_question3
+            )
+            db.session.add(prerequisites_question3_orm)
+            db.session.commit()
+
+    if (
+        classification_id == "papagaio_consent_classification"
+        and crud.read(FormQuestionTemplateOrmV2, id="papagaio_consent_question") is None
+    ):
+        papagaio_consent_string_id = get_uuid()
         papagaio_consent_lang_version = {
-            "id": 108,
             "lang": "English",
-            "question_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+            "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
             "Vivamus blandit at eros laoreet cursus. Nunc id quam dictum, cursus felis eu, mattis sem."
             " Quisque euismod, nisl quis rhoncus blandit, diam elit ornare dui, ut posuere tortor dui "
             "at risus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce fermentum "
@@ -1341,19 +2925,29 @@ def create_complex_workflow_template_step_form_questions():
             "diam. Nullam malesuada elit ac magna varius interdum. Nulla a malesuada turpis. Praesent "
             "hendrerit dui arcu, id fringilla nisi vulputate at. Sed eu sapien ante. Morbi dapibus mi "
             "vitae dignissim pulvinar. Proin suscipit aliquet semper.",
-            "question_id": "papagaio_consent_question",
+            "string_id": papagaio_consent_string_id,
         }
+        db.session.add(LangVersionOrmV2(**papagaio_consent_lang_version))
 
-        papagaio_consent_question_orm = QuestionOrm(**papagaio_consent_question)
-        db.session.add(papagaio_consent_question_orm)
-        db.session.add(QuestionLangVersionOrm(**papagaio_consent_lang_version))
+        give_consent_id = get_uuid()
+        deny_consent_id = get_uuid()
+        db.session.add_all(
+            [
+                LangVersionOrmV2(
+                    string_id=give_consent_id, lang="English", text="Give Consent"
+                ),
+                LangVersionOrmV2(
+                    string_id=deny_consent_id, lang="English", text="Deny Consent"
+                ),
+            ]
+        )
 
-    if crud.read(QuestionOrm, id="papagaio_randomized_treatment_plan_question") is None:
-        papagaio_randomized_treatment_plan_question = {
-            "id": "papagaio_randomized_treatment_plan_question",
+        papagaio_consent_question = {
+            "id": "papagaio_consent_question",
+            "form_template_id": "papagaio_consent_form_template",
             "category_index": None,
-            "question_index": 4,
-            "is_blank": True,
+            "order": 0,
+            "question_string_id": papagaio_consent_string_id,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
             "allow_future_dates": True,
@@ -1364,44 +2958,64 @@ def create_complex_workflow_template_step_form_questions():
             "units": None,
             "visible_condition": "[]",
             "string_max_lines": None,
-            "mc_options": "["
-            '{"mcId": 0, "opt": "Observe closely for 37 weeks"}'
-            ", "
-            '{"mcId": 1, "opt": "Expedite delivery within 48 hours"}'
-            ","
-            '{"mcId": 2, "opt": "None of the options provided (This withdraws patient from the study '
-            'and exits workflow"}'
-            "]",
+            "mc_options": json.dumps([give_consent_id, deny_consent_id]),
         }
 
+        papagaio_consent_question_orm = FormQuestionTemplateOrmV2(
+            **papagaio_consent_question
+        )
+        db.session.add(papagaio_consent_question_orm)
+
+    if (
+        classification_id == "papagaio_randomized_treatment_plan_classification"
+        and crud.read(
+            FormQuestionTemplateOrmV2, id="papagaio_randomized_treatment_plan_question"
+        )
+        is None
+    ):
+        papagaio_randomized_treatment_plan_string_id = get_uuid()
         papagaio_randomized_treatment_plan_lang_version = {
-            "id": 109,
             "lang": "English",
-            "question_text": "The treatment plan assigned to ths patient has been randomly selected as part of the "
+            "text": "The treatment plan assigned to ths patient has been randomly selected as part of the "
             "study. Each treatment plan below has an equal 50% chance of being chosen. The assigned"
             "treatment plan does not constitute a medical recommendation or an endorsement of the "
             "chosen treatment plan. \n\n The patient has been randomly assigned to the "
             "'observation' category for the randomized treatment plan.",
-            "question_id": "papagaio_randomized_treatment_plan_question",
+            "string_id": papagaio_randomized_treatment_plan_string_id,
         }
-
-        papagaio_randomized_treatment_plan_question_orm = QuestionOrm(
-            **papagaio_randomized_treatment_plan_question
-        )
-        db.session.add(papagaio_randomized_treatment_plan_question_orm)
         db.session.add(
-            QuestionLangVersionOrm(**papagaio_randomized_treatment_plan_lang_version)
+            LangVersionOrmV2(**papagaio_randomized_treatment_plan_lang_version)
         )
 
-    if (
-        crud.read(QuestionOrm, id="papagaio_observation_treatment_plan_question")
-        is None
-    ):
-        papagaio_observation_treatment_plan_question = {
-            "id": "papagaio_observation_treatment_plan_question",
+        observe_id = get_uuid()
+        expedite_id = get_uuid()
+        none_id = get_uuid()
+        db.session.add_all(
+            [
+                LangVersionOrmV2(
+                    string_id=observe_id,
+                    lang="English",
+                    text="Observe closely for 37 weeks",
+                ),
+                LangVersionOrmV2(
+                    string_id=expedite_id,
+                    lang="English",
+                    text="Expedite delivery within 48 hours",
+                ),
+                LangVersionOrmV2(
+                    string_id=none_id,
+                    lang="English",
+                    text="None of the options provided (This withdraws patient from the study and exits workflow)",
+                ),
+            ]
+        )
+
+        papagaio_randomized_treatment_plan_question = {
+            "id": "papagaio_randomized_treatment_plan_question",
+            "form_template_id": "papagaio_randomized_treatment_plan_form_template",
             "category_index": None,
-            "question_index": 5,
-            "is_blank": True,
+            "order": 0,
+            "question_string_id": papagaio_randomized_treatment_plan_string_id,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
             "allow_future_dates": True,
@@ -1412,88 +3026,60 @@ def create_complex_workflow_template_step_form_questions():
             "units": None,
             "visible_condition": "[]",
             "string_max_lines": None,
-            "mc_options": "["
-            '{"mcId": 0, "opt": "Treatment plan complete"}'
-            ", "
-            '{"mcId": 1, "opt": "Treatment plan cancelled"}'
-            ","
-            '{"mcId": 2, "opt": "None of the options provided"}'
-            "]",
+            "mc_options": json.dumps([observe_id, expedite_id, none_id]),
         }
 
+        papagaio_randomized_treatment_plan_question_orm = FormQuestionTemplateOrmV2(
+            **papagaio_randomized_treatment_plan_question
+        )
+        db.session.add(papagaio_randomized_treatment_plan_question_orm)
+
+    if (
+        classification_id == "papagaio_observation_treatment_plan_classification"
+        and crud.read(
+            FormQuestionTemplateOrmV2, id="papagaio_observation_treatment_plan_question"
+        )
+        is None
+    ):
+        papagaio_observation_treatment_plan_string_id = get_uuid()
         papagaio_observation_treatment_plan_lang_version = {
-            "id": 110,
             "lang": "English",
-            "question_text": "This patient was randomly assigned to the 'observation category` as part of the"
+            "text": "This patient was randomly assigned to the 'observation category` as part of the"
             "PAPAGAIO Research Study.",
-            "question_id": "papagaio_observation_treatment_plan_question",
+            "string_id": papagaio_observation_treatment_plan_string_id,
         }
-
-        papagaio_observation_treatment_plan_question_orm = QuestionOrm(
-            **papagaio_observation_treatment_plan_question
-        )
-        db.session.add(papagaio_observation_treatment_plan_question_orm)
         db.session.add(
-            QuestionLangVersionOrm(**papagaio_observation_treatment_plan_lang_version)
+            LangVersionOrmV2(**papagaio_observation_treatment_plan_lang_version)
         )
 
-    db.session.commit()
-
-
-def create_simple_workflow_instance(patient_id, step_id, workflow_template_id):
-    if crud.read(WorkflowInstanceOrm, id="simple-workflow-instance-1") is None:
-        simple_workflow_instance = {
-            "id": "simple-workflow-instance-1",
-            "name": "Patient Name Workflow",
-            "description": "Patient Name Workflow",
-            "start_date": get_current_time(),
-            "current_step_id": step_id,
-            "last_edited": get_current_time(),
-            "completion_date": get_current_time() + 40000,
-            "status": "ACTIVE",
-            "workflow_template_id": workflow_template_id,
-            "patient_id": patient_id,
-        }
-
-        simple_workflow_instance_step = {
-            "id": "simple-workflow-instance-step-1",
-            "name": "Patient Name Step",
-            "description": "Patient Name Step",
-            "start_date": get_current_time(),
-            "triggered_by": None,
-            "last_edited": get_current_time(),
-            "expected_completion": get_current_time() + 40000,
-            "completion_date": get_current_time() + 35000,
-            "status": "ACTIVE",
-            "form_id": "simple-workflow-instance-form-1",
-            "assigned_to": 3,
-            "condition_id": None,
-            "workflow_instance_id": "simple-workflow-instance-1",
-        }
-
-        simple_workflow_instance_step_orm = WorkflowInstanceStepOrm(
-            **simple_workflow_instance_step
+        complete_id = get_uuid()
+        cancel_id = get_uuid()
+        none_id = get_uuid()
+        db.session.add_all(
+            [
+                LangVersionOrmV2(
+                    string_id=complete_id,
+                    lang="English",
+                    text="Treatment plan complete",
+                ),
+                LangVersionOrmV2(
+                    string_id=cancel_id, lang="English", text="Treatment plan cancelled"
+                ),
+                LangVersionOrmV2(
+                    string_id=none_id,
+                    lang="English",
+                    text="None of the options provided",
+                ),
+            ]
         )
 
-        simple_workflow_instance_orm = WorkflowInstanceOrm(**simple_workflow_instance)
-
-        simple_workflow_instance_orm.steps.append(simple_workflow_instance_step_orm)
-
-        db.session.add(simple_workflow_instance_orm)
-        db.session.commit()
-
-
-def create_simple_workflow_instance_form(
-    patient_id, form_template_id, user_id, form_classification_id, fname
-):
-    if crud.read(FormOrm, id="simple-workflow-instance-form-1") is None:
-        simple_workflow_instance_form_question = {
-            "id": "simple-workflow-instance-form-question-1",
+        papagaio_observation_treatment_plan_question = {
+            "id": "papagaio_observation_treatment_plan_question",
+            "form_template_id": "papagaio_observation_treatment_plan_form_template",
             "category_index": None,
-            "question_index": 0,
-            "is_blank": True,
-            "answers": f'{{"text": "{fname}"}}',
-            "question_type": "STRING",
+            "order": 0,
+            "question_string_id": papagaio_observation_treatment_plan_string_id,
+            "question_type": "MULTIPLE_CHOICE",
             "required": True,
             "allow_future_dates": True,
             "allow_past_dates": True,
@@ -1502,32 +3088,104 @@ def create_simple_workflow_instance_form(
             "string_max_length": None,
             "units": None,
             "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": json.dumps([complete_id, cancel_id, none_id]),
         }
 
-        simple_workflow_instance_form_question_orm = QuestionOrm(
-            **simple_workflow_instance_form_question
+        papagaio_observation_treatment_plan_question_orm = FormQuestionTemplateOrmV2(
+            **papagaio_observation_treatment_plan_question
         )
+        db.session.add(papagaio_observation_treatment_plan_question_orm)
 
-        simple_workflow_instance_form = {
-            "id": "simple-workflow-instance-form-1",
-            "lang": "English",
-            "name": "Patient Name Form",
-            "category": "",
-            "patient_id": patient_id,
-            "form_template_id": form_template_id,
-            "date_created": get_current_time(),
+    db.session.commit()
+
+
+def create_workflow_instance(
+    instance_id,
+    instance_name,
+    patient_id,
+    workflow_template_id,
+    num_steps=3,
+):
+    if crud.read(WorkflowInstanceOrm, id=instance_id) is None:
+        workflow_instance = {
+            "id": instance_id,
+            "name": instance_name,
+            "description": "Test Workflow Instance Description",
+            "start_date": get_current_time(),
+            "current_step_id": f"{instance_id}-step1",
             "last_edited": get_current_time(),
-            "last_edited_by": user_id,
-            "form_classification_id": form_classification_id,
-            "archived": False,
+            "status": WorkflowStatusEnum.ACTIVE,
+            "workflow_template_id": workflow_template_id,
+            "patient_id": patient_id,
         }
 
-        simple_workflow_instance_form_orm = FormOrm(**simple_workflow_instance_form)
-        simple_workflow_instance_form_orm.questions.append(
-            simple_workflow_instance_form_question_orm
+        workflow_instance_orm = WorkflowInstanceOrm(**workflow_instance)
+
+        for step_number in range(1, num_steps + 1):
+            template_step_id = f"{workflow_template_id}-step-{step_number}"
+            template_step = crud.read(WorkflowTemplateStepOrm, id=template_step_id)
+            workflow_instance_step = {
+                "id": f"{instance_id}-step{step_number}",
+                "name": template_step.name
+                if template_step
+                else f"{instance_name} Step {step_number}",
+                "description": template_step.description if template_step else None,
+                "start_date": get_current_time(),
+                "triggered_by": None,
+                "last_edited": get_current_time(),
+                "assigned_to": 3,
+                "workflow_instance_id": instance_id,
+                "form_id": None,
+                "workflow_template_step_id": f"{workflow_template_id}-step-{step_number}",
+            }
+
+            if step_number == 1:
+                workflow_instance_step["status"] = WorkflowStepStatusEnum.ACTIVE
+            else:
+                workflow_instance_step["status"] = WorkflowStepStatusEnum.PENDING
+
+            current_workflow_instance_step_orm = WorkflowInstanceStepOrm(
+                **workflow_instance_step
+            )
+
+            workflow_instance_orm.steps.append(current_workflow_instance_step_orm)
+
+        db.session.add(workflow_instance_orm)
+        db.session.commit()
+
+
+def create_workflow_instance_form_v2(
+    form_id, patient_id, form_template_id, user_id, form_classification_id, first_name
+):
+    form_template = crud.read(FormTemplateOrmV2, id=form_template_id)
+
+    if crud.read(FormSubmissionOrmV2, id=form_id) is None:
+        workflow_instance_form_question = {
+            "id": f"{form_id}-form-answer-1",
+            "question_id": form_template.questions[0].id,
+            "form_submission_id": form_id,
+            "answer": f'{{"text": "{first_name}"}}',
+        }
+
+        workflow_instance_form_question_orm = FormAnswerOrmV2(
+            **workflow_instance_form_question
         )
 
-        db.session.add(simple_workflow_instance_form_orm)
+        workflow_instance_form = {
+            "id": form_id,
+            "form_template_id": form_template_id,
+            "patient_id": patient_id,
+            "user_id": user_id,
+            "date_submitted": get_current_time(),
+            "last_edited": get_current_time(),
+            "lang": "English",
+        }
+
+        workflow_instance_form_orm = FormSubmissionOrmV2(**workflow_instance_form)
+        workflow_instance_form_orm.answers.append(workflow_instance_form_question_orm)
+
+        db.session.add(workflow_instance_form_orm)
         db.session.commit()
 
 

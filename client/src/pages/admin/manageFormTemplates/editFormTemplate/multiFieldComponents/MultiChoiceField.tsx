@@ -4,31 +4,34 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction } from 'react';
-import { QuestionLangVersion } from 'src/shared/types/form/formTypes';
+import { McOptionV2 } from 'src/shared/types/form/formTypes';
 import * as handlers from './handlers';
+import { capitalize } from 'src/shared/utils';
 
 interface IProps {
   numChoices: number;
   inputLanguages: string[];
   fieldChanged: boolean;
-  questionLangVersions: QuestionLangVersion[];
+  mcOptions: McOptionV2[];
   setNumChoices: Dispatch<SetStateAction<number>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
   setFormDirty: Dispatch<SetStateAction<boolean>>;
-  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>;
+  setMcOptions: Dispatch<SetStateAction<McOptionV2[]>>;
   getMcOptionValue: (language: string, index: number) => string;
+  updateMcOption?: (index: number, language: string, value: string) => void;
 }
 
 const MultiChoice = ({
   numChoices,
   inputLanguages,
   fieldChanged,
-  questionLangVersions,
+  mcOptions,
   setNumChoices,
   setFieldChanged,
   setFormDirty,
-  setQuestionLangversions,
+  setMcOptions,
   getMcOptionValue,
+  updateMcOption,
 }: IProps) => {
   return (
     <Grid item container spacing={3}>
@@ -40,8 +43,8 @@ const MultiChoice = ({
               numChoices,
               inputLanguages,
               setNumChoices,
-              questionLangVersions,
-              setQuestionLangversions
+              mcOptions,
+              setMcOptions
             );
             setFieldChanged(!fieldChanged);
             setFormDirty(true);
@@ -78,10 +81,10 @@ const MultiChoice = ({
                     handlers.handleRemoveMultiChoice(
                       index,
                       numChoices,
-                      questionLangVersions,
+                      mcOptions,
                       inputLanguages,
                       setNumChoices,
-                      setQuestionLangversions
+                      setMcOptions
                     );
                     setFieldChanged(!fieldChanged);
                     setFormDirty(true);
@@ -99,10 +102,14 @@ const MultiChoice = ({
                   sm={6}
                   md={4}
                   lg={3}
-                  key={`${lang}-mult-choice-option-${index + 1}-body`}>
+                  key={`${capitalize(lang)}-mult-choice-option-${
+                    index + 1
+                  }-body`}>
                   <TextField
-                    key={`${lang}-field-name-mult-choice-option-${index + 1}`}
-                    label={`${lang} Option ${index + 1}`}
+                    key={`${capitalize(lang)}-field-name-mult-choice-option-${
+                      index + 1
+                    }`}
+                    label={`${capitalize(lang)} Option ${index + 1}`}
                     required={true}
                     variant="outlined"
                     value={getMcOptionValue(lang, index)}
@@ -110,18 +117,23 @@ const MultiChoice = ({
                     multiline
                     size="small"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      handlers.handleMultiChoiceOptionChange(
-                        lang,
-                        e.target.value,
-                        index,
-                        questionLangVersions,
-                        setQuestionLangversions
-                      );
+                      if (updateMcOption) {
+                        // Use the hook's update function if provided
+                        updateMcOption(index, lang, e.target.value);
+                      } else {
+                        // Fallback to handler
+                        handlers.handleMultiChoiceOptionChange(
+                          lang,
+                          e.target.value,
+                          index,
+                          mcOptions,
+                          setMcOptions
+                        );
+                      }
                       setFieldChanged(!fieldChanged);
                       setFormDirty(true);
                     }}
                     inputProps={{
-                      // TODO: Determine what types of input restrictions we should have for multiple choice option
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
                   />

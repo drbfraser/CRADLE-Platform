@@ -10,7 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
 import { getPrettyDate } from 'src/shared/utils';
-import { useFormTemplatesQuery } from 'src/shared/queries';
+import { useFormTemplatesQueryV2 } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -24,7 +24,7 @@ import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
-import { useDownloadTemplateAsCSV } from './mutations';
+import { useDownloadTemplateAsCSVv2 } from './mutations';
 
 type FormTemplateWithIndex = FormTemplate & {
   index: number;
@@ -41,9 +41,9 @@ export const ManageFormTemplates = () => {
 
   const navigate = useNavigate();
 
-  const formTemplatesQuery = useFormTemplatesQuery(showArchivedTemplates);
+  const formTemplatesQuery = useFormTemplatesQueryV2(showArchivedTemplates);
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
-    useDownloadTemplateAsCSV();
+    useDownloadTemplateAsCSVv2();
 
   const TableRowActions = useCallback(
     ({ formTemplate }: { formTemplate?: FormTemplateWithIndex }) => {
@@ -126,13 +126,15 @@ export const ManageFormTemplates = () => {
       ) => <TableRowActions formTemplate={params.value} />,
     },
   ];
-  const tableRows = formTemplatesQuery.data?.map((template, index) => ({
-    id: index,
-    name: template.classification.name,
-    version: template.version,
-    dateCreated: getPrettyDate(template.dateCreated),
-    takeAction: template,
-  }));
+  const tableRows = formTemplatesQuery.data?.templates.map(
+    (template, index) => ({
+      id: index,
+      name: template.name,
+      version: template.version,
+      dateCreated: getPrettyDate(template.dateCreated),
+      takeAction: template,
+    })
+  );
 
   const TableFooter = () => (
     <DataTableFooter>
@@ -197,7 +199,8 @@ export const ManageFormTemplates = () => {
         loading={formTemplatesQuery.isLoading}
         getRowClassName={(params) => {
           const index = params.row.id;
-          const formTemplate = formTemplatesQuery.data?.at(index) ?? undefined;
+          const formTemplate =
+            formTemplatesQuery.data?.templates.at(index) ?? undefined;
           if (!formTemplate) return '';
           return formTemplate.archived ? 'row-archived' : '';
         }}

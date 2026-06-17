@@ -8,7 +8,7 @@ from typing import Any, List, Optional, Tuple, Union
 from marshmallow import ValidationError
 
 from common.form_utils import filter_template_questions_dict
-from data import marshal
+from data import orm_serializer
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,
@@ -17,6 +17,7 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     UrineTestOrm,
+    get_schema_for_model,
 )
 
 
@@ -131,13 +132,15 @@ def serialize_patient(
 
 
 def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
-    reading = marshal.marshal(tup[0], True)
-    reading["urine_tests"] = marshal.marshal(tup[1]) if tup[1] is not None else None
+    reading = orm_serializer.marshal(tup[0], True)
+    reading["urine_tests"] = (
+        orm_serializer.marshal(tup[1]) if tup[1] is not None else None
+    )
     return reading
 
 
 def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -> dict:
-    return marshal.marshal(model)
+    return orm_serializer.marshal(model)
 
 
 def serialize_blank_form_template(form_template: dict) -> dict:
@@ -152,7 +155,7 @@ def deserialize_patient(
     shallow: bool = True,
     partial: bool = False,
 ) -> Union[dict, PatientOrm]:
-    schema = PatientOrm.schema()
+    schema = get_schema_for_model(PatientOrm)
     d = {
         "id": patient_data.get("id"),
         "name": patient_data.get("name"),
@@ -195,7 +198,7 @@ def deserialize_patient(
 def deserialize_pregnancy(
     patient_data: dict, partial: bool = False
 ) -> Union[dict, PregnancyOrm]:
-    schema = PregnancyOrm.schema()
+    schema = get_schema_for_model(PregnancyOrm)
     if partial:
         d = {
             "end_date": patient_data.get("pregnancy_end_date"),
@@ -215,7 +218,7 @@ def deserialize_pregnancy(
 def deserialize_medical_record(
     patient_data: dict, is_drug_record: bool
 ) -> MedicalRecordOrm:
-    schema = MedicalRecordOrm.schema()
+    schema = get_schema_for_model(MedicalRecordOrm)
     d = {
         "patient_id": patient_data.get("id"),
         "information": (

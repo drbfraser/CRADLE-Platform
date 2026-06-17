@@ -32,19 +32,10 @@ import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
 import { WorkflowInfo } from './WorkflowInfo/WorkflowInfo';
+import { FlattenedRecord, OrganizedRecords } from 'src/shared/types/types';
 
 type RouteParams = {
   patientId: string;
-};
-
-// TODO: improve this custom type
-type Record = {
-  id: string | undefined;
-  readingId?: string;
-  type: string;
-  isAssessed: boolean;
-  isCancelled: boolean;
-  notAttended: boolean;
 };
 
 const filters: Filter[] = [
@@ -87,11 +78,44 @@ export const PatientPage = () => {
     queryFn: () => getPatientReferralsAsync(patientId),
   });
 
-  const { data: records, isError: errorLoadingRecords } = useQuery({
+  const { data: organizedRecords, isError: errorLoadingRecords } = useQuery({
     queryKey: ['records', patientId, filterRequestBody],
-    queryFn: (): Promise<Record[]> =>
+    queryFn: (): Promise<OrganizedRecords> =>
       getPatientRecordsAsync(patientId, filterRequestBody),
   });
+
+  // Flatten and merge all records with their type, then sort by timestamp
+  const records: FlattenedRecord[] = organizedRecords
+    ? [
+        ...organizedRecords.readings.map((r) => ({
+          ...r,
+          type: 'reading' as const,
+        })),
+        ...organizedRecords.referrals.map((r) => ({
+          ...r,
+          type: 'referral' as const,
+        })),
+        ...organizedRecords.assessments.map((r) => ({
+          ...r,
+          type: 'assessment' as const,
+        })),
+        ...organizedRecords.forms.map((r) => ({ ...r, type: 'form' as const })),
+      ].sort((a, b) => {
+        const timeA =
+          ('dateTaken' in a && a.dateTaken) ||
+          ('dateReferred' in a && a.dateReferred) ||
+          ('dateAssessed' in a && a.dateAssessed) ||
+          ('dateSubmitted' in a && a.dateSubmitted) ||
+          0;
+        const timeB =
+          ('dateTaken' in b && b.dateTaken) ||
+          ('dateReferred' in b && b.dateReferred) ||
+          ('dateAssessed' in b && b.dateAssessed) ||
+          ('dateSubmitted' in b && b.dateSubmitted) ||
+          0;
+        return timeB - timeA;
+      })
+    : [];
 
   const hasPendingReferral =
     referrals?.some((r) => !r.isAssessed && !r.isCancelled && !r.notAttended) ??

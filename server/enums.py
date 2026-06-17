@@ -85,6 +85,31 @@ class HTTPMethodEnum(StrEnum):
 
 
 class WorkflowStatusEnum(StrEnum):
+    PENDING = "Pending"
     ACTIVE = "Active"
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
+
+
+class WorkflowStepStatusEnum(StrEnum):
+    PENDING = "Pending"
+    ACTIVE = "Active"
+    COMPLETED = "Completed"
+    CANCELLED = "Cancelled"
+
+
+class WorkflowVariableTypeEnum(StrEnum):
+    INTEGER = "integer"
+    DOUBLE = "double"
+    STRING = "string"
+    DATE = "date"
+    BOOLEAN = "boolean"
+    COLLECTION = "collection"
+
+
+class WorkflowInstanceDataFieldTypeEnum(StrEnum):
+    INTEGER = "integer"
+    DOUBLE = "double"
+    STRING = "string"
+    DATE = "date"
+    BOOLEAN = "boolean"

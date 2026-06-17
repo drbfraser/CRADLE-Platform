@@ -10,7 +10,6 @@ import {
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getPrettyDate } from 'src/shared/utils';
 import { createFakeAccessToken } from 'src/testing/utils';
 import { WORKFLOW_TEMPLATE_TEST_DATA as TEST_DATA } from 'src/testing/testData';
 import ProviderWrapper from 'src/testing/ProviderWrapper';
@@ -29,18 +28,39 @@ vi.mock('src/shared/api/modules/workflowTemplates', () => ({
 
 // Mock the mutations
 vi.mock('./mutations', () => ({
-  useDownloadTemplateAsCSV: vi.fn(() => ({
-    mutate: vi.fn(),
-    isError: false,
-  })),
   useEditWorkflowTemplate: vi.fn(() => ({
     mutate: vi.fn(),
     isError: false,
+  })),
+  useArchiveWorkflowTemplate: vi.fn(() => ({
+    mutate: vi.fn(),
+    isError: false,
+    isSuccess: false,
+    reset: vi.fn(),
+  })),
+  useUnarchiveWorkflowTemplate: vi.fn(() => ({
+    mutate: vi.fn(),
+    isError: false,
+    isSuccess: false,
+    reset: vi.fn(),
   })),
 }));
 
 describe('Workflow Table', () => {
   beforeAll(() => {
+    // Mock localStorage for tests
+    const mockLocalStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      length: 0,
+      key: vi.fn(),
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+    });
     localStorage.setItem('accessToken', createFakeAccessToken());
   });
 
@@ -65,17 +85,9 @@ describe('Workflow Table', () => {
     TEST_DATA.unArchivedTemplates.forEach(
       ({ classification, dateCreated, version, name }, index) => {
         const tableRow = tableRows[index];
+        const displayName = name || classification?.name || 'N/A';
 
-        // Debug what's actually in the table row
-        console.log('Table row content:', tableRow.textContent);
-        console.log('Looking for name:', name);
-        console.log('Looking for classification:', classification.name);
-        console.log('Looking for date:', getPrettyDate(dateCreated));
-        console.log('Looking for version:', version.toString());
-
-        // If getByText finds the element, the test passes
-        within(tableRow).getByText(name);
-        within(tableRow).getByText(classification.name);
+        within(tableRow).getByText(displayName);
         // Skip date for now to see if other elements work
         // within(tableRow).getByText(getPrettyDate(dateCreated));
         within(tableRow).getByText(version.toString());
@@ -83,9 +95,9 @@ describe('Workflow Table', () => {
     );
   });
 
-  test('Renders archived Workflow', async () => {
+  test('Renders both archived and non archived Workflows', async () => {
     const viewArchivedSwitch = screen.getByRole('checkbox', {
-      name: 'View Archived Workflow',
+      name: 'Include Archived Workflows',
     });
     await userEvent.click(viewArchivedSwitch);
 
@@ -98,13 +110,9 @@ describe('Workflow Table', () => {
     TEST_DATA.archivedTemplates.forEach(
       ({ classification, dateCreated, version, name }, index) => {
         const tableRow = tableRows![index];
+        const displayName = name || classification?.name || 'N/A';
 
-        // Debug what's actually in the table row
-        console.log('Archived table row content:', tableRow.textContent);
-
-        // If getByText finds the element, the test passes
-        within(tableRow).getByText(name);
-        within(tableRow).getByText(classification.name);
+        within(tableRow).getByText(displayName);
         // Skip date for now to see if other elements work
         // within(tableRow).getByText(getPrettyDate(dateCreated));
         within(tableRow).getByText(version.toString());

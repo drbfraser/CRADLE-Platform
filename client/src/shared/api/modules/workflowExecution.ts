@@ -3,10 +3,10 @@ import { EndpointEnum } from 'src/shared/enums';
 import { ID } from '../../constants';
 import {
   WorkflowInstance,
-  InstanceStep,
-  TemplateStepBranch,
+  WorkflowInstanceStep,
+  WorkflowTemplateStepBranch,
   InstanceInput,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 // Add this to your EndpointEnum: WORKFLOW_EXECUTION = '/workflow/execution'
 const WORKFLOW_EXECUTION = EndpointEnum.WORKFLOW_EXECUTION;
@@ -34,8 +34,8 @@ export const completeWorkflowStepAsync = async (payload: {
   data?: Record<string, unknown>;
 }): Promise<{
   instance: WorkflowInstance;
-  nextStep?: InstanceStep;
-  activatedBranches?: TemplateStepBranch[];
+  nextStep?: WorkflowInstanceStep;
+  activatedBranches?: WorkflowTemplateStepBranch[];
 }> => {
   const response = await axiosFetch.post(
     `${WORKFLOW_EXECUTION}/complete-step`,
@@ -52,7 +52,7 @@ export const skipWorkflowStepAsync = async (payload: {
   reason: string;
 }): Promise<{
   instance: WorkflowInstance;
-  nextStep?: InstanceStep;
+  nextStep?: WorkflowInstanceStep;
 }> => {
   const response = await axiosFetch.post(
     `${WORKFLOW_EXECUTION}/skip-step`,
@@ -68,8 +68,8 @@ export const assignWorkflowStepAsync = async (payload: {
   assignedTo: ID;
   assignedBy: ID;
   note?: string;
-}): Promise<InstanceStep> => {
-  const response = await axiosFetch.post<InstanceStep>(
+}): Promise<WorkflowInstanceStep> => {
+  const response = await axiosFetch.post<WorkflowInstanceStep>(
     `${WORKFLOW_EXECUTION}/assign-step`,
     payload
   );
@@ -80,8 +80,8 @@ export const assignWorkflowStepAsync = async (payload: {
 export const getNextWorkflowStepsAsync = async (
   instanceId: ID
 ): Promise<{
-  currentStep?: InstanceStep;
-  possibleNextSteps: InstanceStep[];
+  currentStep?: WorkflowInstanceStep;
+  possibleNextSteps: WorkflowInstanceStep[];
   requiresDecision: boolean;
 }> => {
   const response = await axiosFetch.get(

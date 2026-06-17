@@ -7,6 +7,13 @@ export enum FormRenderStateEnum {
   VIS_COND_DISABLED = 'VIS_COND_DISABLED',
 }
 
+export enum SnackbarSeverity {
+  SUCCESS = 'success',
+  ERROR = 'error',
+  INFO = 'info',
+  WARNING = 'warning',
+}
+
 export enum SexEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
@@ -62,7 +69,9 @@ export enum EndpointEnum {
   REFERRALS = '/referrals',
   REFERRALS_ASSESS = '/referrals/assess',
   FORM_TEMPLATES = '/forms/templates',
+  FORM_TEMPLATES_V2 = '/forms/v2/templates',
   FORM_CLASSIFICATIONS = '/forms/classifications',
+  FORM_CLASSIFICATIONS_V2 = '/forms/v2/classifications',
   READINGS = '/readings',
   READING_ASSESSMENT = '/patients/reading-assessment', //Create a new reading and assessment
   RELAY_SERVER_PHONE = '/relay/server/phone',
@@ -86,11 +95,13 @@ export enum EndpointEnum {
   SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
   //workflow instance
   WORKFLOW_INSTANCES = '/workflow/instances',
+  WITH_STEPS = '?with_steps=true',
   //workflow templates
   WORKFLOW_TEMPLATES = '/workflow/templates',
   WORKFLOW_CLASSIFICATIONS = '/workflow/classifications',
   RULE_GROUPS = '/rules/groups',
   WORKFLOW_EXECUTION = '/workflow/execution',
+  WORKFLOW_VARIABLES = '/workflow/variables',
 }
 
 export enum QRelationEnum {
@@ -123,12 +134,4 @@ export enum SecretKeyMessage {
   EXPIRED = 'EXPIRED',
   WARN = 'WARN',
   NOTFOUND = 'NOTFOUND',
-}
-
-//WORKFLOW_INSTANCES STATUS
-export enum WorkflowInstanceStatus {
-  DRAFT = 'draft',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
 }

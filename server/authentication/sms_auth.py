@@ -2,7 +2,7 @@ import datetime
 
 import jwt
 
-from data import crud
+import data.db_operations as crud
 from models import SmsSecretKeyOrm, UserOrm
 
 """

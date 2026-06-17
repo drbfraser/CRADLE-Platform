@@ -4,8 +4,8 @@ import usePatient from 'src/shared/hooks/patient';
 import { CForm } from 'src/shared/types/form/formTypes';
 import { SelectFormTemplate } from './SelectFormTemplate';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
-import { CustomizedForm } from '../components/CustomizedForm';
 import { FormRenderStateEnum } from 'src/shared/enums';
+import { CustomizedFormPageContainer } from '../components/CustomizedFormPageContainer';
 
 type RouteParams = {
   patientId: string;
@@ -16,15 +16,20 @@ export const CustomizedNewFormPage = () => {
   const [form, setForm] = useState<CForm>();
   const { patient } = usePatient(patientId);
 
+  const handleSetForm = (form: CForm, lang: string) => {
+    setForm({ ...form, lang });
+  };
+
   return (
     <>
       <PatientHeader title="New Form" patient={patient} />
 
-      <SelectFormTemplate setForm={setForm} />
+      <SelectFormTemplate setForm={handleSetForm} />
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm
+        <CustomizedFormPageContainer
           patientId={patientId}
           fm={form}
+          lang={form.lang}
           renderState={FormRenderStateEnum.FIRST_SUBMIT}
         />
       )}

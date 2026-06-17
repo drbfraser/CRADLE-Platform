@@ -8,15 +8,62 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
-import { saveFormTemplateAsync } from 'src/shared/api';
+import {
+  FormTemplateWithQuestionsV2,
+  TQuestion,
+} from 'src/shared/types/form/formTemplateTypes';
+import { saveFormTemplateAsyncV2 } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
+import { useState } from 'react';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  form?: FormTemplateWithQuestions;
+  form?: FormTemplateWithQuestionsV2;
+}
+
+interface FormTemplatePayload {
+  id?: string | undefined;
+  classification: {
+    id?: string;
+    name: Record<string, string>;
+    nameStringId?: string;
+  };
+  version: number;
+  questions: TQuestion[];
+}
+
+export function buildFormTemplatePayload(
+  form: FormTemplateWithQuestionsV2
+): FormTemplatePayload {
+  return {
+    id: form.id,
+    classification: { ...form.classification },
+    version: form.version,
+    questions: form.questions.map((q, i) => ({
+      id: q.id,
+      questionType: q.questionType,
+      required: q.required,
+      allowPastDates: q.allowPastDates,
+      allowFutureDates: q.allowFutureDates,
+      categoryIndex: q.categoryIndex,
+      units: q.units,
+      numMin: q.numMin,
+      numMax: q.numMax,
+      stringMaxLength: q.stringMaxLength,
+      stringMaxLines: q.stringMaxLines,
+      visibleCondition: q.visibleCondition || [],
+      questionText: q.questionText || {},
+      mcOptions: q.mcOptions || [],
+      isBlank: true,
+      order: q.order,
+      hasCommentAttached: q.hasCommentAttached,
+      questionStringId: q.questionStringId,
+      userQuestionId: q.userQuestionId,
+      formTemplateId: form.id,
+    })),
+  };
 }
 
 const SubmitFormTemplateDialog = ({
@@ -26,17 +73,26 @@ const SubmitFormTemplateDialog = ({
 }: IProps) => {
   const navigate = useNavigate();
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const saveFormTemplate = useMutation({
-    mutationFn: saveFormTemplateAsync,
+    mutationFn: saveFormTemplateAsyncV2,
   });
 
   const handleSubmit = () => {
     if (!formTemplate) {
       return;
     }
-    saveFormTemplate.mutate(formTemplate, {
+    const payload = buildFormTemplatePayload(formTemplate);
+
+    saveFormTemplate.mutate(payload, {
       onSuccess: () => {
         navigate('/admin/form-templates');
+      },
+      onError: (err: any) => {
+        if (err.status === 409) {
+          setErrorMessage(err.message);
+        }
       },
     });
   };
@@ -52,6 +108,7 @@ const SubmitFormTemplateDialog = ({
       <APIErrorToast
         open={saveFormTemplate.isError}
         onClose={() => saveFormTemplate.reset()}
+        errorMessage={errorMessage}
       />
 
       <Dialog open={open} onClose={onClose}>

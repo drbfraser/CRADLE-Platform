@@ -15,7 +15,15 @@ import {
   GridAutosizeOptions,
   GridSortModel,
 } from '@mui/x-data-grid';
-import { PropsWithChildren, useEffect } from 'react';
+import {
+  PropsWithChildren,
+  Ref,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 const DATA_TABLE_BORDER_COLOR = 'rgb(224, 224, 224)';
 
@@ -29,10 +37,14 @@ const autosizeOptions: GridAutosizeOptions = {
   expand: true,
 } as const;
 
+export type DataTableToolbarSlotProps = {
+  panelAnchorRef?: RefObject<HTMLButtonElement | null>;
+};
+
 type DataTableProps = {
   rows?: readonly GridValidRowModel[];
   columns: GridColDef[];
-  toolbar?: () => JSX.Element;
+  toolbar?: (props: DataTableToolbarSlotProps) => JSX.Element;
   footer?: () => JSX.Element;
   sx?: SxProps;
   loading?: boolean;
@@ -52,12 +64,15 @@ type DataTableProps = {
   sortModel?: { field: string; sort: 'asc' | 'desc' }[];
   onSortModelChange?: (model: GridSortModel) => void;
   onRowClick?: (params: GridRowParams<any>) => void;
+  sortingMode?: 'client' | 'server';
 };
 
 export const DataTable = ({
   rows,
   columns,
-  toolbar = () => <DataTableToolbar />,
+  toolbar = ({ panelAnchorRef }) => (
+    <DataTableToolbar panelAnchorRef={panelAnchorRef} />
+  ),
   footer = () => <DataTableFooter />,
   sx,
   getRowClassName,
@@ -67,13 +82,33 @@ export const DataTable = ({
   sortModel,
   onSortModelChange,
   onRowClick,
+  sortingMode = 'client',
   disableVirtualization,
   disablePagination,
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
+  const panelAnchorRef = useRef<HTMLButtonElement | null>(null);
+
+  const ToolbarSlot = useCallback(() => toolbar({ panelAnchorRef }), [toolbar]);
+
+  const panelSlotProps = useMemo(
+    () => ({
+      panel: {
+        anchorEl: () => panelAnchorRef.current as HTMLElement,
+        placement: 'bottom-start' as const,
+        popperOptions: {
+          modifiers: [
+            { name: 'flip', enabled: false },
+            { name: 'offset', options: { offset: [0, 4] } },
+          ],
+        },
+      },
+    }),
+    []
+  );
 
   // When pagination is disabled (e2e tests), show all rows on a single page
-  const pageSize = disablePagination ? rows?.length ?? 10 : 10;
+  const pageSize = disablePagination ? (rows?.length ?? 10) : 10;
 
   useEffect(() => {
     if (rows && rows.length > 0) {
@@ -82,7 +117,7 @@ export const DataTable = ({
   }, [rows, apiRef]);
 
   const isServerPaginated = typeof rowCount === 'number';
-  const effectiveRowCount = isServerPaginated ? rowCount : rows?.length ?? 0;
+  const effectiveRowCount = isServerPaginated ? rowCount : (rows?.length ?? 0);
 
   return (
     <Box
@@ -100,7 +135,7 @@ export const DataTable = ({
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         rowCount={effectiveRowCount}
-        sortingMode="server"
+        sortingMode={sortingMode}
         sortModel={sortModel}
         onSortModelChange={onSortModelChange}
         onRowClick={onRowClick}
@@ -110,7 +145,11 @@ export const DataTable = ({
         initialState={{
           pagination: { paginationModel: { pageSize } },
         }}
-        slots={{ toolbar, footer }}
+        slots={{
+          toolbar: ToolbarSlot,
+          footer,
+        }}
+        slotProps={panelSlotProps}
         sx={{
           minHeight: '400px',
           maxWidth: '100%',
@@ -161,8 +200,13 @@ const TOOLBAR_SLOT_PROPS = {
     },
   },
 };
-type DataTableToolbarProps = PropsWithChildren;
-export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
+
+type DataTableToolbarProps = PropsWithChildren & DataTableToolbarSlotProps;
+
+export const DataTableToolbar = ({
+  children,
+  panelAnchorRef,
+}: DataTableToolbarProps) => {
   return (
     <GridToolbarContainer
       sx={{
@@ -170,7 +214,8 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
+        gap: 1,
         borderBottom: '1px solid',
         borderRadius: '0px',
         borderColor: DATA_TABLE_BORDER_COLOR,
@@ -178,7 +223,7 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
       }}>
       <Box
         sx={{
-          display: 'flex',
+          display: 'inline-flex',
           flexWrap: 'wrap',
           flexDirection: {
             sm: 'row',
@@ -187,13 +232,15 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
           gap: {
             xs: '4px',
           },
-          justifyContent: 'start',
         }}>
-        <GridToolbarColumnsButton slotProps={TOOLBAR_SLOT_PROPS} />
+        <GridToolbarColumnsButton
+          ref={panelAnchorRef as Ref<HTMLButtonElement>}
+          slotProps={TOOLBAR_SLOT_PROPS}
+        />
         <GridToolbarFilterButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarDensitySelector slotProps={TOOLBAR_SLOT_PROPS} />
       </Box>
-      {children}
+      {children && <Box sx={{ marginLeft: 'auto' }}>{children}</Box>}
     </GridToolbarContainer>
   );
 };

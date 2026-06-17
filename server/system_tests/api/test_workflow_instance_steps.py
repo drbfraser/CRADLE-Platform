@@ -1,393 +1,316 @@
+from typing import Optional
+
 import pytest
 from humps import decamelize
 
-from common.commonUtil import get_current_time, get_uuid
+import data.db_operations as crud
+from common.api_utils import WorkflowInstanceStepIdPath
 from common.print_utils import pretty_print
-from data import crud
 from models import (
-    FormClassificationOrm,
-    FormOrm,
-    FormTemplateOrm,
-    WorkflowInstanceOrm,
-    WorkflowInstanceStepOrm,
-    WorkflowTemplateOrm,
+    FormSubmissionOrmV2,
 )
+from service.workflow.workflow_service import WorkflowService
+from validation.workflow_api_models import (
+    GetWorkflowInstanceStepsRequest,
+    GetWorkflowInstanceStepsResponse,
+    WorkflowInstanceStepPatchModel,
+)
+from validation.workflow_models import WorkflowInstanceStepModel, WorkflowStepEvaluation
 
 
-def test_create_workflow_instance_step(
-    database,
-    form,
-    form_template,
-    form_classification,
-    workflow_template1,
-    workflow_instance1,
-    api_post,
-    vht_user_id,
-):
-    try:
-        # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
-        )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+def api_get_all_workflow_instance_steps(
+    api_get, request: GetWorkflowInstanceStepsRequest
+) -> GetWorkflowInstanceStepsResponse:
+    """
+    Helper function to send API request to get all steps for a workflow instance.
+    Expects 200 OK.
+    """
+    response = api_get(
+        endpoint="/api/workflow/instance/steps",
+        json=request.model_dump(),
+    )
 
-        # Create workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+    assert (
+        response.status_code == 200
+    ), f"Failed to get workflow instance steps: {response.text}"
 
-        minimal_workflow_instance_step = {
-            "id": get_uuid(),
-            "name": "Test Step 1",
-            "description": "Test Step 1",
-            "start_date": get_current_time(),
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-        }
+    response_json = decamelize(response.json())
+    pretty_print(response_json)
 
-        # Test creating workflow instance step
-        response = api_post(
-            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
-        )
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Create a form classification
-        response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification
-        )
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Upload form template via request body
-        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Create form
-        response = api_post(endpoint="/api/forms/responses", json=form)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Test creating workflow instance step with form
-        workflow_instance_step_with_form = {
-            "id": get_uuid(),
-            "name": "Test Step with Form",
-            "description": "Test Step with Form",
-            "start_date": get_current_time(),
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-            "form_id": form["id"],
-            "form": form,
-        }
-
-        response = api_post(
-            endpoint="/api/workflow/instance/steps",
-            json=workflow_instance_step_with_form,
-        )
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-        assert response_body["form"] is not None
-        assert response_body["form"]["id"] == form["id"]
-        assert response_body["name"] == "Test Step with Form"
-        assert response_body["status"] == "Active"
-        assert response_body["workflow_instance_id"] == workflow_instance1["id"]
-
-        # Verify the step was created in the database
-        created_step = crud.read(
-            WorkflowInstanceStepOrm, id=workflow_instance_step_with_form["id"]
-        )
-        assert created_step is not None
-        assert created_step.form_id == form["id"]
-        assert created_step.name == "Test Step with Form"
-
-    finally:
-        crud.delete_all(
-            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
-        )
-        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
-        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
-        crud.delete_all(FormOrm, id="wissf")
-        crud.delete_all(FormTemplateOrm, id="wissft")
-        crud.delete_all(FormClassificationOrm, name="wissfc")
+    return GetWorkflowInstanceStepsResponse(**response_json)
 
 
-def test_get_workflow_instance_steps(
-    database,
-    form,
-    form_template,
-    form_classification,
-    workflow_template1,
-    workflow_instance1,
-    api_post,
-    api_get,
-    vht_user_id,
-):
-    try:
-        # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
-        )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+def api_get_workflow_instance_step(
+    api_get, path: WorkflowInstanceStepIdPath, with_form: bool = False
+) -> WorkflowInstanceStepModel:
+    """
+    Helper function to send API request to get a workflow instance step.
+    Expects 200 OK.
+    """
+    endpoint = f"/api/workflow/instance/steps/{path.workflow_instance_step_id}"
+    if with_form:
+        endpoint += "?with_form=true"
 
-        # Create workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+    response = api_get(endpoint=endpoint)
 
-        # Create first workflow instance step
-        minimal_workflow_instance_step1 = {
-            "id": get_uuid(),
-            "name": "Test Step 1",
-            "description": "Test Step 1",
-            "start_date": get_current_time(),
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-        }
+    assert (
+        response.status_code == 200
+    ), f"Failed to get workflow instance step: {response.text}"
 
-        response = api_post(
-            endpoint="/api/workflow/instance/steps",
-            json=minimal_workflow_instance_step1,
-        )
-        database.session.commit()
-        assert response.status_code == 201
+    response_json = decamelize(response.json())
+    pretty_print(response_json)
 
-        # Create a form classification
-        response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification
-        )
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Upload form template via request body
-        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
-        database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Create form
-        response = api_post(endpoint="/api/forms/responses", json=form)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
-
-        # Test creating workflow instance step with form
-        workflow_instance_step_with_form = {
-            "id": get_uuid(),
-            "name": "Test Step with Form",
-            "description": "Test Step with Form",
-            "start_date": get_current_time() + 44345,
-            "last_edited": get_current_time() + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-            "form_id": form["id"],
-            "form": form,
-        }
-
-        response = api_post(
-            endpoint="/api/workflow/instance/steps",
-            json=workflow_instance_step_with_form,
-        )
-        database.session.commit()
-
-        assert response.status_code == 201
-
-        # Test getting workflow instance steps with workflow_instance_id filter
-        response = api_get(
-            endpoint=f"/api/workflow/instance/steps?workflow_instance_id={workflow_instance1['id']}"
-        )
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 200
-        assert "items" in response_body
-        assert len(response_body["items"]) == 2
-
-        # Verify the steps are returned correctly
-        step_names = [step["name"] for step in response_body["items"]]
-        assert "Test Step 1" in step_names
-        assert "Test Step with Form" in step_names
-
-        # Test getting all workflow instance steps without filter
-        response = api_get(endpoint="/api/workflow/instance/steps")
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 200
-        assert "items" in response_body
-        assert len(response_body["items"]) >= 2
-
-    finally:
-        crud.delete_all(
-            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
-        )
-        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
-        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
-        crud.delete_all(FormOrm, id="wissf")
-        crud.delete_all(FormTemplateOrm, id="wissft")
-        crud.delete_all(FormClassificationOrm, name="wissfc")
+    return WorkflowInstanceStepModel(**response_json)
 
 
-def test_complete_workflow_instance_step(
-    database,
-    workflow_template1,
-    workflow_instance1,
-    api_post,
+def api_patch_workflow_instance_step(
     api_patch,
-    vht_user_id,
+    path: WorkflowInstanceStepIdPath,
+    request: WorkflowInstanceStepPatchModel,
+    expected_code: int = 200,
+) -> WorkflowInstanceStepModel:
+    """
+    Helper function to send API request to patch a workflow instance step.
+    Expects 200 OK.
+    """
+    response = api_patch(
+        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}",
+        json=request.model_dump(),
+    )
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        response_json = decamelize(response.json())
+        pretty_print(response_json)
+        return WorkflowInstanceStepModel(**response_json)
+
+    return None
+
+
+def api_evaluate_workflow_instance_step(
+    api_get, path: WorkflowInstanceStepIdPath, expected_code: int = 200
+) -> Optional[WorkflowStepEvaluation]:
+    """
+    Helper function to send API request for evaluating a workflow step
+    and validating the response.
+    """
+    response = api_get(
+        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}/evaluate"
+    )
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        step_evaluation_resp = decamelize(response.json())
+        return WorkflowStepEvaluation(**step_evaluation_resp)
+    return None
+
+
+def api_archive_workflow_instance_step_form(
+    api_post, path: WorkflowInstanceStepIdPath, expected_code: int = 200
+) -> Optional[WorkflowInstanceStepModel]:
+    """
+    Helper function to send API request for archiving the form associated with a
+    workflow instance step and validating the response.
+    """
+    response = api_post(
+        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}/archive_form"
+    )
+    assert response.status_code == expected_code
+
+    if response.status_code == 200:
+        step_evaluation_resp = decamelize(response.json())
+        return WorkflowInstanceStepModel(**step_evaluation_resp)
+    return None
+
+
+def test_get_workflow_instance_steps(api_get, sequential_workflow_view_with_db):
+    workflow_view = sequential_workflow_view_with_db
+
+    response = api_get_all_workflow_instance_steps(
+        api_get,
+        GetWorkflowInstanceStepsRequest(workflow_instance_id=workflow_view.instance.id),
+    )
+
+    assert len(response.items) == len(workflow_view.instance.steps)
+
+    # Verify the steps are returned correctly
+    for actual_step in response.items:
+        expected_step = workflow_view.instance.get_instance_step(actual_step.id)
+        assert expected_step
+        assert actual_step == expected_step
+
+
+def test_get_workflow_instance_steps_with_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
 ):
-    try:
-        # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
-        )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+    """Steps with attached forms are returned in list responses with form data."""
+    workflow_view = sequential_workflow_view_with_db
+    form = form_with_db
 
-        # Create workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+    api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id=form["id"]),
+    )
 
-        # Create workflow instance step
-        start_time = get_current_time()
-        minimal_workflow_instance_step = {
-            "id": get_uuid(),
-            "name": "Test Step to Complete",
-            "description": "Test Step to Complete",
-            "start_date": start_time,
-            "last_edited": start_time + 44345,
-            "status": "Active",
-            "completion_date": None,
-            "expected_completion": None,
-            "workflow_instance_id": workflow_instance1["id"],
-        }
+    response = api_get_all_workflow_instance_steps(
+        api_get,
+        GetWorkflowInstanceStepsRequest(workflow_instance_id=workflow_view.instance.id),
+    )
 
-        response = api_post(
-            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
-        )
-        database.session.commit()
-        assert response.status_code == 201
-
-        step_id = minimal_workflow_instance_step["id"]
-
-        # Test completing the workflow instance step
-        response = api_patch(
-            endpoint=f"/api/workflow/instance/steps/{step_id}/complete"
-        )
-
-        if response.status_code != 200:
-            print(f"Error response status: {response.status_code}")
-            print(f"Error response text: {response.text}")
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 200
-
-        # Verify the step was marked as completed
-        assert response_body["status"] == "Completed"
-        assert response_body["completion_date"] is not None
-        assert response_body["last_edited"] is not None
-        assert response_body["id"] == step_id
-        assert response_body["name"] == "Test Step to Complete"
-
-    finally:
-        crud.delete_all(
-            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
-        )
-        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
-        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
+    step_with_form = next(step for step in response.items if step.id == "si-1")
+    assert step_with_form.form_id == form["id"]
+    assert step_with_form.form is not None
+    assert step_with_form.form["id"] == form["id"]
 
 
-@pytest.fixture
-def workflow_template1(vht_user_id):
-    template_id = get_uuid()
-    classification_id = get_uuid()
-    init_condition_id = get_uuid()
-    return {
-        "id": template_id,
-        "name": "workflow_example1",
-        "description": "workflow_example1",
-        "archived": False,
-        "date_created": get_current_time(),
-        "last_edited": get_current_time() + 44345,
-        "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
-        "classification_id": classification_id,
-        "classification": {
-            "id": classification_id,
-            "name": "Workflow Classification example 1",
-        },
-        "steps": [],
-    }
+def test_get_workflow_instance_step_with_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
+):
+    """Form data is included only when with_form=true is passed."""
+    form = form_with_db
+
+    api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id=form["id"]),
+    )
+
+    step_without_form = api_get_workflow_instance_step(
+        api_get, WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1")
+    )
+    assert step_without_form.form_id == form["id"]
+    assert step_without_form.form is None
+
+    step_with_form = api_get_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        with_form=True,
+    )
+    assert step_with_form.form_id == form["id"]
+    assert step_with_form.form is not None
+    assert step_with_form.form["id"] == form["id"]
 
 
-@pytest.fixture
-def workflow_instance1(vht_user_id, patient_id, workflow_template1):
-    instance_id = get_uuid()
-    return {
-        "id": instance_id,
-        "name": "workflow_instance1",
-        "description": "Workflow Instance 1",
-        "status": "Active",
-        "start_date": get_current_time(),
-        "current_step_id": None,
-        "last_edited": get_current_time() + 44345,
-        "completion_date": None,
-        "patient_id": patient_id,
-        "workflow_template_id": workflow_template1["id"],
-        "steps": [],
-    }
+def test_evaluate_workflow_instance_step(api_get, sequential_workflow_view_with_db):
+    step_1_evaluation = api_evaluate_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+    )
+    step_2_evaluation = api_evaluate_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-2"),
+    )
+    # sanity checks, workflow planner unit tests already have more thorough checks
+    assert step_1_evaluation.selected_branch_id == "b-1"
+    assert step_2_evaluation.selected_branch_id == None
+
+    api_evaluate_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(
+            workflow_instance_step_id="this-step-shouldnt-exist",
+        ),
+        expected_code=404,
+    )
+
+
+def test_patch_workflow_instance_step(
+    api_get, api_patch, sequential_workflow_view_with_db, vht_user_id
+):
+    step = WorkflowService.get_workflow_instance_step("si-1")
+
+    assert step.assigned_to is None
+    assert vht_user_id is not None
+
+    response = api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(assigned_to=vht_user_id),
+    )
+    assert response.assigned_to == vht_user_id
+
+    # Check change persisted
+    response = api_get_workflow_instance_step(
+        api_get, WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1")
+    )
+    assert response.assigned_to == vht_user_id
+
+    api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(
+            assigned_to=-1000
+        ),  # assumes user ID doesn't exit
+        expected_code=404,
+    )
+    api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id="this-form-shouldnt-exist"),
+        expected_code=404,
+    )
+
+
+def test_patch_workflow_instance_step_with_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
+):
+    """Patching a valid form_id attaches the form to the step."""
+    form = form_with_db
+
+    response = api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id=form["id"]),
+    )
+    assert response.form_id == form["id"]
+    assert response.form is not None
+    assert response.form["id"] == form["id"]
+
+    response = api_get_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        with_form=True,
+    )
+    assert response.form_id == form["id"]
+    assert response.form["id"] == form["id"]
+
+
+def test_archive_workflow_instance_step_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
+):
+    form = form_with_db
+
+    step = WorkflowService.get_workflow_instance_step("si-1")
+    step.form_id = form["id"]
+
+    WorkflowService.upsert_workflow_instance_step(step)
+    step = WorkflowService.get_workflow_instance_step("si-1")
+
+    assert step.form_id == form["id"]
+    assert step.form is not None
+    assert step.form["archived"] == False
+
+    response = api_archive_workflow_instance_step_form(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+    )
+    assert response.form_id is None
+    assert response.form is None
+
+    # Check change persisted
+    response = api_get_workflow_instance_step(
+        api_get, WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1")
+    )
+    assert response.form_id is None
+    assert response.form is None
+
+    # The pytest test session still has a transaction snapshot from before the API call.
+    # The API (Flask process) updated the database in its own session.
+    # Commit the test session to start a fresh transaction and see the latest DB values.
+    crud.db_session.commit()
+
+    form_orm = crud.read(FormSubmissionOrmV2, id=form["id"])
+    assert form_orm.archived == True
 
 
 @pytest.fixture
@@ -395,71 +318,3 @@ def patient_id(create_patient, patient_info):
     """Create a patient and return its ID"""
     create_patient()
     return patient_info["id"]
-
-
-@pytest.fixture
-def form_classification():
-    return {
-        "id": "wissfc",
-        "name": "wissfc",
-    }
-
-
-@pytest.fixture
-def form_template():
-    return {
-        "classification": {"id": "wissfc", "name": "wissfc"},
-        "id": "wissft",
-        "version": "V1",
-        "questions": [],
-    }
-
-
-@pytest.fixture
-def form(patient_id):
-    return {
-        "id": "wissf2",
-        "lang": "english",
-        "form_template_id": "wissft",
-        "form_classification_id": "wissfc",
-        "patient_id": patient_id,
-        "date_created": 1561011126,
-        "archived": False,
-        "questions": [
-            {
-                "id": "test-question-01",
-                "category_index": None,
-                "question_index": 0,
-                "question_text": "How the patient's condition?",
-                "question_type": "MULTIPLE_CHOICE",
-                "required": True,
-                "visible_condition": [
-                    {
-                        "question_index": 0,
-                        "relation": "EQUAL_TO",
-                        "answers": {"number": 4.0},
-                    },
-                ],
-                "mc_options": [
-                    {
-                        "mc_id": 0,
-                        "opt": "Decent",
-                    },
-                    {
-                        "mc_id": 1,
-                        "opt": "French",
-                    },
-                ],
-                "answers": {"mc_id_array": [0]},
-            },
-            {
-                "id": "test-question-02",
-                "category_index": None,
-                "question_index": 1,
-                "question_text": "Info",
-                "question_type": "CATEGORY",
-                "required": True,
-                "answers": {},
-            },
-        ],
-    }

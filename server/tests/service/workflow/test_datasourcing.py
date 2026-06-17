@@ -1,0 +1,348 @@
+from functools import partial
+from unittest.mock import patch
+
+from service.workflow.datasourcing import custom_lookup as cl
+from service.workflow.datasourcing import data_sourcing
+from service.workflow.datasourcing.data_sourcing import (
+    DatasourceVariable,
+    VariablePath,
+)
+from validation.assessments import AssessmentModel
+from validation.patients import PatientModel
+from validation.readings import ReadingModel
+
+REAL_MODEL_REGISTRY = {
+    "patient": PatientModel,
+    "assessment": AssessmentModel,
+    "reading": ReadingModel,
+}
+
+
+def test_datasource_variable_from_string():
+    var = DatasourceVariable.from_string("patient.age")
+
+    assert var is not None
+    assert var.obj.name == "patient"
+    assert var.attr.name == "age"
+    assert var.to_string() == "patient.age"
+    assert str(var) == "patient.age"
+
+
+def test_datasource_variable_from_invalid_string():
+    var = DatasourceVariable.from_string("invalidformat")
+
+    assert var is None
+
+
+def test_datasource_variable_rejects_collection_indexed_path():
+    """Collection-indexed paths (e.g. vitals[latest].systolic) return None; use VariablePath for those."""
+    var = DatasourceVariable.from_string("vitals[latest].systolic")
+    assert var is None
+    var2 = DatasourceVariable.from_string("pregnancies[1].start_date")
+    assert var2 is None
+
+
+def test_datasource_variable_hashable():
+    var1 = DatasourceVariable.from_string("patient.age")
+    var2 = DatasourceVariable.from_string("patient.age")
+    var3 = DatasourceVariable.from_string("patient.sex")
+
+    assert var1 == var2
+    assert hash(var1) == hash(var2)
+
+    assert var1 != var3
+
+    var_set = {var1, var2, var3}
+    assert len(var_set) == 2
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variable():
+    def mock_callable(id):
+        return {
+            "id": "patient_123",
+            "name": "Test Patient",
+            "sex": "FEMALE",
+            "date_of_birth": "1990-01-01",
+            "is_exact_date_of_birth": True,
+        }
+
+    context = {"patient_id": "testid123"}
+    var = DatasourceVariable.from_string("patient.date_of_birth")
+    catalogue = {"patient": {"query": mock_callable, "custom": {}}}
+
+    result = data_sourcing.resolve_variable(context, var, catalogue)
+
+    assert result == "1990-01-01"
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variable_not_found():
+    def mock_callable(id):
+        return {
+            "id": "patient_123",
+            "name": "Test Patient",
+            "sex": "FEMALE",
+            "date_of_birth": "1990-01-01",
+            "is_exact_date_of_birth": True,
+        }
+
+    context = {"patient_id": "testid123"}
+    var = DatasourceVariable.from_string("patient.zone")
+    catalogue = {"patient": {"query": mock_callable, "custom": {}}}
+
+    result = data_sourcing.resolve_variable(context, var, catalogue)
+
+    assert result is None
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variable_with_none_object():
+    def mock_callable(id):
+        return None
+
+    context = {"patient_id": "testid123"}
+    var = DatasourceVariable.from_string("patient.date_of_birth")
+    catalogue = {"patient": {"query": mock_callable, "custom": {}}}
+
+    result = data_sourcing.resolve_variable(context, var, catalogue)
+
+    assert result is None
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variable_with_object_specific_id():
+    def mock_assessment_query(id):
+        if id == "assessment_456":
+            return {
+                "id": "assessment_456",
+                "patient_id": "patient_123",
+                "date_assessed": 1234567890,
+                "follow_up_needed": False,
+            }
+        return None
+
+    context = {"patient_id": "patient_123", "assessment_id": "assessment_456"}
+    var = DatasourceVariable.from_string("assessment.date_assessed")
+    catalogue = {"assessment": {"query": mock_assessment_query, "custom": {}}}
+
+    result = data_sourcing.resolve_variable(context, var, catalogue)
+
+    assert result == 1234567890
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variables_with_missing_object():
+    def mock_object_resolution(id):
+        return None
+
+    context = {"patient_id": "testid123"}
+    variables = [
+        DatasourceVariable.from_string("patient.name"),
+        DatasourceVariable.from_string("patient.sex"),
+    ]
+    catalogue = {"patient": {"query": mock_object_resolution, "custom": {}}}
+    expected = {
+        "patient.name": None,
+        "patient.sex": None,
+    }
+
+    resolved = data_sourcing.resolve_variables(context, variables, catalogue)
+
+    assert resolved == expected
+
+
+def test_resolve_collection_variables_vitals_latest_and_size():
+    """
+    Basic collection resolution for vitals[latest].systolic_blood_pressure and vitals.size.
+    """
+    context = {"patient_id": "patient_123"}
+    variable_paths = [
+        VariablePath.from_string("vitals[latest].systolic_blood_pressure"),
+        VariablePath.from_string("vitals.size"),
+    ]
+    variable_paths = [vp for vp in variable_paths if vp is not None]
+
+    def mock_vitals_query(patient_id: str):
+        assert patient_id == "patient_123"
+        # Newest first
+        return [
+            {"systolic_blood_pressure": 130},
+            {"systolic_blood_pressure": 120},
+        ]
+
+    catalogue = {
+        "vitals": {
+            "query": mock_vitals_query,
+            "collection": True,
+        }
+    }
+
+    resolved = data_sourcing.resolve_collection_variables(
+        context=context, variable_paths=variable_paths, catalogue=catalogue
+    )
+
+    assert resolved == {
+        "vitals[latest].systolic_blood_pressure": 130,
+        "vitals.size": 2,
+    }
+
+
+def test_resolve_collection_variables_pregnancies_indexing():
+    """
+    Collection indexing rules for pregnancies[latest].start_date and pregnancies[2].start_date.
+    """
+    context = {"patient_id": "patient_456"}
+    variable_paths = [
+        VariablePath.from_string("pregnancies[latest].start_date"),
+        VariablePath.from_string("pregnancies[2].start_date"),
+    ]
+    variable_paths = [vp for vp in variable_paths if vp is not None]
+
+    def mock_pregnancies_query(patient_id: str):
+        assert patient_id == "patient_456"
+        # Newest first by start_date
+        return [
+            {"start_date": 300},
+            {"start_date": 200},
+            {"start_date": 100},
+        ]
+
+    catalogue = {
+        "pregnancies": {
+            "query": mock_pregnancies_query,
+            "collection": True,
+        }
+    }
+
+    resolved = data_sourcing.resolve_collection_variables(
+        context=context, variable_paths=variable_paths, catalogue=catalogue
+    )
+
+    # latest -> newest (300); index 2 -> second from oldest (200) with newest-first ordering
+    assert resolved == {
+        "pregnancies[latest].start_date": 300,
+        "pregnancies[2].start_date": 200,
+    }
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variables_multiple_objects():
+    def mock_patient_resolution(id):
+        return {
+            "id": "patient_123",
+            "name": "John",
+            "sex": "MALE",
+            "date_of_birth": "1990-01-01",
+            "is_exact_date_of_birth": True,
+        }
+
+    def mock_reading_resolution(id):
+        return {
+            "id": "reading_123",
+            "patient_id": "patient_123",
+            "systolic_blood_pressure": 120,
+            "diastolic_blood_pressure": 80,
+            "heart_rate": 70,
+            "date_taken": 1234567890,
+            "is_flagged_for_follow_up": False,
+        }
+
+    context = {"patient_id": "testid123"}
+    variables = [
+        DatasourceVariable.from_string("patient.name"),
+        DatasourceVariable.from_string("reading.systolic_blood_pressure"),
+        DatasourceVariable.from_string("reading.diastolic_blood_pressure"),
+    ]
+    catalogue = {
+        "patient": {"query": mock_patient_resolution, "custom": {}},
+        "reading": {"query": mock_reading_resolution, "custom": {}},
+    }
+    expected = {
+        "patient.name": "John",
+        "reading.systolic_blood_pressure": 120,
+        "reading.diastolic_blood_pressure": 80,
+    }
+
+    resolved = data_sourcing.resolve_variables(context, variables, catalogue)
+
+    assert resolved == expected
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_variables_with_mixed_context():
+    def mock_patient_resolution(id):
+        if id == "patient_123":
+            return {
+                "id": "patient_123",
+                "name": "Mary",
+                "sex": "FEMALE",
+                "date_of_birth": "1990-01-01",
+                "is_exact_date_of_birth": True,
+            }
+        return None
+
+    def mock_assessment_resolution(id):
+        if id == "assessment_456":
+            return {
+                "id": "assessment_456",
+                "patient_id": "patient_123",
+                "date_assessed": 1234567890,
+                "follow_up_needed": False,
+            }
+        return None
+
+    context = {"patient_id": "patient_123", "assessment_id": "assessment_456"}
+
+    variables = [
+        DatasourceVariable.from_string("patient.name"),
+        DatasourceVariable.from_string("patient.sex"),
+        DatasourceVariable.from_string("assessment.date_assessed"),
+        DatasourceVariable.from_string("assessment.follow_up_needed"),
+    ]
+    catalogue = {
+        "patient": {"query": mock_patient_resolution, "custom": {}},
+        "assessment": {"query": mock_assessment_resolution, "custom": {}},
+    }
+    expected = {
+        "patient.name": "Mary",
+        "patient.sex": "FEMALE",
+        "assessment.date_assessed": 1234567890,
+        "assessment.follow_up_needed": False,
+    }
+
+    resolved = data_sourcing.resolve_variables(context, variables, catalogue)
+
+    assert resolved == expected
+
+
+@patch.object(data_sourcing, "MODEL_REGISTRY", REAL_MODEL_REGISTRY)
+def test_resolve_object_variable_paths_uses_custom_age():
+    def mock_patient_resolution(id):
+        return {
+            "id": "patient_123",
+            "name": "Test",
+            "sex": "MALE",
+            "date_of_birth": "1990-01-01",
+            "is_exact_date_of_birth": True,
+        }
+
+    context = {"patient_id": "patient_123"}
+    paths = [
+        VariablePath.from_string("patient.age"),
+        VariablePath.from_string("patient.name"),
+    ]
+    catalogue = {
+        "patient": {
+            "query": mock_patient_resolution,
+            "custom": {"age": partial(cl.patient_age)},
+        }
+    }
+
+    resolved = data_sourcing.resolve_object_variable_paths(
+        context, paths, catalogue, use_missing_sentinel=False
+    )
+
+    assert resolved["patient.name"] == "Test"
+    assert isinstance(resolved["patient.age"], int)
+    assert resolved["patient.age"] >= 30

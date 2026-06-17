@@ -1,16 +1,6 @@
-import {
-  FormTemplateWithQuestions,
-  TQuestion,
-} from 'src/shared/types/form/formTemplateTypes';
+import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';
 import { Field, Formik } from 'formik';
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useEffect,
-  useReducer,
-  useState,
-} from 'react';
+import { Dispatch, Fragment, SetStateAction } from 'react';
 import { initialState, validationSchema } from '../state';
 import InfoIcon from '@mui/icons-material/Info';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -30,20 +20,17 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import {
-  InputAdornment,
-  TextField,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
+import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
+import { useCustomizedFormWQuestions } from 'src/shared/hooks/forms/useCustomizedFormWQuestions';
+import { capitalize } from 'src/shared/utils';
 interface IProps {
-  fm: FormTemplateWithQuestions;
+  fm: FormTemplateWithQuestionsV2;
   languages: string[];
   renderState: FormRenderStateEnum;
-  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   versionError: boolean;
+  setCurrentLanguage: Dispatch<SetStateAction<string>>;
 }
 
 export const CustomizedFormWQuestions = ({
@@ -52,325 +39,87 @@ export const CustomizedFormWQuestions = ({
   renderState,
   setForm,
   versionError,
+  setCurrentLanguage,
 }: IProps) => {
-  const questions = fm.questions;
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-  const [submitError, setSubmitError] = useState(false);
-  const [visibilityToggle, setVisibilityToggle] = useState(false);
-  const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
-  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
-  const [, upd] = useReducer((x) => x + 1, 0);
-  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
-    number | null
-  >(null);
-  const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
-  const getInputLanguages = (question: TQuestion) => {
-    return question.langVersions.map((item) => item.lang);
-  };
-
-  const isMobile = useMediaQuery('(max-width:599px)');
-
-  useEffect(() => {
-    updateAddedQuestions(languages);
-    setSelectedLanguage(languages[0]);
-    upd();
-  }, [languages]);
-
-  const updateAddedQuestions = (languages: string[]) => {
-    questions.forEach((question) => {
-      const currentLanguages = question.langVersions.map(
-        (version) => version.lang
-      );
-
-      // if language is removed
-      question.langVersions = question.langVersions.filter((v) =>
-        languages.includes(v.lang)
-      );
-
-      languages.forEach((language) => {
-        // if language is added
-        if (!currentLanguages.includes(language)) {
-          question.langVersions.push({
-            lang: language,
-            mcOptions: [],
-            questionText: '',
-          });
-        }
-      });
-    });
-  };
-
-  const handleEditField = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
-    if (question.questionType == QuestionTypeEnum.CATEGORY) {
-      setCategoryIndex(question.categoryIndex);
-      setCategoryPopupOpen(true);
-    } else {
-      setVisibilityToggle(
-        selectedQuestionIndex != null &&
-          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
-      );
-      setEditPopupOpen(true);
-    }
-  };
-
-  const handleDeleteOnClose = (confirmed: boolean) => {
-    if (selectedQuestionIndex !== null && confirmed) {
-      // User clicked OK
-      const questionsToDelete = questions.filter(
-        (q) =>
-          q.categoryIndex === selectedQuestionIndex ||
-          q.questionIndex === selectedQuestionIndex
-      );
-      questionsToDelete.forEach(deleteField);
-    }
-    setIsDeletePopupOpen(false);
-    setSelectedQuestionIndex(null);
-  };
-
-  const handleDeleteField = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
-    setCategoryIndex(null);
-    if (question.questionType == QuestionTypeEnum.CATEGORY) {
-      setIsDeletePopupOpen(true);
-    } else {
-      deleteField(question);
-    }
-  };
-
-  const handleCatUp = (cat: TQuestion) => {
-    if (cat.questionIndex === 0) {
-      return;
-    }
-    const prevCatIndex = questions[cat.questionIndex - 1].categoryIndex;
-    let prevCatQs: TQuestion[] = [];
-    // edge case: prev cat has no qs
-    if (prevCatIndex !== null) {
-      prevCatQs = questions.filter(
-        (q) =>
-          q.questionIndex == prevCatIndex || q.categoryIndex == prevCatIndex
-      );
-    } else {
-      prevCatQs.push(questions[cat.questionIndex - 1]);
-    }
-    const catQs = questions.filter(
-      (q) =>
-        q.questionIndex == cat.questionIndex ||
-        q.categoryIndex == cat.questionIndex
-    );
-    moveCat(prevCatQs, catQs);
-  };
-
-  const handleCatDown = (cat: TQuestion) => {
-    const catQs = questions.filter(
-      (q) =>
-        q.questionIndex == cat.questionIndex ||
-        q.categoryIndex == cat.questionIndex
-    );
-    const nextCatIndex = catQs[catQs.length - 1].questionIndex + 1;
-    if (nextCatIndex >= questions.length) {
-      return;
-    }
-    const nextCatQs = questions.filter(
-      (q) => q.questionIndex == nextCatIndex || q.categoryIndex == nextCatIndex
-    );
-    moveCat(catQs, nextCatQs);
-  };
-
-  // switches position of 2 categories of questions
-  const moveCat = (prevCatQs: TQuestion[], catQs: TQuestion[]) => {
-    let insertionIndex = prevCatQs[0].questionIndex;
-    prevCatQs.forEach((q) => {
-      updateVisCond(q.questionIndex, q.questionIndex + catQs.length);
-      q.questionIndex += catQs.length;
-      if (q.categoryIndex !== null) {
-        q.categoryIndex += catQs.length;
-      }
-    });
-    catQs.forEach((q) => {
-      const oldIndex = q.questionIndex;
-      updateVisCond(q.questionIndex, q.questionIndex - prevCatQs.length);
-      q.questionIndex -= prevCatQs.length;
-      if (q.categoryIndex !== null) {
-        q.categoryIndex -= prevCatQs.length;
-      }
-      questions.splice(insertionIndex++, 0, q);
-      questions.splice(oldIndex + 1, 1);
-    });
-    upd();
-  };
-
-  const handleFieldUp = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
-    moveField(question, true);
-  };
-
-  const handleFieldDown = (question: TQuestion) => {
-    setSelectedQuestionIndex(question.questionIndex);
-    moveField(question, false);
-  };
-
-  const deleteField = (question: TQuestion) => {
-    const index = question.questionIndex;
-    questions.splice(index, 1);
-
-    // reset indices
-    questions.forEach((q, i) => {
-      if (
-        q.visibleCondition &&
-        q.visibleCondition[0] &&
-        q.visibleCondition[0].questionIndex == index
-      ) {
-        q.visibleCondition = [];
-      }
-      if (q.categoryIndex && q.categoryIndex > index) {
-        q.categoryIndex -= 1;
-      }
-      updateVisCond(q.questionIndex, i);
-      q.questionIndex = i;
-    });
-
-    // update form
-    if (setForm) {
-      setForm((form) => {
-        form.questions = questions;
-        return form;
-      });
-    }
-    setSelectedQuestionIndex(null);
-    upd();
-  };
-
-  const moveField = (question: any, up: boolean) => {
-    const index = question.questionIndex;
-    if (
-      up &&
-      index > 0 &&
-      question.categoryIndex < index - 1 &&
-      question.questionType != QuestionTypeEnum.CATEGORY
-    ) {
-      const temp = questions[index - 1];
-      questions[index - 1] = questions[index];
-      questions[index] = temp;
-      questions[index].questionIndex = index;
-      questions[index - 1].questionIndex = index - 1;
-      updateVisCond(index - 1, index);
-      updateVisCond(index, index - 1);
-      upd();
-    } else if (!up && question.questionIndex < questions.length - 1) {
-      moveField(questions[index + 1], true);
-    }
-  };
-
-  // check if any questions in form have a vis cond dependant on a question whos index changed
-  const updateVisCond = (oldIndex: number, newIndex: number) => {
-    questions.forEach((q) => {
-      if (
-        q.visibleCondition &&
-        q.visibleCondition[0]?.questionIndex == oldIndex
-      ) {
-        q.visibleCondition[0].questionIndex = newIndex;
-      }
-    });
-  };
-
-  const getEmptyLanguages = (question: TQuestion) => {
-    const emptyLangs = question.langVersions
-      .filter((qlv) => qlv.questionText === '')
-      .map((qlv) => qlv.lang);
-
-    return emptyLangs.join(', ');
-  };
-
-  const missingFields = (question: TQuestion): boolean => {
-    const emptyLanguageArray = getEmptyLanguages(question).split(', ');
-    return emptyLanguageArray.length !== 0 && emptyLanguageArray[0] !== '';
-  };
-
-  const emptyLanguageFieldsInForm = (): boolean => {
-    let emptyLangs = false;
-    questions.forEach((q) => {
-      emptyLangs = emptyLangs || missingFields(q);
-    });
-    return emptyLangs;
-  };
-
-  const disabled =
-    !(fm?.questions?.length > 0) || emptyLanguageFieldsInForm() || versionError;
+  const hook = useCustomizedFormWQuestions(
+    fm,
+    languages,
+    versionError,
+    setForm,
+    setCurrentLanguage
+  );
 
   return (
     <>
       <APIErrorToast
-        open={submitError}
-        onClose={() => setSubmitError(false)}
-        errorMessage={errorMessage}
+        open={hook.submitError}
+        onClose={() => hook.setSubmitError(false)}
+        errorMessage={hook.errorMessage}
       />
       <EditCategory
-        open={categoryPopupOpen}
+        open={hook.categoryPopupOpen}
         onClose={() => {
-          setSelectedQuestionIndex(null);
-          setCategoryPopupOpen(false);
+          hook.setSelectedOrder(null);
+          hook.setCategoryPopupOpen(false);
         }}
         visibilityDisabled={
-          categoryIndex != null &&
-          fm.questions[categoryIndex].visibleCondition.length > 0
+          hook.categoryIndex != null &&
+          fm.questions[hook.categoryIndex].visibleCondition.length > 0
         }
         inputLanguages={
-          selectedQuestionIndex !== null
-            ? getInputLanguages(questions[selectedQuestionIndex])
+          hook.selectedOrder !== null
+            ? hook.getInputLanguages(hook.questions[hook.selectedOrder])
             : languages
         }
         setForm={setForm}
         question={
-          selectedQuestionIndex !== null
-            ? questions[selectedQuestionIndex]
+          hook.selectedOrder !== null
+            ? hook.questions[hook.selectedOrder]
             : undefined
         }
         questionsArr={fm.questions}
         visibilityToggle={
-          selectedQuestionIndex !== null &&
-          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+          hook.selectedOrder !== null &&
+          fm.questions[hook.selectedOrder]?.visibleCondition.length > 0
         }
-        categoryIndex={categoryIndex}
+        categoryIndex={hook.categoryIndex}
       />
       <EditField
-        open={editPopupOpen}
+        open={hook.editPopupOpen}
         onClose={() => {
-          setSelectedQuestionIndex(null);
-          setEditPopupOpen(false);
+          hook.setSelectedOrder(null);
+          hook.setEditPopupOpen(false);
         }}
         inputLanguages={
-          selectedQuestionIndex !== null
-            ? getInputLanguages(questions[selectedQuestionIndex])
+          hook.selectedOrder !== null
+            ? hook.getInputLanguages(hook.questions[hook.selectedOrder])
             : languages
         }
         setForm={setForm}
         question={
-          selectedQuestionIndex !== null
-            ? questions[selectedQuestionIndex]
+          hook.selectedOrder !== null
+            ? hook.questions[hook.selectedOrder]
             : undefined
         }
         questionsArr={fm.questions}
         visibilityDisabled={
-          selectedQuestionIndex !== null
-            ? questions[selectedQuestionIndex].categoryIndex !== null &&
-              fm.questions[questions[selectedQuestionIndex].categoryIndex ?? 0] // add "?? 0" to suppress null index error
-                .visibleCondition.length > 0
-            : categoryIndex != null &&
-              fm.questions[categoryIndex].visibleCondition.length > 0
+          hook.selectedOrder !== null
+            ? hook.questions[hook.selectedOrder].categoryIndex !== null &&
+              fm.questions[
+                hook.questions[hook.selectedOrder].categoryIndex ?? 0
+              ].visibleCondition.length > 0
+            : hook.categoryIndex != null &&
+              fm.questions[hook.categoryIndex].visibleCondition.length > 0
         }
-        visibilityToggle={visibilityToggle}
-        setVisibilityToggle={setVisibilityToggle}
-        categoryIndex={categoryIndex}
+        visibilityToggle={hook.visibilityToggle}
+        setVisibilityToggle={hook.setVisibilityToggle}
+        categoryIndex={hook.categoryIndex}
       />
       <DeleteCategoryDialog
-        open={isDeletePopupOpen}
-        onClose={handleDeleteOnClose}
+        open={hook.isDeletePopupOpen}
+        onClose={hook.handleDeleteOnClose}
         numQuestionsProp={
-          questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
+          hook.questions.filter((q) => q.categoryIndex === hook.selectedOrder)
             .length
         }
       />
@@ -416,14 +165,14 @@ export const CustomizedFormWQuestions = ({
                   <Grid item container xs={12} sm={4}>
                     <Field
                       key={'view-lang'}
-                      value={selectedLanguage}
+                      value={hook.selectedLanguage}
                       component={Autocomplete}
                       fullWidth
                       name={languages[0]}
-                      options={languages}
+                      options={languages.map((lang) => capitalize(lang))}
                       disableClearable={true}
                       onChange={(event: any, value: string) => {
-                        setSelectedLanguage(value);
+                        hook.setSelectedLanguage(value);
                       }}
                       renderInput={(params: AutocompleteRenderInputParams) => (
                         <>
@@ -462,23 +211,23 @@ export const CustomizedFormWQuestions = ({
                 </Grid>
                 <Grid id={'form-container'} item container spacing={3}>
                   {FormQuestions({
-                    questions: questions,
+                    questions: hook.questions,
                     renderState: renderState,
-                    language: selectedLanguage,
+                    language: hook.selectedLanguage,
                     handleAnswers: () => {
                       // pass
                     },
                     setForm: setForm,
                   }).map((q, index) => {
-                    const question = questions[index];
+                    const question = hook.questions[index];
                     return (
-                      <Fragment key={`rendered-${question.questionIndex}`}>
+                      <Fragment key={`rendered-${question.order}`}>
                         {q}
                         {question.questionType == QuestionTypeEnum.CATEGORY && (
                           <Grid
                             id={'add-field-button-container'}
                             item
-                            xs={isMobile ? 10 : 1}
+                            xs={hook.isMobile ? 10 : 1}
                             sm={4}
                             md={3}
                             lg={2}
@@ -495,14 +244,14 @@ export const CustomizedFormWQuestions = ({
                               }}
                               onClick={() => {
                                 if (languages.length != 0) {
-                                  setCategoryIndex(question.questionIndex);
-                                  setVisibilityToggle(
+                                  hook.setCategoryIndex(question.order);
+                                  hook.setVisibilityToggle(
                                     question.visibleCondition.length > 0
                                   );
-                                  setEditPopupOpen(true);
+                                  hook.setEditPopupOpen(true);
                                 } else {
-                                  setSubmitError(true);
-                                  setErrorMessage(
+                                  hook.setSubmitError(true);
+                                  hook.setErrorMessage(
                                     'Select at least one language before creating a field'
                                   );
                                 }
@@ -523,16 +272,16 @@ export const CustomizedFormWQuestions = ({
                           }}>
                           <Grid item xs={6}>
                             <IconButton
-                              key={`field-up-${question.questionIndex}`}
+                              key={`field-up-${question.order}`}
                               size="small"
                               onClick={(e) => {
                                 if (
                                   question.questionType ===
                                   QuestionTypeEnum.CATEGORY
                                 ) {
-                                  handleCatUp(question);
+                                  hook.handleCatUp(question);
                                 } else {
-                                  handleFieldUp(question);
+                                  hook.handleFieldUp(question);
                                 }
                               }}>
                               <KeyboardArrowUpIcon fontSize="small" />
@@ -543,26 +292,26 @@ export const CustomizedFormWQuestions = ({
                               sx={{
                                 marginLeft: '10px',
                               }}
-                              key={`edit-field-${question.questionIndex}`}
+                              key={`edit-field-${question.order}`}
                               size="small"
                               onClick={(e) => {
-                                handleEditField(question);
+                                hook.handleEditField(question);
                               }}>
                               <EditIcon fontSize="small" />
                             </IconButton>
                           </Grid>
                           <Grid item xs={6}>
                             <IconButton
-                              key={`field-down-${question.questionIndex}`}
+                              key={`field-down-${question.order}`}
                               size="small"
                               onClick={(e) => {
                                 if (
                                   question.questionType ===
                                   QuestionTypeEnum.CATEGORY
                                 ) {
-                                  handleCatDown(question);
+                                  hook.handleCatDown(question);
                                 } else {
-                                  handleFieldDown(question);
+                                  hook.handleFieldDown(question);
                                 }
                               }}>
                               <KeyboardArrowDownIcon fontSize="small" />
@@ -573,21 +322,21 @@ export const CustomizedFormWQuestions = ({
                               sx={{
                                 marginLeft: '10px',
                               }}
-                              key={`delete-field-${question.questionIndex}`}
+                              key={`delete-field-${question.order}`}
                               size="small"
                               color="error"
                               onClick={(e) => {
-                                handleDeleteField(question);
+                                hook.handleDeleteField(question);
                               }}>
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Grid>
                         </Grid>
                         <Grid container pl={3}>
-                          {missingFields(question) && (
+                          {hook.missingFields(question) && (
                             <Typography style={{ color: 'red' }}>
                               *Edit this field to add text for:{' '}
-                              {getEmptyLanguages(question)}.
+                              {hook.getEmptyLanguages(question)}.
                             </Typography>
                           )}
                         </Grid>
@@ -601,11 +350,11 @@ export const CustomizedFormWQuestions = ({
                       <PrimaryButton
                         onClick={() => {
                           if (languages.length != 0) {
-                            setCategoryIndex(null);
-                            setCategoryPopupOpen(true);
+                            hook.setCategoryIndex(null);
+                            hook.setCategoryPopupOpen(true);
                           } else {
-                            setSubmitError(true);
-                            setErrorMessage(
+                            hook.setSubmitError(true);
+                            hook.setErrorMessage(
                               'Select at least one language before creating a field'
                             );
                           }
@@ -618,18 +367,18 @@ export const CustomizedFormWQuestions = ({
                   <Grid item container xs={6} justifyContent="flex-end">
                     <PrimaryButton
                       onClick={() => {
-                        setIsSubmitPopupOpen(true);
+                        hook.setIsSubmitPopupOpen(true);
                       }}
                       type="button"
-                      disabled={disabled}>
+                      disabled={hook.disabled}>
                       {'Submit Template'}
                     </PrimaryButton>
                   </Grid>
                 </Grid>
               </Grid>
               <SubmitFormTemplateDialog
-                open={isSubmitPopupOpen}
-                onClose={() => setIsSubmitPopupOpen(false)}
+                open={hook.isSubmitPopupOpen}
+                onClose={() => hook.setIsSubmitPopupOpen(false)}
                 form={fm}
               />
             </Box>

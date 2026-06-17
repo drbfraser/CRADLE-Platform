@@ -6,21 +6,15 @@ import pluginReactHooks from 'eslint-plugin-react-hooks';
 import typescriptParser from '@typescript-eslint/parser';
 import globals from 'globals';
 
-// https://github.com/sindresorhus/globals/issues/239
-// Workaround for bug related to old version of the "globals" package.
-// Without this, the following error is thrown:
-//    TypeError: Key "languageOptions": Key "globals": Global "AudioWorkletGlobalScope " has leading or trailing whitespace.
-// Eslint has globals v14 as a peer dependency and the issue is fixed there;
-// However, our babel installation uses globals v11. When we import globals here, it is
-// the older version and does not work with eslint as intended.
-const GLOBALS_BROWSER_FIX = Object.assign({}, globals.browser, {
-  AudioWorkletGlobalScope: globals.browser['AudioWorkletGlobalScope '],
-});
-delete GLOBALS_BROWSER_FIX['AudioWorkletGlobalScope '];
 
 export default [
   {
-    ignores: ['playwright-report/**/*', 'test-results/**/*', 'coverage/**/*'],
+    ignores: [
+      'build/**/*',
+      'playwright-report/**/*',
+      'test-results/**/*',
+      'coverage/**/*',
+    ],
   },
   ...pluginTanstackQuery.configs['flat/recommended'],
   js.configs.recommended,
@@ -55,7 +49,7 @@ export default [
     languageOptions: {
       parser: typescriptParser,
       globals: {
-        ...GLOBALS_BROWSER_FIX,
+        ...globals.browser,
         ...globals.jest,
       },
     },

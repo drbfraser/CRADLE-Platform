@@ -6,8 +6,9 @@ from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
+import data.db_operations as crud
 from common import user_utils
-from data import crud, db_session, marshal
+from data import orm_serializer
 from models import (
     MedicalRecordOrm,
     PatientAssociationsOrm,
@@ -200,7 +201,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             # Why is a PatientAssociation being assigned to a variable called
             # assessment_to_create
             if crud.read(PatientAssociationsOrm, **association) is None:
-                assessment_to_create = marshal.unmarshal(
+                assessment_to_create = orm_serializer.unmarshal(
                     PatientAssociationsOrm, association
                 )
 
@@ -223,7 +224,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             print(str(err))
             status_code = 207
 
-    with db_session.begin_nested():
+    with crud.db_session.begin_nested():
         # Create and update patients in the database
         for models in models_list[:5]:
             if models:
@@ -239,7 +240,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             )
         for data in pregnancies_to_update:
             crud.update(PregnancyOrm, data.values, autocommit=False, id=data.key_value)
-    db_session.commit()
+    crud.db_session.commit()
 
     # Read all patients that have been created or updated since last sync
     current_user = cast("dict[Any, Any]", current_user)
@@ -280,7 +281,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
                 ReadingModel(**mobile_reading_dict)
             except ValidationError as e:
                 return abort(422, description=str(e))
-            reading = marshal.unmarshal(ReadingOrm, mobile_reading_dict)
+            reading = orm_serializer.unmarshal(ReadingOrm, mobile_reading_dict)
             invariant.resolve_reading_invariants(reading)
             crud.create(reading, refresh=True)
 
@@ -319,7 +320,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
             continue
         ReferralModel(**mobile_referral_dict)
 
-        referral = marshal.unmarshal(ReferralOrm, mobile_referral_dict)
+        referral = orm_serializer.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)
 
     # Read all referrals that have been created or updated since last sync

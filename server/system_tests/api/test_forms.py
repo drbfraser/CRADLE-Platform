@@ -1,7 +1,7 @@
 from humps import decamelize
 
+import data.db_operations as crud
 from common.print_utils import pretty_print
-from data import crud
 from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm
 
 

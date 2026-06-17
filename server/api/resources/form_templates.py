@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Optional
 
 from flask import abort, make_response
@@ -6,13 +7,13 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
 
-import data
+import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
-from data import crud, marshal
+from data import orm_serializer
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
@@ -24,6 +25,8 @@ from validation.formTemplates import (
     FormTemplateModel,
     FormTemplateUpload,
 )
+
+logger = logging.getLogger(__name__)
 
 # /api/forms/templates
 api_form_templates = APIBlueprint(
@@ -50,7 +53,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
 
     form_templates = crud.read_all(FormTemplateOrm, **filters)
 
-    return [marshal.marshal(f, shallow=True) for f in form_templates]
+    return [orm_serializer.marshal(f, shallow=True) for f in form_templates]
 
 
 def handle_form_template_upload(form_template: FormTemplateUpload):
@@ -66,22 +69,25 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
     # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
     form_classification_orm = crud.read(
         FormClassificationOrm,
-        id=form_classification_dict["id"],
+        name=form_classification_dict["name"],
     )
+    # If form classification (template name) doesn't exist yet, create it
     if form_classification_orm is None:
-        form_classification_orm = marshal.unmarshal(
+        form_classification_orm = orm_serializer.unmarshal(
             FormClassificationOrm, form_classification_dict
         )
+        crud.create(form_classification_orm, refresh=True)
     else:
-        if crud.read(
+        existing_template = crud.read(
             FormTemplateOrm,
             form_classification_id=form_classification_orm.id,
             version=form_template.version,
-        ):
+        )
+        if existing_template:
             raise ValueError(
-                "Form Template with the same version already exists - change the version to upload."
+                f"Form Template with the version {form_template.version} already exists for class {form_classification_orm.name} - change the version to upload."
             )
-
+        # Archive the previous active template (if any)
         previous_template = crud.read(
             FormTemplateOrm,
             form_classification_id=form_classification_orm.id,
@@ -89,14 +95,15 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
         )
         if previous_template is not None:
             previous_template.archived = True
-            data.db_session.commit()
+            crud.db_session.commit()
 
+    # Insert the new form template
     form_template_dict["form_classification_id"] = form_classification_orm.id
 
-    form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
+    form_template_orm = orm_serializer.unmarshal(FormTemplateOrm, form_template_dict)
     form_template_orm.classification = form_classification_orm
     crud.create(form_template_orm, refresh=True)
-    return marshal.marshal(form_template_orm, shallow=True)
+    return orm_serializer.marshal(form_template_orm, shallow=True)
 
 
 # /api/forms/templates [POST]
@@ -140,7 +147,7 @@ def upload_form_template_file(form: FileUploadForm):
         return abort(422, description=e.errors())
 
     except ValueError as err:
-        return abort(code=409, description=str(err))
+        return abort(409, description=str(err))
 
 
 # /api/forms/templates/body [POST]
@@ -155,7 +162,7 @@ def upload_form_template_body(body: FormTemplateUpload):
         return handle_form_template_upload(body), 201
 
     except ValueError as err:
-        return abort(code=409, description=str(err))
+        return abort(409, description=str(err))
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]
@@ -224,7 +231,7 @@ def get_form_template_language_version(
     version = query.lang
     if version is None:
         # admin user get template of full versions
-        blank_template = marshal.marshal(
+        blank_template = orm_serializer.marshal(
             form_template,
             shallow=False,
             if_include_versions=True,
@@ -243,7 +250,9 @@ def get_form_template_language_version(
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
-    blank_template = marshal.marshal_template_to_single_version(form_template, version)
+    blank_template = orm_serializer.marshal_template_to_single_version(
+        form_template, version
+    )
     return blank_template, 200
 
 
@@ -269,10 +278,10 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
         )
 
     form_template.archived = body.archived
-    data.db_session.commit()
-    data.db_session.refresh(form_template)
+    crud.db_session.commit()
+    crud.db_session.refresh(form_template)
 
-    return marshal.marshal(form_template, shallow=True), 201
+    return orm_serializer.marshal(form_template, shallow=True), 201
 
 
 # /api/forms/templates/blank/<string:form_template_id> [GET]
@@ -289,7 +298,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
     version = query.lang
     if version is None:
         # admin user get template of full versions
-        blank_template = marshal.marshal(
+        blank_template = orm_serializer.marshal(
             form_template,
             shallow=False,
             if_include_versions=True,
@@ -309,7 +318,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         )
         return None
 
-    blank_template = marshal.marshal_template_to_single_version(
+    blank_template = orm_serializer.marshal_template_to_single_version(
         form_template,
         version,
     )

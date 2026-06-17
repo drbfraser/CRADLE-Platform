@@ -5,7 +5,26 @@ export enum InstanceStatus {
 }
 
 export enum StepStatus {
+  PENDING = 'Pending',
   ACTIVE = 'Active',
   COMPLETED = 'Completed',
   CANCELLED = 'Cancelled',
+}
+
+export enum WorkflowViewMode {
+  LIST = 'list',
+  FLOW = 'flow',
+}
+
+export enum InstanceStepAction {
+  START = 'start_step',
+  COMPLETE = 'complete_step',
+  COMPLETE_WORKFLOW = 'complete_workflow',
+  SKIP = 'skip_step',
+}
+
+export enum WorkflowBranchEvaluationStatus {
+  TRUE = 'TRUE',
+  FALSE = 'FALSE',
+  NOT_ENOUGH_DATA = 'NOT_ENOUGH_DATA',
 }

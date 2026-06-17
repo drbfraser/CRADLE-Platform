@@ -1,16 +1,24 @@
 import pytest
 from humps import decamelize
 
+import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from data import crud
-from models import WorkflowTemplateOrm
+from models import (
+    FormClassificationOrmV2,
+    FormQuestionTemplateOrmV2,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+)
 
 
 def test_workflow_templates_with_same_classification_upload(
     database, workflow_template1, workflow_template3, api_post
 ):
     try:
+        workflow_template3["steps"] = []
         archived_template1_id = workflow_template1["id"]
 
         response = api_post(
@@ -20,6 +28,7 @@ def test_workflow_templates_with_same_classification_upload(
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 201
+        assert response_body["version"] == "V1"
 
         """
         Uploading a new template with a different version under the same classification should archive
@@ -33,6 +42,7 @@ def test_workflow_templates_with_same_classification_upload(
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 201
+        assert response_body["version"] == "V2"
 
         # The first template should now be archived
         archived_template1 = crud.read(
@@ -58,7 +68,6 @@ def test_invalid_workflow_templates_uploaded(
     database,
     invalid_workflow_template1,
     invalid_workflow_template2,
-    invalid_workflow_template3,
     workflow_template1,
     api_post,
 ):
@@ -77,14 +86,6 @@ def test_invalid_workflow_templates_uploaded(
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        assert response.status_code == 422
-
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=invalid_workflow_template3
-        )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
         assert response.status_code == 404
 
         response = api_post(
@@ -95,17 +96,14 @@ def test_invalid_workflow_templates_uploaded(
         pretty_print(response_body)
         assert response.status_code == 201
 
-        """
-        Submitting a workflow template with the same version of another template under the same classification should
-        return a 409 error
-        """
         response = api_post(
             endpoint="/api/workflow/templates/body", json=workflow_template1
         )
-        # database.session.commit()
+        database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        assert response.status_code == 409
+        assert response.status_code == 201
+        assert response_body["version"] == "V2"
 
     finally:
         crud.delete_workflow(
@@ -121,13 +119,167 @@ def test_invalid_workflow_templates_uploaded(
         crud.delete_workflow(
             m=WorkflowTemplateOrm,
             delete_classification=True,
-            id=invalid_workflow_template3["id"],
-        )
-        crud.delete_workflow(
-            m=WorkflowTemplateOrm,
-            delete_classification=True,
             id=workflow_template1["id"],
         )
+
+
+def test_workflow_template_upload_with_missing_form_id_returns_not_found(
+    database, api_post
+):
+    try:
+        template_id = get_uuid()
+        classification_id = get_uuid()
+        step_id = get_uuid()
+        missing_form_id = get_uuid()
+
+        payload = {
+            "id": template_id,
+            "name": "workflow-with-invalid-form-reference",
+            "description": "workflow-with-invalid-form-reference",
+            "archived": False,
+            "starting_step_id": step_id,
+            "date_created": get_current_time(),
+            "last_edited": get_current_time(),
+            "version": "0",
+            "classification_id": classification_id,
+            "classification": {
+                "id": classification_id,
+                "name": "Workflow Classification Missing Form Test",
+            },
+            "steps": [
+                {
+                    "id": step_id,
+                    "name": "template step missing form",
+                    "description": "step references a non-existent form template",
+                    "expected_completion": get_current_time(),
+                    "last_edited": get_current_time(),
+                    "form_id": missing_form_id,
+                    "workflow_template_id": template_id,
+                    "branches": [],
+                }
+            ],
+        }
+
+        response = api_post(endpoint="/api/workflow/templates/body", json=payload)
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+
+        assert response.status_code == 404
+        assert "Form template with ID" in response_body["description"]
+
+    finally:
+        if crud.read(WorkflowTemplateOrm, id=template_id) is not None:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=True,
+                id=template_id,
+            )
+
+
+def test_workflow_template_upload_with_v2_form_id_succeeds(
+    database, api_post, form_template_v2_payload
+):
+    workflow_template_id = get_uuid()
+    workflow_classification_id = get_uuid()
+    step_id = get_uuid()
+    form_classification_id = None
+    form_template_id = None
+    name_string_id = None
+
+    try:
+        form_name = f"Workflow Integration Form V2 {get_uuid()}"
+        form_payload = form_template_v2_payload(
+            overrides={
+                "id": get_uuid(),
+                "classification": {
+                    "id": get_uuid(),
+                    "name": {"english": form_name},
+                },
+            }
+        )
+
+        create_form_response = api_post(
+            endpoint="/api/forms/v2/templates/body", json=form_payload
+        )
+        assert create_form_response.status_code == 201
+
+        created_form = decamelize(create_form_response.json())
+        form_template_id = created_form["id"]
+
+        form_template_orm = crud.read(FormTemplateOrmV2, id=form_template_id)
+        assert form_template_orm is not None
+        form_classification_id = form_template_orm.form_classification_id
+
+        form_classification_orm = crud.read(
+            FormClassificationOrmV2, id=form_classification_id
+        )
+        assert form_classification_orm is not None
+        name_string_id = form_classification_orm.name_string_id
+
+        workflow_payload = {
+            "id": workflow_template_id,
+            "name": "workflow-v2-form-reference",
+            "description": "workflow-v2-form-reference",
+            "archived": False,
+            "starting_step_id": step_id,
+            "date_created": get_current_time(),
+            "last_edited": get_current_time(),
+            "version": "0",
+            "classification_id": workflow_classification_id,
+            "classification": {
+                "id": workflow_classification_id,
+                "name": "Workflow Classification V2 Form Test",
+            },
+            "steps": [
+                {
+                    "id": step_id,
+                    "name": "template step v2 form",
+                    "description": "step references an existing v2 form template",
+                    "expected_completion": get_current_time(),
+                    "last_edited": get_current_time(),
+                    "form_id": form_template_id,
+                    "workflow_template_id": workflow_template_id,
+                    "branches": [],
+                }
+            ],
+        }
+
+        workflow_response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_payload
+        )
+        database.session.commit()
+
+        workflow_response_body = decamelize(workflow_response.json())
+        pretty_print(workflow_response_body)
+
+        assert workflow_response.status_code == 201
+
+        created_workflow = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
+        assert created_workflow is not None
+        assert len(created_workflow.steps) == 1
+        assert created_workflow.steps[0].form_id == form_template_id
+
+    finally:
+        if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=True,
+                id=workflow_template_id,
+            )
+
+        if form_template_id is not None:
+            crud.delete_all(
+                FormQuestionTemplateOrmV2, form_template_id=form_template_id
+            )
+            crud.delete_all(FormTemplateOrmV2, id=form_template_id)
+
+        if form_classification_id is not None:
+            crud.delete_all(FormClassificationOrmV2, id=form_classification_id)
+
+        if name_string_id is not None:
+            crud.delete_all(LangVersionOrmV2, string_id=name_string_id)
 
 
 def test_getting_workflow_templates(
@@ -179,10 +331,10 @@ def test_getting_workflow_templates(
         )
         workflow_templates = decamelize(response.json())["items"]
 
-        assert (
-            len(workflow_templates) == 1
-            and workflow_templates[0]["id"] == workflow_template1["id"]
-        )
+        assert len(workflow_templates) == 2
+        template_ids = {t["id"] for t in workflow_templates}
+        assert workflow_template1["id"] in template_ids
+        assert workflow_template3["id"] in template_ids
 
         """
         Query for a specific workflow template
@@ -225,9 +377,11 @@ def test_workflow_template_patch_request(
         database.session.commit()
 
         changes = {
-            "name": "New workflow template name",
             "description": "New workflow template description",
-            "version": "v2",
+            "classification": {
+                "id": workflow_template1["classification_id"],
+                "name": "Workflow Classification example 1 (renamed)",
+            },
         }
 
         response = api_patch(
@@ -251,11 +405,27 @@ def test_workflow_template_patch_request(
 
         assert (
             updated_workflow_template is not None
-            and updated_workflow_template.name == "New workflow template name"
             and updated_workflow_template.description
             == "New workflow template description"
-            and updated_workflow_template.version == "v2"
+            and updated_workflow_template.version == "V2"
         )
+
+        assert (
+            updated_workflow_template.classification_id
+            == old_workflow_template.classification_id
+        )
+
+        updated_classification = crud.read(
+            WorkflowClassificationOrm,
+            id=old_workflow_template.classification_id,
+        )
+
+        assert updated_classification is not None
+        assert (
+            updated_classification.name == "Workflow Classification example 1 (renamed)"
+        )
+
+        assert response_body["name"] == "Workflow Classification example 1 (renamed)"
 
     finally:
         crud.delete_workflow(
@@ -272,11 +442,112 @@ def test_workflow_template_patch_request(
             )
 
 
+def test_workflow_template_patch_rename_affects_shared_classification(
+    database,
+    workflow_template1,
+    workflow_template3,
+    api_post,
+    api_patch,
+    api_get,
+):
+    updated_template = None
+    try:
+        workflow_template3["steps"] = []
+
+        create_response_1 = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
+        assert create_response_1.status_code == 201
+
+        create_response_2 = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template3
+        )
+        assert create_response_2.status_code == 201
+
+        database.session.commit()
+
+        changes = {
+            "description": "workflow_example3 updated",
+            "classification": {
+                "id": workflow_template1["classification_id"],
+                "name": "Shared Classification Renamed",
+            },
+        }
+
+        patch_response = api_patch(
+            endpoint=f"/api/workflow/templates/{workflow_template3['id']}",
+            json=changes,
+        )
+        assert patch_response.status_code == 200
+
+        patch_response_body = decamelize(patch_response.json())
+        updated_template = crud.read(WorkflowTemplateOrm, id=patch_response_body["id"])
+        assert updated_template is not None
+
+        database.session.commit()
+
+        template1_response = api_get(
+            f"/api/workflow/templates/{workflow_template1['id']}"
+            "?with_steps=False&with_classification=True"
+        )
+        assert template1_response.status_code == 200
+        template1_body = decamelize(template1_response.json())
+
+        template3_response = api_get(
+            f"/api/workflow/templates/{workflow_template3['id']}"
+            "?with_steps=False&with_classification=True"
+        )
+        assert template3_response.status_code == 200
+        template3_body = decamelize(template3_response.json())
+
+        assert (
+            template1_body["classification_id"]
+            == workflow_template1["classification_id"]
+        )
+        assert (
+            template3_body["classification_id"]
+            == workflow_template1["classification_id"]
+        )
+
+        assert template1_body["name"] == "Shared Classification Renamed"
+        assert template3_body["name"] == "Shared Classification Renamed"
+        assert patch_response_body["name"] == "Shared Classification Renamed"
+        assert patch_response_body["version"] == "V3"
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=False,
+            id=workflow_template1["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=False,
+            id=workflow_template3["id"],
+        )
+        if updated_template is not None and updated_template.id not in {
+            workflow_template1["id"],
+            workflow_template3["id"],
+        }:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=False,
+                id=updated_template.id,
+            )
+        crud.delete_workflow_classification(id=workflow_template1["classification_id"])
+        if (
+            workflow_template3["classification_id"]
+            != workflow_template1["classification_id"]
+        ):
+            crud.delete_workflow_classification(
+                id=workflow_template3["classification_id"]
+            )
+
+
 @pytest.fixture
 def workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "workflow_example1",
@@ -286,12 +557,6 @@ def workflow_template1():
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -312,12 +577,6 @@ def workflow_template2(form_template):
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": None,
-        "initial_condition": {
-            "id": None,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": None,
         "classification": {
             "id": None,
@@ -336,8 +595,7 @@ def workflow_template2(form_template):
                 "condition_id": None,
                 "condition": {
                     "id": None,
-                    "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-                    "data_sources": '["$patient.age"]',
+                    "rule": '{"and": [{"<": [{"var": "patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
                 },
                 "branches": [],
             }
@@ -348,9 +606,7 @@ def workflow_template2(form_template):
 @pytest.fixture
 def workflow_template3(form_template, workflow_template1):
     template_id = get_uuid()
-    init_condition_id = get_uuid()
     step_id = get_uuid()
-    condition_id = get_uuid()
     form_template["form_classification_id"] = get_uuid()
     form_template["classification"]["id"] = form_template["form_classification_id"]
     form_template["classification"]["name"] = "Form Classification example"
@@ -363,12 +619,6 @@ def workflow_template3(form_template, workflow_template1):
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "1",  # Should replace version 0 (workflow_template1) of this template when uploaded
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "classification_id": workflow_template1["classification_id"],
         "classification": {
             "id": workflow_template1["classification_id"],
@@ -384,12 +634,6 @@ def workflow_template3(form_template, workflow_template1):
                 "form_id": form_template["id"],
                 "form": form_template,
                 "workflow_template_id": template_id,
-                "condition_id": condition_id,
-                "condition": {
-                    "id": condition_id,
-                    "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-                    "data_sources": "[]",
-                },
                 "branches": [],
             }
         ],
@@ -399,7 +643,6 @@ def workflow_template3(form_template, workflow_template1):
 @pytest.fixture
 def workflow_template4():
     template_id = get_uuid()
-    init_condition_id = get_uuid()
     classification_id = get_uuid()
 
     return {
@@ -411,12 +654,6 @@ def workflow_template4():
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "1",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -430,7 +667,6 @@ def workflow_template4():
 def invalid_workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "Example invalid workflow template 1",
@@ -440,12 +676,6 @@ def invalid_workflow_template1():
         "date_created": get_current_time(),
         "last_edited": get_current_time() - 44345,  # Invalid edit date
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -456,38 +686,8 @@ def invalid_workflow_template1():
 
 
 @pytest.fixture
-def invalid_workflow_template2():
+def invalid_workflow_template2(form_template):
     template_id = get_uuid()
-    classification_id = get_uuid()
-    init_condition_id = get_uuid()
-    return {
-        "id": template_id,
-        "name": "Example invalid workflow template 2",
-        "description": "Example workflow template with invalid initial conditions",
-        "archived": False,
-        "starting_step_id": None,
-        "date_created": get_current_time(),
-        "last_edited": get_current_time(),
-        "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "Hello",  # Invalid JSON string
-        },
-        "classification_id": classification_id,
-        "classification": {
-            "id": classification_id,
-            "name": "Workflow Classification for invalid_workflow_template2",
-        },
-        "steps": [],
-    }
-
-
-@pytest.fixture
-def invalid_workflow_template3(form_template):
-    template_id = get_uuid()
-    init_condition_id = get_uuid()
     classification_id = get_uuid()
     return {
         "id": template_id,
@@ -498,12 +698,6 @@ def invalid_workflow_template3(form_template):
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": None,  # No classification exists with this ID
         "steps": [],

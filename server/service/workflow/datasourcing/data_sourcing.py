@@ -1,0 +1,813 @@
+import json
+import logging
+import re
+from dataclasses import dataclass
+from functools import reduce
+from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
+
+from pydantic import BaseModel
+
+import data.db_operations as crud
+from enums import StrEnum
+from validation.assessments import AssessmentModel
+from validation.patients import PatientModel
+from validation.pregnancies import PregnancyModel
+from validation.readings import ReadingModel, UrineTestModel
+
+ObjectResolver = Callable[[str, str], Any]
+CustomResolver = Callable[[Dict], Any]
+
+ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
+
+# ResolverContext: Context information for resolving data
+# Contains ID mappings for data resolution, e.g., {"patient_id": "p123", "assessment_id": "a456"}
+ResolverContext: TypeAlias = Dict[str, str]
+
+# Sentinel value used to distinguish "missing/undefined" from explicit nulls.
+# - Missing/undefined: MISSING
+# - Explicit null (field exists but value is null): None
+#
+# Resolver functions default to returning None for missing data so existing callers
+# and tests keep a simple contract. Pass use_missing_sentinel=True (e.g. from
+# RuleEvaluator) when you need to tell missing values apart from explicit nulls.
+MISSING: Any = object()
+
+DataModel = Union[
+    PatientModel,
+    ReadingModel,
+    AssessmentModel,
+    PregnancyModel,
+    UrineTestModel,
+]
+
+# Namespace for workflow-scoped variables (metadata + workflow_instance_data).
+WORKFLOW_VARIABLE_NAMESPACE = "wf"
+
+MODEL_REGISTRY: Dict[str, type[BaseModel]] = {
+    "patient": PatientModel,
+    "reading": ReadingModel,
+    "assessment": AssessmentModel,
+    "pregnancy": PregnancyModel,
+    "urine_test": UrineTestModel,
+}
+
+
+class VariableResolutionStatus(StrEnum):
+    """Status codes for variable resolution"""
+
+    RESOLVED = "RESOLVED"
+    DATABASE_ERROR = "DATABASE_ERROR"
+    OBJECT_NOT_FOUND = "OBJECT_NOT_FOUND"
+
+
+class VariableResolution(BaseModel):
+    """
+    Represents the resolution of a single variable to its data value.
+
+    :param var: Variable name (e.g., "patient.age")
+    :param value: Resolved value (None if not resolved)
+    :param status: Resolution status
+    """
+
+    var: str
+    value: Optional[Any] = None
+    status: VariableResolutionStatus
+
+
+@dataclass(frozen=True)
+class DatasourceAttribute:
+    """Represents an attribute name in a datasource variable (e.g., 'age' in 'patient.age')"""
+
+    name: str
+
+
+@dataclass(frozen=True)
+class DatasourceObject:
+    """Represents an object name in a datasource variable (e.g., 'patient' in 'patient.age')"""
+
+    name: str
+
+
+@dataclass(frozen=True)
+class DatasourceVariable:
+    """
+    Represents a complete datasource variable (e.g., 'patient.age').
+    """
+
+    obj: DatasourceObject
+    attr: DatasourceAttribute
+
+    @classmethod
+    def from_string(cls, variable: str) -> Optional["DatasourceVariable"]:
+        """
+        Parse a string variable into a DatasourceVariable.
+
+        Only supports simple object.attribute format (e.g. patient.age).
+        Returns None for collection-indexed paths (e.g. vitals[latest].systolic);
+        use VariablePath.from_string() for those.
+        """
+        if not variable or "[" in variable:
+            return None
+        parts = variable.split(".")
+        if len(parts) < 2:
+            return None
+
+        obj_name = parts[0]
+        attr_name = parts[1]
+
+        if not obj_name or not attr_name:
+            return None
+
+        return cls(
+            obj=DatasourceObject(name=obj_name),
+            attr=DatasourceAttribute(name=attr_name),
+        )
+
+    def to_string(self) -> str:
+        """Convert back to string format."""
+        return f"{self.obj.name}.{self.attr.name}"
+
+    def __str__(self) -> str:
+        return self.to_string()
+
+    def __hash__(self) -> int:
+        return hash((self.obj.name, self.attr.name))
+
+
+@dataclass(frozen=True)
+class VariablePath:
+    """
+    Represents a parsed variable path with optional collection indexing.
+
+    Supports:
+    - Simple: patient.age -> namespace="patient", collection_index=None, field_path=["age"]
+    - Collection indexed: vitals[latest].systolic -> namespace="vitals", index="latest", field_path=["systolic"]
+    - Nested: vitals[latest].urine_test.leukocytes -> field_path=["urine_test", "leukocytes"]
+    - Collection size: vitals.size -> namespace="vitals", field_path=["size"]
+    """
+
+    namespace: str
+    collection_index: Optional[Union[str, int]]
+    field_path: List[str]
+
+    @classmethod
+    def from_string(cls, variable: str) -> Optional["VariablePath"]:
+        """
+        Parse a variable string into a VariablePath.
+
+        Handles:
+        - object.attribute (patient.age)
+        - object.attribute.nested (patient.medical_history.x)
+        - collection[index].field (vitals[latest].systolic, vitals[1].systolic)
+        - collection[index].nested.field (vitals[latest].urine_test.leukocytes)
+        - collection.size (vitals.size)
+        - Namespaces with hyphens (current-user.name)
+        """
+        if not variable or not variable.strip():
+            return None
+        s = variable.strip()
+
+        # Match collection indexing: name[index] or name[index].path.path
+        bracket_match = re.match(r"^([^\[]+)\[([^\]]+)\](.*)$", s)
+        if bracket_match:
+            namespace = bracket_match.group(1).rstrip(".")
+            index_str = bracket_match.group(2).strip().lower()
+            rest = bracket_match.group(3).strip()
+            if rest.startswith("."):
+                rest = rest[1:].strip()
+
+            if index_str == "latest":
+                collection_index: Optional[Union[str, int]] = "latest"
+            else:
+                try:
+                    collection_index = int(index_str)
+                except ValueError:
+                    return None
+
+            field_path = [p for p in rest.split(".") if p] if rest else []
+            # Allow vitals[latest] with no field path (resolves to the item itself)
+            return cls(
+                namespace=namespace,
+                collection_index=collection_index,
+                field_path=field_path,
+            )
+
+        # No bracket: simple path namespace.f1.f2.f3
+        parts = [p for p in s.split(".") if p]
+        if len(parts) < 2:
+            return None
+        namespace = parts[0]
+        field_path = parts[1:]
+        return cls(
+            namespace=namespace,
+            collection_index=None,
+            field_path=field_path,
+        )
+
+    def to_string(self) -> str:
+        """Convert back to canonical variable string."""
+        if self.collection_index is not None:
+            index_str = (
+                "latest"
+                if self.collection_index == "latest"
+                else str(self.collection_index)
+            )
+            base = f"{self.namespace}[{index_str}]"
+        else:
+            base = self.namespace
+        if self.field_path:
+            return base + "." + ".".join(self.field_path)
+        return base
+
+    def __str__(self) -> str:
+        return self.to_string()
+
+    def __hash__(self) -> int:
+        return hash((self.namespace, self.collection_index, tuple(self.field_path)))
+
+
+def _group_objects(
+    accumulator: Dict[DatasourceObject, List[DatasourceAttribute]],
+    variable: DatasourceVariable,
+) -> Dict[DatasourceObject, List[DatasourceAttribute]]:
+    """Group variables by object name for batch resolution."""
+    obj = variable.obj
+
+    if obj in accumulator:
+        accumulator[obj].append(variable.attr)
+    else:
+        accumulator[obj] = [variable.attr]
+
+    return accumulator
+
+
+def _resolve_object(
+    catalogue: Dict[str, ObjectCatalogue], context: ResolverContext, object_name: str
+) -> Optional[BaseModel]:
+    """
+    Resolve an object instance from the catalogue and return as a Pydantic model.
+
+    :param catalogue: The data catalogue
+    :param context: Context containing IDs (e.g., {"patient_id": "p123"})
+    :param object_name: Name of object type to resolve (e.g., "patient", "assessment")
+    :returns: Pydantic model instance or None if not found
+    """
+    logger = logging.getLogger(__name__)
+
+    if object_name not in catalogue:
+        logger.debug(
+            "Object resolution failed: Object '%s' not found in catalogue.", object_name
+        )
+        return None
+
+    object_entry = catalogue.get(object_name)
+    if not object_entry or "query" not in object_entry:
+        logger.debug(
+            "Object resolution failed: No query function for '%s'.", object_name
+        )
+        return None
+
+    object_query = object_entry.get("query")
+    if object_query is None:
+        logger.debug(
+            "Object resolution failed: Query function is None for '%s'.", object_name
+        )
+        return None
+
+    # Try object-specific ID first (e.g., "assessment_id"), fall back to patient_id
+    id_value = context.get(f"{object_name}_id") or context.get("patient_id")
+
+    if id_value is None:
+        logger.debug(
+            "Object resolution failed: No ID found in context for '%s'.", object_name
+        )
+        return None
+
+    try:
+        dict_data = object_query(id=id_value)
+
+        if dict_data is None:
+            logger.debug(
+                "Object resolution failed: Query returned None for '%s' with id '%s'.",
+                object_name,
+                id_value,
+            )
+            return None
+
+        model_class = MODEL_REGISTRY.get(object_name)
+        if model_class is None:
+            logger.error("No Pydantic model registered for '%s'.", object_name)
+            raise ValueError(f"No Pydantic model registered for {object_name}")
+
+        return model_class(**dict_data)
+
+    except Exception as e:
+        logger.error("Error resolving '%s': %s", object_name, e)
+        return None
+
+
+def resolve_variables(
+    context: ResolverContext,
+    variables: List[DatasourceVariable],
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
+) -> Dict[str, Any]:
+    """
+    Resolve multiple variables into their concrete values.
+
+    :param context: Context containing IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
+    :param variables: List of DatasourceVariable objects to resolve
+    :param catalogue: The data catalogue of supported objects
+    :param use_missing_sentinel: If False (default), missing or unresolved values are
+        returned as ``None``, matching the historical API. If True, those cases use
+        :data:`MISSING` instead so callers (e.g. ``RuleEvaluator``) can distinguish
+        "no data" from an explicit null on a present field. Prefer keeping the default
+        False for general callers; only rule evaluation needs the sentinel.
+    :returns: Dict mapping variable names to resolved values (or ``None`` / ``MISSING``
+        per ``use_missing_sentinel``).
+    """
+    object_groups = reduce(_group_objects, variables, {})
+    resolved = {}
+
+    for obj, attrs in object_groups.items():
+        obj_name = obj.name
+        model_instance = _resolve_object(catalogue, context, obj_name)
+
+        if model_instance is None:
+            # If object not found, all its attributes resolve to None by default.
+            # RuleEvaluator can opt into MISSING sentinel for strict missing tracking.
+            for attr in attrs:
+                variable_key = f"{obj_name}.{attr.name}"
+                resolved[variable_key] = MISSING if use_missing_sentinel else None
+            continue
+
+        for attr in attrs:
+            variable_key = f"{obj_name}.{attr.name}"
+
+            # Prefer direct attribute if it exists; otherwise fall back to custom resolvers.
+            if hasattr(model_instance, attr.name):
+                attr_value = getattr(model_instance, attr.name)
+            else:
+                attr_value = MISSING
+
+            if attr_value is not None:
+                # Note: attr_value may be MISSING here; handle below.
+                resolved[variable_key] = attr_value
+            else:
+                custom_queries = catalogue.get(obj_name, {}).get("custom", {})
+                custom_query = custom_queries.get(attr.name)
+
+                if custom_query is not None:
+                    model_dict = model_instance.model_dump()
+                    ca_value = custom_query(model_dict)
+                    resolved[variable_key] = ca_value
+                else:
+                    # Field exists but is explicitly null.
+                    resolved[variable_key] = None
+
+            # If direct attribute was missing, try custom resolver before marking missing.
+            if resolved.get(variable_key) is MISSING:
+                custom_queries = catalogue.get(obj_name, {}).get("custom", {})
+                custom_query = custom_queries.get(attr.name)
+                if custom_query is not None:
+                    model_dict = model_instance.model_dump()
+                    resolved[variable_key] = custom_query(model_dict)
+                else:
+                    resolved[variable_key] = MISSING if use_missing_sentinel else None
+
+    return resolved
+
+
+def resolve_variable(
+    context: ResolverContext,
+    variable: DatasourceVariable,
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
+) -> Any:
+    """
+    Resolve a single variable into a concrete value.
+
+    :param context: Context containing IDs
+    :param variable: DatasourceVariable object to resolve
+    :param catalogue: The data catalogue of supported objects
+    :param use_missing_sentinel: Same as :func:`resolve_variables` — False returns
+        ``None`` for missing data; True returns :data:`MISSING` for strict tracking.
+    :returns: Resolved value, ``None`` if missing/unresolved (default), or ``MISSING``
+        when ``use_missing_sentinel`` is True.
+    """
+    obj_name = variable.obj.name
+    attr_name = variable.attr.name
+
+    model_instance = _resolve_object(catalogue, context, obj_name)
+
+    if model_instance is None:
+        return MISSING if use_missing_sentinel else None
+
+    if hasattr(model_instance, attr_name):
+        attr_value = getattr(model_instance, attr_name)
+    else:
+        attr_value = MISSING
+
+    if attr_value is not None:
+        # Note: attr_value may be MISSING here; handle below.
+        if attr_value is not MISSING:
+            return attr_value
+
+    custom_queries = catalogue.get(obj_name, {}).get("custom", {})
+    custom_query = custom_queries.get(attr_name)
+
+    if custom_query is not None:
+        model_dict = model_instance.model_dump()
+        return custom_query(model_dict)
+
+    # If we got here and attr_value is MISSING, the field is truly missing.
+    if attr_value is MISSING:
+        return MISSING if use_missing_sentinel else None
+
+    # Field exists but is explicitly null.
+    return None
+
+
+def _resolve_leaf_attribute(
+    model_instance: BaseModel,
+    attr_name: str,
+    obj_name: str,
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool,
+) -> Any:
+    """
+    Resolve a single attribute on a catalogue root object, including ``custom`` lookups
+    (e.g. ``patient.age``). Mirrors :func:`resolve_variables` semantics for one field.
+    """
+    default_missing = MISSING if use_missing_sentinel else None
+    custom_query = catalogue.get(obj_name, {}).get("custom", {}).get(attr_name)
+
+    if hasattr(model_instance, attr_name):
+        attr_value = getattr(model_instance, attr_name)
+        if attr_value is not None:
+            return attr_value
+        if custom_query is not None:
+            return custom_query(model_instance.model_dump())
+        return None
+
+    if custom_query is not None:
+        return custom_query(model_instance.model_dump())
+    return default_missing
+
+
+def _resolve_field_path_on_catalogue_object(
+    model_instance: BaseModel,
+    field_path: List[str],
+    obj_name: str,
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool,
+) -> Any:
+    """
+    Walk ``field_path`` on a resolved catalogue object (non-collection namespace).
+
+    Custom resolvers apply only when the path is a single segment on the root model
+    (e.g. ``patient.age``); nested paths use plain attribute / dict access.
+    """
+    default_missing = MISSING if use_missing_sentinel else None
+    if not field_path:
+        return default_missing
+
+    if len(field_path) == 1:
+        return _resolve_leaf_attribute(
+            model_instance,
+            field_path[0],
+            obj_name,
+            catalogue,
+            use_missing_sentinel,
+        )
+
+    parent = _navigate_field_path(model_instance, field_path[:-1])
+    if parent is MISSING:
+        return default_missing
+    if parent is None:
+        return None
+
+    leaf = field_path[-1]
+    if isinstance(parent, BaseModel):
+        if hasattr(parent, leaf):
+            return getattr(parent, leaf)
+        return default_missing
+    if isinstance(parent, dict):
+        if leaf not in parent:
+            return default_missing
+        return parent[leaf]
+    return default_missing
+
+
+def resolve_object_variable_paths(
+    context: ResolverContext,
+    variable_paths: List[VariablePath],
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
+) -> Dict[str, Any]:
+    """
+    Resolve dotted paths for catalogue **objects** (e.g. ``patient.age``,
+    ``reading.systolic_blood_pressure``), excluding collection namespaces and ``wf``.
+
+    Groups by namespace so each object is loaded at most once per evaluation.
+    """
+    if not variable_paths:
+        return {}
+
+    default_missing = MISSING if use_missing_sentinel else None
+    paths_by_namespace: Dict[str, List[VariablePath]] = {}
+    for vp in variable_paths:
+        if vp.collection_index is not None:
+            continue
+        paths_by_namespace.setdefault(vp.namespace, []).append(vp)
+
+    resolved: Dict[str, Any] = {}
+    for namespace, paths in paths_by_namespace.items():
+        entry = catalogue.get(namespace)
+        if not entry or entry.get("collection") or not callable(entry.get("query")):
+            for vp in paths:
+                resolved[vp.to_string()] = default_missing
+            continue
+
+        model_instance = _resolve_object(catalogue, context, namespace)
+        if model_instance is None:
+            for vp in paths:
+                resolved[vp.to_string()] = default_missing
+            continue
+
+        for vp in paths:
+            key = vp.to_string()
+            if not vp.field_path:
+                resolved[key] = default_missing
+                continue
+            value = _resolve_field_path_on_catalogue_object(
+                model_instance,
+                vp.field_path,
+                namespace,
+                catalogue,
+                use_missing_sentinel,
+            )
+            resolved[key] = value
+
+    return resolved
+
+
+def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
+    """
+    Walk a nested field path on a BaseModel or dict.
+
+    Returns None if any step in the path is missing.
+    """
+    current = value
+    for field in field_path:
+        if isinstance(current, BaseModel):
+            if not hasattr(current, field):
+                return MISSING
+            current = getattr(current, field)
+        elif isinstance(current, dict):
+            if field not in current:
+                return MISSING
+            current = current.get(field)
+        else:
+            return MISSING
+
+        # Explicit nulls are allowed and should be returned as None.
+        if current is None:
+            return None
+
+    return current
+
+
+def _workflow_instance_info_dict(instance: Any) -> Dict[str, Any]:
+    """Shape exposed as ``wf.info.*`` in rules (plain dict for field navigation)."""
+    return {
+        "start_date": instance.start_date,
+        "status": instance.status,
+        "current_step_id": instance.current_step_id,
+        "name": instance.name,
+        "description": instance.description,
+        "completion_date": instance.completion_date,
+        "id": instance.id,
+        "workflow_template_id": instance.workflow_template_id,
+        "patient_id": instance.patient_id,
+        "last_edited": instance.last_edited,
+    }
+
+
+def _decode_json_field_value(raw: Optional[str]) -> Any:
+    if raw is None or raw == "":
+        return None
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return MISSING
+
+
+def resolve_workflow_namespace_variables(
+    context: ResolverContext,
+    variable_paths: List[VariablePath],
+    use_missing_sentinel: bool = False,
+) -> Dict[str, Any]:
+    """
+    Resolve ``wf.*`` paths for the active workflow instance.
+
+    Requires ``workflow_instance_id`` in context. Optional ``patient_id`` is
+    checked against the instance for safety.
+
+    - ``wf.info.*`` — metadata from :class:`~models.workflows.WorkflowInstanceOrm`
+    - ``wf.<field_tag>`` — values from ``workflow_instance_data`` (JSON-decoded);
+      additional path segments navigate into object/array JSON values.
+    """
+    logger = logging.getLogger(__name__)
+    default_missing = MISSING if use_missing_sentinel else None
+
+    if not variable_paths:
+        return {}
+
+    wf_id = context.get("workflow_instance_id")
+    if not wf_id:
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    patient_id = context.get("patient_id")
+    instance = crud.read_workflow_instance(wf_id)
+    if instance is None:
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    if patient_id and instance.patient_id != patient_id:
+        logger.warning(
+            "Workflow instance %s patient mismatch: instance has %s, context has %s",
+            wf_id,
+            instance.patient_id,
+            patient_id,
+        )
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    resolved: Dict[str, Any] = {}
+
+    for vp in variable_paths:
+        key = vp.to_string()
+        if (
+            vp.namespace != WORKFLOW_VARIABLE_NAMESPACE
+            or vp.collection_index is not None
+        ):
+            resolved[key] = default_missing
+            continue
+
+        if not vp.field_path:
+            resolved[key] = default_missing
+            continue
+
+        head, *rest = vp.field_path
+
+        if head == "info":
+            root = {"info": _workflow_instance_info_dict(instance)}
+            value = _navigate_field_path(root, vp.field_path)
+        else:
+            row = crud.read_workflow_instance_data_by_field_tag(wf_id, head)
+            if row is None:
+                value = MISSING
+            else:
+                parsed = _decode_json_field_value(row.field_value)
+                if parsed is MISSING:
+                    value = MISSING
+                elif not rest:
+                    value = parsed
+                else:
+                    value = _navigate_field_path(parsed, rest)
+
+        if value is MISSING:
+            resolved[key] = default_missing
+        else:
+            resolved[key] = value
+
+    return resolved
+
+
+def _select_collection_item(
+    items: List[Any],
+    collection_index: Optional[Union[str, int]],
+) -> Any:
+    """
+    Select a single item from a collection using Cradle's indexing rules.
+
+    Assumes items are ordered from newest to oldest.
+    """
+    if not items:
+        return MISSING
+
+    if collection_index is None:
+        # No index specified
+        return MISSING
+
+    if collection_index == "latest":
+        return items[0]
+
+    if isinstance(collection_index, int):
+        idx = collection_index
+        if idx > 0:
+            # Positive indices are 1-indexed from the oldest item.
+            # items are newest-first, so oldest is at the end.
+            if idx <= len(items):
+                return items[-idx]
+            return MISSING
+
+        # Negative indices are from newest: -1 is latest, -2 is second latest, etc.
+        offset = abs(idx) - 1
+        if offset < len(items):
+            return items[offset]
+        return MISSING
+
+    return MISSING
+
+
+def resolve_collection_variables(
+    context: ResolverContext,
+    variable_paths: List[VariablePath],
+    catalogue: Dict[str, ObjectCatalogue],
+    use_missing_sentinel: bool = False,
+) -> Dict[str, Any]:
+    """
+    Resolve collection variables (e.g., vitals[latest].systolic_blood_pressure).
+
+    Collection namespaces are configured in the data catalogue via:
+        {
+            "query": callable(patient_id) -> List[BaseModel | dict],
+            "collection": True,
+        }
+    """
+    logger = logging.getLogger(__name__)
+
+    if not variable_paths:
+        return {}
+
+    patient_id = context.get("patient_id")
+    if not patient_id:
+        logger.debug(
+            "Collection resolution failed: missing 'patient_id' in context: %s",
+            context,
+        )
+        default_missing = MISSING if use_missing_sentinel else None
+        return {vp.to_string(): default_missing for vp in variable_paths}
+
+    # Group by namespace so we only query each collection once per evaluation.
+    paths_by_namespace: Dict[str, List[VariablePath]] = {}
+    for vp in variable_paths:
+        paths_by_namespace.setdefault(vp.namespace, []).append(vp)
+
+    resolved: Dict[str, Any] = {}
+
+    for namespace, paths in paths_by_namespace.items():
+        collection_entry = catalogue.get(namespace)
+        if not collection_entry or not collection_entry.get("collection"):
+            for vp in paths:
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
+            continue
+
+        query_fn = collection_entry.get("query")
+        if query_fn is None:
+            logger.debug(
+                "Collection resolution failed: namespace '%s' has no query function.",
+                namespace,
+            )
+            for vp in paths:
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
+            continue
+
+        try:
+            items = query_fn(patient_id)
+        except Exception as exc:
+            logger.error(
+                "Error querying collection '%s' for patient '%s': %s",
+                namespace,
+                patient_id,
+                exc,
+            )
+            for vp in paths:
+                resolved[vp.to_string()] = MISSING if use_missing_sentinel else None
+            continue
+
+        # Ensure we always have a list to work with.
+        items = items or []
+
+        for vp in paths:
+            key = vp.to_string()
+
+            # Special-case: collection.size
+            if vp.collection_index is None and vp.field_path == ["size"]:
+                resolved[key] = len(items)
+                continue
+
+            item = _select_collection_item(items, vp.collection_index)
+            if item is MISSING:
+                resolved[key] = MISSING if use_missing_sentinel else None
+                continue
+
+            if not vp.field_path:
+                # Caller requested the whole item (e.g., vitals[latest]).
+                resolved[key] = item
+                continue
+
+            value = _navigate_field_path(item, vp.field_path)
+            resolved[key] = value
+
+    return resolved

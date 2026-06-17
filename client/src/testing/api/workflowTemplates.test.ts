@@ -23,7 +23,6 @@ import {
   deleteTemplateStepById,
   archiveWorkflowTemplateAsync,
   unarchiveWorkflowTemplateAsync,
-  saveWorkflowTemplateWithFileAsync,
 } from 'src/shared/api/modules/workflowTemplates';
 
 // Mock localStorage to provide access token
@@ -161,9 +160,10 @@ describe('workflowTemplates API', () => {
       const templateInput = {
         name: 'New Template',
         description: 'Test template',
-        version: 1,
+        version: 'V1',
         classificationId: 'classification-1',
         steps: [],
+        archived: false,
         classification: {
           id: 'classification-1',
           name: 'Test Classification',
@@ -180,7 +180,7 @@ describe('workflowTemplates API', () => {
 
       mockServer.use(
         http.post(
-          API_URL + EndpointEnum.WORKFLOW_TEMPLATES,
+          API_URL + EndpointEnum.WORKFLOW_TEMPLATES + '/body',
           async ({ request }) => {
             const body = await request.json();
             expect(body).toEqual(templateInput);
@@ -202,9 +202,10 @@ describe('workflowTemplates API', () => {
       const updatePayload = {
         name: 'Updated Template Name',
         description: 'Updated description',
-        version: 2,
+        version: 'V2',
         classificationId: 'classification-1',
         steps: [],
+        archived: false,
         classification: {
           id: 'classification-1',
           name: 'Updated Classification',
@@ -383,11 +384,9 @@ describe('workflowTemplates API', () => {
     const mockStep = {
       id: 'step-1',
       name: 'Test Step',
-      title: 'Test Step Title',
+      description: 'Test Step Description',
       formId: 'form-1',
-      archived: false,
       lastEdited: '2025-01-01T00:00:00Z',
-      lastEditedBy: 'user-1',
     };
 
     describe('createTemplateStep', () => {
@@ -581,33 +580,6 @@ describe('workflowTemplates API', () => {
     });
   });
 
-  describe('saveWorkflowTemplateWithFileAsync', () => {
-    it('should save workflow template with file upload', async () => {
-      // Create a proper File mock for testing environment
-      const mockFile = {
-        name: 'template.json',
-        type: 'application/json',
-        size: 12,
-        stream: () => new ReadableStream(),
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(12)),
-        text: () => Promise.resolve('test content'),
-      } as File;
-
-      const mockResponse = { data: 'Upload successful' };
-
-      mockServer.use(
-        http.post(API_URL + EndpointEnum.WORKFLOW_TEMPLATES, () => {
-          // Just return success response, don't validate request details due to test env limitations
-          return HttpResponse.json(mockResponse, { status: 200 });
-        })
-      );
-
-      const result = await saveWorkflowTemplateWithFileAsync(mockFile);
-
-      expect(result.data).toEqual(mockResponse);
-    });
-  });
-
   describe('error handling', () => {
     it('should handle network errors in listTemplates', async () => {
       mockServer.use(
@@ -644,9 +616,10 @@ describe('workflowTemplates API', () => {
       const templateInput = {
         name: 'Test Template',
         description: 'Test description',
-        version: 1,
+        version: 'V1',
         classificationId: 'classification-1',
         steps: [],
+        archived: false,
         classification: {
           id: 'classification-1',
           name: 'Test Classification',
@@ -654,7 +627,7 @@ describe('workflowTemplates API', () => {
       };
 
       mockServer.use(
-        http.post(API_URL + EndpointEnum.WORKFLOW_TEMPLATES, () => {
+        http.post(API_URL + EndpointEnum.WORKFLOW_TEMPLATES + '/body', () => {
           return HttpResponse.json(
             { description: 'Validation Error' },
             { status: 400 }

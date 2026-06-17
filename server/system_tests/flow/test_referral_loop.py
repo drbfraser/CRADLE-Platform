@@ -1,7 +1,7 @@
 import pytest
 
 import data
-from data import crud
+import data.db_operations as crud
 from models import AssessmentOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc
 

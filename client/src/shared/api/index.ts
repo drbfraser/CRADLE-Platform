@@ -17,3 +17,4 @@ export * from './modules/users';
 export * from './modules/vhts';
 export * from './modules/workflowTemplates';
 export * from './modules/workflowInstance';
+export * from './modules/workflowVariables';

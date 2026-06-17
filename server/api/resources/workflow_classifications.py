@@ -4,18 +4,19 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import orm_serializer
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
-from validation.workflow_classifications import (
-    WorkflowClassificationModel,
+from validation.workflow_api_models import (
     WorkflowClassificationPatchModel,
     WorkflowClassificationUploadModel,
 )
+from validation.workflow_models import WorkflowClassificationModel
 
 
 # Create a response model for the list endpoint
@@ -68,13 +69,13 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
             description=f"Workflow classification with ID '{workflow_classification_dict['id']}' already exists.",
         )
 
-    workflow_classification_orm = marshal.unmarshal(
+    workflow_classification_orm = orm_serializer.unmarshal(
         WorkflowClassificationOrm, workflow_classification_dict
     )
 
     crud.create(model=workflow_classification_orm, refresh=True)
 
-    return marshal.marshal(obj=workflow_classification_orm, shallow=True), 201
+    return orm_serializer.marshal(obj=workflow_classification_orm, shallow=True), 201
 
 
 # /api/workflow/classifications [GET]
@@ -86,7 +87,7 @@ def get_workflow_classifications():
     workflow_classifications = crud.read_workflow_classifications()
 
     response_data = [
-        marshal.marshal(classification, shallow=True)
+        orm_serializer.marshal(classification, shallow=True)
         for classification in workflow_classifications
     ]
 
@@ -111,7 +112,7 @@ def get_workflow_classification(path: WorkflowClassificationIdPath):
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_classification, shallow=True)
+    response_data = orm_serializer.marshal(obj=workflow_classification, shallow=True)
 
     return response_data, 200
 
@@ -160,7 +161,7 @@ def update_workflow_classification(
     response_data = crud.read(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 
@@ -190,7 +191,9 @@ def patch_workflow_classification(
 
     # If no changes provided, return the current resource
     if not workflow_classification_changes:
-        response_data = marshal.marshal(obj=workflow_classification, shallow=True)
+        response_data = orm_serializer.marshal(
+            obj=workflow_classification, shallow=True
+        )
         return response_data, 200
 
     # Rules here to check for duplicate names/ids?
@@ -206,7 +209,7 @@ def patch_workflow_classification(
     response_data = crud.read(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
-    response_data = marshal.marshal(response_data, shallow=True)
+    response_data = orm_serializer.marshal(response_data, shallow=True)
 
     return response_data, 200
 

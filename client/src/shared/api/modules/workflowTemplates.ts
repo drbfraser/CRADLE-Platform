@@ -4,9 +4,9 @@ import { ID } from '../../constants';
 import {
   WorkflowTemplate,
   TemplateInput,
-  TemplateStep,
+  WorkflowTemplateStep,
   TemplateGroupArray,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 // full base path
 const TEMPLATES = EndpointEnum.WORKFLOW_TEMPLATES;
@@ -29,11 +29,6 @@ export const listTemplates = async (params?: {
   classificationId?: ID;
   archived?: boolean;
 }): Promise<WorkflowTemplate[]> => {
-  /*   const params = {
-    groupBy: parameters?.groupBy,
-    classification_id: parameters?.classificationId,
-    is_archived: parameters?.archived,
-  }; */
   const response = await axiosFetch.get<
     WorkflowTemplate[] | TemplateGroupArray | { items: WorkflowTemplate[] }
   >(TEMPLATES, { params });
@@ -67,12 +62,60 @@ export const getAllWorkflowTemplatesAsync = async (
   }
 };
 
-// PUT /workflow/templates/{templateId} - Edit workflow template (including archive status)
-export const editWorkflowTemplateAsync = async (template: WorkflowTemplate) =>
-  axiosFetch({
-    method: 'PUT',
-    url: `${TEMPLATES}/${template.id}/archive?archive=${template.archived}`,
+// PATCH /workflow/templates/{templateId}
+// Uses the full PATCH endpoint which creates a new version and archives the previous one
+export const editWorkflowTemplateAsync = async (
+  template: Partial<WorkflowTemplate>
+) => {
+  if (!template.id) {
+    throw new Error('Template ID is required for updates');
+  }
+  const patchBody: Record<string, unknown> = {};
+
+  // Only include fields that have actually changed
+  if (template.description !== undefined) {
+    patchBody.description = template.description;
+  }
+  if (template.archived !== undefined) {
+    patchBody.archived = template.archived;
+  }
+  if (template.classificationId !== undefined) {
+    patchBody.classificationId = template.classificationId;
+  }
+
+  const classificationName = template.classification?.name?.trim();
+  const classificationId =
+    template.classificationId || template.classification?.id;
+
+  if (classificationName) {
+    patchBody.classification = {
+      ...(classificationId ? { id: classificationId } : {}),
+      name: classificationName,
+    };
+  }
+  if (template.startingStepId !== undefined) {
+    patchBody.startingStepId = template.startingStepId;
+  }
+  if (template.steps !== undefined) {
+    // Exclude form data from steps to avoid validation errors
+    // The backend will preserve existing forms when creating the new version
+    patchBody.steps = template.steps.map((step) => {
+      const stepWithoutForm = {
+        ...step,
+      } as WorkflowTemplateStep & { form?: unknown };
+      delete stepWithoutForm.form;
+      return stepWithoutForm;
+    });
+  }
+
+  const response = await axiosFetch({
+    method: 'PATCH',
+    url: `${TEMPLATES}/${template.id}`,
+    data: patchBody,
   });
+
+  return response.data;
+};
 
 // GET /workflow/templates/{templateId}
 export const getTemplate = async (
@@ -86,12 +129,15 @@ export const getTemplate = async (
     templatePath(templateId),
     { params }
   );
+
   return response.data;
 };
 
-// POST /workflow/templates
+// POST /workflow/templates/body
 export const createTemplate = (payload: TemplateInput) =>
-  axiosFetch.post<WorkflowTemplate>(TEMPLATES, payload).then((r) => r.data);
+  axiosFetch
+    .post<WorkflowTemplate>(`${TEMPLATES}/body`, payload)
+    .then((r) => r.data);
 
 // PUT /workflow/templates/{templateId}
 export const updateTemplate = (templateId: ID, payload: TemplateInput) =>
@@ -102,8 +148,8 @@ export const updateTemplate = (templateId: ID, payload: TemplateInput) =>
 // GET /workflow/templates/{templateId}/steps
 export const listTemplateSteps = async (
   templateId: ID
-): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
+): Promise<WorkflowTemplateStep[]> => {
+  const response = await axiosFetch.get<{ items: WorkflowTemplateStep[] }>(
     templateStepsPath(templateId)
   );
   return response.data.items;
@@ -113,10 +159,13 @@ export const listTemplateSteps = async (
 export const updateTemplateStep = (
   templateId: ID,
   stepId: ID,
-  payload: Partial<TemplateStep>
+  payload: Partial<WorkflowTemplateStep>
 ) =>
   axiosFetch
-    .put<TemplateStep>(templateStepByIdPath(templateId, stepId), payload)
+    .put<WorkflowTemplateStep>(
+      templateStepByIdPath(templateId, stepId),
+      payload
+    )
     .then((r) => r.data);
 
 // DELETE /workflow/templates/{templateId}
@@ -150,12 +199,16 @@ export const getTemplateWithStepsAndClassification = async (
 const TEMPLATE_STEPS = '/workflow/template/steps';
 
 // POST /workflow/template/steps
-export const createTemplateStep = (payload: TemplateStep) =>
-  axiosFetch.post<TemplateStep>(TEMPLATE_STEPS, payload).then((r) => r.data);
+export const createTemplateStep = (payload: WorkflowTemplateStep) =>
+  axiosFetch
+    .post<WorkflowTemplateStep>(TEMPLATE_STEPS, payload)
+    .then((r) => r.data);
 
 // GET /workflow/template/steps
-export const getAllTemplateSteps = async (): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
+export const getAllTemplateSteps = async (): Promise<
+  WorkflowTemplateStep[]
+> => {
+  const response = await axiosFetch.get<{ items: WorkflowTemplateStep[] }>(
     TEMPLATE_STEPS
   );
   return response.data.items;
@@ -168,8 +221,8 @@ export const getTemplateStepById = async (
     with_form?: boolean;
     with_branches?: boolean;
   }
-): Promise<TemplateStep> => {
-  const response = await axiosFetch.get<TemplateStep>(
+): Promise<WorkflowTemplateStep> => {
+  const response = await axiosFetch.get<WorkflowTemplateStep>(
     `${TEMPLATE_STEPS}/${stepId}`,
     { params }
   );
@@ -179,8 +232,8 @@ export const getTemplateStepById = async (
 // GET /workflow/template/steps/{stepId} with query params
 export const getTemplateStepWithForm = async (
   stepId: ID
-): Promise<TemplateStep> => {
-  const response = await axiosFetch.get<TemplateStep>(
+): Promise<WorkflowTemplateStep> => {
+  const response = await axiosFetch.get<WorkflowTemplateStep>(
     `${TEMPLATE_STEPS}/${stepId}`,
     { params: { with_form: true } }
   );
@@ -190,10 +243,10 @@ export const getTemplateStepWithForm = async (
 // PUT /workflow/template/steps/{stepId}
 export const updateTemplateStepById = (
   stepId: ID,
-  payload: Partial<TemplateStep>
+  payload: Partial<WorkflowTemplateStep>
 ) =>
   axiosFetch
-    .put<TemplateStep>(`${TEMPLATE_STEPS}/${stepId}`, payload)
+    .put<WorkflowTemplateStep>(`${TEMPLATE_STEPS}/${stepId}`, payload)
     .then((r) => r.data);
 
 // DELETE /workflow/template/steps/{stepId}
@@ -222,26 +275,4 @@ export const unarchiveWorkflowTemplateAsync = async (templateId: string) => {
       templateId +
       '/archive?archive=false',
   });
-};
-
-export const saveWorkflowTemplateWithFileAsync = async (file: File) => {
-  return axiosFetch.postForm(EndpointEnum.WORKFLOW_TEMPLATES, {
-    file: file,
-  });
-};
-
-export const getWorkflowTemplateCsvAsync = async (
-  workflowTemplateId: string,
-  version: string
-) => {
-  try {
-    const response = await axiosFetch({
-      url: TEMPLATES + `/${workflowTemplateId}/versions/${version}/csv`,
-      responseType: 'blob',
-    });
-    return response.data;
-  } catch (e) {
-    console.error(`Error getting workflow template CSV: ${e}`);
-    throw e;
-  }
 };

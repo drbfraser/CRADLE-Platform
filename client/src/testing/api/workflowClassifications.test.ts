@@ -18,7 +18,7 @@ describe('workflowTemplates API', () => {
   it('should fetch workflow classifications', async () => {
     const mockData = [{ id: '1', name: 'class1' }];
     (axiosFetch.get as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: mockData,
+      data: { items: mockData },
     });
 
     const result = await listWorkflowClassifications();

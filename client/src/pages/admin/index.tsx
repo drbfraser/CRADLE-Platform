@@ -5,7 +5,8 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Route, Routes } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
-import { ViewWorkflowTemplate } from './manageWorkflowTemplates/viewWorkflowTemplate/ViewWorkflowTemplate';
+import { ViewWorkflowTemplate } from './manageWorkflowTemplates/ViewWorkflowTemplate';
+import { CreateWorkflowTemplate } from './manageWorkflowTemplates/CreateWorkflowTemplate';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { ManageWorkflowTemplates } from './manageWorkflowTemplates/ManageWorkflowTemplates';
 import {
@@ -40,7 +41,7 @@ const panels: RoutedTabPanelData[] = [
     routeSegment: 'patients',
   },
   {
-    label: 'Workflow',
+    label: 'Workflows',
     Component: ManageWorkflowTemplates,
     routeSegment: 'workflow-templates',
   },
@@ -50,6 +51,10 @@ export const AdminPage = () => {
   return (
     <Routes>
       <Route path={`form-templates/new`} element={<CustomFormTemplate />} />
+      <Route
+        path={`workflow-templates/new`}
+        element={<CreateWorkflowTemplate />}
+      />
       <Route
         path={`workflow-templates/view`}
         element={<ViewWorkflowTemplate />}

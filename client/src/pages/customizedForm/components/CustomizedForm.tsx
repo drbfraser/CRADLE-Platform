@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Formik } from 'formik';
-import { Divider, Grid, Paper, SxProps } from '@mui/material';
+import { Formik } from 'formik';
+import { Divider, Grid, SxProps } from '@mui/material';
 
-import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
+import { CForm, QAnswer, Question } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';
@@ -18,6 +18,7 @@ import {
 } from '../handlers';
 import { initialState, validationSchema } from '../state';
 import { useSubmitCustomForm } from '../mutations';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 
 const BUTTON_SX: SxProps = {
   display: 'flex',
@@ -29,35 +30,57 @@ const BUTTON_SX: SxProps = {
 interface IProps {
   patientId: string;
   fm: CForm;
+  lang?: string;
   renderState: FormRenderStateEnum;
+  isFormModal?: boolean;
+  customSubmitHandler?: (form: CForm, postBody: PostBody) => void;
 }
 
 export const CustomizedForm = ({
   patientId,
   fm: form,
+  lang = 'English',
   renderState,
+  isFormModal = false,
+  customSubmitHandler,
 }: IProps) => {
   const navigate = useNavigate();
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
     useState(false);
   const [answers, setAnswers] = useState<QAnswer[]>([]);
+  const latestAnswersRef = useRef<QAnswer[]>([]);
 
   const submitCustomForm = useSubmitCustomForm();
   const handleSubmit = () => {
-    if (!areMcResponsesValid(form.questions, answers)) {
-      setMultiSelectValidationFailed(true);
-      return;
-    }
+    const currentAnswers = latestAnswersRef.current.length
+      ? latestAnswersRef.current
+      : answers;
 
-    //2 number-range validation
-    if (!areNumberResponsesValid(form.questions, answers)) {
-      return;
+    const shouldRunLegacyLocalValidation =
+      renderState !== FormRenderStateEnum.FIRST_SUBMIT;
+
+    if (shouldRunLegacyLocalValidation) {
+      if (!areMcResponsesValid(form.questions, currentAnswers)) {
+        setMultiSelectValidationFailed(true);
+        return;
+      }
+
+      //2 number-range validation
+      if (
+        !areNumberResponsesValid(
+          form.questions as unknown as Question[],
+          currentAnswers
+        )
+      ) {
+        // TODO: update this type when form submissions v2 are integrated
+        return;
+      }
     }
 
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
-      answers,
-      form.questions
+      currentAnswers,
+      form.questions as unknown as Question[] // TODO: update this type when form submissions v2 are integrated
     );
     const postBody: PostBody = TransferQAnswerToPostBody(
       anss,
@@ -65,12 +88,20 @@ export const CustomizedForm = ({
       patientId,
       renderState === FormRenderStateEnum.EDIT
     );
-    submitCustomForm.mutate(
-      { formId: form.id, postBody },
-      {
-        onSuccess: () => navigate(`/patients/${patientId}`),
-      }
-    );
+
+    if (customSubmitHandler) {
+      customSubmitHandler(form, postBody);
+    } else {
+      const submittedFormId =
+        renderState === FormRenderStateEnum.FIRST_SUBMIT ? undefined : form.id;
+
+      submitCustomForm.mutate(
+        { formId: submittedFormId, postBody },
+        {
+          onSuccess: () => navigate(`/patients/${patientId}`),
+        }
+      );
+    }
   };
 
   let formTitle: string;
@@ -100,57 +131,62 @@ export const CustomizedForm = ({
       />
 
       <Formik
-        initialValues={initialState as any}
+        initialValues={initialState}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}>
         {() => (
-          <Form>
-            <Paper sx={{ p: 6, mt: 2 }}>
-              {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
-                <Grid container spacing={3}>
-                  {/* This is redundant */}
-                  <h2>Current Form</h2>
-                  <Divider />
-                </Grid>
-              )}
-
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSubmit();
+            }}>
+            {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
               <Grid container spacing={3}>
-                {FormQuestions({
-                  questions: form.questions,
-                  renderState,
-                  language: '',
-                  handleAnswers: (answers) => {
-                    setAnswers(answers);
-                  },
-                  multiSelectValidationFailed,
-                  setDisableSubmit,
-                })}
+                {/* This is redundant */}
+                <h2>Current Form</h2>
+                <Divider />
               </Grid>
-              {renderState === FormRenderStateEnum.VIEW ? (
+            )}
+
+            <Grid container spacing={3}>
+              <FormQuestions
+                questions={form.questions as unknown as TQuestion[]}
+                renderState={renderState}
+                language={lang}
+                handleAnswers={(answers) => {
+                  latestAnswersRef.current = answers;
+                  setAnswers(answers);
+                }}
+                multiSelectValidationFailed={multiSelectValidationFailed}
+                setDisableSubmit={setDisableSubmit}
+              />
+            </Grid>
+            {renderState === FormRenderStateEnum.VIEW ? (
+              !isFormModal && (
                 <RedirectButton
                   sx={BUTTON_SX}
                   type="button" //This makes the button not trigger onSubmit function
                   url={`/forms/edit/${patientId}/${form.id}`}>
                   {formTitle}
                 </RedirectButton>
-              ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
-                <PrimaryButton
-                  sx={BUTTON_SX}
-                  onClick={() => console.log('click finish button')}
-                  // TO DO: clicking "finish" saves the form.
-                  type="button">
-                  {formTitle}
-                </PrimaryButton>
-              ) : (
-                <PrimaryButton
-                  sx={BUTTON_SX}
-                  type="submit"
-                  disabled={submitCustomForm.isPending || disableSubmit}>
-                  {formTitle}
-                </PrimaryButton>
-              )}
-            </Paper>
-          </Form>
+              )
+            ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
+              <PrimaryButton
+                sx={BUTTON_SX}
+                onClick={() => console.log('click finish button')}
+                // TO DO: clicking "finish" saves the form.
+                type="button">
+                {formTitle}
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton
+                sx={BUTTON_SX}
+                type="submit"
+                disabled={submitCustomForm.isPending || disableSubmit}>
+                {formTitle}
+              </PrimaryButton>
+            )}
+          </form>
         )}
       </Formik>
     </>
