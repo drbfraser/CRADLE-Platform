@@ -115,20 +115,25 @@ export const useWorkflowEditor = ({
         if (step.id === stepId && step.branches) {
           const updatedBranches = step.branches.map((branch, idx) => {
             if (idx === branchIndex) {
+              if (!conditionRule) {
+                // empty board: remove condition entirely so the branch
+                // sends no condition_id fk to the backend
+                const { condition: _c, conditionId: _ci, ...rest } = branch;
+                return rest;
+              }
+
               // Parse the existing rule to merge with the name
               let ruleWithName = conditionRule;
-              if (conditionRule) {
-                try {
-                  const ruleObj = JSON.parse(conditionRule);
-                  if (conditionName) {
-                    ruleObj.name = conditionName;
-                  } else {
-                    delete ruleObj.name;
-                  }
-                  ruleWithName = JSON.stringify(ruleObj);
-                } catch {
-                  ruleWithName = conditionRule;
+              try {
+                const ruleObj = JSON.parse(conditionRule);
+                if (conditionName) {
+                  ruleObj.name = conditionName;
+                } else {
+                  delete ruleObj.name;
                 }
+                ruleWithName = JSON.stringify(ruleObj);
+              } catch {
+                ruleWithName = conditionRule;
               }
 
               return {
