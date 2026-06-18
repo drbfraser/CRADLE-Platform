@@ -21,7 +21,10 @@ import {
   formatISODateNumber,
   formatISODateNumberWithTime,
 } from 'src/shared/utils';
-import { initiateWorkflowPossibleSteps } from './stepTree';
+import {
+  getWorkflowStepHistory,
+  initiateWorkflowPossibleSteps,
+} from './stepTree';
 
 export function findTemplateStepById(
   templateStepId: string,
@@ -76,6 +79,8 @@ export function buildInstanceDetails(
   template: WorkflowTemplate,
   patient: Patient
 ): InstanceDetails {
+  const steps = instance.steps.map((step) => mapWorkflowStep(step, template));
+
   const instanceDetails: InstanceDetails = {
     id: instance.id,
     studyTitle: instance.name,
@@ -94,13 +99,12 @@ export function buildInstanceDetails(
       ? formatISODateNumber(instance.completionDate)
       : null,
 
-    // Steps
-    steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
-    possibleSteps: initiateWorkflowPossibleSteps(
-      instance.steps.map((step) => mapWorkflowStep(step, template)),
-      template
-    ),
+    steps,
+    stepHistory: [],
+    possibleSteps: initiateWorkflowPossibleSteps(steps, template),
   };
+
+  instanceDetails.stepHistory = getWorkflowStepHistory(instanceDetails);
 
   return instanceDetails;
 }

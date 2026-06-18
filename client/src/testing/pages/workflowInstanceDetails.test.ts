@@ -12,6 +12,7 @@ import {
   buildInstanceDetails,
   mapWorkflowStep,
   initiateWorkflowPossibleSteps,
+  getWorkflowStepHistory,
 } from 'src/pages/patient/WorkflowInfo/utils';
 
 // Mock API calls
@@ -108,5 +109,7 @@ describe('loadInstanceById', () => {
         testWorkflowTemplate
       ),
     });
+
+    expect(result.stepHistory).toEqual(getWorkflowStepHistory(result));
   });
 });

@@ -55,6 +55,7 @@ const activeInstance: InstanceDetails = {
   workflowStartedOn: '2025-01-01',
   workflowStartedBy: 'user',
   steps: [activeStep],
+  stepHistory: [],
   possibleSteps,
 };
 
