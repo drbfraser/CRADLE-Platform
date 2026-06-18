@@ -1,20 +1,4 @@
-// src/pages/patient/WorkflowInstanceDetails.tsx
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Collapse,
-  Divider,
-  Snackbar,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
-import { Tooltip, IconButton } from '@mui/material';
+import { Box, Button, Paper, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -22,19 +6,22 @@ import {
   unArchiveInstance,
   completeInstance,
 } from 'src/shared/api';
+import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import WorkflowStatus from './components/WorkflowStatus/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 import WorkflowConfirmDialog from './components/WorkflowConfirmDialog';
+import WorkflowInstanceHeader from './components/WorkflowInstanceHeader';
+import WorkflowTemplateDetailsCollapse from './components/WorkflowTemplateDetailsCollapse';
+import WorkflowDescription from './components/WorkflowDescription';
+import WorkflowInstanceSnackbar from './components/WorkflowInstanceSnackbar';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowInstanceActions } from 'src/shared/hooks/patient/useWorkflowInstanceActions';
-import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
   const navigate = useNavigate();
-  const [openTemplateDetails, setOpenTemplateDetails] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
   const [nextStep, setNextStep] = useState<string | null>(null);
@@ -68,6 +55,10 @@ export default function WorkflowInstanceDetailsPage() {
     reload,
   });
 
+  const pageTitle = template
+    ? `Workflow: ${template.classification?.name ?? template.name ?? 'Unknown'}`
+    : 'Workflow Instance Details';
+
   const onCompleteAndStartNextStep = async (stepId: string) => {
     const expandedStepId = await handleCompleteAndStartNextStep(stepId);
     if (expandedStepId) {
@@ -83,113 +74,19 @@ export default function WorkflowInstanceDetailsPage() {
   return (
     <>
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Tooltip title="Go back" placement="top">
-            <IconButton onClick={() => navigate(-1)} size="medium">
-              <ChevronLeftIcon color="inherit" fontSize="large" />
-            </IconButton>
-          </Tooltip>
-          <Box sx={{ ml: 0.5 }}>
-            <Typography variant="h4" component="h2">
-              {template
-                ? `Workflow: ${template.classification?.name ?? template.name ?? 'Unknown'}`
-                : 'Workflow Instance Details'}
-            </Typography>
-          </Box>
-        </Box>
+        <WorkflowInstanceHeader
+          title={pageTitle}
+          isLoading={isLoading}
+          error={error}
+          onBack={() => navigate(-1)}
+          onRetry={reload}
+        />
 
-        <Divider sx={{ my: 3 }} />
-
-        {isLoading ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <CircularProgress size={24} />
-            <Typography variant="h5" component="p">
-              Loading workflow instance...
-            </Typography>
-          </Box>
-        ) : error ? (
-          <Box>
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-            <Button variant="contained" onClick={reload} sx={{ mr: 2 }}>
-              Retry
-            </Button>
-            <Button variant="outlined" onClick={() => navigate(-1)}>
-              Go back
-            </Button>
-          </Box>
-        ) : instanceDetails ? (
+        {!isLoading && !error && instanceDetails && (
           <>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 3,
-                mx: 4,
-              }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="h5">
-                  {instanceDetails.studyTitle}
-                </Typography>
+            <WorkflowTemplateDetailsCollapse instanceDetails={instanceDetails} />
 
-                <Button
-                  size="small"
-                  variant="outlined"
-                  endIcon={
-                    openTemplateDetails ? (
-                      <KeyboardArrowUpIcon />
-                    ) : (
-                      <KeyboardArrowDownIcon />
-                    )
-                  }
-                  onClick={() => setOpenTemplateDetails((v) => !v)}
-                  sx={{ textTransform: 'none' }}>
-                  {openTemplateDetails ? 'Hide Details' : 'Show Details'}
-                </Button>
-              </Box>
-
-              <Typography variant="h6" color="text.secondary">
-                Patient: {instanceDetails.patientName} (ID:{' '}
-                {instanceDetails.patientId})
-              </Typography>
-            </Box>
-
-            <Collapse in={openTemplateDetails} unmountOnExit>
-              <Box sx={{ mx: 4, mb: 3 }}>
-                <Box
-                  sx={{
-                    p: 3,
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '12px',
-                    mb: 2,
-                  }}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>
-                    Workflow Template Details
-                  </Typography>
-                  <WorkflowMetadata
-                    description={instanceDetails.description}
-                    version={instanceDetails.version}
-                    lastEdited={new Date(
-                      instanceDetails.lastEditedOn
-                    ).getTime()}
-                    dateCreated={new Date(
-                      instanceDetails.firstCreatedOn
-                    ).getTime()}
-                  />
-                </Box>
-              </Box>
-            </Collapse>
-
-            <Box sx={{ mx: 5, mb: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Description
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {instanceDetails?.description || 'N/A'}
-              </Typography>
-            </Box>
+            <WorkflowDescription description={instanceDetails.description} />
 
             <WorkflowStatus
               workflowInstance={instanceDetails}
@@ -295,25 +192,13 @@ export default function WorkflowInstanceDetailsPage() {
               setConfirmDialog={setConfirmDialog}
             />
           </>
-        ) : null}
+        )}
       </Paper>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={2000}
+      <WorkflowInstanceSnackbar
+        snackbar={snackbar}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        sx={{
-          mb: '80px',
-          borderRadius: 2,
-        }}>
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
 
       <WorkflowSelectStepModal
         open={openNextStepModal}

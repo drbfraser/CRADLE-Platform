@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { ConfirmDialogData } from 'src/pages/patient/WorkflowInfo/components/WorkflowConfirmDialog';
+import { ConfirmDialogData } from 'src/shared/types/confirmDialogTypes';
 import { archiveInstanceStepForm } from 'src/shared/api';
 import { SnackbarSeverity } from 'src/shared/enums';
+import { useSnackbar } from 'src/shared/hooks/useSnackbar';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import {
   InstanceDetails,
@@ -33,19 +34,7 @@ export function useWorkflowInstanceActions({
     message: '',
     onConfirm: () => {},
   });
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
-  });
-
-  const showSnackbar = (message: string, severity: SnackbarSeverity) => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
+  const { snackbar, showSnackbar, handleCloseSnackbar } = useSnackbar();
 
   const {
     formModalState,

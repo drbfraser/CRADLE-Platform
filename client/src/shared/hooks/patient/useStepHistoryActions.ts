@@ -1,6 +1,6 @@
 import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
-import { ConfirmDialogData } from 'src/pages/patient/WorkflowInfo/components/WorkflowConfirmDialog';
+import { ConfirmDialogData } from 'src/shared/types/confirmDialogTypes';
 
 type UseStepHistoryActionsParams = {
   setConfirmDialog: React.Dispatch<React.SetStateAction<ConfirmDialogData>>;
