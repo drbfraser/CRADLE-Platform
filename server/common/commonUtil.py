@@ -24,6 +24,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
     """
 
     def mc_optionsToDict(mc_options):
+        """Map MC option text (casefold) to its mc_id."""
         return {option["opt"].casefold(): option["mc_id"] for option in mc_options}
 
     condition: dict[str, Any] = {

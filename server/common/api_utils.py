@@ -170,6 +170,7 @@ class SearchFilterQueryParams(PageLimitFilterQueryParams):
     def convert_order_by_field_name_to_snake_case(
         cls, order_by: Optional[str]
     ) -> Optional[str]:
+        """Convert the order_by field name to snake_case, or return None if not provided."""
         if order_by is None:
             return None
         return to_snake(order_by)

@@ -41,6 +41,7 @@ app = config.app
 
 
 def is_public_endpoint(request: Request):
+    """Return True if the request path is a public endpoint that does not require authentication."""
     # Public route paths.
     if request.path in {
         "/api/user/auth",

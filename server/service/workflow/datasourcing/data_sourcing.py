@@ -128,9 +128,11 @@ class DatasourceVariable:
         return f"{self.obj.name}.{self.attr.name}"
 
     def __str__(self) -> str:
+        """Return the string representation of this datasource variable."""
         return self.to_string()
 
     def __hash__(self) -> int:
+        """Return a hash based on object and attribute names."""
         return hash((self.obj.name, self.attr.name))
 
 
@@ -220,9 +222,11 @@ class VariablePath:
         return base
 
     def __str__(self) -> str:
+        """Return the string representation of this variable path."""
         return self.to_string()
 
     def __hash__(self) -> int:
+        """Return a hash based on namespace, collection index, and field path."""
         return hash((self.namespace, self.collection_index, tuple(self.field_path)))
 
 
@@ -595,6 +599,7 @@ def _workflow_instance_info_dict(instance: Any) -> Dict[str, Any]:
 
 
 def _decode_json_field_value(raw: Optional[str]) -> Any:
+    """Parse a JSON string field value, returning None for empty input or MISSING on decode error."""
     if raw is None or raw == "":
         return None
     try:

@@ -159,6 +159,7 @@ def admin_patient_view(user: dict, **kwargs) -> List[Any]:
 
 
 def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:
+    """Dispatch a query function with the appropriate user_id filter based on the user's role."""
     role = user["role"]
     user_id = int(user["id"])
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:

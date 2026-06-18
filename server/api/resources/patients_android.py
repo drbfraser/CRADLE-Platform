@@ -73,6 +73,7 @@ def to_global_search_patient(patient):
 def get_global_search_patients(current_user, search):
     """Return a list of global search patients matching the search string for the current user."""
     def __make_gs_patient_dict(p: PatientOrm, is_added: bool) -> dict:
+        """Build a patient dict with an 'Added' or 'Add' state label."""
         patient_dict = orm_serializer.model_to_dict(p, PatientSchema)
         patient_dict["state"] = "Added" if is_added else "Add"
         return patient_dict

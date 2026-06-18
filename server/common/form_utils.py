@@ -147,17 +147,19 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
     Returns a CSV string from a FormTemplate object.
     """
 
-    # Helper functions
     def get_question_lang_list(question: QuestionOrm):
+        """Return a list of language codes for all lang versions of a question."""
         lang_list = []
         for lang in question.lang_versions:
             lang_list.append(lang.lang)
         return lang_list
 
     def list_to_csv(rows: list):
+        """Convert a list of rows to a CSV-formatted string with quoted cells."""
         csv_str = ""
 
         def format_cell(cell: str):
+            """Wrap a cell value in double quotes, substituting empty string for None."""
             return '"{}"'.format(cell if cell is not None else "")
 
         for row in rows:
@@ -169,6 +171,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
         return csv_str
 
     def mcoptions_to_str(mcoptions: str):
+        """Parse a JSON MC options string and return the option texts as a comma-separated string."""
         mcoptions = json.loads(mcoptions)
         options = [option["opt"] for option in mcoptions]
 
@@ -178,6 +181,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
         visible_condition: str,
         questions: list[QuestionOrm],
     ):
+        """Return a string describing the visible condition options for the first condition."""
         visible_conditions = json.loads(visible_condition)
 
         if visible_conditions is None or len(visible_conditions) == 0:
@@ -320,9 +324,11 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
     """
 
     def fmt(cell):
+        """Wrap a cell value in double quotes, substituting empty string for None."""
         return f'"{cell if cell is not None else ""}"'
 
     def list_to_csv(rows: list[list[str]]):
+        """Convert a list of rows to a CSV-formatted string."""
         return "\n".join([",".join(map(fmt, row)) for row in rows]) + "\n"
 
     def get_mc_options_text(mc_options_json: str):
