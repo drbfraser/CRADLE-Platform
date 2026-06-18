@@ -24,6 +24,7 @@ export {
   buildInstanceDetails,
   getWorkflowStepWithId,
   buildWorkflowInstanceRowList,
+  sortWorkflowInfoRows,
   getTargetTemplateStepFromBranchId,
   getWorkflowNextStepOptions,
 } from './instanceMappers';

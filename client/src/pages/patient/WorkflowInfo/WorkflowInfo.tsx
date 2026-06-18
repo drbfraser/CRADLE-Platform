@@ -4,7 +4,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
-import Link from '@mui/material/Link';
 import SearchIcon from '@mui/icons-material/Search';
 import { formatISODateNumber } from 'src/shared/utils';
 import { Toast } from 'src/shared/components/toast';
@@ -175,6 +174,14 @@ export const WorkflowInfo: React.FC = () => {
       type: 'singleSelect',
       valueOptions: ['Active', 'Completed', 'Cancelled'],
       width: 120,
+      sortComparator: (v1, v2) => {
+        const order: Record<InstanceStatus, number> = {
+          [InstanceStatus.ACTIVE]: 0,
+          [InstanceStatus.COMPLETED]: 1,
+          [InstanceStatus.CANCELLED]: 2,
+        };
+        return order[v1 as InstanceStatus] - order[v2 as InstanceStatus];
+      },
       renderCell: (p: GridRenderCellParams) => {
         const row = p.row as WorkflowInfoRow;
         return (
@@ -246,7 +253,7 @@ export const WorkflowInfo: React.FC = () => {
         alignItems="center">
         <Box display="flex" alignItems="center" gap={2}>
           <AccountTreeOutlinedIcon />
-          <Typography variant="h5">Ongoing Workflows</Typography>
+          <Typography variant="h5">Workflows</Typography>
           <Button
             variant="outlined"
             size="small"
@@ -266,18 +273,6 @@ export const WorkflowInfo: React.FC = () => {
             Test Rule Engine
           </Button>
         </Box>
-        <Link
-          href="#"
-          sx={{
-            textTransform: 'none',
-            height: 36,
-            display: 'flex',
-            alignItems: 'center',
-            color: 'primary.main',
-            fontSize: '1rem',
-          }}>
-          View past workflow
-        </Link>
       </Box>
 
       {/* Grid with built-in filtering UI */}
@@ -312,17 +307,11 @@ export const WorkflowInfo: React.FC = () => {
           }}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
-            sorting: { sortModel: [{ field: 'lastEdited', sort: 'desc' }] },
-            filter: {
-              filterModel: {
-                items: [
-                  {
-                    field: 'status',
-                    operator: 'not',
-                    value: InstanceStatus.COMPLETED,
-                  },
-                ],
-              },
+            sorting: {
+              sortModel: [
+                { field: 'status', sort: 'asc' },
+                { field: 'lastEdited', sort: 'desc' },
+              ],
             },
           }}
           pageSizeOptions={[5, 10, 25]}
