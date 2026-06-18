@@ -29,7 +29,7 @@ def decrypt(chiphertext: str, key: str) -> str:
     decrypted = unpad(decrypted)
     return decrypted
 
-
+################ Helper functions ################
 def hex2bytes(key: str):
     """Convert a hex string to bytes."""
     return bytes.fromhex(key)
