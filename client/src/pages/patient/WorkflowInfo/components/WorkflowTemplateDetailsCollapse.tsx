@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Collapse,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Collapse, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';

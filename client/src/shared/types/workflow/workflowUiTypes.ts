@@ -77,11 +77,7 @@ export type WorkflowStepHistoryActions = {
   };
   stepActions: {
     onCompleteStep: () => void;
-    onMakeCurrent: (
-      stepId: string,
-      title: string,
-      status: StepStatus
-    ) => void;
+    onMakeCurrent: (stepId: string, title: string, status: StepStatus) => void;
   };
 };
 

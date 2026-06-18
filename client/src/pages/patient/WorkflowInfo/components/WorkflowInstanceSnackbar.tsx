@@ -20,7 +20,10 @@ export default function WorkflowInstanceSnackbar({
         mb: '80px',
         borderRadius: 2,
       }}>
-      <Alert onClose={onClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+      <Alert
+        onClose={onClose}
+        severity={snackbar.severity}
+        sx={{ width: '100%' }}>
         {snackbar.message}
       </Alert>
     </Snackbar>

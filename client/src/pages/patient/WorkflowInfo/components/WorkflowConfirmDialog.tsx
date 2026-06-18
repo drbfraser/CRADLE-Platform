@@ -38,7 +38,9 @@ export default function WorkflowConfirmDialog(props: {
       </DialogContent>
       <DialogActions>
         <Button
-          onClick={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}>
+          onClick={() =>
+            setConfirmDialog((prev) => ({ ...prev, open: false }))
+          }>
           Cancel
         </Button>
         <Button

@@ -66,10 +66,7 @@ export default function StepHistoryActions({
                     onClick={onViewForm}>
                     View
                   </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={onEditForm}>
+                  <Button size="small" variant="outlined" onClick={onEditForm}>
                     Edit
                   </Button>
                   <Button

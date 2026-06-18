@@ -1,9 +1,4 @@
-import {
-  Box,
-  Collapse,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { Box, Collapse, IconButton, Typography } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -17,11 +12,7 @@ type WorkflowStepHistoryItemProps = {
   isExpanded: boolean;
   expandAll: boolean;
   onToggleExpand: () => void;
-  onMakeCurrent: (
-    stepId: string,
-    title: string,
-    status: StepStatus
-  ) => void;
+  onMakeCurrent: (stepId: string, title: string, status: StepStatus) => void;
 };
 
 export default function WorkflowStepHistoryItem({
@@ -97,7 +88,9 @@ export default function WorkflowStepHistoryItem({
           <StepHistoryActions
             step={step}
             variant="history"
-            onMakeCurrent={() => onMakeCurrent(step.id, step.title, step.status)}
+            onMakeCurrent={() =>
+              onMakeCurrent(step.id, step.title, step.status)
+            }
           />
         </Box>
       </Collapse>

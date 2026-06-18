@@ -18,7 +18,10 @@ import {
   formatISODateNumber,
   formatISODateNumberWithTime,
 } from 'src/shared/utils';
-import { getWorkflowStepHistory, initiateWorkflowPossibleSteps } from './stepTree';
+import {
+  getWorkflowStepHistory,
+  initiateWorkflowPossibleSteps,
+} from './stepTree';
 
 export function findTemplateStepById(
   templateStepId: string,

@@ -84,7 +84,9 @@ export default function WorkflowInstanceDetailsPage() {
 
         {!isLoading && !error && instanceDetails && (
           <>
-            <WorkflowTemplateDetailsCollapse instanceDetails={instanceDetails} />
+            <WorkflowTemplateDetailsCollapse
+              instanceDetails={instanceDetails}
+            />
 
             <WorkflowDescription description={instanceDetails.description} />
 
