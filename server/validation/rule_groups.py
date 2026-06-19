@@ -26,7 +26,6 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
     @field_validator("rule", mode="after")
     @classmethod
     def validate_rule(cls, rule: str) -> str:
-        """Raise if the rule attribute is not a valid JSON string."""
         try:
             json.loads(rule)
         except json.JSONDecodeError:

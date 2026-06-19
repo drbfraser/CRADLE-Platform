@@ -22,7 +22,6 @@ from models import (
 
 
 def serialize_patient_list(patients: List[Any]) -> list[dict]:
-    """Serialize a list of patients to minimal dicts for list views."""
     return [
         {
             "id": p.id,
@@ -38,7 +37,6 @@ def serialize_patient_list(patients: List[Any]) -> list[dict]:
 
 
 def serialize_patients_admin(patients: List[Any]) -> list[dict]:
-    """Serialize a list of patients to minimal dicts for admin views."""
     return [
         {
             "id": p.id,
@@ -50,7 +48,6 @@ def serialize_patients_admin(patients: List[Any]) -> list[dict]:
 
 
 def serialize_referral_list(referrals: List[Any]) -> list[dict]:
-    """Serialize a list of referrals to dicts, skipping entries with no referral ID."""
     return [
         {
             "referral_id": referral.referral_id,
@@ -67,7 +64,6 @@ def serialize_referral_list(referrals: List[Any]) -> list[dict]:
 
 
 def serialize_pregnancy(pregnancy: PregnancyOrm) -> dict:
-    """Serialize a pregnancy ORM to a dict."""
     return {
         "id": pregnancy.id,
         "start_date": pregnancy.start_date,
@@ -78,7 +74,6 @@ def serialize_pregnancy(pregnancy: PregnancyOrm) -> dict:
 
 
 def serialize_medical_record(record: MedicalRecordOrm) -> dict:
-    """Serialize a medical record ORM to a dict."""
     return {
         "id": record.id,
         "patient_id": record.patient_id,
@@ -89,7 +84,6 @@ def serialize_medical_record(record: MedicalRecordOrm) -> dict:
 
 
 def serialize_patient_timeline(r: Any) -> dict:
-    """Serialize a patient timeline entry to a dict."""
     return {
         "title": r.title,
         "information": r.information,
@@ -103,7 +97,6 @@ def serialize_patient(
     referrals: Optional[List[ReferralOrm]] = None,
     assessments: Optional[List[AssessmentOrm]] = None,
 ) -> dict:
-    """Serialize a patient with optional readings, referrals, and assessments to a dict."""
     return {
         "id": patient.patient_id,
         "name": patient.name,
@@ -139,7 +132,6 @@ def serialize_patient(
 
 
 def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
-    """Serialize a (ReadingOrm, UrineTestOrm) tuple to a dict, including urine test data."""
     reading = orm_serializer.marshal(tup[0], True)
     reading["urine_tests"] = (
         orm_serializer.marshal(tup[1]) if tup[1] is not None else None
@@ -148,12 +140,10 @@ def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
 
 
 def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -> dict:
-    """Serialize a referral or assessment ORM to a dict."""
     return orm_serializer.marshal(model)
 
 
 def serialize_blank_form_template(form_template: dict) -> dict:
-    """Strip metadata fields from a form template dict and filter its questions."""
     del form_template["date_created"]
     del form_template["version"]
 
@@ -165,7 +155,6 @@ def deserialize_patient(
     shallow: bool = True,
     partial: bool = False,
 ) -> Union[dict, PatientOrm]:
-    """Deserialize patient data into a PatientOrm or validated dict, optionally with nested records."""
     schema = get_schema_for_model(PatientOrm)
     d = {
         "id": patient_data.get("id"),
@@ -209,7 +198,6 @@ def deserialize_patient(
 def deserialize_pregnancy(
     patient_data: dict, partial: bool = False
 ) -> Union[dict, PregnancyOrm]:
-    """Deserialize patient data into a PregnancyOrm or validated partial dict."""
     schema = get_schema_for_model(PregnancyOrm)
     if partial:
         d = {
@@ -230,7 +218,6 @@ def deserialize_pregnancy(
 def deserialize_medical_record(
     patient_data: dict, is_drug_record: bool
 ) -> MedicalRecordOrm:
-    """Deserialize patient data into a MedicalRecordOrm for either drug or medical history."""
     schema = get_schema_for_model(MedicalRecordOrm)
     d = {
         "patient_id": patient_data.get("id"),

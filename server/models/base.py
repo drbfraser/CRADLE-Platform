@@ -31,13 +31,11 @@ user_schema = {
 
 
 def validate_timestamp(ts):
-    """Raise a ValidationError if the timestamp is in the future."""
     if ts > get_current_time():
         raise marshmallow.ValidationError("Date must not be in the future.")
 
 
 def validate_user(data):
-    """Validate user data against the user schema, returning an error dict on failure."""
     try:
         validate(data, user_schema)
     except ValidationError as e:

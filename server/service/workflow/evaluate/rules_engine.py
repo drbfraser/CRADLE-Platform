@@ -43,7 +43,6 @@ class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
     def __init__(self, status: RuleStatus, missing_variables: Set[str] = None):
-        """Store the rule evaluation status and any missing variable names."""
         self.status = status
         self.missing_variables = missing_variables or set()
 
@@ -85,7 +84,6 @@ class RulesEngineImpl:
     """
 
     def __init__(self, rule: str, args: Dict[str, Any]):
-        """Parse and store the rule for evaluation with the given resolved arguments."""
         self.args: Dict[str, Any] = args
         self.rule = self._parse_rules(rule)
 

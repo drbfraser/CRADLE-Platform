@@ -27,7 +27,6 @@ class WorkflowCollectionModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        """Raise if last_edited is before date_created."""
         if self.last_edited is not None and self.last_edited < self.date_created:
             raise ValueError("last_edited cannot be before date_created")
         return self
@@ -77,7 +76,6 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        """Raise if last_edited is before date_created."""
         if self.last_edited is not None and self.last_edited < self.date_created:
             raise ValueError("last_edited cannot be before date_created")
         return self
@@ -105,7 +103,6 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     @field_validator("data", mode="after")
     @classmethod
     def validate_data(cls, data: Optional[str]) -> Optional[str]:
-        """Raise if data is not valid JSON."""
         # TODO: Add more answer validation once format is figured out
 
         if data is not None:
@@ -118,7 +115,6 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        """Raise if completion_date or expected_completion is before start_date."""
         # last_edited and start_date are checked in WorkflowService.
         # See the WorkflowService class for why.
         if (
@@ -153,7 +149,6 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        """Raise if completion_date is before start_date."""
         # last_edited and start_date are checked in WorkflowService.
         # See the WorkflowService class for why.
         if (
@@ -166,7 +161,6 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
         return self
 
     def get_instance_step(self, step_id: str) -> Optional[WorkflowInstanceStepModel]:
-        """Return the instance step with the given ID, or None if not found."""
         for step in self.steps:
             if step.id == step_id:
                 return step

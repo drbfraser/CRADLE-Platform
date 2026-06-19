@@ -46,5 +46,4 @@ def upload_apk_file(form: FileUploadForm):
 
 
 def _is_allowed_file(filename):
-    """Return True if the file has an .apk extension."""
     return "." in filename and filename.rsplit(".", 1)[1].lower() == "apk"

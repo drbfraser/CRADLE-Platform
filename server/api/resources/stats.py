@@ -27,7 +27,6 @@ class StatsData(CradleBaseModel):
 
 
 def _query_stats_data(args, facility_id="%", user_id="%"):
-    """Query and aggregate stats data for a given facility and user filter."""
     patients = crud.get_unique_patients_with_readings(
         facility=facility_id,
         user=user_id,
@@ -76,7 +75,6 @@ def _query_stats_data(args, facility_id="%", user_id="%"):
 
 
 def _create_color_readings(color_readings_q):
-    """Convert a color readings query result into a dict keyed by traffic light status."""
     color_readings = {
         TrafficLightEnum.GREEN.value: 0,
         TrafficLightEnum.YELLOW_UP.value: 0,
@@ -131,7 +129,6 @@ def get_facility_stats(path: FacilityNamePath, query: Timeframe):
 
 
 def _has_permission_to_view_user(user_id):
-    """Return True if the current user has permission to view stats for the given user."""
     current_user = user_utils.get_current_user_from_jwt()
 
     is_current_user = current_user["id"] == user_id

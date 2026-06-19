@@ -14,7 +14,6 @@ class SmsRelayRequestBody(CradleBaseModel, extra="forbid"):
     @field_validator("phone_number")
     @classmethod
     def format_phone_numbers(cls, phone_number: str) -> str:
-        """Format the phone number to E.164 standard."""
         formatted_phone_numbers = format_phone_number(phone_number)
         return formatted_phone_numbers
 
@@ -29,7 +28,6 @@ class SmsRelayDecryptedBody(CradleBaseModel, extra="forbid"):
     @field_validator("method", mode="before")
     @classmethod
     def __validate_method_enum(cls, method):
-        """Raise if the method is not a valid HTTP method enum member."""
         if method not in HTTPMethodEnum._member_names_:
             raise ValueError(
                 "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH",

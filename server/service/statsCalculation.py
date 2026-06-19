@@ -11,7 +11,6 @@ def get_stats_data(
     current_month,
     is_from_last_twelve_months=False,
 ):
-    """Aggregate reading data by the requested metric, returning monthly buckets or traffic light counts."""
     if data_needed == "traffic_light_status":
         data = [0, 0, 0, 0, 0]
     else:
@@ -56,15 +55,14 @@ def get_stats_data(
     return data
 
 
+# This function is used to get month index when we are retrieving the data dated from the last twelve months
 def get_month_index(item_year, item_month, current_year, current_month):
-    """Return the 0-based index into a 12-month rolling window for the given reading month/year."""
     if current_year == item_year:
         return 12 - (current_month - item_month) - 1
     return item_month - current_month - 1
 
 
 def get_traffic_light(readings: list[ReadingOrm], data):
-    """Count readings by traffic light status and return a list of 5 counts indexed by severity."""
     traffic_light_indexes = {
         TrafficLightEnum.GREEN: 0,
         TrafficLightEnum.YELLOW_UP: 1,

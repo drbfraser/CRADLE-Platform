@@ -241,7 +241,6 @@ class FormSubmission(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_date_sequence(self) -> Self:
-        """Raise if last_edited is before date_submitted."""
         if self.last_edited is not None and self.last_edited < self.date_submitted:
             raise ValueError(
                 "last_edited cannot be before date_submitted.",

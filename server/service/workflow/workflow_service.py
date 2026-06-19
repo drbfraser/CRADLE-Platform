@@ -116,7 +116,6 @@ class WorkflowService:
         workflow_template_step: WorkflowTemplateStepModel,
         workflow_instance_id: str,
     ) -> WorkflowInstanceStepModel:
-        """Create and return a new WorkflowInstanceStepModel from a template step."""
         step = WorkflowService._generate_workflow_instance_step(
             workflow_template_step, workflow_instance_id
         )
@@ -128,7 +127,6 @@ class WorkflowService:
         workflow_instance: WorkflowInstanceModel,
         workflow_step: WorkflowInstanceStepModel,
     ) -> None:
-        """Append a workflow instance step to the workflow instance's step list."""
         workflow_instance.steps.append(workflow_step)
 
     @staticmethod

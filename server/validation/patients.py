@@ -47,7 +47,6 @@ class PatientModel(CradleBaseModel):
     @field_validator("date_of_birth", mode="before")
     @classmethod
     def validate_date_format(cls, date_of_birth):
-        """Raise if date_of_birth is not in YYYY-MM-DD format."""
         if date_of_birth and not is_correct_date_format(date_of_birth):
             raise ValueError("date_of_birth is not in the required YYYY-MM-DD format.")
         return date_of_birth

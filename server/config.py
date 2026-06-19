@@ -113,7 +113,6 @@ class TestConfig(Config):
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
-        """Serialize sets to lists and datetimes to strings for JSON encoding."""
         if isinstance(o, set):
             return list(o)
         if isinstance(o, datetime.datetime):

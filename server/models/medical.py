@@ -120,7 +120,6 @@ class ReadingOrm(db.Model):
     )
 
     def get_traffic_light(self):
-        """Calculate and return the traffic light status based on blood pressure and shock index."""
         red_systolic = 160
         red_diastolic = 110
         yellow_systolic = 140

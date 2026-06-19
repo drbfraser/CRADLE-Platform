@@ -109,7 +109,6 @@ class TemplateQuestion(QuestionBase, extra="forbid"):
 
     @model_validator(mode="after")
     def set_lang_version_foreign_keys(self) -> Self:
-        """Raise if lang_versions is empty, then assign question_id to each lang version."""
         if len(self.lang_versions) < 1:
             raise ValueError("lang_versions cannot be empty")
         for lang_version in self.lang_versions:
@@ -126,7 +125,7 @@ class FormQuestion(QuestionBase, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_constraints(self) -> Self:
-        """Raise if numeric answer is outside the min/max bounds defined for this question."""
+        # Check number limits
         if (
             self.num_min is not None
             and self.answers

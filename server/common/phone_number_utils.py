@@ -200,7 +200,7 @@ def get_users_phone_numbers(user_id: int) -> list[str]:
 
 
 def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id):
-    """Replace a user's phone number if the current number belongs to them and the new number is unclaimed."""
+    # Check to see if current_phone_number belongs to user_id and if new_phone_number belongs to anyone
     if (does_phone_number_belong_to_user(user_id, current_phone_number)) and (
         not does_phone_number_exist(new_phone_number)
     ):

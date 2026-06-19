@@ -19,7 +19,6 @@ ALGORITHM = "HS256"
 
 
 def _get_sms_secret_key(user_id: int) -> str:
-    """Retrieve the SMS secret key for the given user, raising ValueError if not found."""
     sms_secret_key_orm = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key_orm is None:
         raise ValueError(f"No SMS secret key found for user with ID: {user_id}")
@@ -27,7 +26,6 @@ def _get_sms_secret_key(user_id: int) -> str:
 
 
 def create_sms_access_token(user_id: int):
-    """Create a short-lived JWT SMS access token for the given user, signed with their SMS secret key."""
     user_orm = crud.read(UserOrm, id=user_id)
     if user_orm is None:
         raise ValueError(f"No user found with ID: {user_id}")
@@ -54,7 +52,6 @@ def create_sms_access_token(user_id: int):
 
 
 def decode_sms_access_token(access_token: str) -> dict:
-    """Decode and verify an SMS access token, returning its payload or raising ValueError if invalid."""
     payload: dict = jwt.decode(access_token, options={"verify_signature": False})
     # The 'sub' claim is short for 'subject', and refers to the identity of the token holder.
     sub_claim = payload.get("sub")

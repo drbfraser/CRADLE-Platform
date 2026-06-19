@@ -2,7 +2,6 @@ import json
 
 
 def pretty_print(obj):
-    """Print a string directly or a non-string object as formatted JSON."""
     if isinstance(obj, str):
         print(obj)
     else:

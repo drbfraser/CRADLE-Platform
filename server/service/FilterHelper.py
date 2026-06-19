@@ -62,7 +62,6 @@ def annotated_global_patient_list(
     """
 
     def __normalized_search(query: str, value: str) -> bool:
-        """Return True if query appears in value, case-insensitively."""
         return query.upper() in value.upper()
 
     facility = user.health_facility

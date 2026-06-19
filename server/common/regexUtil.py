@@ -3,8 +3,7 @@ import re
 
 # Abstract regex check into a module to avoid duplicate
 def phoneNumber_regex_check(phone_number):
-    """Return True if the phone number matches a valid format (with or without area code)."""
-    # The format of phone number is xxx-xxx-xxxxx
+    # Add regex check for phone number, the format of phone number is xxx-xxx-xxxxx
     regex_phone_number_format_with_area_code = (
         r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
     )
