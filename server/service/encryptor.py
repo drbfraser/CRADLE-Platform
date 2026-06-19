@@ -4,7 +4,7 @@ block_size = 16
 iv_size = 32
 mode = AES.MODE_CBC
 
-
+# TODO: test
 def encrypt(plaintext: bytes, iv: str, key: str) -> str:
     """Encrypt plaintext bytes with AES-CBC using the given hex IV and key, returning hex IV + ciphertext."""
     key = hex2bytes(key)
@@ -29,7 +29,7 @@ def decrypt(chiphertext: str, key: str) -> str:
     decrypted = unpad(decrypted)
     return decrypted
 
-
+################ Helper functions ################
 def hex2bytes(key: str):
     """Convert a hex string to bytes."""
     return bytes.fromhex(key)
