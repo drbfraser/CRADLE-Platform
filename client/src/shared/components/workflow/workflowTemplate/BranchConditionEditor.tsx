@@ -23,6 +23,7 @@ const QUESTION_TYPE_TO_VAR_TYPE: Partial<
   Record<QuestionTypeEnum, WorkflowVariable['type']>
 > = {
   [QuestionTypeEnum.INTEGER]: 'integer',
+  [QuestionTypeEnum.DECIMAL]: 'double',
   [QuestionTypeEnum.STRING]: 'string',
   [QuestionTypeEnum.MULTIPLE_CHOICE]: 'string',
   [QuestionTypeEnum.DATE]: 'date',
