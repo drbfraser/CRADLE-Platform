@@ -110,7 +110,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
           const template = await getFormTemplateAsyncV2(formId);
           formVars = template.questions
             .filter(
-              (q) => q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
+              (q) =>
+                q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
             )
             .map(questionToWorkflowVariable);
         } catch {

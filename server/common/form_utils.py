@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Literal, NamedTuple
+from typing import Literal, NamedTuple, Optional
 
 import data.db_operations as crud
 from common import commonUtil
@@ -525,7 +525,7 @@ def lang_version_exists(string_id: str, lang: str):
     return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
 
 
-error_codes = Literal[422, 404, None]
+error_codes = Optional[Literal[422, 404]]
 
 
 class ValidationResult(NamedTuple):

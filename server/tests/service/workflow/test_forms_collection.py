@@ -2,6 +2,8 @@
 Tests for __query_forms_collection in data_catalogue.py.
 """
 
+from __future__ import annotations
+
 import json
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch

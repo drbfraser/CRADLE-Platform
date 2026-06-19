@@ -7,7 +7,6 @@ from data import orm_serializer
 from enums import QuestionTypeEnum
 from models import (
     AssessmentOrm,
-    FormAnswerOrmV2,
     FormQuestionTemplateOrmV2,
     FormSubmissionOrmV2,
     LangVersionOrmV2,

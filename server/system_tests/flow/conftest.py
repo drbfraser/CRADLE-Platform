@@ -66,9 +66,9 @@ def make_patient(make_assessment):
                     "heart_rate": 70,
                     "symptoms": [],
                     "date_taken": (
-                        reading_timestamp if reading_timestamp else 1595118199
+                        reading_timestamp or 1595118199
                     ),
-                    "user_id": created_by if created_by else 1,
+                    "user_id": created_by or 1,
                 },
             ]
 
@@ -76,11 +76,11 @@ def make_patient(make_assessment):
             patient["referrals"] = [
                 {
                     "date_referred": (
-                        referral_timestamp if referral_timestamp else 1595118445
+                        referral_timestamp or 1595118445
                     ),
                     "comment": "A comment",
                     "action_taken": "An action",
-                    "user_id": created_by if created_by else 1,
+                    "user_id": created_by or 1,
                     "patient_id": patient_id,
                     "health_facility_name": refer_to,
                     "is_assessed": is_assessed,
@@ -110,7 +110,7 @@ def make_assessment():
             "diagnosis": "A diagnosis",
             "treatment": "A treatment",
             "date_assessed": (
-                assessment_timestamp if assessment_timestamp else 1595118647
+                assessment_timestamp or 1595118647
             ),
             "healthcare_worker_id": assessed_by,
             "medication_prescribed": "Some medication",
