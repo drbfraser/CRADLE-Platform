@@ -11,6 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 def roles_required(accepted_roles):
     """Restrict endpoint access to users whose role is in accepted_roles, returning 401 otherwise."""
+
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
@@ -36,6 +37,7 @@ def roles_required(accepted_roles):
 
 def patient_association_required():
     """Restrict VHT users to only access patients they are associated with, returning 403 otherwise."""
+
     def wrapper(fn):
         @wraps(fn)
         def decorator(patient_id, *args, **kwargs):

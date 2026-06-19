@@ -78,6 +78,7 @@ def __filter_by_patient_search(query: Query, **kwargs) -> Query:
 
 def __order_by_column(query: Query, models: list, **kwargs) -> Query:
     """Apply an ORDER BY clause to the query based on the order_by and direction kwargs."""
+
     def __get_column(models):
         """Return the column attribute matching order_by from the first model that has it."""
         for model in models:
