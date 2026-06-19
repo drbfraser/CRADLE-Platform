@@ -93,9 +93,11 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
     Query all form submissions for a patient, ordered newest-first.
 
     Each item is a flat dict keyed by user_question_id with the scalar answer
-    value: INTEGER/DECIMAL → float, STRING → str, DATE/DATETIME → str,
-    MULTIPLE_CHOICE → English option text str.
-    To do: add support for MULTIPLE_SELECT 
+    value. This is how values are converted:
+    INTEGER/DECIMAL → float
+    STRING → str, 
+    DATE/DATETIME → str,
+    MULTIPLE_CHOICE → English option text str
     """
     submissions = (
         crud.db_session.query(FormSubmissionOrmV2)
@@ -127,7 +129,7 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
     mc_options_map: Dict[str, List[str]] = {}
     mc_string_ids: set[str] = set()
     for q in questions:
-        if q.question_type == QuestionTypeEnum.MULTIPLE_CHOICE and q.mc_options:
+        if q.question_type in (QuestionTypeEnum.MULTIPLE_CHOICE, QuestionTypeEnum.MULTIPLE_SELECT) and q.mc_options:
             try:
                 option_ids: List[str] = json.loads(q.mc_options)
                 mc_options_map[q.id] = option_ids
@@ -172,6 +174,15 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
                     value = option_text_map.get(option_ids[selected[0]])
                 else:
                     value = None
+            elif q_type == QuestionTypeEnum.MULTIPLE_SELECT:
+                selected = raw.get("mc_id_array", [])
+                option_ids = mc_options_map.get(question.id, [])
+                for idx in selected:
+                    if idx < len(option_ids):
+                        text = option_text_map.get(option_ids[idx])
+                        if text is not None:
+                            flat[f"{question.user_question_id}_{text}"] = True
+                continue
             else:
                 continue
             if value is not None:

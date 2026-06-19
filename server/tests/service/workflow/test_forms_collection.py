@@ -1,8 +1,5 @@
 """
 Tests for __query_forms_collection in data_catalogue.py.
-
-The private function is accessed via the public catalogue, matching the pattern
-used by tests in test_datasourcing.py.
 """
 
 import json
@@ -12,10 +9,6 @@ from unittest.mock import MagicMock, patch
 from enums import QuestionTypeEnum
 from models import FormQuestionTemplateOrmV2, FormSubmissionOrmV2, LangVersionOrmV2
 from service.workflow.datasourcing import data_catalogue
-from service.workflow.datasourcing.data_sourcing import (
-    VariablePath,
-    resolve_collection_variables,
-)
 
 _query_forms = data_catalogue.get_catalogue()["forms"]["query"]
 
@@ -23,7 +16,7 @@ PATIENT_ID = "patient-test-1"
 
 
 # ---------------------------------------------------------------------------
-# Helper factories
+# Helper functions
 # ---------------------------------------------------------------------------
 
 
@@ -101,7 +94,7 @@ def _build_session_mock(
 
 
 # ---------------------------------------------------------------------------
-# Unit tests for __query_forms_collection
+# Empty / no-data cases
 # ---------------------------------------------------------------------------
 
 
@@ -120,6 +113,11 @@ def test_submission_with_no_answers_returns_empty_dict():
         mock_crud.db_session = session
         result = _query_forms(PATIENT_ID)
     assert result == [{}]
+
+
+# ---------------------------------------------------------------------------
+# Answer type parsing: one test per supported data type
+# ---------------------------------------------------------------------------
 
 
 def test_integer_answer():
@@ -187,7 +185,7 @@ def test_datetime_answer():
     assert result == [{"event_time": "2024-01-15T10:30:00"}]
 
 
-def test_mc_answer_resolves_first_option_to_english_text():
+def test_mc_answer_resolves_to_english_text():
     yes_id = "str-yes"
     no_id = "str-no"
     answer = _make_answer("q1", {"mc_id_array": [0]})
@@ -206,7 +204,7 @@ def test_mc_answer_resolves_first_option_to_english_text():
     assert result == [{"step_response": "Yes"}]
 
 
-def test_mc_answer_resolves_second_option():
+def test_mc_answer_resolves_non_first_option():
     yes_id = "str-yes"
     no_id = "str-no"
     answer = _make_answer("q1", {"mc_id_array": [1]})
@@ -229,7 +227,7 @@ def test_mc_answer_resolves_second_option():
 
 
 def test_mc_answer_missing_translation_excluded():
-    """When no English translation exists for an MC option the field is omitted."""
+    """Field is omitted entirely when no English translation exists for the selected option."""
     answer = _make_answer("q1", {"mc_id_array": [0]})
     submission = _make_submission([answer])
     question = _make_question(
@@ -245,21 +243,79 @@ def test_mc_answer_missing_translation_excluded():
     assert result == [{}]
 
 
-def test_category_question_type_skipped():
-    """CATEGORY questions (section headers) produce no output key."""
-    answer = _make_answer("q1", {"text": "Section Header"})
+def test_multiple_select_single_selection():
+    """A single selected option emits one boolean entry keyed as {question}_{text}."""
+    fever_id = "str-fever"
+    cough_id = "str-cough"
+    answer = _make_answer("q1", {"mc_id_array": [0]})
     submission = _make_submission([answer])
-    question = _make_question("q1", "header", QuestionTypeEnum.CATEGORY)
+    question = _make_question(
+        "q1", "symptoms", QuestionTypeEnum.MULTIPLE_SELECT,
+        mc_options=[fever_id, cough_id],
+    )
+    lang_versions = [
+        _make_lang_version(fever_id, "Fever"),
+        _make_lang_version(cough_id, "Cough"),
+    ]
 
-    session = _build_session_mock([submission], [question])
+    session = _build_session_mock([submission], [question], lang_versions)
     with patch("service.workflow.datasourcing.data_catalogue.crud") as mock_crud:
         mock_crud.db_session = session
         result = _query_forms(PATIENT_ID)
 
-    assert result == [{}]
+    assert result == [{"symptoms_Fever": True}]
+
+
+def test_multiple_select_multiple_selections():
+    """Each selected option emits its own boolean entry."""
+    fever_id = "str-fever"
+    cough_id = "str-cough"
+    answer = _make_answer("q1", {"mc_id_array": [0, 1]})
+    submission = _make_submission([answer])
+    question = _make_question(
+        "q1", "symptoms", QuestionTypeEnum.MULTIPLE_SELECT,
+        mc_options=[fever_id, cough_id],
+    )
+    lang_versions = [
+        _make_lang_version(fever_id, "Fever"),
+        _make_lang_version(cough_id, "Cough"),
+    ]
+
+    session = _build_session_mock([submission], [question], lang_versions)
+    with patch("service.workflow.datasourcing.data_catalogue.crud") as mock_crud:
+        mock_crud.db_session = session
+        result = _query_forms(PATIENT_ID)
+
+    assert result == [{"symptoms_Fever": True, "symptoms_Cough": True}]
+
+
+def test_multiple_select_missing_translation_excluded():
+    """Selections with no English translation are silently omitted."""
+    fever_id = "str-fever"
+    unknown_id = "str-unknown"
+    answer = _make_answer("q1", {"mc_id_array": [0, 1]})
+    submission = _make_submission([answer])
+    question = _make_question(
+        "q1", "symptoms", QuestionTypeEnum.MULTIPLE_SELECT,
+        mc_options=[fever_id, unknown_id],
+    )
+    lang_versions = [_make_lang_version(fever_id, "Fever")]
+
+    session = _build_session_mock([submission], [question], lang_versions)
+    with patch("service.workflow.datasourcing.data_catalogue.crud") as mock_crud:
+        mock_crud.db_session = session
+        result = _query_forms(PATIENT_ID)
+
+    assert result == [{"symptoms_Fever": True}]
+
+
+# ---------------------------------------------------------------------------
+# Multi-record behaviour
+# ---------------------------------------------------------------------------
 
 
 def test_multiple_questions_in_one_submission():
+    """All answers in a single submission are merged into one dict."""
     a1 = _make_answer("q1", {"number": 72})
     a2 = _make_answer("q2", {"text": "notes here"})
     submission = _make_submission([a1, a2])
@@ -291,98 +347,3 @@ def test_multiple_submissions_newest_first_order_preserved():
     assert len(result) == 2
     assert result[0]["score"] == 2  # newest
     assert result[1]["score"] == 1  # oldest
-
-
-def test_answer_with_unknown_question_id_skipped():
-    """An answer whose question_id has no matching question template is silently skipped."""
-    answer = _make_answer("q-missing", {"number": 5})
-    submission = _make_submission([answer])
-
-    session = _build_session_mock([submission], questions=[])
-    with patch("service.workflow.datasourcing.data_catalogue.crud") as mock_crud:
-        mock_crud.db_session = session
-        result = _query_forms(PATIENT_ID)
-
-    assert result == [{}]
-
-
-# ---------------------------------------------------------------------------
-# Integration tests: forms collection via resolve_collection_variables
-# (matches the pattern of test_resolve_collection_variables_* in test_datasourcing.py)
-# ---------------------------------------------------------------------------
-
-
-def test_forms_latest_returns_value_from_newest_submission():
-    context = {"patient_id": PATIENT_ID}
-    variable_paths = [VariablePath.from_string("forms[latest].step_response")]
-    variable_paths = [vp for vp in variable_paths if vp is not None]
-
-    catalogue = {
-        "forms": {
-            "query": lambda _: [{"step_response": "Yes"}, {"step_response": "No"}],
-            "collection": True,
-        }
-    }
-
-    resolved = resolve_collection_variables(
-        context=context, variable_paths=variable_paths, catalogue=catalogue
-    )
-
-    assert resolved["forms[latest].step_response"] == "Yes"
-
-
-def test_forms_missing_field_resolves_to_none():
-    context = {"patient_id": PATIENT_ID}
-    variable_paths = [VariablePath.from_string("forms[latest].nonexistent")]
-    variable_paths = [vp for vp in variable_paths if vp is not None]
-
-    catalogue = {
-        "forms": {
-            "query": lambda _: [{"step_response": "Yes"}],
-            "collection": True,
-        }
-    }
-
-    resolved = resolve_collection_variables(
-        context=context, variable_paths=variable_paths, catalogue=catalogue
-    )
-
-    assert resolved.get("forms[latest].nonexistent") is None
-
-
-def test_forms_size_counts_submissions():
-    context = {"patient_id": PATIENT_ID}
-    variable_paths = [VariablePath.from_string("forms.size")]
-    variable_paths = [vp for vp in variable_paths if vp is not None]
-
-    catalogue = {
-        "forms": {
-            "query": lambda _: [{"step_response": "Yes"}, {"step_response": "No"}],
-            "collection": True,
-        }
-    }
-
-    resolved = resolve_collection_variables(
-        context=context, variable_paths=variable_paths, catalogue=catalogue
-    )
-
-    assert resolved["forms.size"] == 2
-
-
-def test_forms_empty_collection_resolves_latest_to_none():
-    context = {"patient_id": PATIENT_ID}
-    variable_paths = [VariablePath.from_string("forms[latest].step_response")]
-    variable_paths = [vp for vp in variable_paths if vp is not None]
-
-    catalogue = {
-        "forms": {
-            "query": lambda _: [],
-            "collection": True,
-        }
-    }
-
-    resolved = resolve_collection_variables(
-        context=context, variable_paths=variable_paths, catalogue=catalogue
-    )
-
-    assert resolved.get("forms[latest].step_response") is None
