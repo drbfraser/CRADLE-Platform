@@ -1,0 +1,188 @@
+import pytest
+import data.db_operations as crud
+import models
+import sqlalchemy
+from enums import SexEnum
+
+
+# create & read tests
+def test_create_read_basic():
+    patient = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+
+    crud.create(patient)
+    patientRead = crud.read(models.PatientOrm, id=patient.id)
+
+    assert patientRead.name == "Test Name"
+    assert patientRead.sex == SexEnum.FEMALE
+
+def test_create_commit_rollback():
+    patient = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+    crud.create(patient, autocommit=False)
+    patientRead = crud.read(models.PatientOrm, id=patient.id)
+
+    assert patientRead.name == "Test Name"
+    assert patientRead.sex == SexEnum.FEMALE
+    crud.db_session.rollback()
+
+    assert crud.read(models.PatientOrm, id=patient.id) is None
+
+def test_create_refresh_rollback():
+    patient1 = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+    patient2 = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name 2")
+
+    crud.create(patient1, refresh=True, autocommit=False)
+    crud.create(patient2, refresh=True, autocommit=False)
+
+    crud.db_session.rollback()
+    assert crud.read(models.PatientOrm, id=patient1.id) is None
+    assert crud.read(models.PatientOrm, id=patient2.id) is None
+
+def test_transaction_scope():
+    patient1 = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+    patient2 = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name 2")
+    patient3 = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name 3")
+
+    crud.create(patient1)
+    crud.create(patient2, autocommit=False)
+    crud.db_session.rollback()
+    crud.create(patient3)
+
+    assert crud.read(models.PatientOrm, id=patient1.id).id == patient1.id
+    assert crud.read(models.PatientOrm, id=patient2.id) is None
+    assert crud.read(models.PatientOrm, id=patient3.id).id == patient3.id
+
+def test_bad_create():
+    patient = None
+    with pytest.raises(Exception):
+        crud.create(patient)
+
+    patient = models.PatientOrm()
+    with pytest.raises(Exception):
+        crud.create(patient)
+
+
+# create_model tests
+def test_create_model_basic():
+    patientDict = dict(sex = SexEnum.FEMALE, name= "Create Model Test")
+    model = crud.create_model(patientDict, models.PatientSchema)
+
+    # Verifies the model contains all information in the dict
+    assert patientDict.items() <= model.as_dict().items()
+    assert crud.read(models.PatientOrm, id=model.id) == model
+
+def test_create_model_bad():
+    patientDict = dict(sex = SexEnum.FEMALE, name= "Create Model Test")
+    with pytest.raises(Exception):
+        crud.create_model(patientDict, None)
+    
+    with pytest.raises(Exception):
+        crud.create_model(None, models.PatientSchema)
+
+
+# create_all tests
+def test_create_all_basic():
+    # Ensures tests can be ran more than once
+    crud.delete_by(models.UserOrm, username="TestUsername")
+
+    patient = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+    user = models.UserOrm(
+            name="Test Name",
+            username="TestUsername",
+            email="test@test.com"
+        )
+    
+    userNumber = models.UserPhoneNumberOrm(
+            user=user,
+            phone_number="804-222-1111"
+        )
+
+    crud.create_all([patient, user, userNumber])
+
+    assert crud.read(models.PatientOrm, id=patient.id) == patient
+    assert crud.read(models.UserOrm, id=user.id) == user
+    assert crud.read(models.UserPhoneNumberOrm, id=userNumber.id) == userNumber
+    assert len(crud.read_all(models.UserPhoneNumberOrm, user=user)) == 1
+
+# Test to guarantee an atomic operation
+def test_create_all_bad():
+    patient = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+    with pytest.raises(Exception):
+        crud.create_all([patient, None])
+    assert crud.read(models.PatientOrm, id=patient.id) is None
+
+def test_create_all_transaction():
+    patient = models.PatientOrm(sex=SexEnum.FEMALE, name="Test Name")
+    record = models.MedicalRecordOrm(
+        information="Test Record", 
+        is_drug_record=False,
+        patient=patient
+    )
+
+    crud.create_all([patient, record], False)
+    assert crud.read(models.PatientOrm, id=patient.id) == patient
+    assert len(crud.read_all(models.MedicalRecordOrm, patient=patient)) == 1
+    crud.db_session.rollback()
+
+    assert crud.read(models.PatientOrm, id=patient.id) is None
+    assert len(crud.read_all(models.MedicalRecordOrm, patient=patient)) == 0
+
+# read tests
+# Basic read tests are done throughout the other tests, so only edge cases need to be tested
+
+def test_read_null():
+    with pytest.raises(Exception):
+        crud.read(None)
+
+def test_read_empty():
+    assert crud.read(models.PatientOrm, id="fake id") is None
+
+def test_read_many():
+    with pytest.raises(sqlalchemy.exc.MultipleResultsFound):
+        crud.read(models.PatientOrm)
+
+# update tests
+def test_update_basic(patient_factory):
+    patient = patient_factory.create(id="abc")
+    patientDict = patient.as_dict()
+
+    updatedPatientDict = crud.update(models.PatientOrm, 
+                dict(name = "Updated Name"),
+                id=patient.id
+    ).as_dict()
+    assert patientDict != updatedPatientDict
+
+    patientDict["name"] = "Updated Name"
+    assert patientDict == updatedPatientDict
+
+def test_update_many():
+    with pytest.raises(sqlalchemy.exc.MultipleResultsFound):
+        crud.update(models.PatientOrm, dict(name="test"))
+
+def test_update_transaction(patient_factory):
+    patient = patient_factory.create(id="abc")
+    patientDict = patient.as_dict()
+
+    updatedPatientDict = crud.update(models.PatientOrm, 
+                dict(name = "New Name"),
+                autocommit=False,
+                id=patient.id
+    ).as_dict()
+
+    assert updatedPatientDict != patientDict
+    assert crud.read(models.PatientOrm, id=patient.id).as_dict() != patientDict
+
+    crud.db_session.rollback()
+
+    assert crud.read(models.PatientOrm, id=patient.id).as_dict() == patientDict 
+"""
+This works? Is this intended behaviour?
+def test_update_invalid_member(patient_factory):
+    patient = patient_factory.create(id="abc")
+    #with pytest.raises(Exception):
+    newModel = crud.update(models.PatientOrm, 
+                dict(fake_entry="new test"),
+                id=patient.id)
+    assert newModel.fake_entry == "new test"
+    assert crud.read(models.PatientOrm, id=patient.id).fake_entry == "new test"
+"""
+
