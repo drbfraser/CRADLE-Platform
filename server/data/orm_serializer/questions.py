@@ -117,6 +117,7 @@ def __marshal_form_question_template_v2(q: FormQuestionTemplateOrmV2) -> dict:
 
 
 def marshal_question_to_single_version(q: QuestionOrm, lang: str) -> dict:
+    """Marshal a question ORM to a dict with only the requested language version's text and options."""
     # Base shallow marshal without versions
     d = __marshal_question(q, if_include_versions=False)
 

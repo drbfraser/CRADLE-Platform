@@ -26,6 +26,7 @@ class PregnancyModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_date_sequence(self) -> Self:
+        """Raise if pregnancy end_date is before start_date."""
         if (self.end_date is not None) and (self.start_date > self.end_date):
             raise ValueError("Pregnancy end date cannot be before the start date.")
         return self

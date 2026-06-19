@@ -20,6 +20,7 @@ from models import (
 
 
 def is_phone_number_relay(phone_number):
+    """Return 1 if the phone number belongs to an admin relay, 0 if not, or -1 on error."""
     # iterate through all admin phone numbers and remove dashes before comparision
     try:
         admin_phone_numbers = [
@@ -40,6 +41,7 @@ def is_phone_number_relay(phone_number):
 
 
 def get_all_relay_phone_numbers():
+    """Return a list of all relay phone numbers associated with admin users, or None on error."""
     try:
         admin_phone_numbers = [
             re.sub(r"[-]", "", admin_phone_number.number)

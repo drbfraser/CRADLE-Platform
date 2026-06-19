@@ -38,6 +38,7 @@ def _send_request_to_endpoint(
     headers: dict,
     body: str,
 ) -> requests.Response:
+    """Forward a decrypted SMS relay request to the local API and return the response."""
     api_url = "http://localhost:5000/{endpoint}"
     sms_access_token = sms_auth.create_sms_access_token(user_id)
     headers["Authorization"] = f"bearer {sms_access_token}"
@@ -52,6 +53,7 @@ def _send_request_to_endpoint(
 def _make_encrypted_response(
     code: int, body: str, iv: str, user_sms_key: str
 ) -> Response:
+    """Build an encrypted SMS relay response from a status code and body."""
     data = json.dumps({"code": code, "body": body})
     compressed_data = compressor.compress_from_string(data)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
