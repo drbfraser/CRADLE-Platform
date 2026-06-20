@@ -72,14 +72,14 @@ class WorkflowService:
         workflow_instance["workflow_template_id"] = workflow_template.id
         workflow_instance["patient_id"] = None
 
-        step = [
-            WorkflowService._generate_workflow_instance_step(
-                step_template, workflow_instance["id"]
-            )
-            for step_template in workflow_template.steps
-        ]
+        steps_by_id = {s.id: s for s in workflow_template.steps}
+        starting_template_step = steps_by_id[workflow_template.starting_step_id]
 
-        workflow_instance["steps"] = step
+        workflow_instance["steps"] = [
+            WorkflowService._generate_workflow_instance_step(
+                starting_template_step, workflow_instance["id"]
+            )
+        ]
 
         return WorkflowInstanceModel(**workflow_instance)
 

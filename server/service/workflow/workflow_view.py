@@ -53,12 +53,22 @@ class WorkflowView:
                 return branch
         raise ValueError(f"Template step has no branch with ID '{branch_id}'")
 
-    def get_instance_step_for_template_step(
+    def get_or_create_instance_step_for_template_step(
         self, template_step_id: str
     ) -> WorkflowInstanceStepModel:
-        return self.get_instance_step(
-            self._template_step_id_to_instance_step_id[template_step_id]
+        """Return the instance step for the given template step, creating it if it does not exist yet."""
+        if template_step_id not in self._template_step_id_to_instance_step_id:
+            from service.workflow.workflow_service import WorkflowService
+            template_step = self.get_template_step(template_step_id)
+            new_step = WorkflowService.generate_workflow_instance_step(
+                template_step, self.instance.id
         )
+        self.instance.steps.append(new_step)
+        self._instance_steps_by_id[new_step.id] = new_step
+        self._template_step_id_to_instance_step_id[template_step_id] = new_step.id
+        
+    return self.get_instance_step_for_template_step(template_step_id)
+
 
     def get_starting_step(self) -> WorkflowInstanceStepModel:
         template_step = self._template_steps_by_id[self.template.starting_step_id]
