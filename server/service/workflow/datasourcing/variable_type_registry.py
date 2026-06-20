@@ -6,7 +6,6 @@ Used during rule evaluation to coerce values to stable JsonLogic-friendly types.
 
 from __future__ import annotations
 
-
 from enums import WorkflowVariableTypeEnum
 from service.workflow.datasourcing.data_sourcing import (
     WORKFLOW_VARIABLE_NAMESPACE,

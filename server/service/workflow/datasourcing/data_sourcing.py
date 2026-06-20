@@ -736,7 +736,7 @@ def resolve_collection_variables(
 
     Collection namespaces are configured in the data catalogue via:
         {
-            "query": callable(patient_id) -> List[BaseModel | dict],
+            "query": callable(patient_id) -> list[BaseModel | dict],
             "collection": True,
         }
     """
