@@ -1,6 +1,5 @@
 import time
 from pprint import pformat
-from typing import List
 
 import pytest
 from humps import decamelize
@@ -539,7 +538,7 @@ def test_invalid_patient_not_created(api_post):
     assert crud.read(PatientOrm, id=patient_id) is None
 
 
-def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
+def __make_patient(patient_id: str, reading_ids: list[str]) -> dict:
     return {
         "id": patient_id,
         "name": "TEST",
@@ -555,7 +554,7 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     }
 
 
-def __make_full_patient(patient_id: str, reading_ids: List[str]) -> dict:
+def __make_full_patient(patient_id: str, reading_ids: list[str]) -> dict:
     return {
         "id": patient_id,
         "name": "TEST_FULL",

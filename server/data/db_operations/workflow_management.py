@@ -27,7 +27,7 @@ What this module provides
 """
 
 import json
-from typing import Any, List, Optional, Type
+from typing import Any, Optional
 
 from common.commonUtil import get_current_time, get_uuid
 from data.db_operations import M, db_session
@@ -61,7 +61,7 @@ def delete_workflow_step_branch(**kwargs):
         delete(branch)
 
 
-def delete_workflow_step(m: Type[M], **kwargs) -> None:
+def delete_workflow_step(m: type[M], **kwargs) -> None:
     """
     Deletes a step from a workflow template or instance including all associated branches, forms, and rule groups
 
@@ -85,7 +85,7 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
     delete(step)
 
 
-def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -> None:
+def delete_workflow(m: type[M], delete_classification: bool = False, **kwargs) -> None:
     """
     Deletes a workflow instance or template including all associated steps and rule groups
 
@@ -137,7 +137,7 @@ def delete_workflow_classification(delete_templates: bool = False, **kwargs) -> 
 
 def read_instance_steps(
     model: WorkflowInstanceStepOrm, workflow_instance_id: Optional[str] = None
-) -> List[WorkflowInstanceStepOrm]:
+) -> list[WorkflowInstanceStepOrm]:
     """
     Queries the database for all instance steps from either a specific workflow instance or the entire DB
 
@@ -158,7 +158,7 @@ def read_workflow_instances(
     patient_id: Optional[str] = None,
     status: Optional[WorkflowStatusEnum] = None,
     workflow_template_id: Optional[str] = None,
-) -> List[WorkflowInstanceOrm]:
+) -> list[WorkflowInstanceOrm]:
     """
     Queries the database for all workflow instances that have either been assigned by a specific user or all instances in total
 
@@ -189,7 +189,7 @@ def read_workflow_instances(
 def read_workflow_templates(
     workflow_classification_id: Optional[str] = None,
     is_archived: Optional[bool] = False,
-) -> List[WorkflowTemplateOrm]:
+) -> list[WorkflowTemplateOrm]:
     """
     Queries the database for all workflow templates that either belong to a classification or in total
 
@@ -212,7 +212,7 @@ def read_workflow_templates(
 
 def read_workflow_classifications(
     is_archived: bool = False,
-) -> List[WorkflowClassificationOrm]:
+) -> list[WorkflowClassificationOrm]:
     """
     Queries the database for all workflow classifications
 
@@ -226,7 +226,7 @@ def read_workflow_classifications(
 
 def read_template_steps(
     workflow_template_id: Optional[str] = None,
-) -> List[WorkflowTemplateStepOrm]:
+) -> list[WorkflowTemplateStepOrm]:
     """
     Queries the database for all template steps from either a specific workflow template or the entire DB
 
@@ -246,7 +246,7 @@ def read_template_steps(
 
 def read_workflows_in_collection(
     workflow_collection_id: str,
-) -> List[WorkflowClassificationOrm]:
+) -> list[WorkflowClassificationOrm]:
     """
     Queries the database for all workflows that belong in a specific collection
 
@@ -285,7 +285,7 @@ def read_workflow_instance(instance_id: str) -> Optional[WorkflowInstanceOrm]:
 
 def read_workflow_instance_data_for_instance(
     workflow_instance_id: str,
-) -> List[WorkflowInstanceDataOrm]:
+) -> list[WorkflowInstanceDataOrm]:
     """All dynamic data rows for a workflow instance, ordered by field_tag."""
     if not workflow_instance_id:
         return []

@@ -6,7 +6,6 @@ Used during rule evaluation to coerce values to stable JsonLogic-friendly types.
 
 from __future__ import annotations
 
-from typing import Dict
 
 from enums import WorkflowVariableTypeEnum
 from service.workflow.datasourcing.data_sourcing import (
@@ -18,7 +17,7 @@ T = WorkflowVariableTypeEnum
 
 # Matches migration 28 (basic patient) + 29 (system context) + 30 (collection/workflow).
 # Keep in sync with Alembic seeds when adding variables.
-BUILTIN_VARIABLE_TYPE_MAP: Dict[str, WorkflowVariableTypeEnum] = {
+BUILTIN_VARIABLE_TYPE_MAP: dict[str, WorkflowVariableTypeEnum] = {
     # --- migration 28 ---
     "patient.id": T.STRING,
     "patient.name": T.STRING,
@@ -65,7 +64,7 @@ COLLECTION_NAMESPACES = frozenset(
 )
 
 # wf.info.* metadata (workflow_instance marshaled fields).
-_WF_INFO_FIELD_TYPES: Dict[str, WorkflowVariableTypeEnum] = {
+_WF_INFO_FIELD_TYPES: dict[str, WorkflowVariableTypeEnum] = {
     "start_date": T.INTEGER,
     "completion_date": T.INTEGER,
     "last_edited": T.INTEGER,
@@ -79,7 +78,7 @@ _WF_INFO_FIELD_TYPES: Dict[str, WorkflowVariableTypeEnum] = {
 }
 
 # vitals / reading dict leaves (marshaled ORM).
-_VITAL_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
+_VITAL_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "systolic_blood_pressure": T.INTEGER,
     "diastolic_blood_pressure": T.INTEGER,
     "heart_rate": T.INTEGER,
@@ -88,7 +87,7 @@ _VITAL_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
     "is_flagged_for_follow_up": T.BOOLEAN,
 }
 
-_URINE_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
+_URINE_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "leukocytes": T.STRING,
     "nitrites": T.STRING,
     "glucose": T.STRING,
@@ -96,7 +95,7 @@ _URINE_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
     "blood": T.STRING,
 }
 
-_PREGNANCY_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
+_PREGNANCY_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "id": T.INTEGER,
     "start_date": T.INTEGER,
     "end_date": T.INTEGER,
@@ -106,7 +105,7 @@ _PREGNANCY_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
 }
 
 # all_wf: marshaled workflow_instance (shallow).
-_ALL_WF_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
+_ALL_WF_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "start_date": T.INTEGER,
     "completion_date": T.INTEGER,
     "last_edited": T.INTEGER,

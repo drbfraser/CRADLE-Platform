@@ -13,7 +13,6 @@ Functions include:
 - Exporting structured datasets combining patient, referral, and reading info.
 """
 
-from typing import List
 
 from sqlalchemy.sql.expression import and_
 
@@ -25,7 +24,7 @@ from models import (
 )
 
 
-def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List[M]:
+def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> list[M]:
     """
     Queries the database for unique patients with more than one reading
 
@@ -67,7 +66,7 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
         return None
 
 
-def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
+def get_total_readings_completed(facility="%", user="%", filter={}) -> list[M]:
     """
     Queries the database for total number of readings completed
 
@@ -103,7 +102,7 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
         return None
 
 
-def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
+def get_total_color_readings(facility="%", user="%", filter={}) -> list[M]:
     """
     Queries the database for total number different coloured readings (red up, yellow down, etc)
     filter: filter date range, otherwise uses max range
@@ -139,7 +138,7 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
         return None
 
 
-def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
+def get_sent_referrals(facility="%", user="%", filter={}) -> list[M]:
     """
     Queries the database for total number of sent referrals
 
@@ -171,7 +170,7 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
         return None
 
 
-def get_referred_patients(facility="%", filter={}) -> List[M]:
+def get_referred_patients(facility="%", filter={}) -> list[M]:
     """
     Queries the database for total number of patients that have referrals to specified facility
 

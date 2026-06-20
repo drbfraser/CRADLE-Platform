@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional
+from typing import Optional
 
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
@@ -32,7 +32,7 @@ from validation.workflow_models import WorkflowTemplateModel
 
 # Create a response model for the list endpoints
 class WorkflowTemplateListResponse(CradleBaseModel):
-    items: List[WorkflowTemplateModel]
+    items: list[WorkflowTemplateModel]
 
 
 # /api/workflow/templates

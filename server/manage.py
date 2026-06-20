@@ -4,7 +4,6 @@ import random
 import string
 import time
 from random import randint, randrange
-from typing import List
 
 import click
 import numpy as np
@@ -2578,7 +2577,7 @@ def create_complex_workflow_template_steps():
 
 
 def create_workflow_template_step_with_form_and_branches(
-    template_step: dict, form_id: str, template_step_branches: List[dict]
+    template_step: dict, form_id: str, template_step_branches: list[dict]
 ) -> None:
     form_template_orm = crud.read(FormTemplateOrmV2, id=form_id)
     template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
@@ -2754,7 +2753,7 @@ def create_complex_workflow_template_step_forms_v2():
 def create_form_template_for_workflow_v2(
     workflow_template_step_form_template: dict,
     classification_id: str,
-    question_ids: List[str],
+    question_ids: list[str],
 ):
     """Seeds the DB with an example form template used in a workflow template"""
     form_template_orm = FormTemplateOrmV2(**workflow_template_step_form_template)

@@ -1,4 +1,3 @@
-from typing import List
 
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
@@ -21,12 +20,12 @@ from validation.workflow_models import (
 
 # Response model for a list of workflow collections
 class WorkflowCollectionListResponse(CradleBaseModel):
-    items: List[WorkflowCollectionModel]
+    items: list[WorkflowCollectionModel]
 
 
 # Response model for a list of workflow classifications
 class WorkflowClassificationListResponse(CradleBaseModel):
-    items: List[WorkflowClassificationModel]
+    items: list[WorkflowClassificationModel]
 
 
 api_workflow_collections = APIBlueprint(

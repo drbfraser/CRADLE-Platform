@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 import requests
 from humps import decamelize
@@ -248,7 +247,7 @@ def test_update_assessments_with_sms_relay(
     )
 
 
-def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
+def __make_patient(patient_id: str, reading_ids: list[str]) -> dict:
     return {
         "id": patient_id,
         "name": "TEST",

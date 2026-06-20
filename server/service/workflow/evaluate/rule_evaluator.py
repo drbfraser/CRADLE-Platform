@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Optional
 
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
@@ -35,7 +35,7 @@ class RuleEvaluator:
     3. Evaluating the rule with resolved data (rule engine)
     """
 
-    def __init__(self, catalogue: Optional[Dict[str, Any]] = None):
+    def __init__(self, catalogue: Optional[dict[str, Any]] = None):
         """
         Initialize the evaluator.
 
@@ -49,8 +49,8 @@ class RuleEvaluator:
         rule: Optional[str],
         patient_id: str,
         workflow_instance_id: Optional[str] = None,
-        current_user: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[RuleStatus, List[VariableResolution]]:
+        current_user: Optional[dict[str, Any]] = None,
+    ) -> tuple[RuleStatus, list[VariableResolution]]:
         """
         Evaluate a rule with a given context.
 
@@ -79,12 +79,12 @@ class RuleEvaluator:
             "all_wf",
         }
 
-        collection_paths: List[VariablePath] = []
-        wf_paths: List[VariablePath] = []
-        object_paths: List[VariablePath] = []
-        simple_variables: List[DatasourceVariable] = []
-        system_literal_vars: Set[str] = set()
-        current_user_vars: Set[str] = set()
+        collection_paths: list[VariablePath] = []
+        wf_paths: list[VariablePath] = []
+        object_paths: list[VariablePath] = []
+        simple_variables: list[DatasourceVariable] = []
+        system_literal_vars: set[str] = set()
+        current_user_vars: set[str] = set()
 
         system_literal_var_names = {"local-date", "local-time", "local-date-time"}
         current_user_prefix = "current-user."
@@ -117,11 +117,11 @@ class RuleEvaluator:
             if dv is not None:
                 simple_variables.append(dv)
 
-        context: Dict[str, Any] = {"patient_id": patient_id}
+        context: dict[str, Any] = {"patient_id": patient_id}
         if workflow_instance_id:
             context["workflow_instance_id"] = workflow_instance_id
 
-        resolved_data: Dict[str, Any] = {}
+        resolved_data: dict[str, Any] = {}
         if simple_variables:
             resolved_data.update(
                 resolve_variables(
@@ -178,7 +178,7 @@ class RuleEvaluator:
                     resolved_data[var_str] = MISSING
             else:
 
-                def _navigate_dict_path(root: Any, path_parts: List[str]) -> Any:
+                def _navigate_dict_path(root: Any, path_parts: list[str]) -> Any:
                     """Navigate through dicts (and simple objects) for dotted paths."""
                     current: Any = root
                     for part in path_parts:
@@ -228,13 +228,13 @@ class RuleEvaluator:
 
         return (evaluation_result.status, var_resolutions)
 
-    def _apply_type_coercion(self, resolved_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_type_coercion(self, resolved_data: dict[str, Any]) -> dict[str, Any]:
         """
         Coerce resolved values to catalogue types so JsonLogic sees stable scalars.
 
         Unknown tags pass through unchanged. :data:`MISSING` is preserved.
         """
-        out: Dict[str, Any] = {}
+        out: dict[str, Any] = {}
         for key, value in resolved_data.items():
             if value is MISSING:
                 out[key] = value
@@ -247,8 +247,8 @@ class RuleEvaluator:
         return out
 
     def _create_variable_resolutions(
-        self, resolved_data: Dict[str, Any]
-    ) -> List[VariableResolution]:
+        self, resolved_data: dict[str, Any]
+    ) -> list[VariableResolution]:
         """
         Create VariableResolution objects from resolved data.
 

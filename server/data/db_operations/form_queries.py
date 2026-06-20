@@ -14,7 +14,7 @@ Functions:
 """
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 import data.db_operations as crud
 from common.form_utils import filter_template_questions_orm
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 def read_questions(
     model: QuestionOrm,
     form_template_id: Optional[int] = None,
-) -> List[QuestionOrm]:
+) -> list[QuestionOrm]:
     """
     Queries the database for questions
 
@@ -45,7 +45,7 @@ def read_questions(
 
 def read_form_template_language_versions(
     model: FormTemplateOrm, refresh=False
-) -> List[str]:
+) -> list[str]:
     """
     Queries the template for current language versions
 
