@@ -8,6 +8,7 @@ import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import {
   InstanceDetails,
   InstanceStep,
+  WorkflowNextStepOption,
   WorkflowStepHistoryActions,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { useWorkflowFormModal } from './useWorkflowFormModal';
@@ -138,18 +139,20 @@ export function useWorkflowInstanceActions({
     handleCloseNextStepModal();
   };
 
-  const handleCompleteAndStartNextStep = async (stepId: string) => {
+  const handleCompleteAndStartNextStep = async (
+    option: WorkflowNextStepOption
+  ) => {
     try {
-      const { success } = await completeAndStartNextStep(stepId);
-      if (!success) return;
+      const result = await completeAndStartNextStep(option);
+      if (!result.success) return undefined;
 
       handleCloseNextStepModal();
       showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      return stepId;
+      return result.nextInstanceStepId;
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-      return null;
+      return undefined;
     }
   };
 

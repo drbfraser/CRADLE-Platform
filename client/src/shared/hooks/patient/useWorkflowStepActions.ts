@@ -1,6 +1,7 @@
 import {
   advanceOverrideStep,
   advanceRecommendedStep,
+  advanceToTemplateStep,
   applyInstanceStepAction,
   createStepInstance,
 } from 'src/shared/api';
@@ -15,6 +16,7 @@ import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
+  WorkflowNextStepOption,
 } from 'src/shared/types/workflow/workflowUiTypes';
 
 export function useWorkflowStepActions(
@@ -69,20 +71,6 @@ export function useWorkflowStepActions(
     return response;
   };
 
-  const isRecommendedStep = (stepId: string) => {
-    return currentStepEvaluation!.selectedBranchId === stepId;
-  };
-
-  const advanceInstanceCurrentStep = async (stepId: string) => {
-    if (isRecommendedStep(stepId)) {
-      await advanceRecommendedStep(instanceDetails!.id);
-    } else {
-      await advanceOverrideStep(instanceDetails!.id, {
-        workflowInstanceStepId: stepId,
-      });
-    }
-  };
-
   const handleCreateStepInstance = async (stepId: string) => {
     const payload: CreateInstanceStepRequest = {
       workflowInstanceId: instanceDetails!.id,
@@ -114,22 +102,33 @@ export function useWorkflowStepActions(
     }
   };
 
-  const completeAndStartNextStep = async (stepId: string) => {
+  const completeAndStartNextStep = async (option: WorkflowNextStepOption) => {
     try {
       await completeStep();
+
+      let nextInstanceStepId: string;
+
+      if (option.isRecommended) {
+        const advancedInstance = await advanceRecommendedStep(
+          instanceDetails!.id
+        );
+        nextInstanceStepId = advancedInstance.currentStepId!;
+      } else {
+        const advancedInstance = await advanceToTemplateStep(
+          instanceDetails!.id,
+          option.templateStepId
+        );
+        nextInstanceStepId = advancedInstance.currentStepId!;
+      }
+
+      await startStep(nextInstanceStepId);
       await reload();
 
-      await advanceInstanceCurrentStep(stepId);
-
-      await startStep(stepId);
-      await reload();
-
-      showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      return { success: true };
+      return { success: true, nextInstanceStepId };
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-      return { success: false };
+      return { success: false, nextInstanceStepId: undefined };
     }
   };
 

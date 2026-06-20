@@ -18,6 +18,7 @@ import WorkflowInstanceSnackbar from './components/WorkflowInstanceSnackbar';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowInstanceActions } from 'src/shared/hooks/patient/useWorkflowInstanceActions';
+import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -59,8 +60,8 @@ export default function WorkflowInstanceDetailsPage() {
     ? `Workflow: ${template.classification?.name ?? template.name ?? 'Unknown'}`
     : 'Workflow Instance Details';
 
-  const onCompleteAndStartNextStep = async (stepId: string) => {
-    const expandedStepId = await handleCompleteAndStartNextStep(stepId);
+  const onCompleteAndStartNextStep = async (option: WorkflowNextStepOption) => {
+    const expandedStepId = await handleCompleteAndStartNextStep(option);
     if (expandedStepId) {
       setExpandedStep(expandedStepId);
     }

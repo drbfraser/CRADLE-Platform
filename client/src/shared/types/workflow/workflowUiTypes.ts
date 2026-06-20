@@ -110,7 +110,7 @@ export type WorkflowInfoRow = {
 
 export type WorkflowNextStepOption = {
   branchId: string;
-  stepId: string;
+  templateStepId: string;
   title: string;
   isRecommended: boolean;
   rule: string;
