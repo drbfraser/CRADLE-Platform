@@ -10,7 +10,6 @@ Functions:
 - get_supervised_vhts(user_id): Retrieves the list of VHTs supervised by a CHO.
 """
 
-
 from data.db_operations import LOGGER, db_session
 from models import (
     SupervisesTable,

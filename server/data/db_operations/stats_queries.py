@@ -13,7 +13,6 @@ Functions include:
 - Exporting structured datasets combining patient, referral, and reading info.
 """
 
-
 from sqlalchemy.sql.expression import and_
 
 from data.db_operations import LOGGER, M, db_session

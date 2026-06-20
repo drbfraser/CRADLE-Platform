@@ -1,4 +1,3 @@
-
 from models import PatientOrm, UserOrm
 from service.assoc import (
     has_association,
