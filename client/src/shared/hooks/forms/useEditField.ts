@@ -6,20 +6,10 @@ import {
 import { QCondition, McOptionV2 } from 'src/shared/types/form/formTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
-interface FieldTypes {
-  [key: string]: {
-    value: string;
-    label: string;
-    type: QuestionTypeEnum;
-    render: () => JSX.Element;
-  };
-}
-
 interface UseEditFieldProps {
   question: TQuestion | undefined;
   visibilityToggle: boolean;
   setForm: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>> | undefined;
-  fieldTypes: FieldTypes;
   open: boolean;
   setVisibilityToggle: Dispatch<SetStateAction<boolean>>;
   categoryIndex: number | null;
@@ -31,7 +21,6 @@ export const useEditField = ({
   question,
   visibilityToggle,
   setForm,
-  fieldTypes,
   open,
   setVisibilityToggle,
   categoryIndex,
@@ -118,8 +107,24 @@ export const useEditField = ({
     setValidationError(null);
   };
 
-  const getFieldType = (qt: QuestionTypeEnum) =>
-    Object.keys(fieldTypes).find((ft) => fieldTypes[ft].type === qt) || '';
+  const getFieldType = (qt: QuestionTypeEnum): string => {
+    switch (qt) {
+      case QuestionTypeEnum.CATEGORY:
+        return 'category';
+      case QuestionTypeEnum.INTEGER:
+        return 'number';
+      case QuestionTypeEnum.STRING:
+        return 'text';
+      case QuestionTypeEnum.MULTIPLE_CHOICE:
+        return 'mult_choice';
+      case QuestionTypeEnum.MULTIPLE_SELECT:
+        return 'mult_select';
+      case QuestionTypeEnum.DATE:
+        return 'date';
+      default:
+        return '';
+    }
+  };
 
   // Reset numeric validation errors when modal reopens
   useEffect(() => {
