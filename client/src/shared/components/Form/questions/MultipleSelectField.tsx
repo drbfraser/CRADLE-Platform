@@ -30,40 +30,40 @@ export const MultipleSelectField = ({
     );
 
   return (
-  <Grid item {...getQuestionGridProps(renderState)}>
-    <FormLabel>
-      <Typography variant="h6">
-        {`${text}${required ? ' *' : ''}`}
-        {validationMessage ? (
-          <Typography
-            component="span"
-            variant="overline"
-            style={{ color: '#FF0000', fontWeight: 600 }}>
-            {' '}
-            {validationMessage}
-          </Typography>
-        ) : null}
-      </Typography>
-    </FormLabel>
-    {mcOptions?.map((mcOption) => (
-      <FormControlLabel
-        control={
-          <Checkbox
-            value={mcOption}
-            checked={answer.val?.includes(mcOption)}
-            onChange={(_event, checked) => {
-              const newValue = checked
-                ? [...answer.val, mcOption]
-                : answer.val.filter((val: unknown) => val !== mcOption);
-              formContext.updateAnswersByValue(qid, newValue);
-            }}
-          />
-        }
-        label={mcOption}
-        key={mcOption}
-        disabled={isQuestionFieldDisabled(renderState)}
-      />
-    ))}
-  </Grid>
+    <Grid item {...getQuestionGridProps(renderState)}>
+      <FormLabel>
+        <Typography variant="h6">
+          {`${text}${required ? ' *' : ''}`}
+          {validationMessage ? (
+            <Typography
+              component="span"
+              variant="overline"
+              style={{ color: '#FF0000', fontWeight: 600 }}>
+              {' '}
+              {validationMessage}
+            </Typography>
+          ) : null}
+        </Typography>
+      </FormLabel>
+      {mcOptions?.map((mcOption) => (
+        <FormControlLabel
+          control={
+            <Checkbox
+              value={mcOption}
+              checked={answer.val?.includes(mcOption)}
+              onChange={(_event, checked) => {
+                const newValue = checked
+                  ? [...answer.val, mcOption]
+                  : answer.val.filter((val: unknown) => val !== mcOption);
+                formContext.updateAnswersByValue(qid, newValue);
+              }}
+            />
+          }
+          label={mcOption}
+          key={mcOption}
+          disabled={isQuestionFieldDisabled(renderState)}
+        />
+      ))}
+    </Grid>
   );
 };

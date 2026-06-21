@@ -33,9 +33,7 @@ export const StringFieldEditor = ({ hook }: FieldEditorProps) => (
         />
       }
       label={
-        <FormLabel
-          id="lines-num-restriction-label"
-          style={{ display: 'flex' }}>
+        <FormLabel id="lines-num-restriction-label" style={{ display: 'flex' }}>
           <Typography variant="h6">Restrict Max Lines</Typography>
           <Tooltip
             disableFocusListener
