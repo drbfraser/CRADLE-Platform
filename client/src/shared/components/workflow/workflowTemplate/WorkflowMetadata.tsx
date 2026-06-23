@@ -120,7 +120,14 @@ export const WorkflowMetadata = ({
         <Grid item xs={12} md={5}>
           <Stack spacing={2}>
             <Stack spacing={1.5}>
-              <Typography variant="subtitle1">Template Name:</Typography>
+              <Typography variant="subtitle1">
+                Template Name:{' '}
+                {isClassificationEditable && (
+                  <Typography component="span" color="error">
+                    *
+                  </Typography>
+                )}
+              </Typography>
               <TextField
                 value={classificationName || ''}
                 placeholder="Enter template name"
