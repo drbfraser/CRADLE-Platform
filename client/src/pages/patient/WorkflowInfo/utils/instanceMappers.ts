@@ -160,6 +160,7 @@ export const buildWorkflowInstanceRowList = async (
         instanceTitle: instance.name,
         templateId: instance.workflowTemplateId || '',
         templateName,
+        description: instance.description || '',
         collection: 'PAPAGAO', // TODO - To do when collections set up
         status: instance.status,
         lastEdited: instance.lastEdited,

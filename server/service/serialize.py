@@ -31,7 +31,7 @@ def serialize_patient_list(patients: List[Any]) -> list[dict]:
             "traffic_light_status": (
                 p.traffic_light_status.value if p.traffic_light_status else ""
             ),
-            "date_taken": p.date_taken if p.date_taken else "",
+            "date_taken": p.date_taken or "",
         }
         for p in patients
     ]

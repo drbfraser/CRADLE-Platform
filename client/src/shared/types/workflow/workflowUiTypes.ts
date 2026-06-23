@@ -101,6 +101,7 @@ export type WorkflowInfoRow = {
   instanceTitle: string;
   templateId: string;
   templateName: string;
+  description: string;
   collection: string;
   status: InstanceStatus;
   lastEdited: number;

@@ -166,8 +166,18 @@ export const WorkflowInfo: React.FC = () => {
   }, [patientId]);
 
   const columns: GridColDef[] = [
-    { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
-    { field: 'templateName', headerName: 'Workflow Template', width: 180 },
+    // { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
+    { field: 'templateName', headerName: 'Workflow Name', width: 180 },
+    {
+      field: 'description',
+      headerName: 'Description',
+      width: 220,
+      renderCell: (p: GridRenderCellParams) => {
+        const val = (p.row as WorkflowInfoRow).description;
+        if (!val) return <>N/A</>;
+        return val.length > 40 ? <>{val.slice(0, 40)}…</> : <>{val}</>;
+      },
+    },
     {
       field: 'status',
       headerName: 'Status',
