@@ -122,7 +122,9 @@ export const WorkflowEditor = ({
             variant="contained"
             startIcon={isSaving ? <CircularProgress size={20} /> : <SaveIcon />}
             onClick={onSave}
-            disabled={!hasChanges || isSaving || saveDisabled || !workflow.name?.trim()}>
+            disabled={
+              !hasChanges || isSaving || saveDisabled || !workflow.name?.trim()
+            }>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </Stack>
