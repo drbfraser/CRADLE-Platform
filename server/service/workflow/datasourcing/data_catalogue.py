@@ -94,7 +94,7 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
     Each item is a flat dict keyed by user_question_id with the scalar answer
     value. This is how values are converted:
     INTEGER/DECIMAL → float
-    STRING → str, 
+    STRING → str,
     DATE/DATETIME → str,
     MULTIPLE_CHOICE → English option text str
     """
@@ -128,7 +128,11 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
     mc_options_map: Dict[str, List[str]] = {}
     mc_string_ids: set[str] = set()
     for q in questions:
-        if q.question_type in (QuestionTypeEnum.MULTIPLE_CHOICE, QuestionTypeEnum.MULTIPLE_SELECT) and q.mc_options:
+        if (
+            q.question_type
+            in (QuestionTypeEnum.MULTIPLE_CHOICE, QuestionTypeEnum.MULTIPLE_SELECT)
+            and q.mc_options
+        ):
             try:
                 option_ids: List[str] = json.loads(q.mc_options)
                 mc_options_map[q.id] = option_ids

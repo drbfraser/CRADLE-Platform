@@ -193,7 +193,9 @@ def test_mc_answer_resolves_to_english_text():
     answer = _make_answer("q1", {"mc_id_array": [0]})
     submission = _make_submission([answer])
     question = _make_question(
-        "q1", "step_response", QuestionTypeEnum.MULTIPLE_CHOICE,
+        "q1",
+        "step_response",
+        QuestionTypeEnum.MULTIPLE_CHOICE,
         mc_options=[yes_id, no_id],
     )
     lang_version = _make_lang_version(yes_id, "Yes")
@@ -212,7 +214,9 @@ def test_mc_answer_resolves_non_first_option():
     answer = _make_answer("q1", {"mc_id_array": [1]})
     submission = _make_submission([answer])
     question = _make_question(
-        "q1", "step_response", QuestionTypeEnum.MULTIPLE_CHOICE,
+        "q1",
+        "step_response",
+        QuestionTypeEnum.MULTIPLE_CHOICE,
         mc_options=[yes_id, no_id],
     )
     lang_versions = [
@@ -233,7 +237,9 @@ def test_mc_answer_missing_translation_excluded():
     answer = _make_answer("q1", {"mc_id_array": [0]})
     submission = _make_submission([answer])
     question = _make_question(
-        "q1", "step_response", QuestionTypeEnum.MULTIPLE_CHOICE,
+        "q1",
+        "step_response",
+        QuestionTypeEnum.MULTIPLE_CHOICE,
         mc_options=["str-uuid-1"],
     )
 
@@ -252,7 +258,9 @@ def test_multiple_select_single_selection():
     answer = _make_answer("q1", {"mc_id_array": [0]})
     submission = _make_submission([answer])
     question = _make_question(
-        "q1", "symptoms", QuestionTypeEnum.MULTIPLE_SELECT,
+        "q1",
+        "symptoms",
+        QuestionTypeEnum.MULTIPLE_SELECT,
         mc_options=[fever_id, cough_id],
     )
     lang_versions = [
@@ -275,7 +283,9 @@ def test_multiple_select_multiple_selections():
     answer = _make_answer("q1", {"mc_id_array": [0, 1]})
     submission = _make_submission([answer])
     question = _make_question(
-        "q1", "symptoms", QuestionTypeEnum.MULTIPLE_SELECT,
+        "q1",
+        "symptoms",
+        QuestionTypeEnum.MULTIPLE_SELECT,
         mc_options=[fever_id, cough_id],
     )
     lang_versions = [
@@ -298,7 +308,9 @@ def test_multiple_select_missing_translation_excluded():
     answer = _make_answer("q1", {"mc_id_array": [0, 1]})
     submission = _make_submission([answer])
     question = _make_question(
-        "q1", "symptoms", QuestionTypeEnum.MULTIPLE_SELECT,
+        "q1",
+        "symptoms",
+        QuestionTypeEnum.MULTIPLE_SELECT,
         mc_options=[fever_id, unknown_id],
     )
     lang_versions = [_make_lang_version(fever_id, "Fever")]
