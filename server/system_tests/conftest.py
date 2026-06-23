@@ -5,7 +5,7 @@ import pytest
 import requests
 from flask import Flask
 from humps import decamelize
-from sqlalchemy import text
+from sqlalchemy import text, select, func
 
 from system_tests.mock import factory
 
@@ -111,6 +111,18 @@ def clean_database(app, database):
             transaction.commit()
             connection.close()
 
+@pytest.fixture
+def get_row_count(database) -> Callable[[any], int]:
+    def _get_row_count(model: any) -> int:
+        """
+        Gets the number of rows in a table.
+
+        :param model: The model as a reference to the table
+        :return: The number of rows in the table for model
+        """
+        return database.session.scalar(select(func.count()).select_from(model))
+
+    return _get_row_count
 
 #
 # Web API Interface Fixtures
