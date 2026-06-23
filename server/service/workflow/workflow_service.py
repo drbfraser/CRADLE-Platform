@@ -337,6 +337,19 @@ class WorkflowService:
         WorkflowPlanner.advance(ctx=workflow_view, current_user=current_user)
 
     @staticmethod
+    def advance_workflow_to_template_step(
+        workflow_view: WorkflowView, template_step_id: str
+    ) -> None:
+        """
+        Advance the workflow to the instance step for the given template step,
+        creating it on demand if it does not exist yet.
+        """
+        instance_step = workflow_view.get_or_create_instance_step_for_template_step(
+            template_step_id
+        )
+        workflow_view.instance.current_step_id = instance_step.id
+
+    @staticmethod
     def override_current_step(
         workflow_view: WorkflowView, instance_step_id: str
     ) -> None:

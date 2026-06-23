@@ -119,6 +119,10 @@ class OverrideCurrentStepRequest(CradleBaseModel):
     workflow_instance_step_id: str
 
 
+class AdvanceWorkflowRequest(CradleBaseModel):
+    target_template_step_id: Optional[str] = None
+
+
 class WorkflowInstanceDataUpsertItem(CradleBaseModel, extra="forbid"):
     """One dynamic field to store on a workflow instance (``workflow_instance_data``)."""
 
