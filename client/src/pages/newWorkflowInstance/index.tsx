@@ -116,7 +116,7 @@ export const NewWorkflowInstancePage: React.FC = () => {
                 Start a new workflow
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Choose a workflow template and optionally provide a name and
+                Choose a workflow template and optionally provide a
                 description to help identify this instance later.
               </Typography>
             </Box>
