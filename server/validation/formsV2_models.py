@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import Field, RootModel, model_validator
 from typing_extensions import Self
@@ -77,7 +77,7 @@ class AnswerTypeText(CradleBaseModel):
 
 
 class AnswerTypeMCId(CradleBaseModel):
-    mc_id_array: List[int]
+    mc_id_array: list[int]
 
 
 class AnswerTypeDate(CradleBaseModel):
@@ -143,7 +143,7 @@ class FormTemplateQuestion(CradleBaseModel):
 
     user_question_id: Optional[str] = None
 
-    mc_options: Optional[List[MCOption]] = None
+    mc_options: Optional[list[MCOption]] = None
 
 
 class FormClassification(CradleBaseModel):
@@ -153,7 +153,7 @@ class FormClassification(CradleBaseModel):
 
 
 class FormClassificationList(CradleBaseModel):
-    classifications: List[FormClassification]
+    classifications: list[FormClassification]
 
 
 class FormTemplate(CradleBaseModel):
@@ -162,7 +162,7 @@ class FormTemplate(CradleBaseModel):
     archived: Optional[bool] = False
     classification: FormClassification
     date_created: int = Field(default_factory=get_current_time)
-    questions: Optional[List[FormTemplateQuestion]] = []
+    questions: Optional[list[FormTemplateQuestion]] = []
 
 
 class FormTemplateList(RootModel[list[FormTemplate]]):
@@ -191,7 +191,7 @@ class FormTemplateUploadQuestion(FormTemplateQuestion):
 class FormTemplateUploadRequest(FormTemplate):
     id: Optional[str] = None
     version: Optional[int] = 1
-    questions: List[FormTemplateUploadQuestion]
+    questions: list[FormTemplateUploadQuestion]
 
 
 class NumberAnswer(AnswerTypeNumber):
@@ -252,7 +252,7 @@ class FormSubmission(CradleBaseModel, extra="forbid"):
 class AnswerWithQuestion(FormAnswer):
     question_type: QuestionTypeEnum
     question_text: str
-    mc_options: List[str]
+    mc_options: list[str]
     order: int
 
 
@@ -271,7 +271,7 @@ class FormSubmissionWithAnswers(FormSubmission):
     id: Optional[str] = None
     date_submitted: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    answers: Optional[List[AnswerWithQuestion]]
+    answers: Optional[list[AnswerWithQuestion]]
 
 
 class FormIdPath(CradleBaseModel):

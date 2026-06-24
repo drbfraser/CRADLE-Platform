@@ -16,7 +16,7 @@ operations (previously bundled in `crud.py`) to improve modularity and maintaina
 """
 
 import operator
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
@@ -44,7 +44,7 @@ def read_referral_list(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     **kwargs,
-) -> List[Any]:
+) -> list[Any]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
@@ -163,7 +163,7 @@ def read_referrals_or_assessments(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     last_edited: Optional[int] = None,
-) -> Union[List[ReferralOrm], List[AssessmentOrm]]:
+) -> Union[list[ReferralOrm], list[AssessmentOrm]]:
     """
     Queries the database for referrals or assessments
 

@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Tuple
+from typing import Callable
 
 import pytest
 import requests
@@ -128,7 +128,7 @@ def url() -> str:
 
 
 @pytest.fixture
-def credentials() -> Tuple[str, str]:
+def credentials() -> tuple[str, str]:
     """
     Provides the user credentials used to perform API requests.
 
@@ -155,7 +155,7 @@ def credentials() -> Tuple[str, str]:
 
 
 @pytest.fixture
-def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
+def bearer_token(url: str, credentials: tuple[str, str]) -> str:
     """
     Provides a bearer token my making an API request to authenticate the given
     credentials.

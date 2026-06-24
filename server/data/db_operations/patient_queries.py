@@ -18,7 +18,7 @@ These functions encapsulate patient-centric database access, keeping query
 logic organized and reusable across the application.
 """
 
-from typing import Any, List, NamedTuple, Optional, Tuple, Type, Union
+from typing import Any, NamedTuple, Optional, Union
 
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
@@ -48,7 +48,7 @@ def read_patient_list(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     **kwargs,
-) -> List[Any]:
+) -> list[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
@@ -96,7 +96,7 @@ def read_admin_patient(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     **kwargs,
-) -> List[Any]:
+) -> list[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
@@ -126,7 +126,7 @@ def read_admin_patient(
 
 
 # TODO: Why is there not a separate function for getting pregnancy records?
-def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
+def read_medical_records(m: type[M], patient_id: str, **kwargs) -> list[M]:
     """
     Queries the database for medical records of a patient
 
@@ -189,7 +189,7 @@ def read_patient_current_medical_record(
     return query.first()
 
 
-def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
+def read_patient_timeline(patient_id: str, **kwargs) -> list[Any]:
     """
     Queries the database for a patient's pregnancy, medical and drug records in reverse
     chronological order.
@@ -255,7 +255,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(start_idx, stop_idx).all()
 
 
-def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
+def read_patient_all_records(patient_id: str, **kwargs) -> list[Any]:
     """
     Queries the database for all readings, referrals, assessments, forms associated to a patient
     satisfying criteria specified by the keyword arguments.
@@ -358,7 +358,7 @@ def read_patients(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     last_edited: Optional[int] = None,
-) -> Union[Any, List[Any]]:
+) -> Union[Any, list[Any]]:
     """
     Queries the database for patient(s) each with the latest pregnancy, medical and drug
     records.
@@ -486,7 +486,7 @@ def read_readings(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     last_edited: Optional[int] = None,
-) -> List[Tuple[ReadingOrm, UrineTestOrm]]:
+) -> list[tuple[ReadingOrm, UrineTestOrm]]:
     """
     Queries the database for readings each with corresponding referral, assessment, and
     urine test.

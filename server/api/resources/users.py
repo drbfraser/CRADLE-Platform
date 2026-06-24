@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
@@ -174,7 +173,7 @@ def delete_user(path: UserIdPath):
 
 
 class UserPhoneNumbers(CradleBaseModel):
-    phone_numbers: List[PhoneNumberE164]
+    phone_numbers: list[PhoneNumberE164]
 
 
 # TODO: Rework these endpoints. Users should be able to have multiple phone numbers.

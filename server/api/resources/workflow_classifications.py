@@ -1,5 +1,3 @@
-from typing import List
-
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
@@ -21,7 +19,7 @@ from validation.workflow_models import WorkflowClassificationModel
 
 # Create a response model for the list endpoint
 class WorkflowClassificationListResponse(CradleBaseModel):
-    items: List[WorkflowClassificationModel]
+    items: list[WorkflowClassificationModel]
 
 
 # /api/workflow/classifications
