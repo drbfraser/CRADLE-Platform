@@ -123,6 +123,7 @@ _ALL_WF_FIELDS: Dict[str, WorkflowVariableTypeEnum] = {
 def _infer_from_field_path(
     namespace: str, field_path: list[str]
 ) -> WorkflowVariableTypeEnum | None:
+    """Infer the variable type from a namespace and field path, returning None if unknown."""
     if not field_path:
         return None
 

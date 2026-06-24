@@ -20,6 +20,7 @@ from models import (
 
 
 def add_vht_to_supervise(cho_id: int, vht_ids: List):
+    """Replace the CHO's supervised VHT list with the given VHT IDs."""
     # find the cho
     cho = UserOrm.query.filter_by(id=cho_id).first()
 

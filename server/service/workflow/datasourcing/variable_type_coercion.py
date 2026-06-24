@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def _coerce_integer(raw: Any, variable_tag: str) -> int | None:
+    """Coerce a raw value to int, returning None and logging a warning on failure."""
     if isinstance(raw, bool):
         return int(raw)
     if isinstance(raw, int):
@@ -42,6 +43,7 @@ def _coerce_integer(raw: Any, variable_tag: str) -> int | None:
 
 
 def _coerce_double(raw: Any, variable_tag: str) -> float | None:
+    """Coerce a raw value to float, returning None and logging a warning on failure."""
     if isinstance(raw, bool):
         return float(int(raw))
     if isinstance(raw, (int, float)):
@@ -66,6 +68,7 @@ def _coerce_double(raw: Any, variable_tag: str) -> float | None:
 
 
 def _coerce_string(raw: Any, variable_tag: str) -> str | None:
+    """Coerce a raw value to str, returning None and logging a warning on unsupported types."""
     if raw is None:
         return None
     if isinstance(raw, str):
@@ -83,6 +86,7 @@ def _coerce_string(raw: Any, variable_tag: str) -> str | None:
 
 
 def _coerce_boolean(raw: Any, variable_tag: str) -> bool | None:
+    """Coerce a raw value to bool, returning None and logging a warning on failure."""
     if isinstance(raw, bool):
         return raw
     if isinstance(raw, (int, float)):

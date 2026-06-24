@@ -6,34 +6,25 @@ mode = AES.MODE_CBC
 
 
 # TODO: test
-# plaintext should be a bytes
 def encrypt(plaintext: bytes, iv: str, key: str) -> str:
+    """Encrypt plaintext bytes with AES-CBC using the given hex IV and key, returning hex IV + ciphertext."""
     key = hex2bytes(key)
-
-    # pad the message - with pkcs5 style
     padded = pad(plaintext)
     iv_bytes = hex2bytes(iv)
-    # new instance of AES with encoded key
     cipher = AES.new(key, AES.MODE_CBC, iv_bytes)
-    # now encrypt the padded bytes
     encrypted = cipher.encrypt(padded)
     ciphertext = bytes2hex(encrypted)
-    # concatinate iv to ciphertext
     message = iv + ciphertext
     return message
 
 
-# chiphertext should be a hexString
 def decrypt(chiphertext: str, key: str) -> str:
+    """Decrypt a hex-encoded AES-CBC ciphertext (IV prepended) using the given hex key."""
     iv = chiphertext[0:iv_size]
     message = chiphertext[iv_size:]
     key = hex2bytes(key)
-
-    # convert message and iv to bytes
     message = hex2bytes(message)
     iv = hex2bytes(iv)
-
-    # decrypt and decode
     cipher = AES.new(key, AES.MODE_CBC, iv)
     decrypted = cipher.decrypt(message)
     decrypted = unpad(decrypted)
@@ -44,21 +35,21 @@ def decrypt(chiphertext: str, key: str) -> str:
 
 
 def hex2bytes(key: str):
+    """Convert a hex string to bytes."""
     return bytes.fromhex(key)
 
 
 def bytes2hex(key: bytes):
+    """Convert bytes to a hex string."""
     return key.hex()
 
 
 def pad(byte_array: bytearray):
-    """
-    pkcs5 padding
-    """
+    """Apply PKCS5 padding to the byte array."""
     pad_len = block_size - len(byte_array) % block_size
     return byte_array + (bytes([pad_len]) * pad_len)
 
 
-# pkcs5 - unpadding
 def unpad(byte_array: bytearray):
+    """Remove PKCS5 padding from a byte array."""
     return byte_array[: -ord(byte_array[-1:])]

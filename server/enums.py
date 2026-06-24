@@ -12,15 +12,18 @@ from enum import Enum
 class EnumWithList(Enum):
     @classmethod
     def listNames(cls):
+        """Return a list of all member names in this enum."""
         return [e.name for e in cls]
 
     @classmethod
     def listValues(cls):
+        """Return a list of all member values in this enum."""
         return [e.value for e in cls]
 
 
 class StrEnum(str, Enum):
     def __str__(self) -> str:
+        """Return the enum member's string value."""
         return self.value
 
 

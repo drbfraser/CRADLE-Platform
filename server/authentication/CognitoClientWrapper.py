@@ -24,6 +24,7 @@ class CognitoClientWrapper:
         client_secret: str,
         aws_region: str,
     ):
+        """Initialize the Cognito client wrapper with pool credentials and a JWKS client for token verification."""
         self.client: CognitoIdentityProviderClient = cognito_idp_client
         self.user_pool_id: str = user_pool_id
         self.client_id: str = client_id
@@ -118,6 +119,7 @@ class CognitoClientWrapper:
             raise
 
     def list_users(self):
+        """Return all users in the Cognito user pool."""
         try:
             response = self.client.list_users(UserPoolId=self.user_pool_id)
             users = response["Users"]
@@ -149,6 +151,7 @@ class CognitoClientWrapper:
         )
 
     def start_sign_in(self, username: str, password: str):
+        """Initiate admin authentication for a user and return the auth result or challenge details."""
         try:
             auth_response = self.client.admin_initiate_auth(
                 UserPoolId=self.user_pool_id,

@@ -37,6 +37,7 @@ class PatientOrm(db.Model):
     is_archived = db.Column(db.Boolean)
 
     def as_dict(self):
+        """Return all ORM column values as a string-keyed dict."""
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 

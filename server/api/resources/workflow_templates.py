@@ -109,6 +109,7 @@ def lock_workflow_classification_for_update(
 def find_and_archive_previous_workflow_template(
     workflow_classification_id: str,
 ) -> None:
+    """Archive the currently active template for a given workflow classification, if one exists."""
     previous_template = crud.read(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,

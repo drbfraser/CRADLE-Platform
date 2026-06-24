@@ -157,6 +157,7 @@ def delete_medical_record(path: RecordIdPath):
 
 
 def _process_medical_history(request_body):
+    """Normalize a medical history request body before writing to the DB."""
     request_body["last_edited"] = get_current_time()
     # TODO: We should really refactor drug records into a separate Database model.
     if "is_drug_record" not in request_body or request_body["is_drug_record"] is None:
@@ -172,6 +173,7 @@ def _process_medical_history(request_body):
 
 
 def _get_medical_record(record_id):
+    """Get a medical record by ID, or abort with 404 if not found."""
     record = crud.read(MedicalRecordOrm, id=record_id)
     if record is None:
         return abort(404, description=f"No medical record with ID: {record_id}")

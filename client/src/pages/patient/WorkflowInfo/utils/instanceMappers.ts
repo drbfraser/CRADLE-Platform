@@ -7,7 +7,10 @@ import {
   WorkflowTemplate,
   WorkflowTemplateStep,
 } from 'src/shared/types/workflow/workflowApiTypes';
-import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
+import {
+  InstanceStatus,
+  StepStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
@@ -114,6 +117,24 @@ export function getWorkflowStepWithId(
   return step ?? null;
 }
 
+const WORKFLOW_STATUS_SORT_ORDER: Record<InstanceStatus, number> = {
+  [InstanceStatus.ACTIVE]: 0,
+  [InstanceStatus.COMPLETED]: 1,
+  [InstanceStatus.CANCELLED]: 2,
+};
+
+export function sortWorkflowInfoRows(
+  rows: WorkflowInfoRow[]
+): WorkflowInfoRow[] {
+  return [...rows].sort((a, b) => {
+    const statusDiff =
+      WORKFLOW_STATUS_SORT_ORDER[a.status] -
+      WORKFLOW_STATUS_SORT_ORDER[b.status];
+    if (statusDiff !== 0) return statusDiff;
+    return b.lastEdited - a.lastEdited;
+  });
+}
+
 export const buildWorkflowInstanceRowList = async (
   instances: WorkflowInstance[]
 ) => {
@@ -139,6 +160,7 @@ export const buildWorkflowInstanceRowList = async (
         instanceTitle: instance.name,
         templateId: instance.workflowTemplateId || '',
         templateName,
+        description: instance.description || '',
         collection: 'PAPAGAO', // TODO - To do when collections set up
         status: instance.status,
         lastEdited: instance.lastEdited,
@@ -148,7 +170,7 @@ export const buildWorkflowInstanceRowList = async (
       return workflowInfoRow;
     })
   );
-  return workflowInfoRows;
+  return sortWorkflowInfoRows(workflowInfoRows);
 };
 
 export const getWorkflowNextStepOptions = (

@@ -29,6 +29,7 @@ def has_conflicting_pregnancy_record(
     end_date: Optional[int] = None,
     pregnancy_id: Optional[int] = None,
 ) -> bool:
+    """Return True if there is an overlapping pregnancy record for the patient, excluding the given pregnancy ID if provided."""
     query = db_session.query(PregnancyOrm).filter(PregnancyOrm.patient_id == patient_id)
 
     if pregnancy_id:

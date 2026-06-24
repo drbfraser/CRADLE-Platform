@@ -93,6 +93,7 @@ class AssessmentModel(CradleBaseModel):
 
     @model_validator(mode="after")
     def __check_follow_up_instructions(self) -> Self:
+        """Raise if follow_up_needed is True but follow_up_instructions is missing."""
         if self.follow_up_needed and (
             self.follow_up_instructions is None or self.follow_up_instructions == ""
         ):

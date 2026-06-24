@@ -170,6 +170,7 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
 
 
 def check_branch_conditions(template_step: dict) -> None:
+    """Abort with 404 if any branch references a condition ID that doesn't exist in the DB."""
     for branch in template_step["branches"]:
         if branch.get("condition") is None and branch.get("condition_id") is not None:
             branch_condition = crud.read(RuleGroupOrm, id=branch.get("condition_id"))
@@ -184,6 +185,7 @@ def check_branch_conditions(template_step: dict) -> None:
 def validate_workflow_template_step(
     workflow_template_step: dict, allow_missing_template: bool = False
 ):
+    """Validate a workflow template step dict, assigning IDs and checking branch conditions and form references."""
     workflow_template_id = workflow_template_step["workflow_template_id"]
     workflow_template = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
 
@@ -227,6 +229,7 @@ def validate_workflow_template_step(
 def _build_step_id_mapping(
     steps: list[dict], workflow_template_id: str, auto_assign_id: bool = True
 ) -> dict[str, str]:
+    """Assign new IDs to each step and return a mapping of old step ID to new step ID."""
     old_to_new_step_id_map = {}
 
     for step in steps:
@@ -252,6 +255,7 @@ def _build_step_id_mapping(
 
 
 def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[dict]:
+    """Update branch target_step_id references in steps using the provided old-to-new ID map."""
     updated_steps = []
 
     for step in steps:
