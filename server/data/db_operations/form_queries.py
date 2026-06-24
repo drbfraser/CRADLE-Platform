@@ -5,12 +5,15 @@ This module provides database query helpers related to forms and their templates
 It focuses on retrieving form questions and supported language versions.
 
 Functions:
-    - read_questions(model: QuestionOrm, form_template_id: Optional[int] = None) -> List[QuestionOrm]:
+    - read_questions(model: QuestionOrm, form_template_id: Optional[int] = None) -> list[QuestionOrm]:
         Fetches questions for a given form template or all questions if no template ID is provided.
 
-    - read_form_template_language_versions(model: FormTemplateOrm, refresh: bool = False) -> List[str]:
+    - read_form_template_language_versions(model: FormTemplateOrm, refresh: bool = False) -> list[str]:
         Retrieves the list of available language versions for a form template. Optionally refreshes
         the template from the database to ensure validity.
+
+    - read_form_template_language_versions_v2(model: FormTemplateOrmV2, refresh: bool = False) -> list[str]:
+        Retrieves available language versions for a V2 form template via its classification's name_string_id.
 """
 
 import logging
