@@ -14,11 +14,11 @@ def create_mock_app() -> Flask:
     """
     Creates an independent app object to be used for testing
     """
-    from flask_cors import CORS  # noqa: PLC0415
-    from flask_openapi3.models.info import Info  # noqa: PLC0415
-    from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI  # noqa: PLC0415
+    from flask_cors import CORS
+    from flask_openapi3.models.info import Info
+    from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
 
-    from config import Config, JSONEncoder  # noqa: PLC0415
+    from config import Config, JSONEncoder
 
     app_version = "1.0.0"
 
@@ -49,7 +49,7 @@ def create_mock_app() -> Flask:
 
 @pytest.fixture
 def app():
-    from config import app  # noqa: PLC0415
+    from config import app
 
     # from manage import seed
 
@@ -81,7 +81,7 @@ def database(app: Flask):
 
     :return: A database instance
     """
-    from config import db  # noqa: PLC0415
+    from config import db
 
     return db
 
