@@ -6,15 +6,8 @@ import {
 } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-  Alert,
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Input,
   Stack,
   Typography,
 } from '@mui/material';
@@ -23,7 +16,6 @@ import {
   CloudDownloadOutlined,
   DeleteForever,
   Edit,
-  UploadFile,
 } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -37,7 +29,6 @@ import {
   uploadAppFileAsync,
 } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   TableAction,
   TableActionButtons,
@@ -47,6 +38,7 @@ import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import EditRelayNumDialog from './EditRelayNumDialog';
 import DeleteRelayNumDialog from './DeleteRelayNumDialog';
 import AddRelayNumDialog from './AddRelayNumDialog';
+import { RelayAppActionsDialog } from './RelayAppActionsDialog';
 
 const FILE_NAME = 'cradle_sms_relay.apk';
 
@@ -235,86 +227,20 @@ export const ManageRelayApp = () => {
         onClose={() => setNewNumberDialogOpen(false)}
       />
 
-      <Dialog open={appActionsOpen} maxWidth="md" fullWidth>
-        <DialogTitle>Relay App Actions</DialogTitle>
-        <DialogContent>
-          <Box>
-            <Typography component="h6" variant="h6">
-              Download App
-            </Typography>
-            <Divider />
-            <Box>
-              {hasFile ? (
-                <>
-                  <div>Filename: {FILE_NAME}</div>
-                  <div>File size: {fileSize}</div>
-                  <div>Last modified: {fileLastModified}</div>
-                </>
-              ) : (
-                <>No File Available</>
-              )}
-            </Box>
-            {hasFile && (
-              <PrimaryButton onClick={handleClickDownload}>
-                Download
-              </PrimaryButton>
-            )}
-          </Box>
-
-          <Box>
-            <Typography component="h6" variant="h6">
-              Upload App
-            </Typography>
-            <Divider />
-            <Box>
-              <Button
-                color="primary"
-                aria-label="upload android package archive"
-                component="label"
-                endIcon={<UploadFile />}>
-                <Input
-                  type="file"
-                  name="file"
-                  inputProps={{
-                    accept: 'application/vnd.android.package-archive',
-                  }}
-                  onChange={handleAppFileChange}
-                />
-              </Button>
-            </Box>
-            <PrimaryButton onClick={handleClickUpload}>Upload</PrimaryButton>
-            {uploadAppFile.isError ? (
-              <Alert severity="error">
-                Upload failed - {uploadAppFile.error.message}
-              </Alert>
-            ) : (
-              uploadAppFile.isSuccess && (
-                <Alert style={{ marginTop: '20px' }} severity="success">
-                  Upload successful
-                </Alert>
-              )
-            )}
-          </Box>
-
-          <DialogActions>
-            <CancelButton
-              type="button"
-              onClick={() => {
-                setAppActionsOpen(false);
-              }}>
-              Cancel
-            </CancelButton>
-            <PrimaryButton
-              type="submit"
-              disabled={false}
-              onClick={() => {
-                setAppActionsOpen(false); //redundant - rework ui
-              }}>
-              Done
-            </PrimaryButton>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
+      <RelayAppActionsDialog
+        open={appActionsOpen}
+        onClose={() => setAppActionsOpen(false)}
+        hasFile={hasFile}
+        fileSize={fileSize}
+        fileLastModified={fileLastModified}
+        onDownload={handleClickDownload}
+        onFileChange={handleAppFileChange}
+        onUpload={handleClickUpload}
+        uploadError={
+          uploadAppFile.isError ? uploadAppFile.error?.message : undefined
+        }
+        uploadSuccess={uploadAppFile.isSuccess}
+      />
 
       <EditRelayNumDialog
         open={editPopupOpen}
