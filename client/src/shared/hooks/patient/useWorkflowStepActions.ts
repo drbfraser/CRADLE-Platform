@@ -12,7 +12,10 @@ import {
   OverrideStepRequest,
   CreateInstanceStepRequest,
 } from 'src/shared/types/workflow/workflowApiTypes';
-import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
+import {
+  InstanceStepAction,
+  StepStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
@@ -134,8 +137,10 @@ export function useWorkflowStepActions(
 
   const setCurrentStep = async (stepId: string) => {
     try {
-      await skipStep();
-      await reload();
+      if (currentStep?.status === StepStatus.ACTIVE) {
+        await skipStep();
+        await reload();
+      }
 
       await overrideStep(stepId);
 
