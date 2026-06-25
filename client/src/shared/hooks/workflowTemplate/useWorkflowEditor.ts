@@ -137,3 +137,5 @@ export const useWorkflowEditor = ({
     redo,
   };
 };
+
+export type WorkflowEditorController = ReturnType<typeof useWorkflowEditor>;

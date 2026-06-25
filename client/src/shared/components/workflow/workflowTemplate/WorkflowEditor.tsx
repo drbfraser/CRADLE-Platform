@@ -9,57 +9,16 @@ import {
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import {
-  WorkflowTemplate,
-  WorkflowTemplateStepWithFormAndIndex,
-} from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowViewMode } from 'src/shared/types/workflow/workflowEnums';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
+import { WorkflowEditorController } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
 
 interface WorkflowEditorProps {
-  workflow: WorkflowTemplate | null;
+  editor: WorkflowEditorController;
   allowClassificationEdit?: boolean;
-  hasChanges: boolean;
-  selectedStepId?: string;
-  selectedBranchIndex?: number;
-  onStepSelect: (stepId: string) => void;
-  onFieldChange: (field: keyof WorkflowTemplate, value: unknown) => void;
-  onStepChange: (stepId: string, field: string, value: string) => void;
-  onCaptureState?: () => void;
-  onBranchChange: (
-    stepId: string,
-    branchIndex: number,
-    conditionRule: string,
-    conditionName?: string
-  ) => void;
-  onTargetStepChange?: (
-    stepId: string,
-    branchIndex: number,
-    targetStepId: string
-  ) => void;
-  setSelectedBranchIndex?: (index: number | undefined) => void;
-  onInsertNode: (stepId: string) => void;
-  onAddBranch: (stepId: string) => void;
-  onConnectionCreate: (sourceStepId: string, targetStepId: string) => void;
-  onDeleteNode: (stepId: string) => void;
-  onAddRule?: (
-    branchId: string,
-    sourceStepId: string,
-    targetStepId: string
-  ) => void;
-  onInsertNodeBetween?: (
-    sourceStepId: string,
-    targetStepId: string,
-    branchId?: string
-  ) => void;
-  onSave: () => void;
-  onCancel: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
   isSaving?: boolean;
   saveDisabled?: boolean;
   showViewToggle?: boolean;
@@ -68,36 +27,15 @@ interface WorkflowEditorProps {
 }
 
 export const WorkflowEditor = ({
-  workflow,
+  editor,
   allowClassificationEdit = false,
-  hasChanges,
-  selectedStepId,
-  selectedBranchIndex,
-  onStepSelect,
-  setSelectedBranchIndex,
-  onFieldChange,
-  onStepChange,
-  onBranchChange,
-  onCaptureState,
-  onTargetStepChange,
-  onInsertNode,
-  onAddBranch,
-  onInsertNodeBetween,
-  onConnectionCreate,
-  onDeleteNode,
-  onAddRule,
-  onSave,
-  onCancel,
-  canUndo,
-  canRedo,
-  onUndo,
-  onRedo,
   isSaving = false,
   saveDisabled = false,
   showViewToggle = false,
   viewMode = WorkflowViewMode.FLOW,
   onViewModeChange,
 }: WorkflowEditorProps) => {
+  const workflow = editor.editedWorkflow;
   if (!workflow) return null;
 
   return (
@@ -114,23 +52,26 @@ export const WorkflowEditor = ({
           <Button
             variant="outlined"
             startIcon={<CancelIcon />}
-            onClick={onCancel}
+            onClick={editor.handleCancel}
             disabled={isSaving}>
             Discard
           </Button>
           <Button
             variant="contained"
             startIcon={isSaving ? <CircularProgress size={20} /> : <SaveIcon />}
-            onClick={onSave}
+            onClick={editor.handleSave}
             disabled={
-              !hasChanges || isSaving || saveDisabled || !workflow.name?.trim()
+              !editor.hasChanges ||
+              isSaving ||
+              saveDisabled ||
+              !workflow.name?.trim()
             }>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </Stack>
       </Box>
 
-      {hasChanges && (
+      {editor.hasChanges && (
         <Alert severity="info" sx={{ mb: 2 }}>
           You have unsaved changes. Don&apos;t forget to save your work!
         </Alert>
@@ -151,7 +92,7 @@ export const WorkflowEditor = ({
         dateCreated={workflow.dateCreated}
         isEditMode={true}
         isClassificationEditable={allowClassificationEdit}
-        onFieldChange={onFieldChange}
+        onFieldChange={editor.handleFieldChange}
       />
 
       <Divider sx={{ my: 3 }} />
@@ -201,27 +142,27 @@ export const WorkflowEditor = ({
           firstStepId={workflow.startingStepId || ''}
           isInstance={false}
           isEditMode={true}
-          selectedStepId={selectedStepId}
-          selectedBranchIndex={selectedBranchIndex}
-          onStepSelect={onStepSelect}
+          selectedStepId={editor.selectedStepId}
+          selectedBranchIndex={editor.selectedBranchIndex}
+          onStepSelect={editor.setSelectedStepId}
           setSelectedStepId={
-            onStepSelect as (stepId: string | undefined) => void
+            editor.setSelectedStepId as (stepId: string | undefined) => void
           }
-          setSelectedBranchIndex={setSelectedBranchIndex}
-          onStepChange={onStepChange}
-          onCaptureState={onCaptureState}
-          onBranchChange={onBranchChange}
-          onTargetStepChange={onTargetStepChange}
-          onInsertNode={onInsertNode}
-          onAddBranch={onAddBranch}
-          onConnectionCreate={onConnectionCreate}
-          onInsertNodeBetween={onInsertNodeBetween}
-          onDeleteNode={onDeleteNode}
-          onAddRule={onAddRule}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUndo={onUndo}
-          onRedo={onRedo}
+          setSelectedBranchIndex={editor.setSelectedBranchIndex}
+          onStepChange={editor.handleStepChange}
+          onCaptureState={editor.onCaptureState}
+          onBranchChange={editor.handleBranchChange}
+          onTargetStepChange={editor.onTargetStepChange}
+          onInsertNode={editor.handleInsertNode}
+          onAddBranch={editor.handleAddBranch}
+          onConnectionCreate={editor.handleConnectionCreate}
+          onInsertNodeBetween={editor.handleInsertNodeBetween}
+          onDeleteNode={editor.handleDeleteNode}
+          onAddRule={editor.handleAddRule}
+          canUndo={editor.canUndo}
+          canRedo={editor.canRedo}
+          onUndo={editor.undo}
+          onRedo={editor.redo}
         />
       ) : (
         <WorkflowSteps

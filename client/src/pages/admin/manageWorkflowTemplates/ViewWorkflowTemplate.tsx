@@ -89,30 +89,8 @@ export const ViewWorkflowTemplate = () => {
 
         {isEditMode ? (
           <WorkflowEditor
-            workflow={workflowEditor.editedWorkflow}
+            editor={workflowEditor}
             allowClassificationEdit={true}
-            hasChanges={workflowEditor.hasChanges}
-            selectedStepId={workflowEditor.selectedStepId}
-            selectedBranchIndex={workflowEditor.selectedBranchIndex}
-            setSelectedBranchIndex={workflowEditor.setSelectedBranchIndex}
-            onTargetStepChange={workflowEditor.onTargetStepChange}
-            onStepSelect={workflowEditor.setSelectedStepId}
-            onFieldChange={workflowEditor.handleFieldChange}
-            onStepChange={workflowEditor.handleStepChange}
-            onCaptureState={workflowEditor.onCaptureState}
-            onInsertNodeBetween={workflowEditor.handleInsertNodeBetween}
-            onBranchChange={workflowEditor.handleBranchChange}
-            onInsertNode={workflowEditor.handleInsertNode}
-            onAddBranch={workflowEditor.handleAddBranch}
-            onConnectionCreate={workflowEditor.handleConnectionCreate}
-            onDeleteNode={workflowEditor.handleDeleteNode}
-            onAddRule={workflowEditor.handleAddRule}
-            onSave={workflowEditor.handleSave}
-            onCancel={workflowEditor.handleCancel}
-            canUndo={workflowEditor.canUndo}
-            canRedo={workflowEditor.canRedo}
-            onUndo={workflowEditor.undo}
-            onRedo={workflowEditor.redo}
             isSaving={editWorkflowTemplateMutation.isPending}
           />
         ) : (

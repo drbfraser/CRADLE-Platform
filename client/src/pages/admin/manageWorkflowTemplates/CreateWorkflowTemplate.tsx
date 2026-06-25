@@ -148,30 +148,8 @@ export const CreateWorkflowTemplate = () => {
         <Divider sx={{ my: 3 }} />
 
         <WorkflowEditor
-          workflow={workflowEditor.editedWorkflow}
+          editor={workflowEditor}
           allowClassificationEdit={true}
-          hasChanges={workflowEditor.hasChanges}
-          selectedStepId={workflowEditor.selectedStepId}
-          selectedBranchIndex={workflowEditor.selectedBranchIndex}
-          setSelectedBranchIndex={workflowEditor.setSelectedBranchIndex}
-          onTargetStepChange={workflowEditor.onTargetStepChange}
-          onStepSelect={workflowEditor.setSelectedStepId}
-          onFieldChange={workflowEditor.handleFieldChange}
-          onStepChange={workflowEditor.handleStepChange}
-          onBranchChange={workflowEditor.handleBranchChange}
-          onInsertNode={workflowEditor.handleInsertNode}
-          onCaptureState={workflowEditor.onCaptureState}
-          onAddBranch={workflowEditor.handleAddBranch}
-          onConnectionCreate={workflowEditor.handleConnectionCreate}
-          onDeleteNode={workflowEditor.handleDeleteNode}
-          onAddRule={workflowEditor.handleAddRule}
-          onInsertNodeBetween={workflowEditor.handleInsertNodeBetween}
-          onSave={workflowEditor.handleSave}
-          onCancel={workflowEditor.handleCancel}
-          canUndo={workflowEditor.canUndo}
-          canRedo={workflowEditor.canRedo}
-          onUndo={workflowEditor.undo}
-          onRedo={workflowEditor.redo}
           isSaving={createWorkflowTemplateMutation.isPending}
         />
       </Paper>
