@@ -1,64 +1,41 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  IconButton,
-  Paper,
-  Skeleton,
-  Tooltip,
-  Typography,
-  Divider,
-  Button,
-  Stack,
-} from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteForever from '@mui/icons-material/DeleteForever';
-import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import { Paper, Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  WorkflowTemplateStepWithFormAndIndex,
-  WorkflowTemplate,
-} from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowViewMode } from 'src/shared/types/workflow/workflowEnums';
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
-import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
-import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
-import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { WorkflowEditor } from 'src/shared/components/workflow/workflowTemplate/WorkflowEditor';
 import { useWorkflowEditor } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
+import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import {
+  WorkflowTemplatePageHeader,
+  dash,
+} from './WorkflowTemplatePageHeader';
+import { WorkflowTemplateViewContent } from './WorkflowTemplateViewContent';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const viewWorkflow = location.state?.viewWorkflow;
 
-  // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
-
-  // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
     WorkflowViewMode.FLOW
   );
-
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
-  // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
     queryKey: ['workflowTemplate', viewWorkflow?.id],
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
-      const result = await getTemplateWithStepsAndClassification(
-        viewWorkflow.id
-      );
-      return result;
+      return getTemplateWithStepsAndClassification(viewWorkflow.id);
     },
     enabled: !!viewWorkflow?.id,
     initialData: viewWorkflow,
@@ -66,22 +43,16 @@ export const ViewWorkflowTemplate = () => {
 
   const editWorkflowTemplateMutation = useEditWorkflowTemplate();
 
-  // Workflow editor hook
   const workflowEditor = useWorkflowEditor({
     initialWorkflow: workflowTemplateQuery.data || null,
     enabled: isEditMode,
     onSave: async (workflow) => {
-      await editWorkflowTemplateMutation.mutateAsync({
-        template: workflow,
-      });
-
-      // Redirect to workflow templates page after successful save
+      await editWorkflowTemplateMutation.mutateAsync({ template: workflow });
       navigate('/admin/workflow-templates');
     },
     onCancel: () => setIsEditMode(false),
   });
 
-  // Initialize editor when entering edit mode
   useEffect(() => {
     if (
       isEditMode &&
@@ -91,14 +62,6 @@ export const ViewWorkflowTemplate = () => {
       workflowEditor.initializeEditor({ ...workflowTemplateQuery.data });
     }
   }, [isEditMode, workflowTemplateQuery.data]);
-
-  const isLoading = workflowTemplateQuery.isPending;
-
-  const dash = (v?: string) => (v && String(v).trim() ? v : '—');
-
-  const handleEdit = () => {
-    setIsEditMode(true);
-  };
 
   const currentWorkflow = isEditMode
     ? workflowEditor.editedWorkflow
@@ -112,54 +75,15 @@ export const ViewWorkflowTemplate = () => {
         editWorkflowTemplateMutation.isError) && <APIErrorToast />}
 
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Go back" placement="top">
-              <IconButton
-                onClick={() => navigate(`/admin/workflow-templates`)}
-                size="medium">
-                <ChevronLeftIcon color="inherit" fontSize="large" />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h4" component="h2" sx={{ ml: 0.5 }}>
-              Workflow Classification: {dash(classificationName)}
-            </Typography>
-          </Box>
-
-          {!isEditMode && (
-            <Stack direction="row" spacing={1}>
-              <Button
-                variant="contained"
-                startIcon={<EditIcon />}
-                onClick={handleEdit}
-                disabled={workflowTemplateQuery.data?.archived}>
-                Edit
-              </Button>
-
-              {!workflowTemplateQuery.data?.archived ? (
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<DeleteForever />}
-                  onClick={() => setIsArchivePopupOpen(true)}>
-                  Archive Workflow
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  startIcon={<UnarchiveIcon />}
-                  onClick={() => setIsUnarchivePopupOpen(true)}>
-                  Unarchive Workflow
-                </Button>
-              )}
-            </Stack>
-          )}
-        </Box>
+        <WorkflowTemplatePageHeader
+          title={`Workflow Classification: ${dash(classificationName)}`}
+          onBack={() => navigate('/admin/workflow-templates')}
+          workflow={workflowTemplateQuery.data}
+          isEditMode={isEditMode}
+          onEdit={() => setIsEditMode(true)}
+          onArchive={() => setIsArchivePopupOpen(true)}
+          onUnarchive={() => setIsUnarchivePopupOpen(true)}
+        />
 
         <Divider sx={{ my: 3 }} />
 
@@ -192,84 +116,13 @@ export const ViewWorkflowTemplate = () => {
             isSaving={editWorkflowTemplateMutation.isPending}
           />
         ) : (
-          <>
-            <Typography variant="h6" sx={{ mb: 2, ml: 1 }}>
-              Workflow Template Basic Info
-            </Typography>
-
-            <WorkflowMetadata
-              classificationName={classificationName}
-              description={currentWorkflow?.description}
-              version={currentWorkflow?.version}
-              lastEdited={currentWorkflow?.lastEdited}
-              archived={currentWorkflow?.archived}
-              dateCreated={currentWorkflow?.dateCreated}
-              isEditMode={false}
-              isClassificationEditable={false}
-            />
-
-            <Divider sx={{ my: 3 }} />
-
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                mb: 2,
-              }}>
-              <Typography variant="h6" component="h2" sx={{ ml: 1 }}>
-                {`Workflow Template Steps${
-                  typeof workflowTemplateQuery.data?.steps?.length === 'number'
-                    ? ` (${workflowTemplateQuery.data.steps.length})`
-                    : ''
-                }`}
-              </Typography>
-
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant={
-                    viewMode === WorkflowViewMode.FLOW
-                      ? 'contained'
-                      : 'outlined'
-                  }
-                  size="small"
-                  onClick={() => setViewMode(WorkflowViewMode.FLOW)}>
-                  Flow View
-                </Button>
-                <Button
-                  variant={
-                    viewMode === WorkflowViewMode.LIST
-                      ? 'contained'
-                      : 'outlined'
-                  }
-                  size="small"
-                  onClick={() => setViewMode(WorkflowViewMode.LIST)}>
-                  List View
-                </Button>
-              </Stack>
-            </Box>
-
-            {isLoading ? (
-              <Skeleton variant="rectangular" height={400} />
-            ) : viewMode === WorkflowViewMode.FLOW ? (
-              <WorkflowFlowView
-                steps={
-                  currentWorkflow?.steps as WorkflowTemplateStepWithFormAndIndex[]
-                }
-                firstStepId={currentWorkflow?.startingStepId || ''}
-                isInstance={false}
-                isEditMode={false}
-              />
-            ) : (
-              <WorkflowSteps
-                steps={
-                  currentWorkflow?.steps as WorkflowTemplateStepWithFormAndIndex[]
-                }
-                firstStep={currentWorkflow?.startingStepId}
-                isInstance={false}
-              />
-            )}
-          </>
+          <WorkflowTemplateViewContent
+            workflow={currentWorkflow}
+            isLoading={workflowTemplateQuery.isPending}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            classificationName={classificationName}
+          />
         )}
       </Paper>
 
