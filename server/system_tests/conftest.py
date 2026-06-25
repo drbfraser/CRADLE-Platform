@@ -5,7 +5,7 @@ import pytest
 import requests
 from flask import Flask
 from humps import decamelize
-from sqlalchemy import text, select, func
+from sqlalchemy import func, select, text
 
 from system_tests.mock import factory
 
