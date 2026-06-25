@@ -13,7 +13,10 @@ const VITAL_SIGNS = [
   { name: 'None', vitalSign: TrafficLightEnum.NONE },
 ] as const;
 
-type Props = Pick<FilterDialogState, 'selectedVitalSign' | 'setSelectedVitalSign'>;
+type Props = Pick<
+  FilterDialogState,
+  'selectedVitalSign' | 'setSelectedVitalSign'
+>;
 
 export const VitalSignsFilterGroup = ({
   selectedVitalSign,

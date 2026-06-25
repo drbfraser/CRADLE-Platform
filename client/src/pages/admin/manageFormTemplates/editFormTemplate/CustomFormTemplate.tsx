@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
-import {
-  Box,
-  IconButton,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, Skeleton, Tooltip, Typography } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';

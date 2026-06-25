@@ -6,13 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
 import { formatISODateNumber } from 'src/shared/utils';
 import { Toast } from 'src/shared/components/toast';
-import {
-  Box,
-  Typography,
-  Button,
-  Paper,
-  Chip,
-} from '@mui/material';
+import { Box, Typography, Button, Paper, Chip } from '@mui/material';
 import {
   DataGrid,
   GridColDef,

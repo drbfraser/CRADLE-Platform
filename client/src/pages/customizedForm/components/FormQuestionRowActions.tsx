@@ -22,49 +22,43 @@ export const FormQuestionRowActions = ({
   onEdit,
   onDelete,
 }: FormQuestionRowActionsProps) => (
-    <Grid
-      container
-      item
-      xs={2}
-      sm={1}
-      xl={0.5}
-      style={{ marginLeft: '-20px' }}>
-      <Grid item xs={6}>
-        <IconButton
-          key={`field-up-${question.order}`}
-          size="small"
-          onClick={() => onMoveUp(question)}>
-          <KeyboardArrowUpIcon fontSize="small" />
-        </IconButton>
-      </Grid>
-      <Grid item xs={6}>
-        <IconButton
-          sx={{ marginLeft: '10px' }}
-          key={`edit-field-${question.order}`}
-          size="small"
-          onClick={() => onEdit(question)}>
-          <EditIcon fontSize="small" />
-        </IconButton>
-      </Grid>
-      <Grid item xs={6}>
-        <IconButton
-          key={`field-down-${question.order}`}
-          size="small"
-          onClick={() => onMoveDown(question)}>
-          <KeyboardArrowDownIcon fontSize="small" />
-        </IconButton>
-      </Grid>
-      <Grid item xs={6}>
-        <IconButton
-          sx={{ marginLeft: '10px' }}
-          key={`delete-field-${question.order}`}
-          size="small"
-          color="error"
-          onClick={() => onDelete(question)}>
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-      </Grid>
+  <Grid container item xs={2} sm={1} xl={0.5} style={{ marginLeft: '-20px' }}>
+    <Grid item xs={6}>
+      <IconButton
+        key={`field-up-${question.order}`}
+        size="small"
+        onClick={() => onMoveUp(question)}>
+        <KeyboardArrowUpIcon fontSize="small" />
+      </IconButton>
     </Grid>
+    <Grid item xs={6}>
+      <IconButton
+        sx={{ marginLeft: '10px' }}
+        key={`edit-field-${question.order}`}
+        size="small"
+        onClick={() => onEdit(question)}>
+        <EditIcon fontSize="small" />
+      </IconButton>
+    </Grid>
+    <Grid item xs={6}>
+      <IconButton
+        key={`field-down-${question.order}`}
+        size="small"
+        onClick={() => onMoveDown(question)}>
+        <KeyboardArrowDownIcon fontSize="small" />
+      </IconButton>
+    </Grid>
+    <Grid item xs={6}>
+      <IconButton
+        sx={{ marginLeft: '10px' }}
+        key={`delete-field-${question.order}`}
+        size="small"
+        color="error"
+        onClick={() => onDelete(question)}>
+        <DeleteIcon fontSize="small" />
+      </IconButton>
+    </Grid>
+  </Grid>
 );
 
 export const moveQuestionUp = (

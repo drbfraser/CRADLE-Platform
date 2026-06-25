@@ -14,10 +14,7 @@ import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { getReferralsAsync } from 'src/shared/api';
 import { useNavigate } from 'react-router-dom';
 import { ReferralFilter } from 'src/shared/types/referralTypes';
-import {
-  formatReferralRows,
-  useReferralColumns,
-} from './useReferralColumns';
+import { formatReferralRows, useReferralColumns } from './useReferralColumns';
 
 export const ReferralsPage = () => {
   const currentUser = useCurrentUser();

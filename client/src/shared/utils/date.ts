@@ -174,5 +174,7 @@ export const getPrettyDateTime = (dateStr: number): string => {
 };
 
 export const getYearToDisplay = (timestamp: number) => {
-  return getMomentDate(timestamp * 1000).local().format('YYYY');
+  return getMomentDate(timestamp * 1000)
+    .local()
+    .format('YYYY');
 };

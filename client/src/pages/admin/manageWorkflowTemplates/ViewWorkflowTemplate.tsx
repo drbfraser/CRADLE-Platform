@@ -12,10 +12,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
-import {
-  WorkflowTemplatePageHeader,
-  dash,
-} from './WorkflowTemplatePageHeader';
+import { WorkflowTemplatePageHeader, dash } from './WorkflowTemplatePageHeader';
 import { WorkflowTemplateViewContent } from './WorkflowTemplateViewContent';
 
 export const ViewWorkflowTemplate = () => {

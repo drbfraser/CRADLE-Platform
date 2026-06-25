@@ -55,13 +55,17 @@ const EditVisibleCondition = ({
               selectedQIndex={state.selectedQIndex}
               filteredQs={filteredQs}
               currentLanguage={state.currentLanguage}
-              onChange={(event) => state.handleQuestionChange(event.target.value)}
+              onChange={(event) =>
+                state.handleQuestionChange(event.target.value)
+              }
             />
             <VisibilityRelationSelect
               disabled={disabled}
               selectedConditional={state.selectedConditional}
               onChange={(event) =>
-                state.handleConditionChange(event.target.value as typeof state.selectedConditional)
+                state.handleConditionChange(
+                  event.target.value as typeof state.selectedConditional
+                )
               }
             />
             <Grid item xs={4}>

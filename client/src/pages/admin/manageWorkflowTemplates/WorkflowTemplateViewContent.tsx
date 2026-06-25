@@ -1,4 +1,11 @@
-import { Box, Button, Divider, Skeleton, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  Skeleton,
+  Stack,
+  Typography,
+} from '@mui/material';
 import {
   WorkflowTemplate,
   WorkflowTemplateStepWithFormAndIndex,
@@ -58,13 +65,17 @@ export const WorkflowTemplateViewContent = ({
 
       <Stack direction="row" spacing={1}>
         <Button
-          variant={viewMode === WorkflowViewMode.FLOW ? 'contained' : 'outlined'}
+          variant={
+            viewMode === WorkflowViewMode.FLOW ? 'contained' : 'outlined'
+          }
           size="small"
           onClick={() => onViewModeChange(WorkflowViewMode.FLOW)}>
           Flow View
         </Button>
         <Button
-          variant={viewMode === WorkflowViewMode.LIST ? 'contained' : 'outlined'}
+          variant={
+            viewMode === WorkflowViewMode.LIST ? 'contained' : 'outlined'
+          }
           size="small"
           onClick={() => onViewModeChange(WorkflowViewMode.LIST)}>
           List View

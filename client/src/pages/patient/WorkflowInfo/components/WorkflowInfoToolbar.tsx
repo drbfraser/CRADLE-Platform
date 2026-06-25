@@ -1,10 +1,6 @@
 import React from 'react';
 import SearchIcon from '@mui/icons-material/Search';
-import {
-  Box,
-  TextField,
-  InputAdornment,
-} from '@mui/material';
+import { Box, TextField, InputAdornment } from '@mui/material';
 import {
   GridToolbarContainer,
   GridToolbarFilterButton,
