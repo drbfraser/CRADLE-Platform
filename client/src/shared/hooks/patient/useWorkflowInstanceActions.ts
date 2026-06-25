@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { ConfirmDialogData } from 'src/shared/types/confirmDialogTypes';
-import { archiveInstanceStepForm } from 'src/shared/api';
+import { archiveInstanceStepForm, completeInstance } from 'src/shared/api';
 import { SnackbarSeverity } from 'src/shared/enums';
 import { useSnackbar } from 'src/shared/hooks/useSnackbar';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
@@ -156,6 +156,11 @@ export function useWorkflowInstanceActions({
     }
   };
 
+  const handleMarkWorkflowComplete = async () => {
+    await completeInstance(instanceDetails!.id);
+    await reload();
+  };
+
   return {
     confirmDialog,
     setConfirmDialog,
@@ -169,5 +174,6 @@ export function useWorkflowInstanceActions({
     handleCompleteFinalStep,
     handleCompleteAndStartNextStep,
     handleMakeCurrent,
+    handleMarkWorkflowComplete,
   };
 }

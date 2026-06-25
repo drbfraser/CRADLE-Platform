@@ -43,8 +43,10 @@ export function getWorkflowStepHistory(
 export function getWorkflowPossibleSteps(
   instance: InstanceDetails
 ): PossibleStep[] {
-  const currentStepId = getWorkflowCurrentStep(instance)?.id ?? null;
-  if (!currentStepId) return []; // TODO: better handling of no active step case
+  // Use the active step if present; fall back to currentStepId as tree anchor (e.g. after reactivation)
+  const currentStepId =
+    getWorkflowCurrentStep(instance)?.id ?? instance.currentStepId ?? null;
+  if (!currentStepId) return [];
   const [main, trimmed] = getWorkflowPossibleStepsArray(
     instance.possibleSteps,
     currentStepId
@@ -260,9 +262,5 @@ function getWorkflowTree(
  * @returns the current step in the workflow instance, or undefined if no step is active
  */
 export function getWorkflowCurrentStep(instance: InstanceDetails) {
-  const steps = instance.steps;
-  const activeStep = steps.find((step) => step.status === StepStatus.ACTIVE);
-  if (activeStep) return activeStep;
-  // After reactivation, no ACTIVE step exists — fall back to the backend's current_step_id
-  return steps.find((step) => step.id === instance.currentStepId);
+  return instance.steps.find((step) => step.status === StepStatus.ACTIVE);
 }

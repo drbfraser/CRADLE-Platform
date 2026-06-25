@@ -1,11 +1,7 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  archiveInstance,
-  unArchiveInstance,
-  completeInstance,
-} from 'src/shared/api';
+import { archiveInstance, unArchiveInstance } from 'src/shared/api';
 import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import WorkflowStatus from './components/WorkflowStatus/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
@@ -49,6 +45,7 @@ export default function WorkflowInstanceDetailsPage() {
     handleCompleteFinalStep,
     handleCompleteAndStartNextStep,
     handleMakeCurrent,
+    handleMarkWorkflowComplete,
   } = useWorkflowInstanceActions({
     instanceDetails,
     template,
@@ -150,12 +147,11 @@ export default function WorkflowInstanceDetailsPage() {
                             message:
                               'Are you sure you want to mark this workflow as completed?',
                             onConfirm: async () => {
-                              await completeInstance(instanceDetails.id);
+                              await handleMarkWorkflowComplete();
                               setConfirmDialog((prev) => ({
                                 ...prev,
                                 open: false,
                               }));
-                              reload();
                             },
                           })
                         }>
