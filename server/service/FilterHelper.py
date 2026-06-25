@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from models import PatientOrm, UserOrm
 from service.assoc import (
     has_association,
@@ -8,7 +6,7 @@ from service.assoc import (
 )
 
 
-def patients_for_hcw(user: UserOrm) -> List[PatientOrm]:
+def patients_for_hcw(user: UserOrm) -> list[PatientOrm]:
     """
     Returns the list of patients that are associated with a health care worker.
 
@@ -23,7 +21,7 @@ def patients_for_hcw(user: UserOrm) -> List[PatientOrm]:
     return patients_at_facility(facility)
 
 
-def patients_for_cho(user: UserOrm) -> List[PatientOrm]:
+def patients_for_cho(user: UserOrm) -> list[PatientOrm]:
     """
     Returns the list of patients that are associated with a CHO.
 
@@ -35,7 +33,7 @@ def patients_for_cho(user: UserOrm) -> List[PatientOrm]:
     return cho_patients + vht_patients
 
 
-def patients_for_vht(user: UserOrm) -> List[PatientOrm]:
+def patients_for_vht(user: UserOrm) -> list[PatientOrm]:
     """
     Returns the list of patients that are associated with a VHT.
 
@@ -51,7 +49,7 @@ def patients_for_vht(user: UserOrm) -> List[PatientOrm]:
 def annotated_global_patient_list(
     user: UserOrm,
     search: str,
-) -> List[Tuple[PatientOrm, bool]]:
+) -> list[tuple[PatientOrm, bool]]:
     """
     Returns the global list of patients where each patient is paired with a boolean that
     is True if the patient is a member of the user's health facility and False if not.

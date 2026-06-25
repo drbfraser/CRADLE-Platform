@@ -13,7 +13,7 @@ Functions included here cover:
 - Deleting records in several ways (`delete`, `delete_by`, `delete_all`)
 """
 
-from typing import Any, List, Optional, Type
+from typing import Any, Optional
 
 from data.db_operations import M, S, db_session
 from models import (
@@ -72,7 +72,7 @@ def create_model(new_data: dict, schema: S) -> Any:
     return new_model
 
 
-def create_all(models: List[M], autocommit: bool = True):
+def create_all(models: list[M], autocommit: bool = True):
     """
     add_all list of model into the database.
 
@@ -91,7 +91,7 @@ def create_all(models: List[M], autocommit: bool = True):
         db_session.commit()
 
 
-def read(m: Type[M], **kwargs) -> Optional[M]:
+def read(m: type[M], **kwargs) -> Optional[M]:
     """
     Queries the database for a single object which matches some query parameters defined
     as keyword arguments. If no such object is found which matches the criteria, then
@@ -106,7 +106,7 @@ def read(m: Type[M], **kwargs) -> Optional[M]:
     return m.query.filter_by(**kwargs).one_or_none()
 
 
-def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
+def update(m: type[M], changes: dict, autocommit: bool = True, **kwargs):
     """
     Applies a series of changes to a model in the database.
 
@@ -168,7 +168,7 @@ def delete(model: M):
     db_session.commit()
 
 
-def delete_by(m: Type[M], **kwargs):
+def delete_by(m: type[M], **kwargs):
     """
     Queries for a model using some given keyword arguments and, if one is found,
     deletes it.
@@ -186,7 +186,7 @@ def delete_by(m: Type[M], **kwargs):
         delete(model)
 
 
-def delete_all(m: Type[M], **kwargs):
+def delete_all(m: type[M], **kwargs):
     """
     Deletes all models satisfying criteria specified by the keyword arguments.
 
@@ -198,7 +198,7 @@ def delete_all(m: Type[M], **kwargs):
     db_session.commit()
 
 
-def find(m: Type[M], *args) -> List[M]:
+def find(m: type[M], *args) -> list[M]:
     """
     Queries for all models which match some given criteria.
 
@@ -217,7 +217,7 @@ def find(m: Type[M], *args) -> List[M]:
     return m.query.filter(*args).all()
 
 
-def read_all(m: Type[M], **kwargs) -> List[M]:
+def read_all(m: type[M], **kwargs) -> list[M]:
     """
     Queries the database for all models satisfying criteria specified by the keyword arguments.
 
@@ -231,7 +231,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     return m.query.filter_by(**kwargs).all()
 
 
-def read_by_filter(m: Type[M], filter_condition) -> Optional[M]:
+def read_by_filter(m: type[M], filter_condition) -> Optional[M]:
     """
     Queries the database for a single object using a SQLAlchemy filter condition.
 

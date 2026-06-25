@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
@@ -311,7 +311,7 @@ class WorkflowService:
     def evaluate_workflow_step(
         workflow_view: WorkflowView,
         instance_step_id: str,
-        current_user: Optional[Dict[str, Any]] = None,
+        current_user: Optional[dict[str, Any]] = None,
     ) -> WorkflowStepEvaluation:
         """
         Evaluate a workflow step and its branches.
@@ -331,7 +331,7 @@ class WorkflowService:
 
     @staticmethod
     def advance_workflow(
-        workflow_view: WorkflowView, current_user: Optional[Dict[str, Any]] = None
+        workflow_view: WorkflowView, current_user: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Advance the workflow to the next step if conditions are met.
@@ -365,7 +365,7 @@ class WorkflowService:
 
     @staticmethod
     def start_workflow(
-        workflow_view: WorkflowView, current_user: Optional[Dict[str, Any]] = None
+        workflow_view: WorkflowView, current_user: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Start a workflow and its first step.
@@ -445,12 +445,12 @@ class WorkflowService:
     @staticmethod
     def get_workflow_instance_data_rows(
         workflow_instance_id: str,
-    ) -> List[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Return dynamic workflow instance fields as JSON-ready dicts (decoded ``value``).
         """
         rows = crud.read_workflow_instance_data_for_instance(workflow_instance_id)
-        out: List[dict[str, Any]] = []
+        out: list[dict[str, Any]] = []
         for r in rows:
             parsed: Any = None
             if r.field_value:
@@ -479,7 +479,7 @@ class WorkflowService:
     @staticmethod
     def upsert_workflow_instance_data_items(
         workflow_instance_id: str,
-        items: List[tuple[str, WorkflowInstanceDataFieldTypeEnum, Any]],
+        items: list[tuple[str, WorkflowInstanceDataFieldTypeEnum, Any]],
     ) -> None:
         """Persist one or more ``workflow_instance_data`` rows (upsert per field_tag)."""
         for field_tag, field_type, value in items:

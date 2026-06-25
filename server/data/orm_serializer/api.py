@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Any
 
 from common import commonUtil
 from data.db_operations import M
@@ -159,7 +159,7 @@ def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) 
     return d
 
 
-def unmarshal(m: Type[M], d: dict) -> M:
+def unmarshal(m: type[M], d: dict) -> M:
     """
     Construct a model instance from a dictionary using the model's schema.
 

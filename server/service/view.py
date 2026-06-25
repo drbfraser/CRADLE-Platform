@@ -17,7 +17,7 @@ The role-specific views are defined as follows:
 * VHT: can see all patients created by them
 """
 
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Optional
 
 import data.db_operations as crud
 from enums import RoleEnum
@@ -31,7 +31,7 @@ from models import (
 )
 
 
-def patient_list_view(user: dict, **kwargs) -> List[Any]:
+def patient_list_view(user: dict, **kwargs) -> list[Any]:
     """
     Returns a list of patients filtered by query criteria in keyword arguments.
 
@@ -43,7 +43,7 @@ def patient_list_view(user: dict, **kwargs) -> List[Any]:
     return __get_view(user, crud.read_patient_list, **kwargs)
 
 
-def referral_list_view(user: dict, **kwargs) -> List[Any]:
+def referral_list_view(user: dict, **kwargs) -> list[Any]:
     """
     Returns a list of referrals filtered by query criteria in keyword arguments.
 
@@ -55,7 +55,7 @@ def referral_list_view(user: dict, **kwargs) -> List[Any]:
     return __get_view(user, crud.read_referral_list, **kwargs)
 
 
-def pregnancy_view(patient_id: str, **kwargs) -> List[PregnancyOrm]:
+def pregnancy_view(patient_id: str, **kwargs) -> list[PregnancyOrm]:
     """
     Returns a list of pregnancies filtered by query criteria in keyword arguments.
 
@@ -72,7 +72,7 @@ def medical_record_view(
     patient_id: str,
     is_drug_record: bool,
     **kwargs,
-) -> List[MedicalRecordOrm]:
+) -> list[MedicalRecordOrm]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
 
@@ -94,7 +94,7 @@ def medical_record_view(
     )
 
 
-def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
+def patient_view(user: dict, last_sync: Optional[int] = None) -> list[Any]:
     """
     Returns a list of patients each with the latest pregnancy, medical and drug records.
 
@@ -107,7 +107,7 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
 def reading_view(
     user: dict,
     last_sync: Optional[int] = None,
-) -> List[Tuple[ReadingOrm, UrineTestOrm]]:
+) -> list[tuple[ReadingOrm, UrineTestOrm]]:
     """
     Returns a list of readings each with corresponding urine test.
 
@@ -117,7 +117,7 @@ def reading_view(
     return __get_view(user, crud.read_readings, last_edited=last_sync)
 
 
-def referral_view(user: dict, last_sync: Optional[int] = None) -> List[ReferralOrm]:
+def referral_view(user: dict, last_sync: Optional[int] = None) -> list[ReferralOrm]:
     """
     Returns a list of referrals of readings associated with user.
 
@@ -132,7 +132,7 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[ReferralO
     )
 
 
-def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[AssessmentOrm]:
+def assessment_view(user: dict, last_sync: Optional[int] = None) -> list[AssessmentOrm]:
     """
     Returns a list of assessments of readings associated with user.
 
@@ -147,7 +147,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[Assessm
     )
 
 
-def admin_patient_view(user: dict, **kwargs) -> List[Any]:
+def admin_patient_view(user: dict, **kwargs) -> list[Any]:
     """
     Returns a list of patients filtered by query criteria in keyword arguments.
 
@@ -158,7 +158,7 @@ def admin_patient_view(user: dict, **kwargs) -> List[Any]:
     return __get_view(user, crud.read_admin_patient, **kwargs)
 
 
-def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:
+def __get_view(user: dict, func: Callable, **kwargs) -> list[Any]:
     """Dispatch a query function with the appropriate user_id filter based on the user's role."""
     role = user["role"]
     user_id = int(user["id"])

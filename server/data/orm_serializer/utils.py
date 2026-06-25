@@ -1,12 +1,12 @@
 from collections.abc import Mapping
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Optional
 
 from data.db_operations import M
 from models import get_schema_for_model
 
 
-def __pre_process(d: Dict[str, Any]):
+def __pre_process(d: dict[str, Any]):
     """
     In-place cleanup: remove private/``None`` fields and coerce ``Enum`` values.
 
@@ -20,7 +20,7 @@ def __pre_process(d: Dict[str, Any]):
             d[k] = v.value
 
 
-def __strip_none_values(d: Dict[str, Any]):
+def __strip_none_values(d: dict[str, Any]):
     """
     Remove keys whose values are ``None`` (mutates ``d``).
 
@@ -32,7 +32,7 @@ def __strip_none_values(d: Dict[str, Any]):
         del d[k]
 
 
-def __strip_protected_attributes(d: Dict[str, Any]):
+def __strip_protected_attributes(d: dict[str, Any]):
     """
     Remove attributes starting with ``_`` (mutates ``d``).
 
@@ -44,7 +44,7 @@ def __strip_protected_attributes(d: Dict[str, Any]):
         del d[k]
 
 
-def __load(m: Type[M], d: dict) -> M:
+def __load(m: type[M], d: dict) -> M:
     """
     Load a model instance from ``dict`` using the model's Marshmallow schema.
 
@@ -57,7 +57,7 @@ def __load(m: Type[M], d: dict) -> M:
     return schema().load(d)
 
 
-def models_to_list(models: List[Any], schema) -> List[dict]:
+def models_to_list(models: list[Any], schema) -> list[dict]:
     """
     Converts a list of models into a list of dictionaries mapping column names
     to values.

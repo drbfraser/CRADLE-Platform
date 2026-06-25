@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pydantic import Field, model_validator
 from typing_extensions import Self
@@ -104,8 +104,8 @@ class GetWorkflowInstancesResponse(CradleBaseModel, extra="forbid"):
 class CreateWorkflowInstanceRequest(CradleBaseModel, extra="forbid"):
     workflow_template_id: str
     patient_id: str
-    name: str
-    description: str
+    name: Optional[str] = None
+    description: Optional[str] = None
 
 
 class GetAvailableActionsResponse(CradleBaseModel):
@@ -133,7 +133,7 @@ class WorkflowInstanceDataUpsertItem(CradleBaseModel, extra="forbid"):
 
 
 class SetWorkflowInstanceDataRequest(CradleBaseModel, extra="forbid"):
-    items: List[WorkflowInstanceDataUpsertItem]
+    items: list[WorkflowInstanceDataUpsertItem]
 
 
 class WorkflowInstanceDataRowModel(CradleBaseModel, extra="forbid"):
@@ -147,7 +147,7 @@ class WorkflowInstanceDataRowModel(CradleBaseModel, extra="forbid"):
 
 
 class GetWorkflowInstanceDataResponse(CradleBaseModel, extra="forbid"):
-    items: List[WorkflowInstanceDataRowModel]
+    items: list[WorkflowInstanceDataRowModel]
 
 
 class CreateNewStepRequest(CradleBaseModel):
@@ -165,19 +165,19 @@ class WorkflowVariableCatalogueItemModel(CradleBaseModel, extra="forbid"):
     type: str
     namespace: Optional[str] = None
     collection_name: Optional[str] = None
-    field_path: Optional[List[str]] = None
+    field_path: Optional[list[str]] = None
     is_computed: bool = False
     is_dynamic: bool = False
 
 
 class GetWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
-    variables: List[WorkflowVariableCatalogueItemModel]
+    variables: list[WorkflowVariableCatalogueItemModel]
 
 
 class WorkflowVariableDetailModel(WorkflowVariableCatalogueItemModel):
     """Detail response for a single variable"""
 
-    examples: Optional[List[str]] = None
+    examples: Optional[list[str]] = None
 
 
 class VariableLogicModel(CradleBaseModel, extra="forbid"):
@@ -208,4 +208,4 @@ class WorkflowVariableResolutionApiModel(CradleBaseModel, extra="forbid"):
 
 class ResolveWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
     evaluation_status: str
-    variable_resolutions: List[WorkflowVariableResolutionApiModel]
+    variable_resolutions: list[WorkflowVariableResolutionApiModel]

@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Dict, List, TypeAlias, TypeVar
+from typing import Any, Callable, TypeAlias, TypeVar
 
 import data.db_operations as crud
 from data import orm_serializer
@@ -16,14 +16,14 @@ from service.workflow.datasourcing import custom_lookup as cl
 M = TypeVar("M")
 
 ObjectResolver = Callable[[str, str], Any]
-CustomResolver = Callable[[Dict], Any]
+CustomResolver = Callable[[dict], Any]
 
 # For object entries we use a dict with well-known keys like:
 #   {"query": <callable>, "custom": {...}, "collection": bool}
-ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
+ObjectCatalogue: TypeAlias = dict[str, dict[str, Any]]
 
 
-def __query_vitals_collection(patient_id: str) -> List[Dict[str, Any]]:
+def __query_vitals_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query all readings (vitals) for a patient, ordered by date_taken (newest first).
 
@@ -31,11 +31,11 @@ def __query_vitals_collection(patient_id: str) -> List[Dict[str, Any]]:
     enriched with a nested "urine_test" dict if a urine test exists.
     """
     # Reuse existing patient query that already orders readings by date.
-    readings: List[ReadingOrm] = crud.read_patient_all_records(
+    readings: list[ReadingOrm] = crud.read_patient_all_records(
         patient_id, readings=True
     )
 
-    result: List[Dict[str, Any]] = []
+    result: list[dict[str, Any]] = []
     for reading in readings:
         reading_dict = orm_serializer.marshal(reading)
 
@@ -50,7 +50,7 @@ def __query_vitals_collection(patient_id: str) -> List[Dict[str, Any]]:
     return result
 
 
-def __query_pregnancies_collection(patient_id: str) -> List[Dict[str, Any]]:
+def __query_pregnancies_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query all pregnancies for a patient, ordered by start_date (newest first).
     """
@@ -63,7 +63,7 @@ def __query_pregnancies_collection(patient_id: str) -> List[Dict[str, Any]]:
     return [orm_serializer.marshal(p) for p in pregnancies_sorted]
 
 
-def __query_referrals_collection(patient_id: str) -> List[Dict[str, Any]]:
+def __query_referrals_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Skeleton: query referrals collection for a patient.
 
@@ -74,7 +74,7 @@ def __query_referrals_collection(patient_id: str) -> List[Dict[str, Any]]:
     return []
 
 
-def __query_assessments_collection(patient_id: str) -> List[Dict[str, Any]]:
+def __query_assessments_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Skeleton: query assessments collection for a patient.
     """
@@ -82,7 +82,7 @@ def __query_assessments_collection(patient_id: str) -> List[Dict[str, Any]]:
     return []
 
 
-def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
+def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Skeleton: query forms collection for a patient.
     """
@@ -90,7 +90,7 @@ def __query_forms_collection(patient_id: str) -> List[Dict[str, Any]]:
     return []
 
 
-def __query_all_workflows_collection(patient_id: str) -> List[Dict[str, Any]]:
+def __query_all_workflows_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query all workflow instances for a patient, ordered newest-first by start_date
     (then ``last_edited``), for ``all_wf[latest]`` and related rule variables.
@@ -106,7 +106,7 @@ def __query_all_workflows_collection(patient_id: str) -> List[Dict[str, Any]]:
 
 def __query_object(
     model: type[M], query: Callable[[str], bool], id: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     General function for querying system data
 
@@ -124,7 +124,7 @@ def __query_object(
     return orm_serializer.marshal(data)
 
 
-def get_catalogue() -> Dict[str, ObjectCatalogue]:
+def get_catalogue() -> dict[str, ObjectCatalogue]:
     """
     The data catalogue of supported datasource objects
 
@@ -150,7 +150,7 @@ def get_catalogue() -> Dict[str, ObjectCatalogue]:
     Objects below are from the spike on relevant system data used in a workflow
     see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
 """
-__data_catalogue: Dict[str, ObjectCatalogue] = {
+__data_catalogue: dict[str, ObjectCatalogue] = {
     "assessment": {
         "query": partial(
             __query_object, AssessmentOrm, lambda _id: AssessmentOrm.id == _id
