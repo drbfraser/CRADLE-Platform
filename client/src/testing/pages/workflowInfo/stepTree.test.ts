@@ -140,6 +140,33 @@ describe('getWorkflowPossibleStepsLength', () => {
 
     const instance = buildTestInstance();
     instance.steps = steps;
+    // possibleSteps tree must match the custom steps — s2 is active (root),
+    // s3 and s4 are the two pending future steps
+    instance.possibleSteps = {
+      id: 's2',
+      title: 'S2',
+      indent: 0,
+      status: StepStatus.ACTIVE,
+      shortestPathLength: 2,
+      branches: [
+        {
+          id: 's3',
+          title: 'S3',
+          indent: 1,
+          status: StepStatus.PENDING,
+          shortestPathLength: 1,
+          branches: [],
+        },
+        {
+          id: 's4',
+          title: 'S4',
+          indent: 1,
+          status: StepStatus.PENDING,
+          shortestPathLength: 1,
+          branches: [],
+        },
+      ],
+    };
 
     expect(getWorkflowPossibleStepsLength(instance)).toBe(2);
   });

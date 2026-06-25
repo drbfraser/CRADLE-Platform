@@ -96,7 +96,7 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         )
 
         WorkflowPlanner.advance(workflow_view)
-        si_2_id = workflow_view.instance.current_step_id  # created on the fly with a UUID
+        si_2_id = workflow_view.instance.current_step_id
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",

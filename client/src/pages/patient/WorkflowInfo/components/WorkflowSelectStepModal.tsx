@@ -3,7 +3,6 @@ import NextStepSelector from './NextStepSelector';
 import { useEffect, useState } from 'react';
 import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
-
 export interface NextStepModalState {
   open: boolean;
   title: string;
