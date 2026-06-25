@@ -104,8 +104,8 @@ class GetWorkflowInstancesResponse(CradleBaseModel, extra="forbid"):
 class CreateWorkflowInstanceRequest(CradleBaseModel, extra="forbid"):
     workflow_template_id: str
     patient_id: str
-    name: str
-    description: str
+    name: Optional[str] = None
+    description: Optional[str] = None
 
 
 class GetAvailableActionsResponse(CradleBaseModel):
