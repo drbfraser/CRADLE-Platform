@@ -58,6 +58,7 @@ export type InstanceDetails = {
   workflowCompletedOn?: Nullable<ISODate>;
 
   // Steps
+  currentStepId?: string;
   steps: InstanceStep[];
   stepHistory: InstanceStep[];
   possibleSteps: PossibleStep; // tree of all possible steps

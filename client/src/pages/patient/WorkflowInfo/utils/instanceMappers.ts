@@ -99,6 +99,7 @@ export function buildInstanceDetails(
       ? formatISODateNumber(instance.completionDate)
       : null,
 
+    currentStepId: instance.currentStepId,
     steps,
     stepHistory: [],
     possibleSteps: initiateWorkflowPossibleSteps(steps, template),

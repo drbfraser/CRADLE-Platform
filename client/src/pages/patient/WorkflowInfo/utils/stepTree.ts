@@ -261,6 +261,8 @@ function getWorkflowTree(
  */
 export function getWorkflowCurrentStep(instance: InstanceDetails) {
   const steps = instance.steps;
-  const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
-  return currentStep;
+  const activeStep = steps.find((step) => step.status === StepStatus.ACTIVE);
+  if (activeStep) return activeStep;
+  // After reactivation, no ACTIVE step exists — fall back to the backend's current_step_id
+  return steps.find((step) => step.id === instance.currentStepId);
 }
