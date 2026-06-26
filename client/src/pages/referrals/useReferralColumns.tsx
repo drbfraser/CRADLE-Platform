@@ -52,9 +52,7 @@ export const useReferralColumns = () =>
     []
   );
 
-export const formatReferralRows = (
-  referrals: Array<Record<string, unknown>>
-) =>
+export const formatReferralRows = (referrals: Array<Record<string, unknown>>) =>
   referrals.map((r) => ({
     ...r,
     id: r.referralId,

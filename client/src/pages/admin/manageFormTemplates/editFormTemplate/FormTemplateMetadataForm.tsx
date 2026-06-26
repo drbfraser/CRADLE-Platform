@@ -110,9 +110,7 @@ export const FormTemplateMetadataForm = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const newVersion = Number(e.target.value);
               setForm((prev) => ({ ...prev, version: newVersion }));
-              setVersionError(
-                previousVersions?.includes(newVersion) ?? false
-              );
+              setVersionError(previousVersions?.includes(newVersion) ?? false);
             }}
             InputProps={{
               endAdornment: (
