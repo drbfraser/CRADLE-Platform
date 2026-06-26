@@ -101,12 +101,15 @@ export default function WorkflowInstanceDetailsPage() {
               expandAll={expandAll}
               setExpandAll={setExpandAll}
               actions={workflowStepHistoryActions}
+              isEditable={instanceDetails.status === InstanceStatus.ACTIVE}
             />
 
-            <WorkflowPossibleSteps
-              workflowInstance={instanceDetails}
-              handleMakeCurrent={handleMakeCurrent}
-            />
+            {instanceDetails.status === InstanceStatus.ACTIVE && (
+              <WorkflowPossibleSteps
+                workflowInstance={instanceDetails}
+                handleMakeCurrent={handleMakeCurrent}
+              />
+            )}
 
             <Box sx={{ mx: 5, mt: 3 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>

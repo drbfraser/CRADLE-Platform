@@ -142,9 +142,21 @@ export function useWorkflowStepActions(
         await reload();
       }
 
-      await overrideStep(stepId);
+      // Placeholder steps use template step IDs, created on the fly
+      const isInstanceStep = instanceDetails!.steps.some((s) => s.id === stepId);
+      let targetStepId: string;
+      if (isInstanceStep) {
+        await overrideStep(stepId);
+        targetStepId = stepId;
+      } else {
+        const advancedInstance = await advanceToTemplateStep(
+          instanceDetails!.id,
+          stepId
+        );
+        targetStepId = advancedInstance.currentStepId!;
+      }
 
-      await startStep(stepId);
+      await startStep(targetStepId);
       await reload();
 
       showSnackbar('Step set as current!', SnackbarSeverity.SUCCESS);
@@ -158,8 +170,10 @@ export function useWorkflowStepActions(
 
   const overrideCompletedStep = async (stepId: string) => {
     try {
-      await skipStep();
-      await reload();
+      if (currentStep?.status === StepStatus.ACTIVE) {
+        await skipStep();
+        await reload();
+      }
 
       const newStep = await handleCreateStepInstance(stepId);
       await reload();

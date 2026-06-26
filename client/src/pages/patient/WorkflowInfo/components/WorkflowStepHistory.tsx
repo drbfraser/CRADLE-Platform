@@ -30,6 +30,7 @@ interface WorkflowStepHistoryProps {
   expandAll: boolean;
   setExpandAll: (value: boolean) => void;
   actions: WorkflowStepHistoryActions;
+  isEditable: boolean;
 }
 
 export default function WorkflowStepHistory({
@@ -40,6 +41,7 @@ export default function WorkflowStepHistory({
   expandAll,
   setExpandAll,
   actions,
+  isEditable,
 }: WorkflowStepHistoryProps) {
   const [currentStepExpanded, setCurrentStepExpanded] = useState(true);
 
@@ -129,11 +131,11 @@ export default function WorkflowStepHistory({
                 <StepHistoryActions
                   step={currentStep}
                   variant="current"
-                  onViewForm={actions.formActions.onView}
-                  onEditForm={actions.formActions.onEdit}
-                  onDiscardForm={actions.formActions.onDiscard}
-                  onCompleteNow={actions.formActions.onCompleteNow}
-                  onCompleteStep={actions.stepActions.onCompleteStep}
+                  onViewForm={isEditable ? actions.formActions.onView : undefined}
+                  onEditForm={isEditable ? actions.formActions.onEdit : undefined}
+                  onDiscardForm={isEditable ? actions.formActions.onDiscard : undefined}
+                  onCompleteNow={isEditable ? actions.formActions.onCompleteNow : undefined}
+                  onCompleteStep={isEditable ? actions.stepActions.onCompleteStep : undefined}
                 />
               </Box>
             </Collapse>
@@ -191,7 +193,7 @@ export default function WorkflowStepHistory({
                     onToggleExpand={() =>
                       setExpandedStep(isExpanded ? null : step.id)
                     }
-                    onMakeCurrent={actions.stepActions.onMakeCurrent}
+                    onMakeCurrent={isEditable ? actions.stepActions.onMakeCurrent : undefined}
                   />
                 );
               })}

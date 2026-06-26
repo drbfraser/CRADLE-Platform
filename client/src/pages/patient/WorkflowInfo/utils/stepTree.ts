@@ -43,7 +43,6 @@ export function getWorkflowStepHistory(
 export function getWorkflowPossibleSteps(
   instance: InstanceDetails
 ): PossibleStep[] {
-  // Use the active step if present; fall back to currentStepId as tree anchor (e.g. after reactivation)
   const currentStepId =
     getWorkflowCurrentStep(instance)?.id ?? instance.currentStepId ?? null;
   if (!currentStepId) return [];
