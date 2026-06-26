@@ -3,7 +3,7 @@ The ``service.util`` contains utility functions to help simplify useful informat
 instead of using marshal on the whole Object.
 """
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from marshmallow import ValidationError
 
@@ -21,7 +21,7 @@ from models import (
 )
 
 
-def serialize_patient_list(patients: List[Any]) -> list[dict]:
+def serialize_patient_list(patients: list[Any]) -> list[dict]:
     """Serialize a list of patients to minimal dicts for list views."""
     return [
         {
@@ -37,7 +37,7 @@ def serialize_patient_list(patients: List[Any]) -> list[dict]:
     ]
 
 
-def serialize_patients_admin(patients: List[Any]) -> list[dict]:
+def serialize_patients_admin(patients: list[Any]) -> list[dict]:
     """Serialize a list of patients to minimal dicts for admin views."""
     return [
         {
@@ -49,7 +49,7 @@ def serialize_patients_admin(patients: List[Any]) -> list[dict]:
     ]
 
 
-def serialize_referral_list(referrals: List[Any]) -> list[dict]:
+def serialize_referral_list(referrals: list[Any]) -> list[dict]:
     """Serialize a list of referrals to dicts, skipping entries with no referral ID."""
     return [
         {
@@ -99,9 +99,9 @@ def serialize_patient_timeline(r: Any) -> dict:
 
 def serialize_patient(
     patient: Any,
-    readings: Optional[List[ReadingOrm]] = None,
-    referrals: Optional[List[ReferralOrm]] = None,
-    assessments: Optional[List[AssessmentOrm]] = None,
+    readings: Optional[list[ReadingOrm]] = None,
+    referrals: Optional[list[ReferralOrm]] = None,
+    assessments: Optional[list[AssessmentOrm]] = None,
 ) -> dict:
     """Serialize a patient with optional readings, referrals, and assessments to a dict."""
     return {
@@ -138,7 +138,7 @@ def serialize_patient(
     }
 
 
-def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
+def serialize_reading(tup: tuple[ReadingOrm, UrineTestOrm]) -> dict:
     """Serialize a (ReadingOrm, UrineTestOrm) tuple to a dict, including urine test data."""
     reading = orm_serializer.marshal(tup[0], True)
     reading["urine_tests"] = (

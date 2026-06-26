@@ -1,5 +1,5 @@
 import json
-from typing import Any, Set, Union
+from typing import Any, Union
 
 
 class JsonLogicParser:
@@ -13,9 +13,9 @@ class JsonLogicParser:
 
     def __init__(self):
         """Initialize the parser with an empty variables set."""
-        self.variables: Set[str] = set()
+        self.variables: set[str] = set()
 
-    def extract_variables(self, rule: Union[str, dict]) -> Set[str]:
+    def extract_variables(self, rule: Union[str, dict]) -> set[str]:
         """
         Extract all variable references from a JsonLogic rule.
 
@@ -68,7 +68,7 @@ class JsonLogicParser:
                 self._traverse(item)
 
 
-def extract_variables_from_rule(rule: Union[str, dict]) -> Set[str]:
+def extract_variables_from_rule(rule: Union[str, dict]) -> set[str]:
     """
     Wrapper function to extract variables from a JsonLogic rule.
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import Field, RootModel
 
@@ -15,7 +15,7 @@ class ReadingModel(CradleBaseModel):
     diastolic_blood_pressure: int
     heart_rate: int
     is_flagged_for_follow_up: bool = False
-    symptoms: List[str] = []
+    symptoms: list[str] = []
     date_taken: int = Field(default_factory=get_current_time)
     last_edited: int = Field(default_factory=get_current_time)
     user_id: Optional[int] = None

@@ -4,7 +4,7 @@ from config import db
 from models import PatientOrm, ReadingOrm
 
 
-def resolve_reading_invariants(obj: Union[PatientOrm, ReadingOrm]):
+def resolve_reading_invariants(obj: Union[PatientOrm, ReadingOrm], autocommit=True):
     """
     Resolves various invariants which must be held by reading objects.
 
@@ -16,17 +16,20 @@ def resolve_reading_invariants(obj: Union[PatientOrm, ReadingOrm]):
     """
     if isinstance(obj, PatientOrm):
         for r in obj.readings:
-            resolve_reading_invariants(r)
+            resolve_reading_invariants(r, autocommit)
         return
 
     # Ensure that the reading's traffic light status is present and valid
     obj.traffic_light_status = obj.get_traffic_light()
 
     # Commit any changes to the database
-    db.session.commit()
+    if autocommit:
+        db.session.commit()
 
 
-def resolve_reading_invariants_mobile(obj: Union[PatientOrm, ReadingOrm]):
+def resolve_reading_invariants_mobile(
+    obj: Union[PatientOrm, ReadingOrm], autocommit=True
+):
     """
     Resolves various invariants which must be held by reading objects.
 
@@ -38,7 +41,7 @@ def resolve_reading_invariants_mobile(obj: Union[PatientOrm, ReadingOrm]):
     """
     if isinstance(obj, PatientOrm):
         for r in obj.readings:
-            resolve_reading_invariants_mobile(r)
+            resolve_reading_invariants_mobile(r, autocommit)
         return
 
     # Ensure that the reading's traffic light status is present and valid
@@ -48,4 +51,5 @@ def resolve_reading_invariants_mobile(obj: Union[PatientOrm, ReadingOrm]):
     # is marked as assessed.
     if obj.referral and obj.followup:
         obj.referral.is_assessed = True
-    db.session.commit()
+    if autocommit:
+        db.session.commit()

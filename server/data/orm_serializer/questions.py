@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import List
 
 from models import (
     FormQuestionTemplateOrmV2,
@@ -212,7 +211,7 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
     return question_orm
 
 
-def unmarshal_question_list(d: list) -> List[QuestionOrm]:
+def unmarshal_question_list(d: list) -> list[QuestionOrm]:
     """
     Unmarshal a list of question dicts into ``QuestionOrm`` instances.
 
