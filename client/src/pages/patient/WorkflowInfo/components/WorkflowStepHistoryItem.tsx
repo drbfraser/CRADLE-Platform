@@ -12,7 +12,7 @@ type WorkflowStepHistoryItemProps = {
   isExpanded: boolean;
   expandAll: boolean;
   onToggleExpand: () => void;
-  onMakeCurrent: (stepId: string, title: string, status: StepStatus) => void;
+  onMakeCurrent?: (stepId: string, title: string, status: StepStatus) => void;
 };
 
 export default function WorkflowStepHistoryItem({
@@ -88,8 +88,10 @@ export default function WorkflowStepHistoryItem({
           <StepHistoryActions
             step={step}
             variant="history"
-            onMakeCurrent={() =>
-              onMakeCurrent(step.id, step.title, step.status)
+            onMakeCurrent={
+              onMakeCurrent
+                ? () => onMakeCurrent(step.id, step.title, step.status)
+                : undefined
             }
           />
         </Box>

@@ -100,8 +100,23 @@ export default function WorkflowInstanceDetailsPage() {
               setExpandedStep={setExpandedStep}
               expandAll={expandAll}
               setExpandAll={setExpandAll}
-              actions={workflowStepHistoryActions}
-              isEditable={instanceDetails.status === InstanceStatus.ACTIVE}
+              actions={
+                instanceDetails.status === InstanceStatus.ACTIVE
+                  ? workflowStepHistoryActions
+                  : {
+                      ...workflowStepHistoryActions,
+                      formActions: {
+                        onView: undefined,
+                        onEdit: undefined,
+                        onDiscard: undefined,
+                        onCompleteNow: undefined,
+                      },
+                      stepActions: {
+                        onCompleteStep: undefined,
+                        onMakeCurrent: undefined,
+                      },
+                    }
+              }
             />
 
             {instanceDetails.status === InstanceStatus.ACTIVE && (

@@ -71,14 +71,14 @@ export type WorkflowStepHistoryActions = {
     onRefetch: () => void;
   };
   formActions: {
-    onView: () => void;
-    onEdit: () => void;
-    onDiscard: () => void;
-    onCompleteNow: () => void;
+    onView?: () => void;
+    onEdit?: () => void;
+    onDiscard?: () => void;
+    onCompleteNow?: () => void;
   };
   stepActions: {
-    onCompleteStep: () => void;
-    onMakeCurrent: (stepId: string, title: string, status: StepStatus) => void;
+    onCompleteStep?: () => void;
+    onMakeCurrent?: (stepId: string, title: string, status: StepStatus) => void;
   };
 };
 
