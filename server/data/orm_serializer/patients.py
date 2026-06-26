@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from common import commonUtil
 from models import (
@@ -118,7 +118,7 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
     return patient
 
 
-def make_medical_record_from_patient(patient: dict) -> List[MedicalRecordOrm]:
+def make_medical_record_from_patient(patient: dict) -> list[MedicalRecordOrm]:
     """
     Extract optional drug/medical history strings and build ``MedicalRecordOrm`` entries.
 
@@ -157,7 +157,7 @@ def make_medical_record_from_patient(patient: dict) -> List[MedicalRecordOrm]:
     return record
 
 
-def makePregnancyFromPatient(patient: dict) -> List[PregnancyOrm]:
+def makePregnancyFromPatient(patient: dict) -> list[PregnancyOrm]:
     """
     Derive pregnancy data from patient fields and remove them from the dict.
 
@@ -188,7 +188,7 @@ def makePregnancyFromPatient(patient: dict) -> List[PregnancyOrm]:
     return pregnancy
 
 
-def marshal_patient_pregnancy_summary(records: List[PregnancyOrm]) -> dict:
+def marshal_patient_pregnancy_summary(records: list[PregnancyOrm]) -> dict:
     """
     Build a compact summary for current and past pregnancies (most-recent first).
 

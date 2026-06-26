@@ -1,6 +1,6 @@
 import json
 import re
-from typing import List, Optional
+from typing import Optional
 
 from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
@@ -131,7 +131,7 @@ class WorkflowInstanceAndStepIdPath(CradleBaseModel):
 
 # Create a response model for the list endpoints
 class WorkflowTemplateStepListResponse(CradleBaseModel):
-    items: List[WorkflowTemplateStepModel]
+    items: list[WorkflowTemplateStepModel]
 
 
 class FacilityNamePath(CradleBaseModel):

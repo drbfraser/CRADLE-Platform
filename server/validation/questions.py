@@ -1,7 +1,7 @@
-from typing import Optional, Union
+from typing import Annotated, Optional, Union
 
 from pydantic import Field, model_validator
-from typing_extensions import Annotated, Self
+from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from enums import QRelationalEnum, QuestionTypeEnum

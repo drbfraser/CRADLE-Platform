@@ -18,7 +18,7 @@ These helpers reduce code duplication across CRUD modules such as patient, refer
 and workflow queries.
 """
 
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Query
@@ -94,7 +94,7 @@ def __order_by_column(query: Query, models: list, **kwargs) -> Query:
     return query
 
 
-def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
+def __get_slice_indexes(page: str, limit: str) -> tuple[int, int]:
     """Return the start and stop slice indexes for the given page and limit."""
     start = (int(page) - 1) * int(limit)
     stop = start + int(limit)

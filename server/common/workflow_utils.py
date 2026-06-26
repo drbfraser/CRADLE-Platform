@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from flask import abort
 
@@ -74,7 +74,7 @@ def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -
 
 
 def assign_step_ids(
-    m: Type[M], step: dict, workflow_id: str, auto_assign_id: bool = False
+    m: type[M], step: dict, workflow_id: str, auto_assign_id: bool = False
 ) -> None:
     """
     Assigns an ID and workflow ID to a workflow template or instance step if none has been provided, if the step has
@@ -121,7 +121,7 @@ def assign_step_ids(
 # NOTE: It may not make sense anymore to handle assigning instance IDs, as the
 #       IDs are generated once in WorkflowService.generate_workflow_instance
 def assign_workflow_template_or_instance_ids(
-    m: Type[M], workflow: dict, auto_assign_id: bool = False
+    m: type[M], workflow: dict, auto_assign_id: bool = False
 ) -> None:
     """
     Assigns an ID to a workflow template, instance, or classification if none has been provided, if the workflow
@@ -158,7 +158,7 @@ def assign_workflow_template_or_instance_ids(
             assign_step_ids(WorkflowInstanceStepOrm, step, workflow_id, auto_assign_id)
 
 
-def apply_changes_to_model(model: Type[M], changes: dict) -> None:
+def apply_changes_to_model(model: type[M], changes: dict) -> None:
     """
     Similar to crud.update(), but only applies the changes to the model, does not add to the DB
 
