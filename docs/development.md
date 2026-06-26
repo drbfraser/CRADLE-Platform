@@ -276,8 +276,8 @@ server/
 
 
 ├── data/                       # DB abstraction & data transformation
-│   ├── crud.py                 # CRUD operations on SQLAlchemy models
-│   ├── marshal.py              # Converts dicts <-> ORM objects
+│   ├── db_operations/          # CRUD operations on SQLAlchemy models
+│   ├── orm_serializer/         # Converts dicts <-> ORM objects
 │   ├── seed_data/              # Seed data in JSON format
 │   └── __init__.py             # Initializes DB session (SQLAlchemy)
 
@@ -305,7 +305,7 @@ server/
 
 ├── systemtests/                # Integration/system-level test suites
 │   ├── api/
-│   ├── crud_test/
+│   ├── db_operations/
 │   ├── flow/
 │   ├── mock/
 │   ├── utils/
