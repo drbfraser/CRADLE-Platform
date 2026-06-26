@@ -95,7 +95,7 @@ export const WorkflowTemplateViewContent = ({
     ) : (
       <WorkflowSteps
         steps={workflow?.steps as WorkflowTemplateStepWithFormAndIndex[]}
-        firstStep={workflow?.startingStepId}
+        firstStep={workflow?.startingStepId || ''}
         isInstance={false}
       />
     )}

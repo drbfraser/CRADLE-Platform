@@ -67,6 +67,7 @@ export const useFormQuestionMutations = ({
     if (
       up &&
       index > 0 &&
+      question.categoryIndex !== null &&
       question.categoryIndex < index - 1 &&
       question.questionType != QuestionTypeEnum.CATEGORY
     ) {

@@ -12,22 +12,22 @@ import { FlattenedRecord } from 'src/shared/types/types';
 export const PatientRecordCard = ({ record }: { record: FlattenedRecord }) => {
   switch (record.type) {
     case 'assessment':
-      return <AssessmentCard assessment={record} />;
+      return <AssessmentCard assessment={record as never} />;
     case 'form':
-      return <CustomizedFormCard form={record} />;
+      return <CustomizedFormCard form={record as never} />;
     case 'reading':
-      return <ReadingCard reading={record} />;
+      return <ReadingCard reading={record as never} />;
     case 'referral':
       if (record.isAssessed) {
-        return <ReferralAssessedCard referral={record} />;
+        return <ReferralAssessedCard referral={record as never} />;
       }
       if (record.isCancelled) {
-        return <ReferralCancelledCard referral={record} />;
+        return <ReferralCancelledCard referral={record as never} />;
       }
       if (record.notAttended) {
-        return <ReferralNotAttendedCard referral={record} />;
+        return <ReferralNotAttendedCard referral={record as never} />;
       }
-      return <ReferralPendingCard referral={record} />;
+      return <ReferralPendingCard referral={record as never} />;
     default:
       return <div>error</div>;
   }

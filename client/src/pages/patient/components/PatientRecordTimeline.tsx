@@ -62,7 +62,7 @@ export const PatientRecordTimeline = ({
 
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {records.map((record) => (
-        <Grid key={record.id ?? record.readingId} size={{ xs: 12 }}>
+        <Grid key={record.id} size={{ xs: 12 }}>
           <PatientRecordCard record={record} />
         </Grid>
       ))}

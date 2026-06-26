@@ -77,10 +77,10 @@ const EditVisibleCondition = ({
                 language: state.currentLanguage,
                 handleAnswers: (answers) => {
                   const answer = answers[0];
-                  if (!answer) return;
+                  if (!answer?.answerType) return;
 
                   const mapped = mapVisibilityAnswer(
-                    answer,
+                    { answerType: answer.answerType, val: answer.val },
                     filteredQs[+state.selectedQIndex]
                   );
                   if (mapped) {

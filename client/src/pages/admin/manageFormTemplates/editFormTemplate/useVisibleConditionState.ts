@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { QRelationEnum, QuestionTypeEnum } from 'src/shared/enums';
-import { QCondition, QAnswer } from 'src/shared/types/form/formTypes';
+import { QCondition, Answer } from 'src/shared/types/form/formTypes';
 import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 
 type UseVisibleConditionStateOptions = {
@@ -32,7 +32,7 @@ export const useVisibleConditionState = ({
     currVisCond ? currVisCond.relation : QRelationEnum.EQUAL_TO
   );
 
-  const [selectedAnswer, setSelectedAnswer] = useState<QAnswer | undefined>(
+  const [selectedAnswer, setSelectedAnswer] = useState<Answer | undefined>(
     currVisCond ? currVisCond.answers : undefined
   );
 

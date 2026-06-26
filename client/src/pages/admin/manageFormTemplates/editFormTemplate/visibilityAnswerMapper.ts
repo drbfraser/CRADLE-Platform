@@ -1,5 +1,5 @@
 import { AnswerTypeEnum } from 'src/shared/enums';
-import { QAnswer } from 'src/shared/types/form/formTypes';
+import { Answer } from 'src/shared/types/form/formTypes';
 import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 
 type FormAnswer = {
@@ -10,7 +10,7 @@ type FormAnswer = {
 export const mapVisibilityAnswer = (
   answer: FormAnswer,
   selectedQuestion: TQuestion
-): QAnswer | undefined => {
+): Answer | undefined => {
   switch (answer.answerType) {
     case AnswerTypeEnum.TEXT:
       return { text: answer.val as string };

@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+import { Dispatch, SetStateAction } from 'react';
 import { ReferralFilter } from 'src/shared/types/referralTypes';
 import { FilterDialog } from '../FilterDialog';
 import { AutoRefresher } from '../AutoRefresher';
@@ -15,9 +16,9 @@ type ReferralsToolbarProps = {
   onRefreshDialogClose: () => void;
   setFilter: (filter: ReferralFilter) => void;
   setIsPromptShown: (isPromptShown: boolean) => void;
-  setRefresh: (refresh: boolean) => void;
-  setRefreshTimer: (timer: number) => void;
-  setIsRefreshDialogOpen: (open: boolean) => void;
+  setRefresh: Dispatch<SetStateAction<boolean>>;
+  setRefreshTimer: Dispatch<SetStateAction<number>>;
+  setIsRefreshDialogOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export const ReferralsToolbar = ({

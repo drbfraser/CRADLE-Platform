@@ -22,7 +22,7 @@ type FormTemplateMetadataFormProps = {
   setForm: Dispatch<SetStateAction<FormTemplateWithQuestionsV2>>;
   setLanguage: Dispatch<SetStateAction<string[]>>;
   setVersionError: Dispatch<SetStateAction<boolean>>;
-  previousVersions?: string[];
+  previousVersions?: Array<number | string>;
 };
 
 export const FormTemplateMetadataForm = ({
@@ -108,9 +108,11 @@ export const FormTemplateMetadataForm = ({
             fullWidth
             inputProps={{ maxLength: 30 }}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const newVersion = e.target.value;
+              const newVersion = Number(e.target.value);
               setForm((prev) => ({ ...prev, version: newVersion }));
-              setVersionError(previousVersions?.includes(newVersion) ?? false);
+              setVersionError(
+                previousVersions?.includes(newVersion) ?? false
+              );
             }}
             InputProps={{
               endAdornment: (
