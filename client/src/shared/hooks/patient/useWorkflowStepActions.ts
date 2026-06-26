@@ -143,7 +143,9 @@ export function useWorkflowStepActions(
       }
 
       // Placeholder steps use template step IDs, created on the fly
-      const isInstanceStep = instanceDetails!.steps.some((s) => s.id === stepId);
+      const isInstanceStep = instanceDetails!.steps.some(
+        (s) => s.id === stepId
+      );
       let targetStepId: string;
       if (isInstanceStep) {
         await overrideStep(stepId);
