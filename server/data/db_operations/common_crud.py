@@ -42,7 +42,7 @@ def create(model: M, refresh=False, autocommit: bool = True):
     """
     # Ensures that any reading that is entered into the DB is correctly formatted
     if isinstance(model, ReadingOrm):
-        invariant.resolve_reading_invariants(model)
+        invariant.resolve_reading_invariants(model, autocommit=False)
 
     db_session.add(model)
     if autocommit:
@@ -89,6 +89,8 @@ def create_all(models: list[M], autocommit: bool = True):
     db_session.add_all(models)
     if autocommit:
         db_session.commit()
+    else:
+        db_session.flush()
 
 
 def read(m: type[M], **kwargs) -> Optional[M]:
@@ -125,20 +127,24 @@ def update(m: type[M], changes: dict, autocommit: bool = True, **kwargs):
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
                    query (e.g., ``patient_id="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
+    :except ValueError: if an invalid column name is used
     :return: The updated model
-    #FIXME This function doesn't return anything?
     """
     model = read(m, **kwargs)
+    for k in changes:
+        if not hasattr(model, k):
+            raise ValueError(f'Invalid column "{k}" used.')
 
     for k, v in changes.items():
         setattr(model, k, v)
 
     # Ensures that any reading that is entered into the DB is correctly formatted
     if isinstance(model, ReadingOrm):
-        invariant.resolve_reading_invariants(model)
+        invariant.resolve_reading_invariants(model, autocommit=False)
 
     if autocommit:
         db_session.commit()
+    return model
 
 
 def merge(model: M, autocommit: bool = True):
@@ -146,6 +152,7 @@ def merge(model: M, autocommit: bool = True):
     Merge a model into the current database session.
 
     If the object is not already in the session, it will be added.
+    The merged model will not be updated to reflect its internal state.
     If it exists, its state will be updated.
 
     :param model: The model to merge
@@ -237,6 +244,7 @@ def read_by_filter(m: type[M], filter_condition) -> Optional[M]:
 
     :param m: Type of the model to query for
     :param filter_condition: SQLAlchemy filter expression (e.g., Model.field == value)
+    :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
     :return: A model from the database or None if no model was found
     """
     return m.query.filter(filter_condition).one_or_none()

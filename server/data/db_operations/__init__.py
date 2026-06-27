@@ -140,6 +140,7 @@ _EXPORTS: dict[str, tuple[str, str | None]] = {
     "delete": ("common_crud", "delete"),
     "delete_by": ("common_crud", "delete_by"),
     "delete_all": ("common_crud", "delete_all"),
+    "merge": ("common_crud", "merge"),
     # ------- form_queries -------
     "read_form_template_language_versions": (
         "form_queries",

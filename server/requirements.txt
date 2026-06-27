@@ -20,6 +20,7 @@ pydantic[email]==2.9.2
 pydantic-extra-types==2.10.1
 PyMySQL==1.0.2
 pytest==8.4.1
+pytest-cov==7.1.0
 python-dateutil==2.9.0
 python-json-logger==2.0.4
 requests==2.25.1
