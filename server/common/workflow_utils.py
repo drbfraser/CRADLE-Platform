@@ -22,6 +22,8 @@ from models import (
 )
 from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formsV2_models import FormTemplateUploadRequest
+from api.resources.workflow_templates import lock_workflow_classification_for_update, get_next_workflow_template_version
+from sqlalchemy.exc import IntegrityError
 
 if TYPE_CHECKING:
     from data.crud import M
@@ -437,3 +439,52 @@ def find_workflow_instance_step_or_404(
             WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
         )
     return step
+
+
+# function to update the workflows after form changes
+def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
+    """This function is called everytime a form is updated. It finds all the templates and their steps that link
+    to the older form and replaces it with the new version, generating a new workflow template version in the process.
+    """
+
+    # find all existing, non-archived workflows with steps that link to old_form_id
+    steps_to_update = crud.db_session.query(WorkflowTemplateStepOrm).join(WorkflowTemplateOrm).filter(WorkflowTemplateStepOrm.form_id == old_form_id).filter(WorkflowTemplateOrm.archived == False).all()
+    target_workflows_ids = {step.workflow_template_id for step in steps_to_update}
+
+    # go through the each workflow and update relevant steps
+    for workflow_template_id in target_workflows_ids:
+        workflow_orm = crud.read(WorkflowTemplateOrm, id=workflow_template_id, archived=False)
+        if not workflow_orm:
+            continue
+
+        template_dict = orm_serializer.marshal(workflow_orm)
+        for workflow_step in template_dict["steps"]:
+            # update_step if linked to older workflow
+            current_id = workflow_step.get("form_id")
+            if current_id == old_form_id:
+                workflow_step["form_id"] = new_form_id
+        # update workflow version and push new details
+
+        # get classification id and lock
+        classification_id  = workflow_orm.classification_id
+        lock_workflow_classification_for_update(classification_id)
+
+        # create new patch_body and update version
+        patch_body = {}
+        patch_body["version"] = get_next_workflow_template_version(classification_id)
+        patch_body["steps"] = template_dict["steps"]
+        patch_body["starting_step_id"] = workflow_orm.starting_step_id
+
+        updated_workflow_template = generate_updated_workflow_template(workflow_orm, patch_body, auto_assign_id=True)
+        workflow_orm.archived = True
+
+        try:
+            crud.create(model=updated_workflow_template, refresh=True)
+        except IntegrityError:
+            crud.db_session.rollback()
+            return abort(
+                code=409,
+                description=f"Error updating workflow with id {classification_id}.",
+            )
+            
+    
