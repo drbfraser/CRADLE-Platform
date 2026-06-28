@@ -4,11 +4,11 @@ from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import ValidationError
-from common.workflow_utils import update_workflow_version_with_new_form
 
 import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils
+from common.workflow_utils import update_workflow_version_with_new_form
 from data import orm_serializer
 from enums import ContentTypeEnum, RoleEnum
 from models import (
@@ -272,7 +272,7 @@ def handle_form_template_upload(
                 previous_template_id = previous_template.id
                 previous_template.archived = True
 
-            
+
 
         form_template_orm.classification = form_classification_orm
         crud.create(form_template_orm, refresh=True, autocommit=False)

@@ -502,10 +502,10 @@ def find_workflow_instance_step_or_404(
 
 # function to update the workflows after form changes
 def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
-    """This function is called everytime a form is updated. It finds all the templates and their steps that link
+    """
+    This function is called everytime a form is updated. It finds all the templates and their steps that link
     to the older form and replaces it with the new version, generating a new workflow template version in the process.
     """
-
     # find all existing, non-archived workflows with steps that link to old_form_id
     steps_to_update = crud.db_session.query(WorkflowTemplateStepOrm).join(WorkflowTemplateOrm).filter(WorkflowTemplateStepOrm.form_id == old_form_id).filter(WorkflowTemplateOrm.archived == False).all()
     target_workflows_ids = {step.workflow_template_id for step in steps_to_update}
@@ -522,6 +522,7 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
             current_id = workflow_step.get("form_id")
             if current_id == old_form_id:
                 workflow_step["form_id"] = new_form_id
+            workflow_step.pop("form", None)
         # update workflow version and push new details
 
         # get classification id and lock
@@ -545,5 +546,5 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
                 code=409,
                 description=f"Error updating workflow with id {classification_id}.",
             )
-            
-    
+
+
