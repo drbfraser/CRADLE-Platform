@@ -32,6 +32,7 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
+    RuleGroupOrm,
     VillageOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
@@ -1826,7 +1827,7 @@ def create_simple_workflow_template_with_branching(
             form=form_template_orm, **step_data
         )
 
-    for source, target, _condition in branches:
+    for source, target, condition_label in branches:
         source_step_id = f"{workflow_template_id}-step-{source}"
         target_step_id = f"{workflow_template_id}-step-{target}"
         branch_id = f"{source_step_id}-to-step-{target}"
@@ -1835,12 +1836,21 @@ def create_simple_workflow_template_with_branching(
         existing_branch_ids = {b.id for b in source_step.branches}
 
         if branch_id not in existing_branch_ids:
+            rule_value = "Yes" if condition_label == "yes" else "No"
+            rule_json = json.dumps(
+                {"==": [{"var": "forms[latest].step_response"}, rule_value]}
+            )
+            rg = RuleGroupOrm()
+            rg.id = f"rg-{branch_id}"
+            rg.rule = rule_json
+            db.session.add(rg)
+
             branch_orm = WorkflowTemplateStepBranchOrm(
                 id=branch_id,
                 step_id=source_step_id,
                 target_step_id=target_step_id,
-                condition_id=None,
-                condition=None,
+                condition_id=rg.id,
+                condition=rg,
             )
             source_step.branches.append(branch_orm)
 
@@ -1944,7 +1954,7 @@ def create_complex_workflow_with_loops_template(workflow_template_id, form_templ
             form=form_template_orm, **step_data
         )
 
-    for source, target, _condition in branches:
+    for source, target, condition_label in branches:
         source_step_id = f"{workflow_template_id}-step-{source}"
         target_step_id = f"{workflow_template_id}-step-{target}"
         branch_id = f"{source_step_id}-to-step-{target}"
@@ -1953,12 +1963,20 @@ def create_complex_workflow_with_loops_template(workflow_template_id, form_templ
         existing_branch_ids = {b.id for b in source_step.branches}
 
         if branch_id not in existing_branch_ids:
+            rule_json = json.dumps(
+                {"==": [{"var": "forms[latest].step_response"}, condition_label]}
+            )
+            rg = RuleGroupOrm()
+            rg.id = f"rg-{branch_id}"
+            rg.rule = rule_json
+            db.session.add(rg)
+
             branch_orm = WorkflowTemplateStepBranchOrm(
                 id=branch_id,
                 step_id=source_step_id,
                 target_step_id=target_step_id,
-                condition_id=None,
-                condition=None,
+                condition_id=rg.id,
+                condition=rg,
             )
             source_step.branches.append(branch_orm)
 

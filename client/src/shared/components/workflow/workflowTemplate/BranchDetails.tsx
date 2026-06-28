@@ -111,7 +111,9 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   ) => {
     setLocalConditionRule(conditionRule);
     setLocalConditionName(conditionName || '');
-    if (validationError !== undefined) {
+    if (conditionRule === '') {
+      setValidationError(null);
+    } else if (validationError !== undefined) {
       setValidationError(validationError ?? null);
     }
   };
@@ -202,7 +204,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
             onClick={handleSave}
             variant="contained"
             color="primary"
-            disabled={!!validationError || !localConditionRule}>
+            disabled={!!validationError}>
             Save
           </Button>
         )}

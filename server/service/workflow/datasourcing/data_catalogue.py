@@ -1,10 +1,15 @@
+import json
 from functools import partial
 from typing import Any, Callable, TypeAlias, TypeVar
 
 import data.db_operations as crud
 from data import orm_serializer
+from enums import QuestionTypeEnum
 from models import (
     AssessmentOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
+    LangVersionOrmV2,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
@@ -84,10 +89,110 @@ def __query_assessments_collection(patient_id: str) -> list[dict[str, Any]]:
 
 def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:
     """
-    Skeleton: query forms collection for a patient.
+    Query all form submissions for a patient, ordered newest-first.
+
+    Each item is a flat dict keyed by user_question_id with the scalar answer
+    value. This is how values are converted:
+    INTEGER/DECIMAL → float
+    STRING → str,
+    DATE/DATETIME → str,
+    MULTIPLE_CHOICE → English option text str
     """
-    # TODO: Implement forms collection query (Phase 4).
-    return []
+    submissions = (
+        crud.db_session.query(FormSubmissionOrmV2)
+        .filter(FormSubmissionOrmV2.patient_id == patient_id)
+        .order_by(FormSubmissionOrmV2.date_submitted.desc())
+        .all()
+    )
+
+    if not submissions:
+        return []
+
+    all_question_ids = {
+        answer.question_id
+        for submission in submissions
+        for answer in submission.answers
+    }
+
+    if not all_question_ids:
+        return [{} for _ in submissions]
+
+    questions = (
+        crud.db_session.query(FormQuestionTemplateOrmV2)
+        .filter(FormQuestionTemplateOrmV2.id.in_(all_question_ids))
+        .all()
+    )
+    question_map: Dict[str, FormQuestionTemplateOrmV2] = {q.id: q for q in questions}
+
+    # fetch eng translations for all mc option string ids
+    mc_options_map: Dict[str, List[str]] = {}
+    mc_string_ids: set[str] = set()
+    for q in questions:
+        if (
+            q.question_type
+            in (QuestionTypeEnum.MULTIPLE_CHOICE, QuestionTypeEnum.MULTIPLE_SELECT)
+            and q.mc_options
+        ):
+            try:
+                option_ids: List[str] = json.loads(q.mc_options)
+                mc_options_map[q.id] = option_ids
+                mc_string_ids.update(option_ids)
+            except (ValueError, TypeError):
+                pass
+
+    option_text_map: Dict[str, str] = {}
+    if mc_string_ids:
+        lang_versions = (
+            crud.db_session.query(LangVersionOrmV2)
+            .filter(
+                LangVersionOrmV2.string_id.in_(mc_string_ids),
+                LangVersionOrmV2.lang == "English",
+            )
+            .all()
+        )
+        option_text_map = {lv.string_id: lv.text for lv in lang_versions}
+
+    result: List[Dict[str, Any]] = []
+    for submission in submissions:
+        flat: Dict[str, Any] = {}
+        for answer in submission.answers:
+            question = question_map.get(answer.question_id)
+            if question is None:
+                continue
+            try:
+                raw: Dict[str, Any] = json.loads(answer.answer)
+            except (ValueError, TypeError):
+                continue
+            q_type = question.question_type
+            if q_type in (QuestionTypeEnum.INTEGER, QuestionTypeEnum.DECIMAL):
+                value = raw.get("number")
+            elif q_type == QuestionTypeEnum.STRING:
+                value = raw.get("text")
+            elif q_type in (QuestionTypeEnum.DATE, QuestionTypeEnum.DATETIME):
+                value = raw.get("date")
+            elif q_type == QuestionTypeEnum.MULTIPLE_CHOICE:
+                selected = raw.get("mc_id_array", [])
+                option_ids = mc_options_map.get(question.id, [])
+                if selected and option_ids and selected[0] < len(option_ids):
+                    value = option_text_map.get(option_ids[selected[0]])
+                else:
+                    value = None
+            elif q_type == QuestionTypeEnum.MULTIPLE_SELECT:
+                selected = raw.get("mc_id_array", [])
+                option_ids = mc_options_map.get(question.id, [])
+                for idx in selected:
+                    if idx < len(option_ids):
+                        text = option_text_map.get(option_ids[idx])
+                        if text is not None:
+                            flat[f"{question.user_question_id}_{text}"] = True
+                continue
+            else:
+                continue
+            if value is not None:
+                flat[question.user_question_id] = value
+        result.append(flat)
+
+    return result
 
 
 def __query_all_workflows_collection(patient_id: str) -> list[dict[str, Any]]:
