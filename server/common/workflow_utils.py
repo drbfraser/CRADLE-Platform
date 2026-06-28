@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from flask import abort
 from sqlalchemy.exc import IntegrityError
@@ -285,7 +285,7 @@ def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[d
 workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
 
 
-def parse_workflow_template_version(version: Optional[str]) -> Optional[int]:
+def parse_workflow_template_version(version: str | None) -> int | None:
     """Return numeric part for versions in the form V<number>, else None."""
     if version is None:
         return None
@@ -299,7 +299,7 @@ def parse_workflow_template_version(version: Optional[str]) -> Optional[int]:
 
 
 def get_next_workflow_template_version(
-    workflow_classification_id: Optional[str],
+    workflow_classification_id: str | None,
 ) -> str:
     """
     Compute the next template version for a classification.
@@ -326,8 +326,8 @@ def get_next_workflow_template_version(
 
 
 def lock_workflow_classification_for_update(
-    workflow_classification_id: Optional[str],
-) -> Optional[WorkflowClassificationOrm]:
+    workflow_classification_id: str | None,
+) -> WorkflowClassificationOrm | None:
     """Acquire a row lock for classification-scoped version sequencing."""
     if workflow_classification_id is None:
         return None
