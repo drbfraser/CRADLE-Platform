@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import re
+from typing import TYPE_CHECKING, Optional
 
 from flask import abort
+from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
-from api.resources.form_templates_v2 import handle_form_template_upload
 from common.commonUtil import abort_not_found, get_uuid
 from common.form_utils import assign_form_or_template_ids
 from data import orm_serializer
@@ -22,8 +23,6 @@ from models import (
 )
 from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formsV2_models import FormTemplateUploadRequest
-from api.resources.workflow_templates import lock_workflow_classification_for_update, get_next_workflow_template_version
-from sqlalchemy.exc import IntegrityError
 
 if TYPE_CHECKING:
     from data.crud import M
@@ -216,6 +215,8 @@ def validate_workflow_template_step(
 
     try:
         if workflow_template_step.get("form") is not None:
+            from api.resources.form_templates_v2 import handle_form_template_upload
+
             form_template = FormTemplateUploadRequest(**workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown
@@ -279,6 +280,64 @@ def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[d
         updated_steps.append(updated_step)
 
     return updated_steps
+
+
+workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
+
+
+def parse_workflow_template_version(version: Optional[str]) -> Optional[int]:
+    """Return numeric part for versions in the form V<number>, else None."""
+    if version is None:
+        return None
+
+    normalized_version = version.strip()
+    version_match = workflow_template_version_regex.match(normalized_version)
+    if version_match is None:
+        return None
+
+    return int(version_match.group("number"))
+
+
+def get_next_workflow_template_version(
+    workflow_classification_id: Optional[str],
+) -> str:
+    """
+    Compute the next template version for a classification.
+
+    - New classification starts at V1.
+    - Existing classification increments the max known V<number>.
+    """
+    if workflow_classification_id is None:
+        return "V1"
+
+    existing_templates = (
+        crud.db_session.query(WorkflowTemplateOrm)
+        .filter(WorkflowTemplateOrm.classification_id == workflow_classification_id)
+        .all()
+    )
+
+    max_version_number = 0
+    for existing_template in existing_templates:
+        parsed_version = parse_workflow_template_version(existing_template.version)
+        if parsed_version is not None:
+            max_version_number = max(max_version_number, parsed_version)
+
+    return f"V{max_version_number + 1}"
+
+
+def lock_workflow_classification_for_update(
+    workflow_classification_id: Optional[str],
+) -> Optional[WorkflowClassificationOrm]:
+    """Acquire a row lock for classification-scoped version sequencing."""
+    if workflow_classification_id is None:
+        return None
+
+    return (
+        crud.db_session.query(WorkflowClassificationOrm)
+        .filter(WorkflowClassificationOrm.id == workflow_classification_id)
+        .with_for_update()
+        .one_or_none()
+    )
 
 
 # Helper function to generate an updated workflow template from a patch body
