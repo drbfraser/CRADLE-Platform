@@ -613,11 +613,11 @@ def test_form_update_auto_bumps_workflow_template_version(
 
         # upload form template V2 and trigger auto bump
         form_v2_payload = form_template_v2_payload(
-            overrides={    
+            overrides={
                 "id": form_v1_id,
                 "version": 2,
                 "classification": {
-                    "id": form_classification_id,  #same as the first one
+                    "id": form_classification_id,  # same as the first one
                     "name": {"english": form_name},
                 },
             }
@@ -673,7 +673,11 @@ def test_form_update_auto_bumps_workflow_template_version(
             crud.delete_all(FormTemplateOrmV2, id=form_v1_id)
         if form_classification_id:
             # delete any remaining form templates referencing this classification
-            remaining = crud.db_session.query(FormTemplateOrmV2).filter_by(form_classification_id=form_classification_id).all()
+            remaining = (
+                crud.db_session.query(FormTemplateOrmV2)
+                .filter_by(form_classification_id=form_classification_id)
+                .all()
+            )
             for ft in remaining:
                 crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=ft.id)
                 crud.delete_all(FormTemplateOrmV2, id=ft.id)

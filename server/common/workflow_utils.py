@@ -507,12 +507,20 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
     to the older form and replaces it with the new version, generating a new workflow template version in the process.
     """
     # find all existing, non-archived workflows with steps that link to old_form_id
-    steps_to_update = crud.db_session.query(WorkflowTemplateStepOrm).join(WorkflowTemplateOrm).filter(WorkflowTemplateStepOrm.form_id == old_form_id).filter(WorkflowTemplateOrm.archived == False).all()
+    steps_to_update = (
+        crud.db_session.query(WorkflowTemplateStepOrm)
+        .join(WorkflowTemplateOrm)
+        .filter(WorkflowTemplateStepOrm.form_id == old_form_id)
+        .filter(WorkflowTemplateOrm.archived == False)
+        .all()
+    )
     target_workflows_ids = {step.workflow_template_id for step in steps_to_update}
 
     # go through the each workflow and update relevant steps
     for workflow_template_id in target_workflows_ids:
-        workflow_orm = crud.read(WorkflowTemplateOrm, id=workflow_template_id, archived=False)
+        workflow_orm = crud.read(
+            WorkflowTemplateOrm, id=workflow_template_id, archived=False
+        )
         if not workflow_orm:
             continue
 
@@ -526,7 +534,7 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
         # update workflow version and push new details
 
         # get classification id and lock
-        classification_id  = workflow_orm.classification_id
+        classification_id = workflow_orm.classification_id
         lock_workflow_classification_for_update(classification_id)
 
         # create new patch_body and update version
@@ -535,7 +543,9 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
         patch_body["steps"] = template_dict["steps"]
         patch_body["starting_step_id"] = workflow_orm.starting_step_id
 
-        updated_workflow_template = generate_updated_workflow_template(workflow_orm, patch_body, auto_assign_id=True)
+        updated_workflow_template = generate_updated_workflow_template(
+            workflow_orm, patch_body, auto_assign_id=True
+        )
         workflow_orm.archived = True
 
         try:
@@ -546,5 +556,3 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
                 code=409,
                 description=f"Error updating workflow with id {classification_id}.",
             )
-
-
