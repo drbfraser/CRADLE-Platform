@@ -272,8 +272,6 @@ def handle_form_template_upload(
                 previous_template_id = previous_template.id
                 previous_template.archived = True
 
-
-
         form_template_orm.classification = form_classification_orm
         crud.create(form_template_orm, refresh=True, autocommit=False)
 
@@ -284,7 +282,9 @@ def handle_form_template_upload(
 
         # update the workflow steps usng this form to the latest version
         if previous_template_id:
-            update_workflow_version_with_new_form(previous_template_id, form_template_orm.id)
+            update_workflow_version_with_new_form(
+                previous_template_id, form_template_orm.id
+            )
         return created_form_template
     except Exception:
         crud.db_session.rollback()
