@@ -4,6 +4,7 @@ from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import ValidationError
+from common.workflow_utils import update_workflow_version_with_new_form
 
 import data.db_operations as crud
 from api.decorator import roles_required
@@ -260,6 +261,7 @@ def handle_form_template_upload(
             )
             crud.create(form_classification_orm, refresh=True, autocommit=False)
 
+        previous_template_id = None
         if archive_previous_template:
             previous_template = crud.read(
                 FormTemplateOrmV2,
@@ -267,7 +269,10 @@ def handle_form_template_upload(
                 archived=False,
             )
             if previous_template is not None:
+                previous_template_id = previous_template.id
                 previous_template.archived = True
+
+            
 
         form_template_orm.classification = form_classification_orm
         crud.create(form_template_orm, refresh=True, autocommit=False)
@@ -276,6 +281,10 @@ def handle_form_template_upload(
         created_form_template["name"] = english_name
 
         crud.db_session.commit()
+
+        # update the workflow steps usng this form to the latest version
+        if previous_template_id:
+            update_workflow_version_with_new_form(previous_template_id, form_template_orm.id)
         return created_form_template
     except Exception:
         crud.db_session.rollback()
