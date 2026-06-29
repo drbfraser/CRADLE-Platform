@@ -4,36 +4,6 @@ V1 is the old API, V2 is the new one. V1 gets deleted once mobile moves to V2. E
 
 ---
 
-## Shared Types
-
-Question types: `INTEGER`, `STRING`, `MULTIPLE_CHOICE`, `MULTIPLE_SELECT`, `DATE`, `DATETIME`, `CATEGORY`
-
-Visible condition relations: `EQUAL_TO`, `LARGER_THAN`, `SMALLER_THAN`, `CONTAINS`
-
-Answer value shape (same in both versions):
-
-| Question type | Field |
-|---|---|
-| INTEGER | `number` (float) |
-| STRING | `text` (string) |
-| MULTIPLE_CHOICE / MULTIPLE_SELECT | `mc_id_array` (int array) |
-| DATE | `date` (YYYY-MM-DD) |
-| DATETIME | `date` (ISO string) |
-
-Any answer can also have a `comment` field.
-
-Visible condition object:
-
-| Field | Type |
-|---|---|
-| `question_index` | integer |
-| `relation` | string |
-| `answers` | AnswerValue |
-
-All endpoints require a JWT token. Admin-only endpoints also need the ADMIN role. `user_id` is pulled from the JWT if not provided.
-
----
-
 ## Form Submissions
 
 ### V1 — POST /api/forms/responses
