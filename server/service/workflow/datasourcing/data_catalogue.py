@@ -122,10 +122,10 @@ def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:
         .filter(FormQuestionTemplateOrmV2.id.in_(all_question_ids))
         .all()
     )
-    question_map: Dict[str, FormQuestionTemplateOrmV2] = {q.id: q for q in questions}
+    question_map: dict[str, FormQuestionTemplateOrmV2] = {q.id: q for q in questions}
 
     # fetch eng translations for all mc option string ids
-    mc_options_map: Dict[str, List[str]] = {}
+    mc_options_map: dict[str, list[str]] = {}
     mc_string_ids: set[str] = set()
     for q in questions:
         if (
@@ -134,13 +134,13 @@ def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:
             and q.mc_options
         ):
             try:
-                option_ids: List[str] = json.loads(q.mc_options)
+                option_ids: list[str] = json.loads(q.mc_options)
                 mc_options_map[q.id] = option_ids
                 mc_string_ids.update(option_ids)
             except (ValueError, TypeError):
                 pass
 
-    option_text_map: Dict[str, str] = {}
+    option_text_map: dict[str, str] = {}
     if mc_string_ids:
         lang_versions = (
             crud.db_session.query(LangVersionOrmV2)
@@ -152,15 +152,15 @@ def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:
         )
         option_text_map = {lv.string_id: lv.text for lv in lang_versions}
 
-    result: List[Dict[str, Any]] = []
+    result: list[dict[str, Any]] = []
     for submission in submissions:
-        flat: Dict[str, Any] = {}
+        flat: dict[str, Any] = {}
         for answer in submission.answers:
             question = question_map.get(answer.question_id)
             if question is None:
                 continue
             try:
-                raw: Dict[str, Any] = json.loads(answer.answer)
+                raw: dict[str, Any] = json.loads(answer.answer)
             except (ValueError, TypeError):
                 continue
             q_type = question.question_type
