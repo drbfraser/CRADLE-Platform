@@ -58,6 +58,7 @@ export type InstanceDetails = {
   workflowCompletedOn?: Nullable<ISODate>;
 
   // Steps
+  currentStepId?: string;
   steps: InstanceStep[];
   stepHistory: InstanceStep[];
   possibleSteps: PossibleStep; // tree of all possible steps
@@ -70,14 +71,14 @@ export type WorkflowStepHistoryActions = {
     onRefetch: () => void;
   };
   formActions: {
-    onView: () => void;
-    onEdit: () => void;
-    onDiscard: () => void;
-    onCompleteNow: () => void;
+    onView?: () => void;
+    onEdit?: () => void;
+    onDiscard?: () => void;
+    onCompleteNow?: () => void;
   };
   stepActions: {
-    onCompleteStep: () => void;
-    onMakeCurrent: (stepId: string, title: string, status: StepStatus) => void;
+    onCompleteStep?: () => void;
+    onMakeCurrent?: (stepId: string, title: string, status: StepStatus) => void;
   };
 };
 
@@ -111,7 +112,7 @@ export type WorkflowInfoRow = {
 
 export type WorkflowNextStepOption = {
   branchId: string;
-  stepId: string;
+  templateStepId: string;
   title: string;
   isRecommended: boolean;
   rule: string;

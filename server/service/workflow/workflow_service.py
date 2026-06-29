@@ -72,14 +72,14 @@ class WorkflowService:
         workflow_instance["workflow_template_id"] = workflow_template.id
         workflow_instance["patient_id"] = None
 
-        step = [
-            WorkflowService._generate_workflow_instance_step(
-                step_template, workflow_instance["id"]
-            )
-            for step_template in workflow_template.steps
-        ]
+        steps_by_id = {s.id: s for s in workflow_template.steps}
+        starting_template_step = steps_by_id[workflow_template.starting_step_id]
 
-        workflow_instance["steps"] = step
+        workflow_instance["steps"] = [
+            WorkflowService._generate_workflow_instance_step(
+                starting_template_step, workflow_instance["id"]
+            )
+        ]
 
         return WorkflowInstanceModel(**workflow_instance)
 
@@ -337,6 +337,19 @@ class WorkflowService:
         Advance the workflow to the next step if conditions are met.
         """
         WorkflowPlanner.advance(ctx=workflow_view, current_user=current_user)
+
+    @staticmethod
+    def advance_workflow_to_template_step(
+        workflow_view: WorkflowView, template_step_id: str
+    ) -> None:
+        """
+        Advance the workflow to the instance step for the given template step,
+        creating it on demand if it does not exist yet.
+        """
+        instance_step = workflow_view.get_or_create_instance_step_for_template_step(
+            template_step_id
+        )
+        workflow_view.instance.current_step_id = instance_step.id
 
     @staticmethod
     def override_current_step(

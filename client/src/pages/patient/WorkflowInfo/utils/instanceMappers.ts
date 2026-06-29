@@ -99,6 +99,7 @@ export function buildInstanceDetails(
       ? formatISODateNumber(instance.completionDate)
       : null,
 
+    currentStepId: instance.currentStepId,
     steps,
     stepHistory: [],
     possibleSteps: initiateWorkflowPossibleSteps(steps, template),
@@ -173,31 +174,6 @@ export const buildWorkflowInstanceRowList = async (
   return sortWorkflowInfoRows(workflowInfoRows);
 };
 
-export const getTargetTemplateStepFromBranchId = (
-  instance: InstanceDetails,
-  template: WorkflowTemplate,
-  currentStepId: string,
-  branchId: string
-): InstanceStep | undefined => {
-  const templateStepId = instance.steps.find(
-    (step) => step.id === currentStepId
-  )?.workflowTemplateStepId;
-
-  if (!templateStepId) return undefined;
-
-  const templateStep = template.steps.find(
-    (step) => step.id === templateStepId
-  );
-
-  const targetTemplateStepId = templateStep?.branches?.find(
-    (branch) => branch.id === branchId
-  )?.targetStepId;
-
-  return instance.steps.find(
-    (step) => step.workflowTemplateStepId === targetTemplateStepId
-  );
-};
-
 export const getWorkflowNextStepOptions = (
   instance: InstanceDetails,
   template: WorkflowTemplate,
@@ -208,20 +184,29 @@ export const getWorkflowNextStepOptions = (
   const selectedBranchId = stepEval.selectedBranchId;
   const nextOptions: WorkflowNextStepOption[] = [];
 
+  const currentStep = instance.steps.find((step) => step.id === currentStepId);
+  if (!currentStep) return nextOptions;
+
+  const currentTemplateStep = template.steps.find(
+    (step) => step.id === currentStep.workflowTemplateStepId
+  );
+  if (!currentTemplateStep) return nextOptions;
+
   branchEvals.forEach((branchEval) => {
-    const targetInstanceStep = getTargetTemplateStepFromBranchId(
-      instance,
-      template,
-      currentStepId,
-      branchEval.branchId
+    const branch = currentTemplateStep.branches?.find(
+      (b) => b.id === branchEval.branchId
     );
-    if (!targetInstanceStep) {
-      return;
-    }
+    if (!branch) return;
+
+    const targetTemplateStep = template.steps.find(
+      (step) => step.id === branch.targetStepId
+    );
+    if (!targetTemplateStep) return;
+
     const nextOption: WorkflowNextStepOption = {
       branchId: branchEval.branchId,
-      stepId: targetInstanceStep.id,
-      title: targetInstanceStep.title,
+      templateStepId: targetTemplateStep.id,
+      title: targetTemplateStep.name,
       isRecommended: selectedBranchId === branchEval.branchId,
       rule: branchEval.rule ?? 'N/A',
       ruleStatus: branchEval.ruleStatus,

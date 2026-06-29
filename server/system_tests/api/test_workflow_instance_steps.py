@@ -193,17 +193,23 @@ def test_get_workflow_instance_step_with_form(
 
 
 def test_evaluate_workflow_instance_step(api_get, sequential_workflow_view_with_db):
+    workflow_view = sequential_workflow_view_with_db
+
+    # Step 2 doesn't exist yet — create it on the fly and persist so the API can evaluate it
+    step2 = workflow_view.get_or_create_instance_step_for_template_step("st-2")
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
     step_1_evaluation = api_evaluate_workflow_instance_step(
         api_get,
         WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
     )
     step_2_evaluation = api_evaluate_workflow_instance_step(
         api_get,
-        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-2"),
+        WorkflowInstanceStepIdPath(workflow_instance_step_id=step2.id),
     )
     # sanity checks, workflow planner unit tests already have more thorough checks
     assert step_1_evaluation.selected_branch_id == "b-1"
-    assert step_2_evaluation.selected_branch_id == None
+    assert step_2_evaluation.selected_branch_id is None
 
     api_evaluate_workflow_instance_step(
         api_get,

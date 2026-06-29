@@ -76,10 +76,10 @@ export default function NextStepSelector({
         value={selectedId}
         onChange={(e) => setSelectedId(e.target.value)}>
         {options.map((opt) => {
-          const isExpanded = expandedId === opt.stepId;
+          const isExpanded = expandedId === opt.templateStepId;
           return (
             <Box
-              key={opt.stepId}
+              key={opt.templateStepId}
               sx={{
                 border: '1px solid #ddd',
                 mb: 2,
@@ -93,10 +93,10 @@ export default function NextStepSelector({
                   p: 1.5,
                   cursor: 'pointer',
                 }}
-                onClick={() => toggleExpand(opt.stepId)}>
+                onClick={() => toggleExpand(opt.templateStepId)}>
                 {/* Main Next Step Details */}
                 <FormControlLabel
-                  value={opt.stepId}
+                  value={opt.templateStepId}
                   control={<Radio />}
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -116,7 +116,7 @@ export default function NextStepSelector({
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleExpand(opt.stepId);
+                    toggleExpand(opt.templateStepId);
                   }}
                   sx={{
                     transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',

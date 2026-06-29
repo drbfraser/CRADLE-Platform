@@ -216,7 +216,19 @@ export const advanceRecommendedStep = async (
   instanceId: ID
 ): Promise<WorkflowInstance> => {
   const response = await axiosFetch.post<WorkflowInstance>(
-    `${INSTANCES}/${instanceId}/advance`
+    `${INSTANCES}/${instanceId}/advance`,
+    {}
+  );
+  return response.data;
+};
+
+export const advanceToTemplateStep = async (
+  instanceId: ID,
+  targetTemplateStepId: string
+): Promise<WorkflowInstance> => {
+  const response = await axiosFetch.post<WorkflowInstance>(
+    `${INSTANCES}/${instanceId}/advance`,
+    { targetTemplateStepId }
   );
   return response.data;
 };

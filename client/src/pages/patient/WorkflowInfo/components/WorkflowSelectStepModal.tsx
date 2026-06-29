@@ -16,7 +16,9 @@ interface IProps {
   setNextStep: React.Dispatch<React.SetStateAction<string | null>>;
   handleCloseNextStepModal: () => void;
   handleCompleteFinalStep: () => void;
-  handleCompleteAndStartNextStep: (stepId: string) => Promise<void>;
+  handleCompleteAndStartNextStep: (
+    option: WorkflowNextStepOption
+  ) => Promise<void>;
   options: WorkflowNextStepOption[];
 }
 
@@ -30,7 +32,8 @@ export default function WorkflowSelectStepModal({
   const [selectedId, setSelectedId] = useState('');
 
   useEffect(() => {
-    const recommended = options.find((o) => o.isRecommended)?.stepId ?? '';
+    const recommended =
+      options.find((o) => o.isRecommended)?.templateStepId ?? '';
     setSelectedId(recommended);
   }, [options]);
 
@@ -38,7 +41,11 @@ export default function WorkflowSelectStepModal({
 
   const handleOnConfirm = async () => {
     try {
-      await handleCompleteAndStartNextStep(selectedId);
+      const selectedOption = options.find(
+        (o) => o.templateStepId === selectedId
+      );
+      if (!selectedOption) return;
+      await handleCompleteAndStartNextStep(selectedOption);
     } catch (e) {
       console.error('Error completing/starting next step', e);
     }

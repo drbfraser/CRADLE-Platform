@@ -1,11 +1,7 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  archiveInstance,
-  unArchiveInstance,
-  completeInstance,
-} from 'src/shared/api';
+import { archiveInstance, unArchiveInstance } from 'src/shared/api';
 import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import WorkflowStatus from './components/WorkflowStatus/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
@@ -18,6 +14,7 @@ import WorkflowInstanceSnackbar from './components/WorkflowInstanceSnackbar';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
 import WorkflowSelectStepModal from './components/WorkflowSelectStepModal';
 import { useWorkflowInstanceActions } from 'src/shared/hooks/patient/useWorkflowInstanceActions';
+import { WorkflowNextStepOption } from 'src/shared/types/workflow/workflowUiTypes';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -48,6 +45,7 @@ export default function WorkflowInstanceDetailsPage() {
     handleCompleteFinalStep,
     handleCompleteAndStartNextStep,
     handleMakeCurrent,
+    handleMarkWorkflowComplete,
   } = useWorkflowInstanceActions({
     instanceDetails,
     template,
@@ -59,8 +57,8 @@ export default function WorkflowInstanceDetailsPage() {
     ? `Workflow: ${template.classification?.name ?? template.name ?? 'Unknown'}`
     : 'Workflow Instance Details';
 
-  const onCompleteAndStartNextStep = async (stepId: string) => {
-    const expandedStepId = await handleCompleteAndStartNextStep(stepId);
+  const onCompleteAndStartNextStep = async (option: WorkflowNextStepOption) => {
+    const expandedStepId = await handleCompleteAndStartNextStep(option);
     if (expandedStepId) {
       setExpandedStep(expandedStepId);
     }
@@ -102,13 +100,31 @@ export default function WorkflowInstanceDetailsPage() {
               setExpandedStep={setExpandedStep}
               expandAll={expandAll}
               setExpandAll={setExpandAll}
-              actions={workflowStepHistoryActions}
+              actions={
+                instanceDetails.status === InstanceStatus.ACTIVE
+                  ? workflowStepHistoryActions
+                  : {
+                      ...workflowStepHistoryActions,
+                      formActions: {
+                        onView: undefined,
+                        onEdit: undefined,
+                        onDiscard: undefined,
+                        onCompleteNow: undefined,
+                      },
+                      stepActions: {
+                        onCompleteStep: undefined,
+                        onMakeCurrent: undefined,
+                      },
+                    }
+              }
             />
 
-            <WorkflowPossibleSteps
-              workflowInstance={instanceDetails}
-              handleMakeCurrent={handleMakeCurrent}
-            />
+            {instanceDetails.status === InstanceStatus.ACTIVE && (
+              <WorkflowPossibleSteps
+                workflowInstance={instanceDetails}
+                handleMakeCurrent={handleMakeCurrent}
+              />
+            )}
 
             <Box sx={{ mx: 5, mt: 3 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
@@ -149,12 +165,11 @@ export default function WorkflowInstanceDetailsPage() {
                             message:
                               'Are you sure you want to mark this workflow as completed?',
                             onConfirm: async () => {
-                              await completeInstance(instanceDetails.id);
+                              await handleMarkWorkflowComplete();
                               setConfirmDialog((prev) => ({
                                 ...prev,
                                 open: false,
                               }));
-                              reload();
                             },
                           })
                         }>

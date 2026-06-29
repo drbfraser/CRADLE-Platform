@@ -318,6 +318,7 @@ def api_advance_workflow(
     """
     response = api_post(
         endpoint=f"/api/workflow/instances/{path.workflow_instance_id}/advance",
+        json={},
     )
     assert response.status_code == 200, f"Failed to advance workflow: {response.text}"
 
@@ -381,19 +382,20 @@ def test_sequential_workflow_progression__in_order(
     assert resp.status == "Active"
 
     resp = api_advance_workflow(api_post, workflow_instance_id_path)
-    assert resp.current_step_id == "si-2"
+    step_2_id = resp.current_step_id
+    assert step_2_id is not None
 
     # Start step 2
     resp = api_get_actions(api_get, workflow_instance_id_path)
     expected_resp = GetAvailableActionsResponse(
-        actions=[StartStepActionModel(step_id="si-2")]
+        actions=[StartStepActionModel(step_id=step_2_id)]
     )
 
     assert resp == expected_resp
     resp = api_apply_action(
         api_post,
         workflow_instance_id_path,
-        ApplyActionRequest(action=StartStepActionModel(step_id="si-2")),
+        ApplyActionRequest(action=StartStepActionModel(step_id=step_2_id)),
     )
     assert resp.status == "Active"
 
@@ -401,8 +403,8 @@ def test_sequential_workflow_progression__in_order(
     resp = api_get_actions(api_get, workflow_instance_id_path)
     expected_resp = GetAvailableActionsResponse(
         actions=[
-            CompleteStepActionModel(step_id="si-2"),
-            SkipStepActionModel(step_id="si-2"),
+            CompleteStepActionModel(step_id=step_2_id),
+            SkipStepActionModel(step_id=step_2_id),
         ]
     )
     assert resp == expected_resp
@@ -410,7 +412,7 @@ def test_sequential_workflow_progression__in_order(
     resp = api_apply_action(
         api_post,
         workflow_instance_id_path,
-        ApplyActionRequest(action=CompleteStepActionModel(step_id="si-2")),
+        ApplyActionRequest(action=CompleteStepActionModel(step_id=step_2_id)),
     )
     assert resp.status == "Active"
 
@@ -439,14 +441,24 @@ def test_override_current_step(api_post, sequential_workflow_view_with_db):
     assert workflow_view.instance.current_step_id == "si-1"
     WorkflowService.upsert_workflow_instance(workflow_view.instance)
 
-    # Override current step to the second step
+    # Complete step 1 and advance so step 2 is created on the fly
+    api_apply_action(
+        api_post,
+        workflow_instance_id_path,
+        ApplyActionRequest(action=CompleteStepActionModel(step_id="si-1")),
+    )
+    resp = api_advance_workflow(api_post, workflow_instance_id_path)
+    step_2_id = resp.current_step_id
+    assert step_2_id is not None
+
+    # Override current step back to step 1
     resp = api_override_current_step(
         api_post,
         workflow_instance_id_path,
-        OverrideCurrentStepRequest(workflow_instance_step_id="si-2"),
+        OverrideCurrentStepRequest(workflow_instance_step_id="si-1"),
         expected_code=200,
     )
-    assert resp.current_step_id == "si-2"
+    assert resp.current_step_id == "si-1"
 
     # Override non-existent step
     resp = api_override_current_step(
