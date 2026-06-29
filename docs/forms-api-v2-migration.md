@@ -104,6 +104,16 @@ Returns: 201, 404 if patient/template/user not found, 409 if ID exists, 422 if r
 
 ---
 
+### V2 — GET /api/forms/v2/submissions
+
+List all submissions for a patient.
+
+Query: `patient_id` (string, required)
+
+Returns: 200 array of FormSubmission, 404 if patient not found.
+
+---
+
 ### V2 — GET /api/forms/v2/submissions/{form_submission_id}
 
 Returns FormSubmission plus an `answers` array:
