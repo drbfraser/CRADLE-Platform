@@ -40,7 +40,7 @@ def __filter_by_patient_association(
 ) -> Query:
     """Filter a query to only include records associated with the given user, using CHO supervision subquery if applicable."""
     if user_id is not None:
-        if hasattr(model, model.patient_id):
+        if hasattr(model, "patient_id"):
             join_column = model.patient_id
         else:
             join_column = model.id
