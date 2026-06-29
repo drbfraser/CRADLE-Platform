@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 def read_questions(
     model: QuestionOrm,
-    form_template_id: Optional[int] = None,
+    form_template_id: Optional[str] = None,
 ) -> list[QuestionOrm]:
     """
     Queries the database for questions

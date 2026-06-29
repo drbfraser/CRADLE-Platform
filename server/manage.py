@@ -33,6 +33,7 @@ from models import (
     ReferralOrm,
     RelayServerPhoneNumberOrm,
     RuleGroupOrm,
+    SupervisesTable,
     VillageOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
@@ -125,6 +126,7 @@ def seed_test_data():
 
     # Seed users and health facilities.
     seed_test_users()
+    create_supervision(cho_id=4, vht_id=3)
 
     print("Creating test patients, readings, referrals, and records...")
     PATIENT_ID_1 = "49300028161"
@@ -589,6 +591,26 @@ def create_medical_record(patient_id, info, is_drug_record, date_created=1622541
 def create_patient_association(patient_id, user_id):
     association = {"patient_id": patient_id, "user_id": user_id}
     db.session.add(PatientAssociationsOrm(**association))
+    db.session.commit()
+
+
+def create_supervision(cho_id: int, vht_id: int):
+    existing = db.session.execute(
+        SupervisesTable.select().where(
+            SupervisesTable.c.cho_id == cho_id,
+            SupervisesTable.c.vht_id == vht_id,
+        )
+    ).first()
+
+    if existing is not None:
+        return
+
+    db.session.execute(
+        SupervisesTable.insert().values(
+            cho_id=cho_id,
+            vht_id=vht_id,
+        )
+    )
     db.session.commit()
 
 
