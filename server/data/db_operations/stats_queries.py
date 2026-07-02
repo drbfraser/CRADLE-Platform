@@ -22,6 +22,8 @@ from models import (
     ReferralOrm,
 )
 
+MYSQL_BIGINT_MAX = (2**63) - 1
+
 
 def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> list[M]:
     """
@@ -50,9 +52,11 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> list
     params = {
         "from": filter.get(
             "from",
-            "1900-01-01",
+            0,
         ),  # default date if 'from' is not provided
-        "to": filter.get("to", "2100-12-31"),  # default date if 'to' is not provided
+        "to": filter.get(
+            "to", MYSQL_BIGINT_MAX
+        ),  # default date if 'to' is not provided
         "user": str(user),
         "facility": str(facility),
     }
@@ -86,8 +90,8 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> list[M]:
 
     # params used to prevent direct string interpolation inside query
     params = {
-        "from": filter.get("from", "1900-01-01"),
-        "to": filter.get("to", "2100-12-31"),
+        "from": filter.get("from", 0),
+        "to": filter.get("to", MYSQL_BIGINT_MAX),
         "user": str(user),
         "facility": str(facility),
     }
@@ -122,8 +126,8 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> list[M]:
 
     # params used to prevent direct string interpolation inside query
     params = {
-        "from": filter.get("from", "1900-01-01"),
-        "to": filter.get("to", "2100-12-31"),
+        "from": filter.get("from", 0),
+        "to": filter.get("to", MYSQL_BIGINT_MAX),
         "user": str(user),
         "facility": str(facility),
     }
@@ -155,8 +159,8 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> list[M]:
     """
 
     params = {
-        "from": filter.get("from", "1900-01-01"),
-        "to": filter.get("to", "2100-12-31"),
+        "from": filter.get("from", 0),
+        "to": filter.get("to", MYSQL_BIGINT_MAX),
         "user": str(user),
         "facility": str(facility),
     }
@@ -183,8 +187,8 @@ def get_referred_patients(facility="%", filter={}) -> list[M]:
     """
 
     params = {
-        "from": filter.get("from", "1900-01-01"),  # Default start date if not provided
-        "to": filter.get("to", "2100-12-31"),  # Default end date if not provided
+        "from": filter.get("from", 0),  # Default start date if not provided
+        "to": filter.get("to", MYSQL_BIGINT_MAX),  # Default end date if not provided
         "facility": str(facility),
     }
 
@@ -216,8 +220,8 @@ def get_days_with_readings(facility="%", user="%", filter={}):
     """
 
     params = {
-        "from": filter.get("from", "1900-01-01"),
-        "to": filter.get("to", "2100-12-31"),
+        "from": filter.get("from", 0),
+        "to": filter.get("to", MYSQL_BIGINT_MAX),
         "user": str(user),
         "facility": str(facility),
     }
@@ -263,8 +267,8 @@ def get_export_data(user_id, filter):
         .filter(
             ReadingOrm.user_id == user_id,
             ReferralOrm.date_referred.between(
-                filter.get("from", "1900-01-01"),
-                filter.get("to", "2100-12-31"),
+                filter.get("from", 0),
+                filter.get("to", MYSQL_BIGINT_MAX),
             ),
         )
         .order_by(ReferralOrm.patient_id.desc())
