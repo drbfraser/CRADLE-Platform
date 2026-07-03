@@ -43,8 +43,9 @@ export function getWorkflowStepHistory(
 export function getWorkflowPossibleSteps(
   instance: InstanceDetails
 ): PossibleStep[] {
-  const currentStepId = getWorkflowCurrentStep(instance)?.id ?? null;
-  if (!currentStepId) return []; // TODO: better handling of no active step case
+  const currentStepId =
+    getWorkflowCurrentStep(instance)?.id ?? instance.currentStepId ?? null;
+  if (!currentStepId) return [];
   const [main, trimmed] = getWorkflowPossibleStepsArray(
     instance.possibleSteps,
     currentStepId
@@ -112,9 +113,7 @@ function getWorkflowPossibleStepsArray(
 export function getWorkflowPossibleStepsLength(
   instance: InstanceDetails
 ): number {
-  return (
-    instance.steps.filter((s) => s.status === StepStatus.PENDING).length ?? 0
-  );
+  return getWorkflowPossibleSteps(instance).length;
 }
 
 /**
@@ -150,9 +149,24 @@ export function initiateWorkflowPossibleSteps(
   const templateStepMap = Object.fromEntries(
     template.steps.map((s) => [s.id, s])
   );
-  const instanceStepMap = Object.fromEntries(
+  const instanceStepMap: Record<string, PossibleStep> = Object.fromEntries(
     instance.map((s) => [s.workflowTemplateStepId, mapWorkflowPossibleStep(s)])
   );
+
+  // Steps not yet created on-the-fly get a placeholder so the tree is complete
+  for (const templateStep of template.steps) {
+    if (!instanceStepMap[templateStep.id]) {
+      instanceStepMap[templateStep.id] = {
+        id: templateStep.id,
+        title: templateStep.name,
+        indent: 0,
+        branches: [],
+        status: StepStatus.PENDING,
+        shortestPathLength: Infinity,
+        hasForm: !!templateStep.formId,
+      };
+    }
+  }
 
   return getWorkflowTree(
     // get starting node
@@ -247,7 +261,5 @@ function getWorkflowTree(
  * @returns the current step in the workflow instance, or undefined if no step is active
  */
 export function getWorkflowCurrentStep(instance: InstanceDetails) {
-  const steps = instance.steps;
-  const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
-  return currentStep;
+  return instance.steps.find((step) => step.status === StepStatus.ACTIVE);
 }

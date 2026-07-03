@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { ConfirmDialogData } from 'src/shared/types/confirmDialogTypes';
-import { archiveInstanceStepForm } from 'src/shared/api';
+import { archiveInstanceStepForm, completeInstance } from 'src/shared/api';
 import { SnackbarSeverity } from 'src/shared/enums';
 import { useSnackbar } from 'src/shared/hooks/useSnackbar';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import {
   InstanceDetails,
   InstanceStep,
+  WorkflowNextStepOption,
   WorkflowStepHistoryActions,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { useWorkflowFormModal } from './useWorkflowFormModal';
@@ -138,19 +139,26 @@ export function useWorkflowInstanceActions({
     handleCloseNextStepModal();
   };
 
-  const handleCompleteAndStartNextStep = async (stepId: string) => {
+  const handleCompleteAndStartNextStep = async (
+    option: WorkflowNextStepOption
+  ) => {
     try {
-      const { success } = await completeAndStartNextStep(stepId);
-      if (!success) return;
+      const result = await completeAndStartNextStep(option);
+      if (!result.success) return undefined;
 
       handleCloseNextStepModal();
       showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      return stepId;
+      return result.nextInstanceStepId;
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-      return null;
+      return undefined;
     }
+  };
+
+  const handleMarkWorkflowComplete = async () => {
+    await completeInstance(instanceDetails!.id);
+    await reload();
   };
 
   return {
@@ -166,5 +174,6 @@ export function useWorkflowInstanceActions({
     handleCompleteFinalStep,
     handleCompleteAndStartNextStep,
     handleMakeCurrent,
+    handleMarkWorkflowComplete,
   };
 }

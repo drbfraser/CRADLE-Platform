@@ -329,11 +329,7 @@ def sequential_workflow_instance(sequential_workflow_template) -> WorkflowInstan
         sequential_workflow_template
     )
 
-    # make IDs a bit more friendly to reference later
-    step_instance_1_id = "si-1"
-    step_instance_2_id = "si-2"
-    workflow_instance.steps[0].id = step_instance_1_id
-    workflow_instance.steps[1].id = step_instance_2_id
+    workflow_instance.steps[0].id = "si-1"
 
     return workflow_instance
 

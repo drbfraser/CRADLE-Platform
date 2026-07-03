@@ -10,6 +10,7 @@ from common.api_utils import (
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.workflow_api_models import (
+    AdvanceWorkflowRequest,
     ApplyActionRequest,
     CreateWorkflowInstanceRequest,
     GetAvailableActionsResponse,
@@ -177,11 +178,17 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     "/<string:workflow_instance_id>/advance",
     responses={200: WorkflowInstanceModel},
 )
-def advance(path: WorkflowInstanceIdPath):
+def advance(path: WorkflowInstanceIdPath, body: AdvanceWorkflowRequest):
     """Advance the workflow to the next step, if possible"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
     current_user = user_utils.get_current_user_from_jwt()
-    WorkflowService.advance_workflow(workflow_view, current_user=current_user)
+
+    if body.target_template_step_id:
+        WorkflowService.advance_workflow_to_template_step(
+            workflow_view, body.target_template_step_id
+        )
+    else:
+        WorkflowService.advance_workflow(workflow_view, current_user=current_user)
 
     WorkflowService.upsert_workflow_instance(workflow_view.instance)
     updated_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)

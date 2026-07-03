@@ -169,7 +169,9 @@ class WorkflowPlanner:
                 ctx.get_template_step(step.workflow_template_step_id),
                 step_evaluation.selected_branch_id,
             )
-            next_step = ctx.get_instance_step_for_template_step(branch.target_step_id)
+            next_step = ctx.get_or_create_instance_step_for_template_step(
+                branch.target_step_id
+            )
         else:
             next_step = None
 

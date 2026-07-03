@@ -1,6 +1,7 @@
 import {
   advanceOverrideStep,
   advanceRecommendedStep,
+  advanceToTemplateStep,
   applyInstanceStepAction,
   createStepInstance,
 } from 'src/shared/api';
@@ -11,10 +12,14 @@ import {
   OverrideStepRequest,
   CreateInstanceStepRequest,
 } from 'src/shared/types/workflow/workflowApiTypes';
-import { InstanceStepAction } from 'src/shared/types/workflow/workflowEnums';
+import {
+  InstanceStepAction,
+  StepStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceDetails,
   InstanceStep,
+  WorkflowNextStepOption,
 } from 'src/shared/types/workflow/workflowUiTypes';
 
 export function useWorkflowStepActions(
@@ -69,20 +74,6 @@ export function useWorkflowStepActions(
     return response;
   };
 
-  const isRecommendedStep = (stepId: string) => {
-    return currentStepEvaluation!.selectedBranchId === stepId;
-  };
-
-  const advanceInstanceCurrentStep = async (stepId: string) => {
-    if (isRecommendedStep(stepId)) {
-      await advanceRecommendedStep(instanceDetails!.id);
-    } else {
-      await advanceOverrideStep(instanceDetails!.id, {
-        workflowInstanceStepId: stepId,
-      });
-    }
-  };
-
   const handleCreateStepInstance = async (stepId: string) => {
     const payload: CreateInstanceStepRequest = {
       workflowInstanceId: instanceDetails!.id,
@@ -114,33 +105,60 @@ export function useWorkflowStepActions(
     }
   };
 
-  const completeAndStartNextStep = async (stepId: string) => {
+  const completeAndStartNextStep = async (option: WorkflowNextStepOption) => {
     try {
       await completeStep();
+
+      let nextInstanceStepId: string;
+
+      if (option.isRecommended) {
+        const advancedInstance = await advanceRecommendedStep(
+          instanceDetails!.id
+        );
+        nextInstanceStepId = advancedInstance.currentStepId!;
+      } else {
+        const advancedInstance = await advanceToTemplateStep(
+          instanceDetails!.id,
+          option.templateStepId
+        );
+        nextInstanceStepId = advancedInstance.currentStepId!;
+      }
+
+      await startStep(nextInstanceStepId);
       await reload();
 
-      await advanceInstanceCurrentStep(stepId);
-
-      await startStep(stepId);
-      await reload();
-
-      showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-      return { success: true };
+      return { success: true, nextInstanceStepId };
     } catch (e) {
       console.error('Unable to complete step', e);
       showSnackbar('Unable to complete step', SnackbarSeverity.ERROR);
-      return { success: false };
+      return { success: false, nextInstanceStepId: undefined };
     }
   };
 
   const setCurrentStep = async (stepId: string) => {
     try {
-      await skipStep();
-      await reload();
+      if (currentStep?.status === StepStatus.ACTIVE) {
+        await skipStep();
+        await reload();
+      }
 
-      await overrideStep(stepId);
+      // Placeholder steps use template step IDs, created on the fly
+      const isInstanceStep = instanceDetails!.steps.some(
+        (s) => s.id === stepId
+      );
+      let targetStepId: string;
+      if (isInstanceStep) {
+        await overrideStep(stepId);
+        targetStepId = stepId;
+      } else {
+        const advancedInstance = await advanceToTemplateStep(
+          instanceDetails!.id,
+          stepId
+        );
+        targetStepId = advancedInstance.currentStepId!;
+      }
 
-      await startStep(stepId);
+      await startStep(targetStepId);
       await reload();
 
       showSnackbar('Step set as current!', SnackbarSeverity.SUCCESS);
@@ -154,8 +172,10 @@ export function useWorkflowStepActions(
 
   const overrideCompletedStep = async (stepId: string) => {
     try {
-      await skipStep();
-      await reload();
+      if (currentStep?.status === StepStatus.ACTIVE) {
+        await skipStep();
+        await reload();
+      }
 
       const newStep = await handleCreateStepInstance(stepId);
       await reload();

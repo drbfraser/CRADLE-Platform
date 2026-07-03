@@ -11,13 +11,12 @@ from validation.workflow_models import (
 
 class WorkflowView:
     """
-    A read-only view over a workflow instance and its template that provides
+    A view over a workflow instance and its template that provides
     convenient access to workflow steps.
 
-    Should be stable because:
-        - It holds references to the workflow models, so changes to state made
-          externally are reflected automatically
-        - Step ID mappings should be fixed for a given template-instance pair
+    Holds references to the workflow models so changes to state made
+    externally are reflected automatically. Steps are created on demand
+    as the workflow advances.
     """
 
     def __init__(
@@ -66,10 +65,26 @@ class WorkflowView:
             self._template_step_id_to_instance_step_id[template_step_id]
         )
 
+    def get_or_create_instance_step_for_template_step(
+        self, template_step_id: str
+    ) -> WorkflowInstanceStepModel:
+        """Return the instance step for the given template step, creating it if it does not exist yet."""
+        if template_step_id not in self._template_step_id_to_instance_step_id:
+            from service.workflow.workflow_service import WorkflowService
+
+            template_step = self.get_template_step(template_step_id)
+            new_step = WorkflowService.generate_workflow_instance_step(
+                template_step, self.instance.id
+            )
+            self.instance.steps.append(new_step)
+            self._instance_steps_by_id[new_step.id] = new_step
+            self._template_step_id_to_instance_step_id[template_step_id] = new_step.id
+        return self.get_instance_step_for_template_step(template_step_id)
+
     def get_starting_step(self) -> WorkflowInstanceStepModel:
         """Return the instance step corresponding to the template's starting step."""
         template_step = self._template_steps_by_id[self.template.starting_step_id]
-        return self.get_instance_step_for_template_step(template_step.id)
+        return self.get_or_create_instance_step_for_template_step(template_step.id)
 
     def get_current_step(self) -> Optional[WorkflowInstanceStepModel]:
         """Return the current instance step, or None if the workflow has not started."""
