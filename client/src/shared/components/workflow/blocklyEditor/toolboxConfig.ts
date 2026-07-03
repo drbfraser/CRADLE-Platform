@@ -29,16 +29,49 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
       contents: [{ kind: 'block', type: `app_variable_${t}` }],
     }));
 
+  const comparisonBlocks = [
+    presentTypes.has('Number') && {
+      kind: 'block',
+      type: 'number_comparison',
+    },
+    presentTypes.has('Date') && {
+      kind: 'block',
+      type: 'date_comparison',
+    },
+    presentTypes.has('String') && {
+      kind: 'block',
+      type: 'string_comparison',
+    },
+    presentTypes.has('Boolean') && {
+      kind: 'block',
+      type: 'boolean_comparison',
+    },
+  ].filter(Boolean);
+
   return {
     kind: 'categoryToolbox',
     contents: [
       ...variableCategories,
-      {
-        kind: 'category',
-        name: 'Comparison',
-        colour: '210',
-        contents: [{ kind: 'block', type: 'comparison' }],
-      },
+      ...(comparisonBlocks.length > 0
+        ? [
+            {
+              kind: 'category',
+              name: 'Comparisons',
+              colour: '210',
+              contents: comparisonBlocks,
+            },
+          ]
+        : []),
+      ...(presentTypes.has('String')
+        ? [
+            {
+              kind: 'category',
+              name: 'String Operations',
+              colour: TYPE_COLOURS.String,
+              contents: [{ kind: 'block', type: 'string_op' }],
+            },
+          ]
+        : []),
       {
         kind: 'category',
         name: 'Logic',
