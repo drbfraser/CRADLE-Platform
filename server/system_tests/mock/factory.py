@@ -15,7 +15,16 @@ from models import (
     PregnancySchema,
     ReadingOrm,
     ReferralSchema,
+    RuleGroupSchema,
     UserOrm,
+    WorkflowClassificationSchema,
+    WorkflowCollectionSchema,
+    WorkflowInstanceDataSchema,
+    WorkflowInstanceSchema,
+    WorkflowInstanceStepSchema,
+    WorkflowTemplateSchema,
+    WorkflowTemplateStepBranchSchema,
+    WorkflowTemplateStepSchema,
 )
 
 
@@ -286,3 +295,121 @@ class FormTemplateFactory(ModelFactory):
 
     def _do_create(self, **kwargs) -> Any:
         return crud.create_model(dict(**kwargs), FormTemplateSchema)
+
+
+class RuleGroupFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), RuleGroupSchema)
+
+
+class WorkflowCollectionFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowCollectionSchema)
+
+
+class WorkflowClassificationFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowClassificationSchema)
+
+
+class WorkflowTemplateFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(
+            db,
+            description="Test workflow template",
+            version="1",
+            archived=False,
+        )
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowTemplateSchema)
+
+
+class WorkflowTemplateStepFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(
+            db,
+            name="Test step",
+            description="Test step description",
+        )
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowTemplateStepSchema)
+
+
+class WorkflowTemplateStepBranchFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowTemplateStepBranchSchema)
+
+
+class WorkflowInstanceFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(
+            db,
+            name="Test workflow instance",
+            description="Test workflow instance description",
+            status="Active",
+        )
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowInstanceSchema)
+
+
+class WorkflowInstanceStepFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(
+            db,
+            name="Test instance step",
+            description="Test instance step description",
+            status="Active",
+        )
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowInstanceStepSchema)
+
+
+class WorkflowInstanceDataFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), WorkflowInstanceDataSchema)
