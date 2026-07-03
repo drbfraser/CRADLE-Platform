@@ -59,7 +59,7 @@ def test_read_questions(form_template_factory):
     questions = crud.read_questions(models.QuestionOrm, template.id)
 
     assert all(
-        question.id != "test-question-5" and question.id != "test-question-6"
+        question.id != "test-question-3" and question.id != "test-question-4"
         for question in questions
     )
 
