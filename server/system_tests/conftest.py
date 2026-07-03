@@ -351,6 +351,53 @@ def form_template_factory(database) -> factory.FormTemplateFactory:
     yield from __make_factory(database, factory.FormTemplateFactory)
 
 
+@pytest.fixture
+def rule_group_factory(database) -> factory.RuleGroupFactory:
+    yield from __make_factory(database, factory.RuleGroupFactory)
+
+
+@pytest.fixture
+def workflow_collection_factory(database) -> factory.WorkflowCollectionFactory:
+    yield from __make_factory(database, factory.WorkflowCollectionFactory)
+
+
+@pytest.fixture
+def workflow_classification_factory(database) -> factory.WorkflowClassificationFactory:
+    yield from __make_factory(database, factory.WorkflowClassificationFactory)
+
+
+@pytest.fixture
+def workflow_template_factory(database) -> factory.WorkflowTemplateFactory:
+    yield from __make_factory(database, factory.WorkflowTemplateFactory)
+
+
+@pytest.fixture
+def workflow_template_step_factory(database) -> factory.WorkflowTemplateStepFactory:
+    yield from __make_factory(database, factory.WorkflowTemplateStepFactory)
+
+
+@pytest.fixture
+def workflow_template_step_branch_factory(
+    database,
+) -> factory.WorkflowTemplateStepBranchFactory:
+    yield from __make_factory(database, factory.WorkflowTemplateStepBranchFactory)
+
+
+@pytest.fixture
+def workflow_instance_factory(database) -> factory.WorkflowInstanceFactory:
+    yield from __make_factory(database, factory.WorkflowInstanceFactory)
+
+
+@pytest.fixture
+def workflow_instance_step_factory(database) -> factory.WorkflowInstanceStepFactory:
+    yield from __make_factory(database, factory.WorkflowInstanceStepFactory)
+
+
+@pytest.fixture
+def workflow_instance_data_factory(database) -> factory.WorkflowInstanceDataFactory:
+    yield from __make_factory(database, factory.WorkflowInstanceDataFactory)
+
+
 #
 # Generic Maker Functions
 #
