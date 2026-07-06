@@ -1,4 +1,7 @@
 import * as Blockly from 'blockly';
+import {
+  getPrimaryConditionBlock,
+} from './blocklyWorkspaceUtils';
 
 export const jsonLogicGenerator = new Blockly.Generator('JSON_LOGIC');
 
@@ -88,10 +91,10 @@ jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
 export function workspaceToJsonLogic(
   workspace: Blockly.Workspace
 ): string | null {
-  const topBlocks = workspace.getTopBlocks(false);
-  if (topBlocks.length === 0) return null;
+  const rootBlock = getPrimaryConditionBlock(workspace);
+  if (!rootBlock) return null;
 
-  const code = jsonLogicGenerator.blockToCode(topBlocks[0]);
+  const code = jsonLogicGenerator.blockToCode(rootBlock);
   const codeStr = Array.isArray(code) ? code[0] : code;
   return codeStr || null;
 }

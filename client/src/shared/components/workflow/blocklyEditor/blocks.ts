@@ -231,7 +231,6 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
       this.appendValueInput('HAYSTACK').setCheck('String');
       this.appendDummyInput('OP_ROW').appendField(
         new Blockly.FieldDropdown(STRING_OP_OPTIONS, (value) => {
-          this.setFieldValue(value, 'OP');
           updateStringOpShape(this);
           return value;
         }),

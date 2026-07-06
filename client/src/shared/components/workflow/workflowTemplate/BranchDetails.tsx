@@ -111,10 +111,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   ) => {
     setLocalConditionRule(conditionRule);
     setLocalConditionName(conditionName || '');
-    if (conditionRule === '') {
+    if (validationError !== undefined) {
+      setValidationError(validationError);
+    } else if (conditionRule === '') {
       setValidationError(null);
-    } else if (validationError !== undefined) {
-      setValidationError(validationError ?? null);
     }
   };
   const handleCancel = () => {

@@ -3,8 +3,13 @@ import * as Blockly from 'blockly';
 import { Box, GlobalStyles } from '@mui/material';
 import { registerBlocks } from './blocks';
 import { buildToolboxConfig } from './toolboxConfig';
-import { workspaceToJsonLogic, validateJsonLogic } from './jsonLogicGenerator';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
+import {
+  enforceSingleConditionRoot,
+  getConditionRootBlocks,
+  isConditionRootBlock,
+} from './blocklyWorkspaceUtils';
+import { evaluateWorkspace } from './workspaceValidation';
 import { WorkflowVariable } from 'src/shared/api';
 
 const blocklyZIndexFix = (
@@ -31,8 +36,8 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
   readOnly = false,
 }) => {
   const blocklyDiv = useRef<HTMLDivElement>(null);
-  const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const isLoadingRef = useRef(false);
+  const validateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (!blocklyDiv.current) return;
@@ -54,16 +59,40 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
       },
     });
 
-    workspaceRef.current = workspace;
-
     if (initialJsonLogic) {
       isLoadingRef.current = true;
       loadJsonLogicToWorkspace(workspace, initialJsonLogic, variables);
       isLoadingRef.current = false;
     }
 
+    const scheduleValidation = () => {
+      clearTimeout(validateTimeoutRef.current);
+      validateTimeoutRef.current = setTimeout(() => {
+        if (isLoadingRef.current || workspace.isDragging()) return;
+
+        const roots = getConditionRootBlocks(workspace);
+        if (roots.length > 1) {
+          enforceSingleConditionRoot(workspace, roots[roots.length - 1]!);
+        }
+
+        const result = evaluateWorkspace(workspace);
+        onChange(result.jsonLogic, result.error);
+      }, 0);
+    };
+
     workspace.addChangeListener((event: Blockly.Events.Abstract) => {
       if (isLoadingRef.current) return;
+
+      if (event.type === Blockly.Events.BLOCK_CREATE) {
+        const createEvent = event as Blockly.Events.BlockCreate;
+        if (createEvent.blockId) {
+          const block = workspace.getBlockById(createEvent.blockId);
+          if (block && isConditionRootBlock(block) && !block.getParent()) {
+            enforceSingleConditionRoot(workspace, block);
+          }
+        }
+      }
+
       if (
         event.type !== Blockly.Events.BLOCK_CHANGE &&
         event.type !== Blockly.Events.BLOCK_MOVE &&
@@ -72,36 +101,13 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
       ) {
         return;
       }
-      const topBlocks = workspace.getTopBlocks(false);
-      let jsonLogic: string | null = null;
-      let error: string | null = null;
-
-      if (topBlocks.length > 1) {
-        jsonLogic = workspaceToJsonLogic(workspace);
-        error =
-          'Only one condition block is allowed. Connect or delete the extra blocks.';
-      } else if (topBlocks.length === 1) {
-        jsonLogic = workspaceToJsonLogic(workspace);
-        if (!jsonLogic || !validateJsonLogic(JSON.parse(jsonLogic), true)) {
-          error =
-            'The condition is incomplete. All inputs must be connected before saving.';
-        } else if (
-          workspace
-            .getAllBlocks(false)
-            .some(
-              (b) =>
-                b.type === 'date_value' &&
-                !/^\d{4}-\d{2}-\d{2}$/.test(b.getFieldValue('DATE') ?? '')
-            )
-        ) {
-          error = 'Date value must be in YYYY-MM-DD format (e.g. 2024-01-15).';
-        }
-      }
-
-      onChange(jsonLogic, error);
+      scheduleValidation();
     });
 
+    scheduleValidation();
+
     return () => {
+      clearTimeout(validateTimeoutRef.current);
       workspace.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
