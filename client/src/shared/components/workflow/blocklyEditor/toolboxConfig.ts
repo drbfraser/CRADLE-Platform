@@ -30,9 +30,7 @@ const COMPARISON_BLOCK_BY_TYPE: Record<string, string> = {
 
 const BLOCKLY_TYPES = ['Number', 'String', 'Boolean', 'Date'] as const;
 
-function typesPresentInSource(
-  variables: WorkflowVariable[]
-): Set<string> {
+function typesPresentInSource(variables: WorkflowVariable[]): Set<string> {
   return new Set(
     variables
       .map((v) => blocklyTypeFromVariableType(v.type))
@@ -55,9 +53,7 @@ function buildVariableCategories(variables: WorkflowVariable[]) {
         kind: 'category',
         name: TYPE_LABELS[t],
         colour: String(TYPE_COLOURS[t]),
-        contents: [
-          { kind: 'block', type: variableBlockType(sourceKey, t) },
-        ],
+        contents: [{ kind: 'block', type: variableBlockType(sourceKey, t) }],
       })),
     };
   });

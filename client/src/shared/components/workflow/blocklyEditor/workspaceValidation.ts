@@ -2,9 +2,10 @@ import * as Blockly from 'blockly';
 import { getConditionRootBlocks } from './blocklyWorkspaceUtils';
 import { validateJsonLogic, workspaceToJsonLogic } from './jsonLogicGenerator';
 
-export function evaluateWorkspace(
-  workspace: Blockly.WorkspaceSvg
-): { jsonLogic: string | null; error: string | null } {
+export function evaluateWorkspace(workspace: Blockly.WorkspaceSvg): {
+  jsonLogic: string | null;
+  error: string | null;
+} {
   const conditionRoots = getConditionRootBlocks(workspace);
   let jsonLogic: string | null = null;
   let error: string | null = null;

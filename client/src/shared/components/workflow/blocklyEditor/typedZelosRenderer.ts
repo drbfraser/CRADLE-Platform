@@ -110,11 +110,7 @@ class TypedConstantProvider extends Blockly.zelos.ConstantProvider {
       checks = connection.targetConnection.getCheck();
     }
 
-    const checkList = checks
-      ? Array.isArray(checks)
-        ? checks
-        : [checks]
-      : [];
+    const checkList = checks ? (Array.isArray(checks) ? checks : [checks]) : [];
 
     if (checkList.includes('Boolean')) {
       return this.HEXAGONAL!;

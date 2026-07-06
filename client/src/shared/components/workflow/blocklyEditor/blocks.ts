@@ -83,10 +83,7 @@ function defineComparisonBlock(
     init: function (this: Blockly.Block) {
       this.appendDummyInput('TYPE_LABEL').appendField(typeLabel);
       this.appendValueInput('LEFT').setCheck(typeCheck);
-      this.appendDummyInput().appendField(
-        new Blockly.FieldDropdown(ops),
-        'OP'
-      );
+      this.appendDummyInput().appendField(new Blockly.FieldDropdown(ops), 'OP');
       this.appendValueInput('RIGHT').setCheck(typeCheck);
       this.setInputsInline(true);
       this.setOutput(true, 'Boolean');
@@ -121,10 +118,9 @@ function updateStringOpShape(block: Blockly.Block): void {
         );
     }
     if (!block.getInput('CASE')) {
-      block.appendDummyInput('CASE').appendField(
-        new Blockly.FieldDropdown(CASE_OPTIONS),
-        'CASE'
-      );
+      block
+        .appendDummyInput('CASE')
+        .appendField(new Blockly.FieldDropdown(CASE_OPTIONS), 'CASE');
     }
     block.setOutput(true, 'Boolean');
   }

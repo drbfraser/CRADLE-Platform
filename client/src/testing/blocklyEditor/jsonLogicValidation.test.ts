@@ -72,7 +72,11 @@ describe('ruleTypeInference', () => {
       'number_comparison'
     );
     expect(
-      comparisonBlockType({ var: 'patient.dob' }, { date: '2024-01-01' }, tagToType)
+      comparisonBlockType(
+        { var: 'patient.dob' },
+        { date: '2024-01-01' },
+        tagToType
+      )
     ).toBe('date_comparison');
   });
 });

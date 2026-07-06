@@ -58,8 +58,18 @@ function createComparisonBlock(
   block.initSvg();
   block.render();
 
-  const leftBlock = createBlockFromRule(workspace, args[0], tagToType, variables);
-  const rightBlock = createBlockFromRule(workspace, args[1], tagToType, variables);
+  const leftBlock = createBlockFromRule(
+    workspace,
+    args[0],
+    tagToType,
+    variables
+  );
+  const rightBlock = createBlockFromRule(
+    workspace,
+    args[1],
+    tagToType,
+    variables
+  );
   connectValueBlock(block, 'LEFT', leftBlock);
   connectValueBlock(block, 'RIGHT', rightBlock);
   return block;
@@ -92,8 +102,18 @@ function createStringOpBlock(
   }
 
   const [haystackRule, needleRule, caseInsensitive] = args;
-  const haystackBlock = createBlockFromRule(workspace, haystackRule, tagToType, variables);
-  const needleBlock = createBlockFromRule(workspace, needleRule, tagToType, variables);
+  const haystackBlock = createBlockFromRule(
+    workspace,
+    haystackRule,
+    tagToType,
+    variables
+  );
+  const needleBlock = createBlockFromRule(
+    workspace,
+    needleRule,
+    tagToType,
+    variables
+  );
   connectValueBlock(block, 'HAYSTACK', haystackBlock);
   connectValueBlock(block, 'NEEDLE', needleBlock);
   block.setFieldValue(caseInsensitive ? 'INSENSITIVE' : 'SENSITIVE', 'CASE');
@@ -204,9 +224,19 @@ function createBlockFromRule(
         block.initSvg();
         block.render();
 
-        const aBlock = createBlockFromRule(workspace, args[0], tagToType, variables);
+        const aBlock = createBlockFromRule(
+          workspace,
+          args[0],
+          tagToType,
+          variables
+        );
         const bRule = args.length === 2 ? args[1] : { [op]: args.slice(1) };
-        const bBlock = createBlockFromRule(workspace, bRule, tagToType, variables);
+        const bBlock = createBlockFromRule(
+          workspace,
+          bRule,
+          tagToType,
+          variables
+        );
 
         connectValueBlock(block, 'A', aBlock);
         connectValueBlock(block, 'B', bBlock);
@@ -219,7 +249,12 @@ function createBlockFromRule(
     const block = workspace.newBlock('logic_negate');
     block.initSvg();
     block.render();
-    const valueBlock = createBlockFromRule(workspace, ruleObj['!'], tagToType, variables);
+    const valueBlock = createBlockFromRule(
+      workspace,
+      ruleObj['!'],
+      tagToType,
+      variables
+    );
     connectValueBlock(block, 'VALUE', valueBlock);
     return block;
   }

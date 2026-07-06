@@ -1,7 +1,5 @@
 import * as Blockly from 'blockly';
-import {
-  getPrimaryConditionBlock,
-} from './blocklyWorkspaceUtils';
+import { getPrimaryConditionBlock } from './blocklyWorkspaceUtils';
 
 export const jsonLogicGenerator = new Blockly.Generator('JSON_LOGIC');
 
@@ -74,8 +72,7 @@ jsonLogicGenerator.forBlock['string_op'] = function (block) {
     return [JSON.stringify({ length: [JSON.parse(haystack)] }), 0];
   }
 
-  const needle =
-    jsonLogicGenerator.valueToCode(block, 'NEEDLE', 0) || 'null';
+  const needle = jsonLogicGenerator.valueToCode(block, 'NEEDLE', 0) || 'null';
   const caseInsensitive = block.getFieldValue('CASE') === 'INSENSITIVE';
   const result = {
     [op]: [JSON.parse(haystack), JSON.parse(needle), caseInsensitive],

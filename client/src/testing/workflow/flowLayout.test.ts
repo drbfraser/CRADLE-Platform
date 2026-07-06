@@ -136,7 +136,9 @@ describe('calculateStepPositions', () => {
     const levels = calculateNodeLevels(steps, 'root');
     const positions = calculateStepPositions(steps, 'root', levels);
 
-    const xs = ['a', 'b', 'c'].map((id) => positions.get(id)!.x).sort((x, y) => x - y);
+    const xs = ['a', 'b', 'c']
+      .map((id) => positions.get(id)!.x)
+      .sort((x, y) => x - y);
     expect(xs[1]! - xs[0]!).toBe(HORIZONTAL_SPACING);
     expect(xs[2]! - xs[1]!).toBe(HORIZONTAL_SPACING);
   });

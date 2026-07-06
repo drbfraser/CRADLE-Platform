@@ -36,10 +36,16 @@ describe('buildToolboxConfig', () => {
     const patientNumber = patient?.contents.find(
       (c) => c.name === 'Number Variables'
     );
-    const patientDate = patient?.contents.find((c) => c.name === 'Date Variables');
-    const formString = forms?.contents.find((c) => c.name === 'String Variables');
+    const patientDate = patient?.contents.find(
+      (c) => c.name === 'Date Variables'
+    );
+    const formString = forms?.contents.find(
+      (c) => c.name === 'String Variables'
+    );
 
-    expect(patientNumber?.contents[0]?.type).toBe('app_variable_patient_Number');
+    expect(patientNumber?.contents[0]?.type).toBe(
+      'app_variable_patient_Number'
+    );
     expect(patientDate?.contents[0]?.type).toBe('app_variable_patient_Date');
     expect(formString?.contents[0]?.type).toBe('app_variable_forms_String');
   });

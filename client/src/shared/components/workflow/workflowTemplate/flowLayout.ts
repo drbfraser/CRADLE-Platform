@@ -54,7 +54,9 @@ function horizontalSortKey(
   }
 
   const parentOrders = parentIds.map((id) => stepOrderKey(id, steps));
-  return parentOrders.reduce((sum, order) => sum + order, 0) / parentOrders.length;
+  return (
+    parentOrders.reduce((sum, order) => sum + order, 0) / parentOrders.length
+  );
 }
 
 /**
