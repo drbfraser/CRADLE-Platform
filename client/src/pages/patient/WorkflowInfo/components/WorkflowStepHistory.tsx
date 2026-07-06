@@ -21,6 +21,7 @@ import { formatWorkflowStepStatusText } from '../utils';
 import WorkflowFormModal from './WorkflowFormModal';
 import StepHistoryActions from './StepHistoryActions';
 import WorkflowStepHistoryItem from './WorkflowStepHistoryItem';
+import StepDescription from 'src/shared/components/workflow/StepDescription';
 
 interface WorkflowStepHistoryProps {
   workflowInstance: InstanceDetails;
@@ -119,12 +120,9 @@ export default function WorkflowStepHistory({
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   Description
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 3 }}>
-                  {currentStep.description ?? 'No description available.'}
-                </Typography>
+                <Box sx={{ mb: 3 }}>
+                  <StepDescription description={currentStep.description} />
+                </Box>
 
                 <StepHistoryActions
                   step={currentStep}

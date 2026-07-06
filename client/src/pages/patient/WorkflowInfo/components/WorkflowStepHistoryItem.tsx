@@ -6,6 +6,7 @@ import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import { InstanceStep } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatWorkflowStepStatusText } from '../utils';
 import StepHistoryActions from './StepHistoryActions';
+import StepDescription from 'src/shared/components/workflow/StepDescription';
 
 type WorkflowStepHistoryItemProps = {
   step: InstanceStep;
@@ -81,9 +82,9 @@ export default function WorkflowStepHistoryItem({
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             Description
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            {step.description ?? 'No description available.'}
-          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <StepDescription description={step.description} />
+          </Box>
 
           <StepHistoryActions
             step={step}
