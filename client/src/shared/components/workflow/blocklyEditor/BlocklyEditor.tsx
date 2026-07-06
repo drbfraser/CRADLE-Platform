@@ -5,6 +5,10 @@ import { registerBlocks } from './blocks';
 import { buildToolboxConfig } from './toolboxConfig';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
 import {
+  registerTypedZelosRenderer,
+  TYPED_ZELOS_RENDERER,
+} from './typedZelosRenderer';
+import {
   enforceSingleConditionRoot,
   getConditionRootBlocks,
   isConditionRootBlock,
@@ -43,11 +47,12 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     if (!blocklyDiv.current) return;
 
     registerBlocks(variables);
+    registerTypedZelosRenderer();
 
     const workspace = Blockly.inject(blocklyDiv.current, {
       toolbox: buildToolboxConfig(variables),
       readOnly,
-      renderer: 'zelos',
+      renderer: TYPED_ZELOS_RENDERER,
       scrollbars: true,
       trashcan: true,
       zoom: {

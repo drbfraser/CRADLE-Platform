@@ -1,6 +1,10 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
 import { registerBlocks } from 'src/shared/components/workflow/blocklyEditor/blocks';
+import {
+  registerTypedZelosRenderer,
+  TYPED_ZELOS_RENDERER,
+} from 'src/shared/components/workflow/blocklyEditor/typedZelosRenderer';
 
 export const TEST_VARIABLES: WorkflowVariable[] = [
   {
@@ -40,8 +44,9 @@ export function createTestWorkspace(): {
   const container = document.createElement('div');
   document.body.appendChild(container);
   registerBlocks(TEST_VARIABLES);
+  registerTypedZelosRenderer();
   const workspace = Blockly.inject(container, {
-    renderer: 'zelos',
+    renderer: TYPED_ZELOS_RENDERER,
     scrollbars: false,
     trashcan: true,
   });

@@ -1,5 +1,6 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
+import { DATE_OUTPUT_SHAPE } from './typedZelosRenderer';
 
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
@@ -67,12 +68,14 @@ function variableDisplayName(v: WorkflowVariable): string {
 
 function defineComparisonBlock(
   blockType: string,
+  typeLabel: string,
   typeCheck: string,
   ops: [string, string][],
   colour: number
 ): void {
   Blockly.Blocks[blockType] = {
     init: function (this: Blockly.Block) {
+      this.appendDummyInput('TYPE_LABEL').appendField(typeLabel);
       this.appendValueInput('LEFT').setCheck(typeCheck);
       this.appendDummyInput().appendField(
         new Blockly.FieldDropdown(ops),
@@ -149,6 +152,9 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
           'VAR_NAME'
         );
         this.setOutput(true, bType);
+        if (bType === 'Date') {
+          this.setOutputShape(DATE_OUTPUT_SHAPE);
+        }
         this.setColour(colour);
       },
     };
@@ -156,24 +162,28 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   defineComparisonBlock(
     'number_comparison',
+    'number',
     'Number',
     NUMBER_COMPARISON_OPS,
     TYPE_COLOURS.Number
   );
   defineComparisonBlock(
     'date_comparison',
+    'date',
     'Date',
     DATE_COMPARISON_OPS,
     TYPE_COLOURS.Date
   );
   defineComparisonBlock(
     'string_comparison',
+    'text',
     'String',
     EQUALITY_OPS,
     TYPE_COLOURS.String
   );
   defineComparisonBlock(
     'boolean_comparison',
+    'true/false',
     'Boolean',
     EQUALITY_OPS,
     TYPE_COLOURS.Boolean
@@ -228,6 +238,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   Blockly.Blocks['string_op'] = {
     init: function (this: Blockly.Block) {
+      this.appendDummyInput('TYPE_LABEL').appendField('text');
       this.appendValueInput('HAYSTACK').setCheck('String');
       this.appendDummyInput('OP_ROW').appendField(
         new Blockly.FieldDropdown(STRING_OP_OPTIONS, (value) => {
@@ -316,6 +327,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         'DATE'
       );
       this.setOutput(true, 'Date');
+      this.setOutputShape(DATE_OUTPUT_SHAPE);
       this.setColour(TYPE_COLOURS['Date']);
     },
     onchange: function (this: Blockly.Block) {

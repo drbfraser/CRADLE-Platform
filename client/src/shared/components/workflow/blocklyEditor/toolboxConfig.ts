@@ -1,5 +1,5 @@
 import { WorkflowVariable } from 'src/shared/api';
-import { blocklyTypeFromVariableType } from './blocks';
+import { blocklyTypeFromVariableType, TYPE_COLOURS } from './blocks';
 
 const TYPE_LABELS: Record<string, string> = {
   Number: 'Number Variables',
@@ -8,11 +8,18 @@ const TYPE_LABELS: Record<string, string> = {
   Date: 'Date Variables',
 };
 
-const TYPE_COLOURS: Record<string, string> = {
-  Number: '30',
-  String: '170',
-  Boolean: '270',
-  Date: '220',
+const COMPARISON_LABELS: Record<string, string> = {
+  Number: 'Number Compare',
+  String: 'Text Compare',
+  Boolean: 'True/False Compare',
+  Date: 'Date Compare',
+};
+
+const COMPARISON_BLOCK_BY_TYPE: Record<string, string> = {
+  Number: 'number_comparison',
+  Date: 'date_comparison',
+  String: 'string_comparison',
+  Boolean: 'boolean_comparison',
 };
 
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
@@ -25,49 +32,30 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
     .map((t) => ({
       kind: 'category',
       name: TYPE_LABELS[t],
-      colour: TYPE_COLOURS[t],
+      colour: String(TYPE_COLOURS[t]),
       contents: [{ kind: 'block', type: `app_variable_${t}` }],
     }));
 
-  const comparisonBlocks = [
-    presentTypes.has('Number') && {
-      kind: 'block',
-      type: 'number_comparison',
-    },
-    presentTypes.has('Date') && {
-      kind: 'block',
-      type: 'date_comparison',
-    },
-    presentTypes.has('String') && {
-      kind: 'block',
-      type: 'string_comparison',
-    },
-    presentTypes.has('Boolean') && {
-      kind: 'block',
-      type: 'boolean_comparison',
-    },
-  ].filter(Boolean);
+  const comparisonCategories = ['Number', 'Date', 'String', 'Boolean']
+    .filter((t) => presentTypes.has(t))
+    .map((t) => ({
+      kind: 'category',
+      name: COMPARISON_LABELS[t],
+      colour: String(TYPE_COLOURS[t]),
+      contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE[t] }],
+    }));
 
   return {
     kind: 'categoryToolbox',
     contents: [
       ...variableCategories,
-      ...(comparisonBlocks.length > 0
-        ? [
-            {
-              kind: 'category',
-              name: 'Comparisons',
-              colour: '210',
-              contents: comparisonBlocks,
-            },
-          ]
-        : []),
+      ...comparisonCategories,
       ...(presentTypes.has('String')
         ? [
             {
               kind: 'category',
-              name: 'String Operations',
-              colour: TYPE_COLOURS.String,
+              name: 'Text Operations',
+              colour: String(TYPE_COLOURS.String),
               contents: [{ kind: 'block', type: 'string_op' }],
             },
           ]
