@@ -1,6 +1,12 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
 import { DATE_OUTPUT_SHAPE } from './typedZelosRenderer';
+import { ensureVariableBlockGenerator } from './jsonLogicGenerator';
+import {
+  groupVariablesBySource,
+  sortedSourceKeys,
+  variableBlockType,
+} from './variableGrouping';
 
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
@@ -125,39 +131,45 @@ function updateStringOpShape(block: Blockly.Block): void {
 }
 
 export function registerBlocks(variables: WorkflowVariable[]): void {
-  const byType: Record<string, [string, string][]> = {
-    Number: [],
-    String: [],
-    Boolean: [],
-    Date: [],
-  };
+  const sourceGroups = groupVariablesBySource(variables);
 
-  for (const v of variables) {
-    const bType = blocklyTypeFromVariableType(v.type);
-    if (bType && bType in byType) {
-      byType[bType].push([variableDisplayName(v), v.tag]);
-    }
-  }
-
-  for (const [bType, options] of Object.entries(byType)) {
-    if (options.length === 0) continue;
-
-    const colour = TYPE_COLOURS[bType];
-    const blockName = `app_variable_${bType}`;
-
-    Blockly.Blocks[blockName] = {
-      init: function (this: Blockly.Block) {
-        this.appendDummyInput().appendField(
-          new Blockly.FieldDropdown(options),
-          'VAR_NAME'
-        );
-        this.setOutput(true, bType);
-        if (bType === 'Date') {
-          this.setOutputShape(DATE_OUTPUT_SHAPE);
-        }
-        this.setColour(colour);
-      },
+  for (const sourceKey of sortedSourceKeys(sourceGroups)) {
+    const sourceVars = sourceGroups.get(sourceKey)!;
+    const byType: Record<string, [string, string][]> = {
+      Number: [],
+      String: [],
+      Boolean: [],
+      Date: [],
     };
+
+    for (const v of sourceVars) {
+      const bType = blocklyTypeFromVariableType(v.type);
+      if (bType && bType in byType) {
+        byType[bType].push([variableDisplayName(v), v.tag]);
+      }
+    }
+
+    for (const [bType, options] of Object.entries(byType)) {
+      if (options.length === 0) continue;
+
+      const colour = TYPE_COLOURS[bType];
+      const blockName = variableBlockType(sourceKey, bType);
+      ensureVariableBlockGenerator(blockName);
+
+      Blockly.Blocks[blockName] = {
+        init: function (this: Blockly.Block) {
+          this.appendDummyInput().appendField(
+            new Blockly.FieldDropdown(options),
+            'VAR_NAME'
+          );
+          this.setOutput(true, bType);
+          if (bType === 'Date') {
+            this.setOutputShape(DATE_OUTPUT_SHAPE);
+          }
+          this.setColour(colour);
+        },
+      };
+    }
   }
 
   defineComparisonBlock(

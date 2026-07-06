@@ -2,6 +2,7 @@ import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
 import { blocklyTypeFromVariableType } from './blocks';
 import { comparisonBlockType, inferBlocklyType } from './ruleTypeInference';
+import { resolveVariableBlockType } from './variableGrouping';
 
 const COMPARISON_OPS = ['<', '>', '==', '<=', '>=', '!='];
 const STRING_OPS = ['contains', 'startsWith', 'endsWith'];
@@ -24,7 +25,7 @@ export function loadJsonLogicToWorkspace(
     variables.map((v) => [v.tag, blocklyTypeFromVariableType(v.type)])
   );
 
-  const block = createBlockFromRule(workspace, rule, tagToType);
+  const block = createBlockFromRule(workspace, rule, tagToType, variables);
   if (block) {
     block.moveBy(20, 20);
   }
@@ -47,6 +48,7 @@ function createComparisonBlock(
   op: string,
   args: unknown[],
   tagToType: Map<string, string | null>,
+  variables: WorkflowVariable[],
   blockType?: string
 ): Blockly.BlockSvg {
   const resolvedType =
@@ -56,8 +58,8 @@ function createComparisonBlock(
   block.initSvg();
   block.render();
 
-  const leftBlock = createBlockFromRule(workspace, args[0], tagToType);
-  const rightBlock = createBlockFromRule(workspace, args[1], tagToType);
+  const leftBlock = createBlockFromRule(workspace, args[0], tagToType, variables);
+  const rightBlock = createBlockFromRule(workspace, args[1], tagToType, variables);
   connectValueBlock(block, 'LEFT', leftBlock);
   connectValueBlock(block, 'RIGHT', rightBlock);
   return block;
@@ -67,7 +69,8 @@ function createStringOpBlock(
   workspace: Blockly.WorkspaceSvg,
   op: string,
   args: unknown[],
-  tagToType: Map<string, string | null>
+  tagToType: Map<string, string | null>,
+  variables: WorkflowVariable[]
 ): Blockly.BlockSvg {
   const block = workspace.newBlock('string_op');
   block.setFieldValue(op, 'OP');
@@ -81,15 +84,16 @@ function createStringOpBlock(
     const haystackBlock = createBlockFromRule(
       workspace,
       Array.isArray(args) ? args[0] : args,
-      tagToType
+      tagToType,
+      variables
     );
     connectValueBlock(block, 'HAYSTACK', haystackBlock);
     return block;
   }
 
   const [haystackRule, needleRule, caseInsensitive] = args;
-  const haystackBlock = createBlockFromRule(workspace, haystackRule, tagToType);
-  const needleBlock = createBlockFromRule(workspace, needleRule, tagToType);
+  const haystackBlock = createBlockFromRule(workspace, haystackRule, tagToType, variables);
+  const needleBlock = createBlockFromRule(workspace, needleRule, tagToType, variables);
   connectValueBlock(block, 'HAYSTACK', haystackBlock);
   connectValueBlock(block, 'NEEDLE', needleBlock);
   block.setFieldValue(caseInsensitive ? 'INSENSITIVE' : 'SENSITIVE', 'CASE');
@@ -99,7 +103,8 @@ function createStringOpBlock(
 function createBlockFromRule(
   workspace: Blockly.WorkspaceSvg,
   rule: unknown,
-  tagToType: Map<string, string | null>
+  tagToType: Map<string, string | null>,
+  variables: WorkflowVariable[]
 ): Blockly.BlockSvg | null {
   if (rule === null || rule === undefined) return null;
 
@@ -148,7 +153,8 @@ function createBlockFromRule(
   if ('var' in ruleObj) {
     const tag = String(ruleObj.var);
     const bType = tagToType.get(tag) ?? 'String';
-    const block = workspace.newBlock(`app_variable_${bType}`);
+    const blockType = resolveVariableBlockType(tag, variables, bType);
+    const block = workspace.newBlock(blockType);
     block.setFieldValue(tag, 'VAR_NAME');
     block.initSvg();
     block.render();
@@ -160,7 +166,8 @@ function createBlockFromRule(
       workspace,
       'length',
       ruleObj.length as unknown[],
-      tagToType
+      tagToType,
+      variables
     );
   }
 
@@ -170,7 +177,8 @@ function createBlockFromRule(
         workspace,
         op,
         ruleObj[op] as unknown[],
-        tagToType
+        tagToType,
+        variables
       );
     }
   }
@@ -181,7 +189,8 @@ function createBlockFromRule(
         workspace,
         op,
         ruleObj[op] as unknown[],
-        tagToType
+        tagToType,
+        variables
       );
     }
   }
@@ -195,9 +204,9 @@ function createBlockFromRule(
         block.initSvg();
         block.render();
 
-        const aBlock = createBlockFromRule(workspace, args[0], tagToType);
+        const aBlock = createBlockFromRule(workspace, args[0], tagToType, variables);
         const bRule = args.length === 2 ? args[1] : { [op]: args.slice(1) };
-        const bBlock = createBlockFromRule(workspace, bRule, tagToType);
+        const bBlock = createBlockFromRule(workspace, bRule, tagToType, variables);
 
         connectValueBlock(block, 'A', aBlock);
         connectValueBlock(block, 'B', bBlock);
@@ -210,7 +219,7 @@ function createBlockFromRule(
     const block = workspace.newBlock('logic_negate');
     block.initSvg();
     block.render();
-    const valueBlock = createBlockFromRule(workspace, ruleObj['!'], tagToType);
+    const valueBlock = createBlockFromRule(workspace, ruleObj['!'], tagToType, variables);
     connectValueBlock(block, 'VALUE', valueBlock);
     return block;
   }

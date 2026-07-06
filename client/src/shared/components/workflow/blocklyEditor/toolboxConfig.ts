@@ -1,5 +1,11 @@
 import { WorkflowVariable } from 'src/shared/api';
 import { blocklyTypeFromVariableType, TYPE_COLOURS } from './blocks';
+import {
+  groupVariablesBySource,
+  sortedSourceKeys,
+  variableBlockType,
+  variableSourceLabel,
+} from './variableGrouping';
 
 const TYPE_LABELS: Record<string, string> = {
   Number: 'Number Variables',
@@ -22,19 +28,47 @@ const COMPARISON_BLOCK_BY_TYPE: Record<string, string> = {
   Boolean: 'boolean_comparison',
 };
 
+const BLOCKLY_TYPES = ['Number', 'String', 'Boolean', 'Date'] as const;
+
+function typesPresentInSource(
+  variables: WorkflowVariable[]
+): Set<string> {
+  return new Set(
+    variables
+      .map((v) => blocklyTypeFromVariableType(v.type))
+      .filter((t): t is string => Boolean(t))
+  );
+}
+
+function buildVariableCategories(variables: WorkflowVariable[]) {
+  const sourceGroups = groupVariablesBySource(variables);
+
+  return sortedSourceKeys(sourceGroups).map((sourceKey) => {
+    const sourceVars = sourceGroups.get(sourceKey)!;
+    const presentTypes = typesPresentInSource(sourceVars);
+
+    return {
+      kind: 'category',
+      name: variableSourceLabel(sourceKey),
+      colour: '20',
+      contents: BLOCKLY_TYPES.filter((t) => presentTypes.has(t)).map((t) => ({
+        kind: 'category',
+        name: TYPE_LABELS[t],
+        colour: String(TYPE_COLOURS[t]),
+        contents: [
+          { kind: 'block', type: variableBlockType(sourceKey, t) },
+        ],
+      })),
+    };
+  });
+}
+
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
   const presentTypes = new Set(
     variables.map((v) => blocklyTypeFromVariableType(v.type)).filter(Boolean)
   );
 
-  const variableCategories = ['Number', 'String', 'Boolean', 'Date']
-    .filter((t) => presentTypes.has(t))
-    .map((t) => ({
-      kind: 'category',
-      name: TYPE_LABELS[t],
-      colour: String(TYPE_COLOURS[t]),
-      contents: [{ kind: 'block', type: `app_variable_${t}` }],
-    }));
+  const variableCategories = buildVariableCategories(variables);
 
   const comparisonCategories = ['Number', 'Date', 'String', 'Boolean']
     .filter((t) => presentTypes.has(t))

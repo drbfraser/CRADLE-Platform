@@ -17,11 +17,20 @@ function generateComparison(
   return [JSON.stringify(result), 0];
 }
 
+function variableBlockGenerator(block: Blockly.Block): [string, number] {
+  const varName = block.getFieldValue('VAR_NAME');
+  return [JSON.stringify({ var: varName }), 0];
+}
+
+export function ensureVariableBlockGenerator(blockType: string): void {
+  if (!jsonLogicGenerator.forBlock[blockType]) {
+    jsonLogicGenerator.forBlock[blockType] = variableBlockGenerator;
+  }
+}
+
+// Legacy combined variable blocks (pre–source grouping).
 for (const bType of ['Number', 'String', 'Boolean', 'Date']) {
-  jsonLogicGenerator.forBlock[`app_variable_${bType}`] = function (block) {
-    const varName = block.getFieldValue('VAR_NAME');
-    return [JSON.stringify({ var: varName }), 0];
-  };
+  ensureVariableBlockGenerator(`app_variable_${bType}`);
 }
 
 jsonLogicGenerator.forBlock['number_value'] = function (block) {

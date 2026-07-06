@@ -51,7 +51,7 @@ describe('Blockly workspace rules', () => {
     });
 
     it('does not count string variables or value blocks as condition roots', () => {
-      const variable = placeRootBlock(workspace, 'app_variable_String', {
+      const variable = placeRootBlock(workspace, 'app_variable_forms_String', {
         VAR_NAME: 'forms[latest].q1',
       });
       const value = placeRootBlock(workspace, 'string_value', { TEXT: 'Yes' });
@@ -104,7 +104,7 @@ describe('Blockly workspace rules', () => {
       const comparison = placeRootBlock(workspace, 'string_comparison', {
         OP: '==',
       });
-      const variable = workspace.newBlock('app_variable_String');
+      const variable = workspace.newBlock('app_variable_forms_String');
       variable.setFieldValue('forms[latest].q1', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -130,7 +130,7 @@ describe('Blockly workspace rules', () => {
         CASE: 'INSENSITIVE',
       });
 
-      const variable = workspace.newBlock('app_variable_String');
+      const variable = workspace.newBlock('app_variable_forms_String');
       variable.setFieldValue('forms[latest].q1', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -155,7 +155,7 @@ describe('Blockly workspace rules', () => {
       const comparison = placeRootBlock(workspace, 'date_comparison', {
         OP: '<',
       });
-      const variable = workspace.newBlock('app_variable_Date');
+      const variable = workspace.newBlock('app_variable_patient_Date');
       variable.setFieldValue('patient.dob', 'VAR_NAME');
       variable.initSvg();
       variable.render();
