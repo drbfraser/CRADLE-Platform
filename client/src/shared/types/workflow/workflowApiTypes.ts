@@ -51,6 +51,7 @@ export interface WorkflowTemplate {
 
   // audit & soft-delete
   archived: boolean;
+  hasBranchingIssues: boolean;
   dateCreated: number;
   lastEdited: number;
   lastEditedBy: string;
