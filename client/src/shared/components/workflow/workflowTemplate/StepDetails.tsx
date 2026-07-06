@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
+import StepDescription from 'src/shared/components/workflow/StepDescription';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 
@@ -111,9 +112,12 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 sx={{ mt: 0.5 }}
               />
             ) : (
-              <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {selectedStep.description || 'No description provided'}
-              </Typography>
+              <Box sx={{ mt: 0.5 }}>
+                <StepDescription
+                  description={selectedStep.description}
+                  fallback="No description provided"
+                />
+              </Box>
             )}
           </Box>
 
