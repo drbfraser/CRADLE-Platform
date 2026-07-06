@@ -1,18 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Field, Form, Formik } from 'formik';
-import {
-  Box,
-  Grid,
-  IconButton,
-  InputAdornment,
-  Paper,
-  Skeleton,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
+import { Form, Formik } from 'formik';
+import { Box, IconButton, Skeleton, Tooltip, Typography } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 import { FormTemplateWithQuestionsV2 } from 'src/shared/types/form/formTemplateTypes';
@@ -22,9 +11,8 @@ import {
   useFormTemplateQueryV2,
   usePreviousFormVersionsQueryV2,
 } from 'src/pages/customizedForm/queries';
-import LanguageModal from './LanguageModal';
 import { getDefaultLanguage } from './utils';
-import { capitalize } from 'src/shared/utils';
+import { FormTemplateMetadataForm } from './FormTemplateMetadataForm';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -92,15 +80,15 @@ export const CustomFormTemplate = () => {
 
   return (
     <>
-      <Box sx={{ display: `flex`, alignItems: `center` }}>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => navigate(`/admin/form-templates`)}
+            onClick={() => navigate('/admin/form-templates')}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant={'h4'} component={'h4'}>
+        <Typography variant="h4" component="h4">
           {editFormId
             ? `Editing Form: ${form.classification.name.english || 'Template'}`
             : 'Create New Template'}
@@ -112,148 +100,23 @@ export const CustomFormTemplate = () => {
       ) : (
         <Formik
           initialValues={initialState}
-          onSubmit={() => {
-            /* form creation/editing handled inside `SubmitFormTemplateDialog` */
-          }}
+          onSubmit={() => undefined}
           validationSchema={() => {
-            // TODO: Create a validation schema to ensure that all the values are filled in as expected
             console.log('Temp');
           }}>
           {() => (
             <Form>
-              <Paper sx={{ p: 4 }}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <h2>Custom Form Properties</h2>
-                  </Grid>
-
-                  <Grid item xs={12} md={4}>
-                    <Field
-                      label={'Title'}
-                      component={TextField}
-                      required={true}
-                      variant="outlined"
-                      value={
-                        form.classification.name[
-                          currentLanguage.toLowerCase()
-                        ] ?? ''
-                      }
-                      fullWidth
-                      inputProps={{
-                        maxLength: 100,
-                      }}
-                      error={
-                        !form.classification.name[
-                          currentLanguage.toLowerCase()
-                        ] ||
-                        form.classification.name[
-                          currentLanguage.toLowerCase()
-                        ].trim() === ''
-                      }
-                      helperText={
-                        !form.classification.name[
-                          currentLanguage.toLowerCase()
-                        ] ||
-                        form.classification.name[
-                          currentLanguage.toLowerCase()
-                        ].trim() === ''
-                          ? `${currentLanguage} title is required`
-                          : ''
-                      }
-                      onChange={(e: any) => {
-                        const isEnglishLanguage =
-                          currentLanguage.toLowerCase() === 'english';
-
-                        setForm((prev) => ({
-                          ...prev,
-                          classification: {
-                            ...prev.classification,
-                            name: {
-                              ...prev.classification.name,
-                              [currentLanguage.toLowerCase()]: e.target.value,
-                            },
-                            nameStringId: isEnglishLanguage
-                              ? undefined
-                              : prev.classification.nameStringId,
-                          },
-                          id: editFormId ? prev.id : undefined,
-                        }));
-                      }}
-                      InputProps={{
-                        endAdornment: (
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={'Enter your form title here'}
-                            arrow>
-                            <InputAdornment position="end">
-                              <IconButton>
-                                <InfoIcon fontSize="small" />
-                              </IconButton>
-                            </InputAdornment>
-                          </Tooltip>
-                        ),
-                      }}></Field>
-                  </Grid>
-
-                  <Grid item xs={12} md={4}>
-                    <Field
-                      label={'Version'}
-                      component={TextField}
-                      required={true}
-                      variant="outlined"
-                      value={form.version}
-                      error={versionError}
-                      helperText={
-                        versionError ? 'Must change version number' : ''
-                      }
-                      fullWidth
-                      inputProps={{
-                        maxLength: 30,
-                      }}
-                      onChange={(e: any) => {
-                        const newVersion = e.target.value;
-
-                        setForm((prev) => ({
-                          ...prev,
-                          version: newVersion,
-                        }));
-
-                        setVersionError(
-                          previousVersionsQuery.data?.includes(newVersion) ??
-                            false
-                        );
-                      }}
-                      InputProps={{
-                        endAdornment: (
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={
-                              editFormId
-                                ? 'Edit your form Version here'
-                                : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
-                            }
-                            arrow>
-                            <InputAdornment position="end">
-                              <IconButton>
-                                <InfoIcon fontSize="small" />
-                              </IconButton>
-                            </InputAdornment>
-                          </Tooltip>
-                        ),
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={4}>
-                    <LanguageModal
-                      language={language.map((lang) => capitalize(lang))}
-                      setLanguage={setLanguage}
-                    />
-                  </Grid>
-                </Grid>
-              </Paper>
+              <FormTemplateMetadataForm
+                form={form}
+                currentLanguage={currentLanguage}
+                language={language}
+                editFormId={editFormId}
+                versionError={versionError}
+                setForm={setForm}
+                setLanguage={setLanguage}
+                setVersionError={setVersionError}
+                previousVersions={previousVersionsQuery.data}
+              />
 
               <CustomizedFormWQuestions
                 fm={form}
