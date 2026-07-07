@@ -21,6 +21,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
 )
+from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
 from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formsV2_models import FormTemplateUploadRequest
 
@@ -283,6 +284,7 @@ def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[d
 
 
 workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
+_FORMS_VAR_PATTERN = re.compile(r"^forms\[[^\]]*\]\.(.+)$")
 
 
 def parse_workflow_template_version(version: str | None) -> int | None:
@@ -556,3 +558,65 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
                 code=409,
                 description=f"Error updating workflow with id {classification_id}.",
             )
+
+
+def check_form_compatibility_for_workflow(
+    workflow_orm: WorkflowTemplateOrm,
+    old_form: FormTemplateOrmV2,
+    new_form: FormTemplateOrmV2,
+) -> tuple[bool, list[str]]:
+    """
+    Check whether the new form version would break any branch conditions in a workflow template.
+
+    Scans every branch condition rule for `forms[*].{user_question_id}` variable references,
+    then verifies each referenced question still exists in the new form with the same question_type.
+
+    Returns (True, []) if fully compatible, or (False, [issue descriptions]) if not.
+    """
+    issues: list[str] = []
+
+    old_questions = {
+        q.user_question_id: q.question_type
+        for q in old_form.questions
+        if q.user_question_id is not None
+    }
+    new_questions = {
+        q.user_question_id: q.question_type
+        for q in new_form.questions
+        if q.user_question_id is not None
+    }
+
+    for step in workflow_orm.steps:
+        for branch in step.branches:
+            if branch.condition is None or branch.condition.rule is None:
+                continue
+
+            try:
+                variables = extract_variables_from_rule(branch.condition.rule)
+            except ValueError:
+                issues.append(
+                    f"Step '{step.name}': branch has a malformed condition rule."
+                )
+                continue
+
+            for var in variables:
+                match = _FORMS_VAR_PATTERN.match(var)
+                if match is None:
+                    continue
+
+                user_question_id = match.group(1)
+
+                if user_question_id not in new_questions:
+                    issues.append(
+                        f"Step '{step.name}': branch condition references '{user_question_id}', "
+                        f"which was removed from the updated form."
+                    )
+                elif old_questions.get(user_question_id) != new_questions[user_question_id]:
+                    old_type = old_questions.get(user_question_id, "unknown")
+                    new_type = new_questions[user_question_id]
+                    issues.append(
+                        f"Step '{step.name}': branch condition references '{user_question_id}', "
+                        f"whose type changed from {old_type} to {new_type}."
+                    )
+
+    return len(issues) == 0, issues
