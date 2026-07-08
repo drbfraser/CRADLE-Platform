@@ -10,12 +10,13 @@ boolean argument for case-insensitive matching (default: false).
 
 from __future__ import annotations
 
+import functools
 import re
 from typing import Any
 
-_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+from json_logic import operations
 
-_custom_ops_registered = False
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def _as_str(value: Any) -> str:
@@ -85,21 +86,13 @@ def normalize_rule_literals(node: Any) -> Any:
         return [normalize_rule_literals(item) for item in node]
     return node
 
-
+@functools.lru_cache(maxsize=1)
 def register_custom_operations() -> None:
     """Register workflow-specific JsonLogic operations (idempotent)."""
-    global _custom_ops_registered
-    if _custom_ops_registered:
-        return
-
-    from json_logic import operations
-
     operations["contains"] = _op_contains
     operations["startsWith"] = _op_starts_with
     operations["endsWith"] = _op_ends_with
     operations["length"] = _op_length
-
-    _custom_ops_registered = True
 
 
 # Register when this module is imported so jsonLogic picks up custom ops.
