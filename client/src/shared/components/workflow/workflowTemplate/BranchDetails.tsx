@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Paper, Button, Box, Alert } from '@mui/material';
+import {
+  Typography,
+  Paper,
+  Button,
+  Alert,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
 import {
@@ -169,33 +177,43 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const targetStep = steps.find((s) => s.id === branch.targetStepId);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}></Box>
-      <Typography variant="h6" gutterBottom sx={{ textAlign: 'left' }}>
+    <>
+      <DialogTitle sx={{ pb: 1 }}>
         {isEditMode ? 'Edit Branch Condition' : 'View Branch Condition'}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        From: <strong>{selectedStep.name}</strong> → To:{' '}
-        <strong>{targetStep?.name || 'Unknown Step'}</strong>
-      </Typography>
-      <BranchConditionEditor
-        branch={branch}
-        branchIndex={selectedBranchIndex}
-        stepId={selectedStep.id}
-        targetStepName={targetStep?.name}
-        onTargetStepChange={handleTargetStepChange}
-        isEditMode={isEditMode}
-        isSelected={true}
-        showFullEditor={true}
-        onChange={handleBranchChange}
-        steps={steps}
-      />
-      {isEditMode && validationError && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {validationError}
-        </Alert>
-      )}
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+      </DialogTitle>
+      <DialogContent
+        dividers
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+          p: 2,
+        }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          From: <strong>{selectedStep.name}</strong> → To:{' '}
+          <strong>{targetStep?.name || 'Unknown Step'}</strong>
+        </Typography>
+        <BranchConditionEditor
+          branch={branch}
+          branchIndex={selectedBranchIndex}
+          stepId={selectedStep.id}
+          targetStepName={targetStep?.name}
+          onTargetStepChange={handleTargetStepChange}
+          isEditMode={isEditMode}
+          isSelected={true}
+          showFullEditor={true}
+          editorFillHeight
+          onChange={handleBranchChange}
+          steps={steps}
+        />
+        {isEditMode && validationError && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {validationError}
+          </Alert>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, py: 2 }}>
         <Button onClick={handleCancel} variant="outlined" color="primary">
           Cancel
         </Button>
@@ -208,7 +226,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
             Save
           </Button>
         )}
-      </Box>
-    </Box>
+      </DialogActions>
+    </>
   );
 };

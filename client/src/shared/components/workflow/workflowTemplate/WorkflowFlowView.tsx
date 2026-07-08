@@ -228,12 +228,21 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
       <Dialog
         open={branchIndex !== undefined && selectedStep !== undefined}
         onClose={handleCloseBranchEditor}
-        maxWidth="lg"
+        maxWidth={false}
+        scroll="paper"
         disableEnforceFocus
         PaperProps={{
           sx: {
-            width: '80%',
-            maxWidth: '1000px',
+            width: 'min(1000px, 90vw)',
+            minWidth: 520,
+            height: 'min(85vh, 880px)',
+            minHeight: 420,
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            resize: 'both',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           },
         }}>
         {selectedStep && branchIndex !== undefined && (

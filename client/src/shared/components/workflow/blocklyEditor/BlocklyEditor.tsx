@@ -31,6 +31,7 @@ interface BlocklyEditorProps {
   initialJsonLogic?: string;
   onChange: (jsonLogic: string | null, error: string | null) => void;
   readOnly?: boolean;
+  fillHeight?: boolean;
 }
 
 export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
@@ -38,8 +39,10 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
   initialJsonLogic,
   onChange,
   readOnly = false,
+  fillHeight = false,
 }) => {
   const blocklyDiv = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const isLoadingRef = useRef(false);
   const validateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -63,6 +66,8 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
         minScale: 0.5,
       },
     });
+
+    workspaceRef.current = workspace;
 
     if (initialJsonLogic) {
       isLoadingRef.current = true;
@@ -113,9 +118,26 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
 
     return () => {
       clearTimeout(validateTimeoutRef.current);
+      workspaceRef.current = null;
       workspace.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const el = blocklyDiv.current;
+    if (!el) return;
+
+    const resizeWorkspace = () => {
+      if (workspaceRef.current) {
+        Blockly.svgResize(workspaceRef.current);
+      }
+    };
+
+    resizeWorkspace();
+    const observer = new ResizeObserver(resizeWorkspace);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -125,7 +147,9 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
         ref={blocklyDiv}
         sx={{
           width: '100%',
-          height: 400,
+          height: fillHeight ? '100%' : 400,
+          minHeight: fillHeight ? 200 : undefined,
+          flex: fillHeight ? 1 : undefined,
           border: '1px solid #e0e0e0',
           borderRadius: 1,
         }}
