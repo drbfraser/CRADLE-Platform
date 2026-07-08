@@ -60,36 +60,30 @@ function buildVariableCategories(variables: WorkflowVariable[]) {
 }
 
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
-  const presentTypes = new Set(
-    variables.map((v) => blocklyTypeFromVariableType(v.type)).filter(Boolean)
-  );
-
   const variableCategories = buildVariableCategories(variables);
 
-  const comparisonCategories = ['Number', 'Date', 'String', 'Boolean']
-    .filter((t) => presentTypes.has(t))
-    .map((t) => ({
+  // Comparison and text-operation blocks are always available so authors can
+  // build conditions with literal Values even when a step has no variables yet.
+  const comparisonCategories = ['Number', 'Date', 'String', 'Boolean'].map(
+    (t) => ({
       kind: 'category',
       name: COMPARISON_LABELS[t],
       colour: String(TYPE_COLOURS[t]),
       contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE[t] }],
-    }));
+    })
+  );
 
   return {
     kind: 'categoryToolbox',
     contents: [
       ...variableCategories,
       ...comparisonCategories,
-      ...(presentTypes.has('String')
-        ? [
-            {
-              kind: 'category',
-              name: 'Text Operations',
-              colour: String(TYPE_COLOURS.String),
-              contents: [{ kind: 'block', type: 'string_op' }],
-            },
-          ]
-        : []),
+      {
+        kind: 'category',
+        name: 'Text Operations',
+        colour: String(TYPE_COLOURS.String),
+        contents: [{ kind: 'block', type: 'string_op' }],
+      },
       {
         kind: 'category',
         name: 'Logic',

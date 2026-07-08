@@ -103,6 +103,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 
   useEffect(() => {
     let cancelled = false;
+    setVariablesLoading(true);
+
     const load = async () => {
       const globalVars = await getWorkflowVariables();
       let formVars: WorkflowVariable[] = [];
@@ -128,7 +130,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [formId]);
+  }, [formId, stepId]);
 
   useEffect(() => {
     if (branch.condition?.rule) {

@@ -74,4 +74,16 @@ describe('buildToolboxConfig', () => {
     expect(categories.some((c) => c.name === 'Text Operations')).toBe(true);
     expect(categories.some((c) => c.name === 'String Operations')).toBe(false);
   });
+
+  it('always shows comparison and text operation blocks even with no variables', () => {
+    const config = buildToolboxConfig([]);
+    const categories = config.contents as Array<{ name: string }>;
+
+    expect(categories.some((c) => c.name === 'Number Compare')).toBe(true);
+    expect(categories.some((c) => c.name === 'Text Compare')).toBe(true);
+    expect(categories.some((c) => c.name === 'Text Operations')).toBe(true);
+    expect(categories.some((c) => c.name === 'Logic')).toBe(true);
+    expect(categories.some((c) => c.name === 'Values')).toBe(true);
+    expect(categories.some((c) => c.name === 'Patient')).toBe(false);
+  });
 });
