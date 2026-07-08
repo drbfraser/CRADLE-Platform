@@ -7,8 +7,17 @@ export function evaluateWorkspace(workspace: Blockly.WorkspaceSvg): {
   error: string | null;
 } {
   const conditionRoots = getConditionRootBlocks(workspace);
+  const blocks = workspace.getAllBlocks(false);
   let jsonLogic: string | null = null;
   let error: string | null = null;
+
+  if (conditionRoots.length === 0) {
+    if (blocks.length > 0) {
+      error =
+        'Add a comparison or text operation block to build your condition, then connect the variable into it.';
+    }
+    return { jsonLogic, error };
+  }
 
   if (conditionRoots.length > 1) {
     jsonLogic = workspaceToJsonLogic(workspace);

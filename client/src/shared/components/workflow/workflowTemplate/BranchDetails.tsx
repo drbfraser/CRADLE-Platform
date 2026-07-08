@@ -204,7 +204,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
             onClick={handleSave}
             variant="contained"
             color="primary"
-            disabled={!!validationError}>
+            disabled={!!validationError || !localConditionRule}>
             Save
           </Button>
         )}

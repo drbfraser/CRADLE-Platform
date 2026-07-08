@@ -43,12 +43,12 @@ const NUMBER_COMPARISON_OPS: [string, string][] = [
 ];
 
 const DATE_COMPARISON_OPS: [string, string][] = [
-  ['equal', '=='],
-  ['before', '<'],
-  ['after', '>'],
-  ['before or equal', '<='],
-  ['on or after', '>='],
-  ['not equal', '!='],
+  ['= equal', '=='],
+  ['< before', '<'],
+  ['> after', '>'],
+  ['≤ on or before', '<='],
+  ['≥ on or after', '>='],
+  ['≠ not equal', '!='],
 ];
 
 const EQUALITY_OPS: [string, string][] = [

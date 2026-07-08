@@ -67,7 +67,20 @@ describe('Blockly workspace rules', () => {
       expect(isConditionRootBlock(variable)).toBe(false);
       expect(isConditionRootBlock(value)).toBe(false);
       expect(getConditionRootBlocks(workspace)).toHaveLength(0);
-      expect(evaluateWorkspace(workspace).error).toBeNull();
+      expect(evaluateWorkspace(workspace).error).toContain(
+        'Add a comparison or text operation block'
+      );
+    });
+
+    it('flags orphan variable blocks as incomplete conditions', () => {
+      placeRootBlock(workspace, 'app_variable_forms_String', {
+        VAR_NAME: 'forms[latest].q1',
+      });
+      const result = evaluateWorkspace(workspace);
+      expect(result.jsonLogic).toBeNull();
+      expect(result.error).toContain(
+        'Add a comparison or text operation block'
+      );
     });
 
     it('counts string_op (contains) as a single condition root', () => {
