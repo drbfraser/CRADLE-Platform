@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import Any, Dict, List, Set
+from typing import Any
 
 from json_logic import jsonLogic
 
@@ -18,7 +18,7 @@ class RuleStatus(str, Enum):
     NO_MATCH = "NO_MATCH"
 
 
-def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
+def _flatten_to_nested(flat_dict: dict[str, Any]) -> dict[str, Any]:
     """
     Convert flat dict with dot notation to nested dict
 
@@ -42,7 +42,8 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
 class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
-    def __init__(self, status: RuleStatus, missing_variables: Set[str] = None):
+    def __init__(self, status: RuleStatus, missing_variables: set[str] = None):
+        """Store the rule evaluation status and any missing variable names."""
         self.status = status
         self.missing_variables = missing_variables or set()
 
@@ -52,7 +53,7 @@ class RulesEngineFacade:
     An abstraction layer for the underlying Rules Engine Implementation
     """
 
-    def __init__(self, rule: str, args: Dict[str, Any]):
+    def __init__(self, rule: str, args: dict[str, Any]):
         """
         Initializes the rules engine
 
@@ -63,7 +64,7 @@ class RulesEngineFacade:
         """
         self._rules_engine = RulesEngineImpl(rule, args)
 
-    def evaluate(self, input: Dict[str, Any]) -> RuleEvaluationResult:
+    def evaluate(self, input: dict[str, Any]) -> RuleEvaluationResult:
         """
         Evaluate the given rules
 
@@ -83,11 +84,12 @@ class RulesEngineImpl:
     - https://jsonlogic.com/operations.html
     """
 
-    def __init__(self, rule: str, args: Dict[str, Any]):
-        self.args: Dict[str, Any] = args
+    def __init__(self, rule: str, args: dict[str, Any]):
+        """Parse and store the rule for evaluation with the given resolved arguments."""
+        self.args: dict[str, Any] = args
         self.rule = self._parse_rules(rule)
 
-    def _parse_rules(self, rule: str) -> Dict[str, Any]:
+    def _parse_rules(self, rule: str) -> dict[str, Any]:
         """
         Attempt to deserialize a rule string into a rule object ready for evaluation
 
@@ -125,7 +127,7 @@ class RulesEngineImpl:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in rule: {e}")
 
-    def evaluate(self, input: Dict[str, Any]) -> RuleEvaluationResult:
+    def evaluate(self, input: dict[str, Any]) -> RuleEvaluationResult:
         """
         Evaluate a parsed rule and given input
 
@@ -168,10 +170,10 @@ class RulesEngineImpl:
 
 
 def evaluate_branches(
-    branches: List[Dict[str, Any]],
-    data: Dict[str, Any],
-    datasources: Dict[str, Any] = None,
-) -> Dict[str, Any]:
+    branches: list[dict[str, Any]],
+    data: dict[str, Any],
+    datasources: dict[str, Any] = None,
+) -> dict[str, Any]:
     """
     Evaluate multiple branches with short-circuit logic.
     Stops at first TRUE or NOT_ENOUGH_DATA.

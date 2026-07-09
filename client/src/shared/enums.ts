@@ -113,6 +113,7 @@ export enum QRelationEnum {
 
 export enum QuestionTypeEnum {
   INTEGER = 'INTEGER',
+  DECIMAL = 'DECIMAL',
   STRING = 'STRING',
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
   MULTIPLE_SELECT = 'MULTIPLE_SELECT',

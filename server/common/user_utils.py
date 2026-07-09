@@ -55,6 +55,7 @@ class UserData(UserDict):
 
 
 def is_valid_email_format(email: str) -> bool:
+    """Return True if the email matches the expected format."""
     return re.fullmatch(EMAIL_REGEX_PATTERN, email) is not None
 
 
@@ -76,6 +77,7 @@ def get_user_orm_from_username(username: str):
 
 
 def get_user_orm_from_phone_number(phone_number: str) -> UserOrm:
+    """Get the user ORM associated with the given phone number, raising ValueError if not found."""
     user_phone_number_orm = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
     if user_phone_number_orm is None:
         raise ValueError(f"Phone number ({phone_number}) does not belong to any user.")
@@ -106,26 +108,31 @@ def get_user_dict_from_username(username: str) -> UserDict:
 
 
 def get_user_orm_from_id(user_id: int) -> UserOrm:
+    """Get a user ORM by ID."""
     return crud.read(UserOrm, id=user_id)
 
 
 def get_user_dict_from_id(user_id: int) -> UserDict:
+    """Get a user dict by ID."""
     user_orm = crud.read(UserOrm, id=user_id)
     return get_user_dict_from_orm(user_orm)
 
 
 def get_user_id_from_username(username: str) -> int:
+    """Get a user's ID from their username."""
     user_orm = get_user_orm_from_username(username)
     user_dict = get_user_dict_from_orm(user_orm)
     return user_dict["id"]
 
 
 def get_username_from_id(user_id: int) -> str:
+    """Get a user's username from their ID."""
     user_orm = get_user_orm_from_id(user_id)
     return user_orm.username
 
 
 def get_user_data_from_username(username: str):
+    """Get full user data (including phone numbers and SMS key) by username."""
     user_dict = get_user_dict_from_username(username)
     phone_numbers = phone_number_utils.get_users_phone_numbers(user_dict["id"])
     sms_key = get_user_sms_secret_key_formatted(user_dict["id"])
@@ -133,6 +140,7 @@ def get_user_data_from_username(username: str):
 
 
 def get_user_data_from_id(user_id: int):
+    """Get full user data (including phone numbers and SMS key) by user ID."""
     user_dict = get_user_dict_from_id(user_id)
     phone_numbers = phone_number_utils.get_users_phone_numbers(user_id)
     sms_key = get_user_sms_secret_key_formatted(user_id)
@@ -140,6 +148,7 @@ def get_user_data_from_id(user_id: int):
 
 
 def get_all_users_data():
+    """Get full user data for all users in the system."""
     user_dict_list = get_user_dict_list()
     user_data_list = []
     for user_dict in user_dict_list:
@@ -379,6 +388,7 @@ def does_username_exist(username: str) -> bool:
 
 
 def _update_user_phone_numbers(user_orm: UserOrm, phone_numbers: set[str]):
+    """Sync a user's phone numbers in the DB to match the provided set."""
     # Get the user's existing phone numbers.
     old_phone_numbers = set(phone_number_utils.get_users_phone_numbers(user_orm.id))
 
@@ -487,6 +497,7 @@ def update_user(user_id: int, user_update_dict: dict[str, Any]):
 
 
 def create_new_sms_secret_key_orm():
+    """Create a new SMS secret key ORM with expiry and stale dates set."""
     stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
     expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
     secret_key = generate_new_sms_secret_key()
@@ -499,6 +510,7 @@ def create_new_sms_secret_key_orm():
 
 
 def create_sms_secret_key_for_user(user_id):
+    """Create and persist a new SMS secret key for the given user."""
     sms_secret_key_orm = create_new_sms_secret_key_orm()
     user_orm = crud.read(UserOrm, id=user_id)
     if user_orm is None:
@@ -510,6 +522,7 @@ def create_sms_secret_key_for_user(user_id):
 
 
 def update_sms_secret_key_for_user(user_id):
+    """Rotate the SMS secret key for the given user."""
     stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
     expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
     secret_key = generate_new_sms_secret_key()
@@ -523,6 +536,7 @@ def update_sms_secret_key_for_user(user_id):
 
 
 def get_user_sms_secret_key(user_id):
+    """Return the raw SMS secret key dict for the user, or None if not found."""
     sms_secret_key_orm = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key_orm and sms_secret_key_orm.secret_key:
         sms_secret_key = orm_serializer.marshal(sms_secret_key_orm)
@@ -531,6 +545,7 @@ def get_user_sms_secret_key(user_id):
 
 
 def get_user_sms_secret_key_formatted(user_id):
+    """Return the SMS secret key for the user with status message and formatted dates."""
     sms_secret_key = get_user_sms_secret_key(user_id)
     if sms_secret_key is None:
         return None
@@ -553,6 +568,7 @@ def get_user_sms_secret_key_formatted(user_id):
 
 
 def get_user_sms_secret_key_string(user_id: int) -> Optional[str]:
+    """Return the raw secret key string for the user, or None if not found."""
     sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key:
         return sms_secret_key.secret_key
@@ -560,16 +576,19 @@ def get_user_sms_secret_key_string(user_id: int) -> Optional[str]:
 
 
 def generate_new_sms_secret_key():
+    """Generate a new random 256-bit SMS secret key as a hex string."""
     return secrets.randbits(256).to_bytes(32, "little").hex()
 
 
 def get_expected_sms_relay_request_number(phone_number):
+    """Return the expected SMS relay request number for the given phone number."""
     phone_number_orm = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
     expected_request_number: int = phone_number_orm.expected_request_number
     return expected_request_number
 
 
 def update_expected_request_number(phone_number, current_request_number):
+    """Increment and persist the expected SMS relay request number for the given phone number."""
     updated_request_number = (current_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
 
     new_request_number = {"expected_request_number": updated_request_number}
@@ -604,6 +623,7 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
 
 def get_user_roles(user_id):
+    """Return the role of the user with the given ID."""
     user_orm = crud.read(UserOrm, id=user_id)
     if user_orm is None:
         raise ValueError(f"No user with id ({user_id}) was found.")

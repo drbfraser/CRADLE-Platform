@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from flask import abort
 
@@ -74,7 +74,7 @@ def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -
 
 
 def assign_step_ids(
-    m: Type[M], step: dict, workflow_id: str, auto_assign_id: bool = False
+    m: type[M], step: dict, workflow_id: str, auto_assign_id: bool = False
 ) -> None:
     """
     Assigns an ID and workflow ID to a workflow template or instance step if none has been provided, if the step has
@@ -121,7 +121,7 @@ def assign_step_ids(
 # NOTE: It may not make sense anymore to handle assigning instance IDs, as the
 #       IDs are generated once in WorkflowService.generate_workflow_instance
 def assign_workflow_template_or_instance_ids(
-    m: Type[M], workflow: dict, auto_assign_id: bool = False
+    m: type[M], workflow: dict, auto_assign_id: bool = False
 ) -> None:
     """
     Assigns an ID to a workflow template, instance, or classification if none has been provided, if the workflow
@@ -158,7 +158,7 @@ def assign_workflow_template_or_instance_ids(
             assign_step_ids(WorkflowInstanceStepOrm, step, workflow_id, auto_assign_id)
 
 
-def apply_changes_to_model(model: Type[M], changes: dict) -> None:
+def apply_changes_to_model(model: type[M], changes: dict) -> None:
     """
     Similar to crud.update(), but only applies the changes to the model, does not add to the DB
 
@@ -170,6 +170,7 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
 
 
 def check_branch_conditions(template_step: dict) -> None:
+    """Abort with 404 if any branch references a condition ID that doesn't exist in the DB."""
     for branch in template_step["branches"]:
         if branch.get("condition") is None and branch.get("condition_id") is not None:
             branch_condition = crud.read(RuleGroupOrm, id=branch.get("condition_id"))
@@ -184,6 +185,7 @@ def check_branch_conditions(template_step: dict) -> None:
 def validate_workflow_template_step(
     workflow_template_step: dict, allow_missing_template: bool = False
 ):
+    """Validate a workflow template step dict, assigning IDs and checking branch conditions and form references."""
     workflow_template_id = workflow_template_step["workflow_template_id"]
     workflow_template = crud.read(WorkflowTemplateOrm, id=workflow_template_id)
 
@@ -227,6 +229,7 @@ def validate_workflow_template_step(
 def _build_step_id_mapping(
     steps: list[dict], workflow_template_id: str, auto_assign_id: bool = True
 ) -> dict[str, str]:
+    """Assign new IDs to each step and return a mapping of old step ID to new step ID."""
     old_to_new_step_id_map = {}
 
     for step in steps:
@@ -252,6 +255,7 @@ def _build_step_id_mapping(
 
 
 def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[dict]:
+    """Update branch target_step_id references in steps using the provided old-to-new ID map."""
     updated_steps = []
 
     for step in steps:

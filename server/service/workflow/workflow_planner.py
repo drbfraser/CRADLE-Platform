@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
@@ -67,7 +67,7 @@ class WorkflowPlanner:
         branch: WorkflowTemplateStepBranchModel,
         patient_id: str,
         workflow_instance_id: str,
-        current_user: Optional[Dict[str, Any]] = None,
+        current_user: Optional[dict[str, Any]] = None,
     ) -> WorkflowBranchEvaluation:
         """
         Evaluates a single workflow branch condition.
@@ -99,7 +99,7 @@ class WorkflowPlanner:
     def evaluate_step(
         ctx: WorkflowView,
         step: WorkflowInstanceStepModel,
-        current_user: Optional[Dict[str, Any]] = None,
+        current_user: Optional[dict[str, Any]] = None,
     ) -> WorkflowStepEvaluation:
         """
         Evaluates all branches of a workflow step and determines which branch
@@ -152,7 +152,7 @@ class WorkflowPlanner:
     def _get_immediate_next_step(
         ctx: WorkflowView,
         step: WorkflowInstanceStepModel,
-        current_user: Optional[Dict[str, Any]] = None,
+        current_user: Optional[dict[str, Any]] = None,
     ) -> Optional[WorkflowInstanceStepModel]:
         """
         Determines the next workflow step after the given step based on step evaluation.
@@ -169,7 +169,9 @@ class WorkflowPlanner:
                 ctx.get_template_step(step.workflow_template_step_id),
                 step_evaluation.selected_branch_id,
             )
-            next_step = ctx.get_instance_step_for_template_step(branch.target_step_id)
+            next_step = ctx.get_or_create_instance_step_for_template_step(
+                branch.target_step_id
+            )
         else:
             next_step = None
 
@@ -252,7 +254,7 @@ class WorkflowPlanner:
     def _get_next_step_to_advance_to(
         ctx: WorkflowView,
         step: WorkflowInstanceStepModel,
-        current_user: Optional[Dict[str, Any]] = None,
+        current_user: Optional[dict[str, Any]] = None,
     ) -> WorkflowInstanceStepModel:
         """
         Walk forward from a completed step until an incomplete step is found,
@@ -280,7 +282,7 @@ class WorkflowPlanner:
 
     @staticmethod
     def advance(
-        ctx: WorkflowView, current_user: Optional[Dict[str, Any]] = None
+        ctx: WorkflowView, current_user: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Advances the workflow's current step pointer if possible.

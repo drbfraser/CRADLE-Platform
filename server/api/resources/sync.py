@@ -365,6 +365,5 @@ ERROR_MESSAGES = {
 
 
 def _to_string(field, errors):
-    # marshmallow.ValidationError error message format
-    # A JSON object with 'field' as key and an array of 'errors' as value
+    """Format a marshmallow ValidationError message as a JSON-like string."""
     return "{'" + field + "': ['" + ERROR_MESSAGES[errors] + "']}"

@@ -67,13 +67,18 @@ def test_pass_search_full_patient_id():
 
 
 def test_pass_search_full_initials():
+    patient_id = "49300028161"
     full_patient_initials = "BB"
     url = BASE_URL + "/api/patients/global/" + full_patient_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
+
     assert response.status_code == 200
-    expected_matching_patients = 1
-    assert len(response_body) == expected_matching_patients
+    assert len(response_body) >= 1
+    assert any(
+        patient["id"] == patient_id and patient["name"] == full_patient_initials
+        for patient in response_body
+    )
 
 
 def test_no_id_matches():
@@ -86,7 +91,7 @@ def test_no_id_matches():
 
 
 def test_no_initials_matches():
-    full_initials = "CCC"
+    full_initials = "ZZZ"
     url = BASE_URL + "/api/patients/global/" + full_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()

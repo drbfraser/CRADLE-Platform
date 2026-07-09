@@ -35,7 +35,6 @@ export const NewWorkflowInstancePage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
@@ -60,7 +59,6 @@ export const NewWorkflowInstancePage: React.FC = () => {
       const payload: InstanceInput = {
         workflowTemplateId: selectedTemplateId,
         patientId,
-        name,
         description,
         // formResponses: [], // add later if needed
       };
@@ -118,8 +116,8 @@ export const NewWorkflowInstancePage: React.FC = () => {
                 Start a new workflow
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Choose a workflow template and optionally provide a name and
-                description to help identify this instance later.
+                Choose a workflow template and optionally provide a description
+                to help identify this instance later.
               </Typography>
             </Box>
 
@@ -168,14 +166,6 @@ export const NewWorkflowInstancePage: React.FC = () => {
           </FormControl>
 
           {/* Optional metadata */}
-          <TextField
-            label="Instance Name (optional)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            fullWidth
-            placeholder="e.g., Follow-up - March 2025"
-          />
-
           <TextField
             label="Description (optional)"
             value={description}

@@ -3,7 +3,7 @@ import logging
 import re
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
+from typing import Any, Callable, Optional, TypeAlias, Union
 
 from pydantic import BaseModel
 
@@ -15,13 +15,13 @@ from validation.pregnancies import PregnancyModel
 from validation.readings import ReadingModel, UrineTestModel
 
 ObjectResolver = Callable[[str, str], Any]
-CustomResolver = Callable[[Dict], Any]
+CustomResolver = Callable[[dict], Any]
 
-ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
+ObjectCatalogue: TypeAlias = dict[str, dict[str, Any]]
 
 # ResolverContext: Context information for resolving data
 # Contains ID mappings for data resolution, e.g., {"patient_id": "p123", "assessment_id": "a456"}
-ResolverContext: TypeAlias = Dict[str, str]
+ResolverContext: TypeAlias = dict[str, str]
 
 # Sentinel value used to distinguish "missing/undefined" from explicit nulls.
 # - Missing/undefined: MISSING
@@ -43,7 +43,7 @@ DataModel = Union[
 # Namespace for workflow-scoped variables (metadata + workflow_instance_data).
 WORKFLOW_VARIABLE_NAMESPACE = "wf"
 
-MODEL_REGISTRY: Dict[str, type[BaseModel]] = {
+MODEL_REGISTRY: dict[str, type[BaseModel]] = {
     "patient": PatientModel,
     "reading": ReadingModel,
     "assessment": AssessmentModel,
@@ -128,9 +128,11 @@ class DatasourceVariable:
         return f"{self.obj.name}.{self.attr.name}"
 
     def __str__(self) -> str:
+        """Return the string representation of this datasource variable."""
         return self.to_string()
 
     def __hash__(self) -> int:
+        """Return a hash based on object and attribute names."""
         return hash((self.obj.name, self.attr.name))
 
 
@@ -148,7 +150,7 @@ class VariablePath:
 
     namespace: str
     collection_index: Optional[Union[str, int]]
-    field_path: List[str]
+    field_path: list[str]
 
     @classmethod
     def from_string(cls, variable: str) -> Optional["VariablePath"]:
@@ -220,16 +222,18 @@ class VariablePath:
         return base
 
     def __str__(self) -> str:
+        """Return the string representation of this variable path."""
         return self.to_string()
 
     def __hash__(self) -> int:
+        """Return a hash based on namespace, collection index, and field path."""
         return hash((self.namespace, self.collection_index, tuple(self.field_path)))
 
 
 def _group_objects(
-    accumulator: Dict[DatasourceObject, List[DatasourceAttribute]],
+    accumulator: dict[DatasourceObject, list[DatasourceAttribute]],
     variable: DatasourceVariable,
-) -> Dict[DatasourceObject, List[DatasourceAttribute]]:
+) -> dict[DatasourceObject, list[DatasourceAttribute]]:
     """Group variables by object name for batch resolution."""
     obj = variable.obj
 
@@ -242,7 +246,7 @@ def _group_objects(
 
 
 def _resolve_object(
-    catalogue: Dict[str, ObjectCatalogue], context: ResolverContext, object_name: str
+    catalogue: dict[str, ObjectCatalogue], context: ResolverContext, object_name: str
 ) -> Optional[BaseModel]:
     """
     Resolve an object instance from the catalogue and return as a Pydantic model.
@@ -308,10 +312,10 @@ def _resolve_object(
 
 def resolve_variables(
     context: ResolverContext,
-    variables: List[DatasourceVariable],
-    catalogue: Dict[str, ObjectCatalogue],
+    variables: list[DatasourceVariable],
+    catalogue: dict[str, ObjectCatalogue],
     use_missing_sentinel: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Resolve multiple variables into their concrete values.
 
@@ -381,7 +385,7 @@ def resolve_variables(
 def resolve_variable(
     context: ResolverContext,
     variable: DatasourceVariable,
-    catalogue: Dict[str, ObjectCatalogue],
+    catalogue: dict[str, ObjectCatalogue],
     use_missing_sentinel: bool = False,
 ) -> Any:
     """
@@ -432,7 +436,7 @@ def _resolve_leaf_attribute(
     model_instance: BaseModel,
     attr_name: str,
     obj_name: str,
-    catalogue: Dict[str, ObjectCatalogue],
+    catalogue: dict[str, ObjectCatalogue],
     use_missing_sentinel: bool,
 ) -> Any:
     """
@@ -457,9 +461,9 @@ def _resolve_leaf_attribute(
 
 def _resolve_field_path_on_catalogue_object(
     model_instance: BaseModel,
-    field_path: List[str],
+    field_path: list[str],
     obj_name: str,
-    catalogue: Dict[str, ObjectCatalogue],
+    catalogue: dict[str, ObjectCatalogue],
     use_missing_sentinel: bool,
 ) -> Any:
     """
@@ -501,10 +505,10 @@ def _resolve_field_path_on_catalogue_object(
 
 def resolve_object_variable_paths(
     context: ResolverContext,
-    variable_paths: List[VariablePath],
-    catalogue: Dict[str, ObjectCatalogue],
+    variable_paths: list[VariablePath],
+    catalogue: dict[str, ObjectCatalogue],
     use_missing_sentinel: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Resolve dotted paths for catalogue **objects** (e.g. ``patient.age``,
     ``reading.systolic_blood_pressure``), excluding collection namespaces and ``wf``.
@@ -515,13 +519,13 @@ def resolve_object_variable_paths(
         return {}
 
     default_missing = MISSING if use_missing_sentinel else None
-    paths_by_namespace: Dict[str, List[VariablePath]] = {}
+    paths_by_namespace: dict[str, list[VariablePath]] = {}
     for vp in variable_paths:
         if vp.collection_index is not None:
             continue
         paths_by_namespace.setdefault(vp.namespace, []).append(vp)
 
-    resolved: Dict[str, Any] = {}
+    resolved: dict[str, Any] = {}
     for namespace, paths in paths_by_namespace.items():
         entry = catalogue.get(namespace)
         if not entry or entry.get("collection") or not callable(entry.get("query")):
@@ -552,7 +556,7 @@ def resolve_object_variable_paths(
     return resolved
 
 
-def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
+def _navigate_field_path(value: Any, field_path: list[str]) -> Any:
     """
     Walk a nested field path on a BaseModel or dict.
 
@@ -578,7 +582,7 @@ def _navigate_field_path(value: Any, field_path: List[str]) -> Any:
     return current
 
 
-def _workflow_instance_info_dict(instance: Any) -> Dict[str, Any]:
+def _workflow_instance_info_dict(instance: Any) -> dict[str, Any]:
     """Shape exposed as ``wf.info.*`` in rules (plain dict for field navigation)."""
     return {
         "start_date": instance.start_date,
@@ -595,6 +599,7 @@ def _workflow_instance_info_dict(instance: Any) -> Dict[str, Any]:
 
 
 def _decode_json_field_value(raw: Optional[str]) -> Any:
+    """Parse a JSON string field value, returning None for empty input or MISSING on decode error."""
     if raw is None or raw == "":
         return None
     try:
@@ -605,9 +610,9 @@ def _decode_json_field_value(raw: Optional[str]) -> Any:
 
 def resolve_workflow_namespace_variables(
     context: ResolverContext,
-    variable_paths: List[VariablePath],
+    variable_paths: list[VariablePath],
     use_missing_sentinel: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Resolve ``wf.*`` paths for the active workflow instance.
 
@@ -642,7 +647,7 @@ def resolve_workflow_namespace_variables(
         )
         return {vp.to_string(): default_missing for vp in variable_paths}
 
-    resolved: Dict[str, Any] = {}
+    resolved: dict[str, Any] = {}
 
     for vp in variable_paths:
         key = vp.to_string()
@@ -684,7 +689,7 @@ def resolve_workflow_namespace_variables(
 
 
 def _select_collection_item(
-    items: List[Any],
+    items: list[Any],
     collection_index: Optional[Union[str, int]],
 ) -> Any:
     """
@@ -722,16 +727,16 @@ def _select_collection_item(
 
 def resolve_collection_variables(
     context: ResolverContext,
-    variable_paths: List[VariablePath],
-    catalogue: Dict[str, ObjectCatalogue],
+    variable_paths: list[VariablePath],
+    catalogue: dict[str, ObjectCatalogue],
     use_missing_sentinel: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Resolve collection variables (e.g., vitals[latest].systolic_blood_pressure).
 
     Collection namespaces are configured in the data catalogue via:
         {
-            "query": callable(patient_id) -> List[BaseModel | dict],
+            "query": callable(patient_id) -> list[BaseModel | dict],
             "collection": True,
         }
     """
@@ -750,11 +755,11 @@ def resolve_collection_variables(
         return {vp.to_string(): default_missing for vp in variable_paths}
 
     # Group by namespace so we only query each collection once per evaluation.
-    paths_by_namespace: Dict[str, List[VariablePath]] = {}
+    paths_by_namespace: dict[str, list[VariablePath]] = {}
     for vp in variable_paths:
         paths_by_namespace.setdefault(vp.namespace, []).append(vp)
 
-    resolved: Dict[str, Any] = {}
+    resolved: dict[str, Any] = {}
 
     for namespace, paths in paths_by_namespace.items():
         collection_entry = catalogue.get(namespace)

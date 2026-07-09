@@ -17,9 +17,6 @@ from validation.workflow_api_models import (
 )
 from validation.workflow_models import WorkflowInstanceStepModel, WorkflowStepEvaluation
 
-# TODO: testing has only been done for simple steps.
-# steps involving forms or rules have not been tested.
-
 
 def api_get_all_workflow_instance_steps(
     api_get, request: GetWorkflowInstanceStepsRequest
@@ -44,15 +41,17 @@ def api_get_all_workflow_instance_steps(
 
 
 def api_get_workflow_instance_step(
-    api_get, path: WorkflowInstanceStepIdPath
+    api_get, path: WorkflowInstanceStepIdPath, with_form: bool = False
 ) -> WorkflowInstanceStepModel:
     """
     Helper function to send API request to get a workflow instance step.
     Expects 200 OK.
     """
-    response = api_get(
-        endpoint=f"/api/workflow/instance/steps/{path.workflow_instance_step_id}",
-    )
+    endpoint = f"/api/workflow/instance/steps/{path.workflow_instance_step_id}"
+    if with_form:
+        endpoint += "?with_form=true"
+
+    response = api_get(endpoint=endpoint)
 
     assert (
         response.status_code == 200
@@ -141,18 +140,76 @@ def test_get_workflow_instance_steps(api_get, sequential_workflow_view_with_db):
         assert actual_step == expected_step
 
 
+def test_get_workflow_instance_steps_with_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
+):
+    """Steps with attached forms are returned in list responses with form data."""
+    workflow_view = sequential_workflow_view_with_db
+    form = form_with_db
+
+    api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id=form["id"]),
+    )
+
+    response = api_get_all_workflow_instance_steps(
+        api_get,
+        GetWorkflowInstanceStepsRequest(workflow_instance_id=workflow_view.instance.id),
+    )
+
+    step_with_form = next(step for step in response.items if step.id == "si-1")
+    assert step_with_form.form_id == form["id"]
+    assert step_with_form.form is not None
+    assert step_with_form.form["id"] == form["id"]
+
+
+def test_get_workflow_instance_step_with_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
+):
+    """Form data is included only when with_form=true is passed."""
+    form = form_with_db
+
+    api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id=form["id"]),
+    )
+
+    step_without_form = api_get_workflow_instance_step(
+        api_get, WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1")
+    )
+    assert step_without_form.form_id == form["id"]
+    assert step_without_form.form is None
+
+    step_with_form = api_get_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        with_form=True,
+    )
+    assert step_with_form.form_id == form["id"]
+    assert step_with_form.form is not None
+    assert step_with_form.form["id"] == form["id"]
+
+
 def test_evaluate_workflow_instance_step(api_get, sequential_workflow_view_with_db):
+    workflow_view = sequential_workflow_view_with_db
+
+    # Step 2 doesn't exist yet — create it on the fly and persist so the API can evaluate it
+    step2 = workflow_view.get_or_create_instance_step_for_template_step("st-2")
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
     step_1_evaluation = api_evaluate_workflow_instance_step(
         api_get,
         WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
     )
     step_2_evaluation = api_evaluate_workflow_instance_step(
         api_get,
-        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-2"),
+        WorkflowInstanceStepIdPath(workflow_instance_step_id=step2.id),
     )
     # sanity checks, workflow planner unit tests already have more thorough checks
     assert step_1_evaluation.selected_branch_id == "b-1"
-    assert step_2_evaluation.selected_branch_id == None
+    assert step_2_evaluation.selected_branch_id is None
 
     api_evaluate_workflow_instance_step(
         api_get,
@@ -198,6 +255,30 @@ def test_patch_workflow_instance_step(
         WorkflowInstanceStepPatchModel(form_id="this-form-shouldnt-exist"),
         expected_code=404,
     )
+
+
+def test_patch_workflow_instance_step_with_form(
+    api_get, api_patch, sequential_workflow_view_with_db, form_with_db
+):
+    """Patching a valid form_id attaches the form to the step."""
+    form = form_with_db
+
+    response = api_patch_workflow_instance_step(
+        api_patch,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        WorkflowInstanceStepPatchModel(form_id=form["id"]),
+    )
+    assert response.form_id == form["id"]
+    assert response.form is not None
+    assert response.form["id"] == form["id"]
+
+    response = api_get_workflow_instance_step(
+        api_get,
+        WorkflowInstanceStepIdPath(workflow_instance_step_id="si-1"),
+        with_form=True,
+    )
+    assert response.form_id == form["id"]
+    assert response.form["id"] == form["id"]
 
 
 def test_archive_workflow_instance_step_form(

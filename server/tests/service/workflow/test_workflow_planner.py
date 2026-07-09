@@ -96,36 +96,37 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         )
 
         WorkflowPlanner.advance(workflow_view)
+        si_2_id = workflow_view.instance.current_step_id
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Completed", "si-2": "Pending"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Completed", si_2_id: "Pending"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [StartStepActionModel(step_id="si-2")]
+        assert actions == [StartStepActionModel(step_id=si_2_id)]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Completed", "si-2": "Active"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Completed", si_2_id: "Active"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
         assert actions == [
-            CompleteStepActionModel(step_id="si-2"),
-            SkipStepActionModel(step_id="si-2"),
+            CompleteStepActionModel(step_id=si_2_id),
+            SkipStepActionModel(step_id=si_2_id),
         ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Completed", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Completed", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -135,8 +136,8 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         check_workflow_instance_state(
             workflow_view.instance,
             status="Completed",
-            current_step_id="si-2",
-            step_status={"si-1": "Completed", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Completed", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -169,38 +170,40 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
             step_status={"si-1": "Pending", "si-2": "Pending"},
         )
 
-        # Instead of advancing to si-1, go to si-2
-        WorkflowPlanner.override_current_step(workflow_view, "si-2")
+        # Jump directly to si-2 (create it first)
+        step2 = workflow_view.get_or_create_instance_step_for_template_step("st-2")
+        si_2_id = step2.id
+        WorkflowPlanner.override_current_step(workflow_view, si_2_id)
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Pending"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Pending"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [StartStepActionModel(step_id="si-2")]
+        assert actions == [StartStepActionModel(step_id=si_2_id)]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Active"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Active"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
         assert actions == [
-            CompleteStepActionModel(step_id="si-2"),
-            SkipStepActionModel(step_id="si-2"),
+            CompleteStepActionModel(step_id=si_2_id),
+            SkipStepActionModel(step_id=si_2_id),
         ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Completed"},
         )
 
         # Go back to si-1 and start and complete it
@@ -209,7 +212,7 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
             workflow_view.instance,
             status="Active",
             current_step_id="si-1",
-            step_status={"si-1": "Pending", "si-2": "Completed"},
+            step_status={"si-1": "Pending", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -220,7 +223,7 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
             workflow_view.instance,
             status="Active",
             current_step_id="si-1",
-            step_status={"si-1": "Active", "si-2": "Completed"},
+            step_status={"si-1": "Active", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -234,7 +237,7 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
             workflow_view.instance,
             status="Active",
             current_step_id="si-1",
-            step_status={"si-1": "Completed", "si-2": "Completed"},
+            step_status={"si-1": "Completed", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -245,8 +248,8 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Completed", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Completed", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -256,8 +259,8 @@ def test_progress_linear_workflow_out_of_order(sequential_workflow_view):
         check_workflow_instance_state(
             workflow_view.instance,
             status="Completed",
-            current_step_id="si-2",
-            step_status={"si-1": "Completed", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Completed", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -321,45 +324,48 @@ def test_override_current_step(sequential_workflow_view):
             workflow_view.instance,
             status="Active",
             current_step_id="si-1",
-            step_status={"si-1": "Pending", "si-2": "Pending"},
+            step_status={"si-1": "Pending"},
         )
 
-        WorkflowPlanner.override_current_step(workflow_view, "si-2")
+        # Create si-2 on demand before overriding to it
+        step2 = workflow_view.get_or_create_instance_step_for_template_step("st-2")
+        si_2_id = step2.id
+        WorkflowPlanner.override_current_step(workflow_view, si_2_id)
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [StartStepActionModel(step_id="si-2")]
+        assert actions == [StartStepActionModel(step_id=si_2_id)]
         # TODO: Also test data removal if implemented
 
         WorkflowPlanner.advance(workflow_view)
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Pending"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Pending"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
-        assert actions == [StartStepActionModel(step_id="si-2")]
+        assert actions == [StartStepActionModel(step_id=si_2_id)]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Active"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Active"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
         assert actions == [
-            CompleteStepActionModel(step_id="si-2"),
-            SkipStepActionModel(step_id="si-2"),
+            CompleteStepActionModel(step_id=si_2_id),
+            SkipStepActionModel(step_id=si_2_id),
         ]
 
         WorkflowPlanner.apply_action(workflow_view, actions[0])
         check_workflow_instance_state(
             workflow_view.instance,
             status="Active",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -369,8 +375,8 @@ def test_override_current_step(sequential_workflow_view):
         check_workflow_instance_state(
             workflow_view.instance,
             status="Completed",
-            current_step_id="si-2",
-            step_status={"si-1": "Pending", "si-2": "Completed"},
+            current_step_id=si_2_id,
+            step_status={"si-1": "Pending", si_2_id: "Completed"},
         )
 
         actions = WorkflowPlanner.get_available_actions(workflow_view)
@@ -444,12 +450,11 @@ def test_evaluate_step(sequential_workflow_view):
         expected_step_2_evaluation = WorkflowStepEvaluation(
             branch_evaluations=[], selected_branch_id=None
         )
+        step2 = view.get_or_create_instance_step_for_template_step("st-2")
         actual_step_1_evaluation = WorkflowPlanner.evaluate_step(
             view, view.get_instance_step("si-1")
         )
-        actual_step_2_evaluation = WorkflowPlanner.evaluate_step(
-            view, view.get_instance_step("si-2")
-        )
+        actual_step_2_evaluation = WorkflowPlanner.evaluate_step(view, step2)
 
         assert expected_step_1_evaluation == actual_step_1_evaluation
         assert expected_step_2_evaluation == actual_step_2_evaluation

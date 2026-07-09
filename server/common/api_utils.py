@@ -1,6 +1,6 @@
 import json
 import re
-from typing import List, Optional
+from typing import Optional
 
 from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
@@ -131,7 +131,7 @@ class WorkflowInstanceAndStepIdPath(CradleBaseModel):
 
 # Create a response model for the list endpoints
 class WorkflowTemplateStepListResponse(CradleBaseModel):
-    items: List[WorkflowTemplateStepModel]
+    items: list[WorkflowTemplateStepModel]
 
 
 class FacilityNamePath(CradleBaseModel):
@@ -170,6 +170,7 @@ class SearchFilterQueryParams(PageLimitFilterQueryParams):
     def convert_order_by_field_name_to_snake_case(
         cls, order_by: Optional[str]
     ) -> Optional[str]:
+        """Convert the order_by field name to snake_case, or return None if not provided."""
         if order_by is None:
             return None
         return to_snake(order_by)
@@ -262,6 +263,7 @@ def get_user_id(d: dict, user_attribute: Optional[str] = None) -> Optional[int]:
 
 
 def convert_query_parameter_to_bool(value):
+    """Convert a query parameter string to a boolean, treating 'true' (case-insensitive) as True."""
     if value is None:
         return False
     return str(value).lower() == "true"

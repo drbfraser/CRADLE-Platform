@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional
+from typing import Optional
 
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
@@ -32,7 +32,7 @@ from validation.workflow_models import WorkflowTemplateModel
 
 # Create a response model for the list endpoints
 class WorkflowTemplateListResponse(CradleBaseModel):
-    items: List[WorkflowTemplateModel]
+    items: list[WorkflowTemplateModel]
 
 
 # /api/workflow/templates
@@ -109,6 +109,7 @@ def lock_workflow_classification_for_update(
 def find_and_archive_previous_workflow_template(
     workflow_classification_id: str,
 ) -> None:
+    """Archive the currently active template for a given workflow classification, if one exists."""
     previous_template = crud.read(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,

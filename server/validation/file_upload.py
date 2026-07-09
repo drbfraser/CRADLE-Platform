@@ -16,6 +16,7 @@ class FileUploadForm(CradleBaseModel):
     @field_validator("file")
     @classmethod
     def validate_filename(cls, file: FileStorage):
+        """Raise if the uploaded filename is missing or insecure."""
         if file.filename is None:
             raise ValueError("Missing filename.")
         # Check that filename is secure.

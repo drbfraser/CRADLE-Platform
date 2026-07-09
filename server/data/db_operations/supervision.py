@@ -10,8 +10,6 @@ Functions:
 - get_supervised_vhts(user_id): Retrieves the list of VHTs supervised by a CHO.
 """
 
-from typing import List
-
 from data.db_operations import LOGGER, db_session
 from models import (
     SupervisesTable,
@@ -19,7 +17,8 @@ from models import (
 )
 
 
-def add_vht_to_supervise(cho_id: int, vht_ids: List):
+def add_vht_to_supervise(cho_id: int, vht_ids: list):
+    """Replace the CHO's supervised VHT list with the given VHT IDs."""
     # find the cho
     cho = UserOrm.query.filter_by(id=cho_id).first()
 

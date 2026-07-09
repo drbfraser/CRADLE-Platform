@@ -39,7 +39,9 @@ def test_generate_workflow_instance():
     ]
 
     workflow_template_dict = make_workflow_template(
-        id=workflow_template_id, steps=step_templates
+        id=workflow_template_id,
+        steps=step_templates,
+        starting_step_id=step_template_1_id,
     )
 
     workflow_template = WorkflowTemplateModel(**workflow_template_dict)
@@ -57,7 +59,7 @@ def test_generate_workflow_instance():
     assert workflow_instance.completion_date is None
     assert workflow_instance.patient_id is None
 
-    assert len(workflow_instance.steps) == 2
+    assert len(workflow_instance.steps) == 1
 
     # Instance step names are copied from template steps
     for step_instance in workflow_instance.steps:
@@ -66,8 +68,7 @@ def test_generate_workflow_instance():
     actual_step_template_ids = {
         step.workflow_template_step_id for step in workflow_instance.steps
     }
-    expected_step_template_ids = {step_template_1_id, step_template_2_id}
-    assert actual_step_template_ids == expected_step_template_ids
+    assert actual_step_template_ids == {step_template_1_id}
 
     for step_instance in workflow_instance.steps:
         assert step_instance.id is not None
@@ -112,23 +113,23 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         )
 
         WorkflowService.advance_workflow(workflow_view)
-        assert workflow_view.instance.current_step_id == "si-2"
+        si_2_id = workflow_view.instance.current_step_id
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
-        assert actions == [StartStepActionModel(step_id="si-2")]
+        assert actions == [StartStepActionModel(step_id=si_2_id)]
 
         WorkflowService.apply_workflow_action(
-            action=StartStepActionModel(step_id="si-2"), workflow_view=workflow_view
+            action=StartStepActionModel(step_id=si_2_id), workflow_view=workflow_view
         )
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
         assert actions == [
-            CompleteStepActionModel(step_id="si-2"),
-            SkipStepActionModel(step_id="si-2"),
+            CompleteStepActionModel(step_id=si_2_id),
+            SkipStepActionModel(step_id=si_2_id),
         ]
 
         WorkflowService.apply_workflow_action(
-            action=CompleteStepActionModel(step_id="si-2"), workflow_view=workflow_view
+            action=CompleteStepActionModel(step_id=si_2_id), workflow_view=workflow_view
         )
 
         actions = WorkflowService.get_available_workflow_actions(workflow_view)
@@ -142,7 +143,7 @@ def test_progress_linear_workflow_in_order(sequential_workflow_view):
         assert actions == []
 
         assert workflow_view.instance.status == "Completed"
-        assert workflow_view.instance.current_step_id == "si-2"
+        assert workflow_view.instance.current_step_id == si_2_id
 
 
 def apply_invalid_workflow_action(sequential_workflow_view):

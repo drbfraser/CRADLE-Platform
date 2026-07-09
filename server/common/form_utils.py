@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Literal, NamedTuple
+from typing import Literal, NamedTuple, Optional
 
 import data.db_operations as crud
 from common import commonUtil
@@ -31,6 +31,7 @@ FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
 
 
 def filter_template_questions_dict(form_template: dict):
+    """Filter a form template dict to only include blank (non-submitted) questions."""
     form_template["questions"] = [
         question
         for question in form_template["questions"]
@@ -72,10 +73,13 @@ def assign_form_or_template_ids(model, req: dict) -> None:
     # assign question id and form_id or form_template_id.
     # assign lang version question_id.
     for question in req["questions"]:
-        question["id"] = commonUtil.get_uuid()
+        if question.get("id") is None:
+            question["id"] = commonUtil.get_uuid()
 
         if model is FormOrm:
             question["form_id"] = id
+            question["form_template_id"] = None
+
         elif model is FormTemplateOrm:
             question["form_template_id"] = id
 
@@ -85,6 +89,7 @@ def assign_form_or_template_ids(model, req: dict) -> None:
 
 
 def _assign_id(obj, field: str):
+    """Assign a new UUID to obj.field if it is not already set."""
     if getattr(obj, field, None) is None:
         setattr(obj, field, commonUtil.get_uuid())
 
@@ -145,17 +150,19 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
     Returns a CSV string from a FormTemplate object.
     """
 
-    # Helper functions
     def get_question_lang_list(question: QuestionOrm):
+        """Return a list of language codes for all lang versions of a question."""
         lang_list = []
         for lang in question.lang_versions:
             lang_list.append(lang.lang)
         return lang_list
 
     def list_to_csv(rows: list):
+        """Convert a list of rows to a CSV-formatted string with quoted cells."""
         csv_str = ""
 
         def format_cell(cell: str):
+            """Wrap a cell value in double quotes, substituting empty string for None."""
             return '"{}"'.format(cell if cell is not None else "")
 
         for row in rows:
@@ -167,6 +174,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
         return csv_str
 
     def mcoptions_to_str(mcoptions: str):
+        """Parse a JSON MC options string and return the option texts as a comma-separated string."""
         mcoptions = json.loads(mcoptions)
         options = [option["opt"] for option in mcoptions]
 
@@ -176,6 +184,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
         visible_condition: str,
         questions: list[QuestionOrm],
     ):
+        """Return a string describing the visible condition options for the first condition."""
         visible_conditions = json.loads(visible_condition)
 
         if visible_conditions is None or len(visible_conditions) == 0:
@@ -318,9 +327,11 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
     """
 
     def fmt(cell):
+        """Wrap a cell value in double quotes, substituting empty string for None."""
         return f'"{cell if cell is not None else ""}"'
 
     def list_to_csv(rows: list[list[str]]):
+        """Convert a list of rows to a CSV-formatted string."""
         return "\n".join([",".join(map(fmt, row)) for row in rows]) + "\n"
 
     def get_mc_options_text(mc_options_json: str):
@@ -522,10 +533,11 @@ def format_template(template: dict, available_langs: list[str]) -> dict:
 
 
 def lang_version_exists(string_id: str, lang: str):
+    """Return True if a LangVersionOrmV2 entry exists for the given string_id and language."""
     return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None
 
 
-error_codes = Literal[422, 404, None]
+error_codes = Optional[Literal[422, 404]]
 
 
 class ValidationResult(NamedTuple):
@@ -682,6 +694,7 @@ def handle_model_existence(
     version: int,
     english_name: str,
 ) -> tuple[bool, FormClassificationOrmV2]:
+    """Validate classification/version conflicts and return archiving flag and existing classification."""
     # Boolean to check whether to archive an existing form template version
     archive_previous_template: bool = False
     existing_classification = None
@@ -718,6 +731,7 @@ def handle_model_existence(
 def _extend_lang_version(
     translations: MultiLangText, string_id: str, new_template: bool = True
 ) -> list[LangVersionOrmV2]:
+    """Create or update LangVersionOrmV2 rows for each language in the translations map."""
     new_lang_versions = []
 
     for lang, text in translations.items():
@@ -749,6 +763,7 @@ def get_new_lang_versions_and_questions(
     new_template: bool,
     questions: list[FormTemplateUploadQuestion],
 ):
+    """Build lists of new LangVersionOrmV2 rows and question dicts from a classification and question list."""
     new_lang_versions = []
     new_questions = []
 
@@ -799,6 +814,7 @@ def get_new_lang_versions_and_questions(
 
 
 def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
+    """Attach question metadata to each answer in a form submission and return the enriched list."""
     answers = [
         FormAnswer(**(orm_serializer.marshal(answer))) for answer in submission.answers
     ]

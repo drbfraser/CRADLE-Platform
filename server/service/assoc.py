@@ -3,7 +3,7 @@ The ``service.assoc`` module provides functions for managing associations betwee
 patients, health facilities, and users.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 import data.db_operations as crud
 from enums import RoleEnum
@@ -128,7 +128,7 @@ def has_association_by_id(
     return crud.read_all(PatientAssociationsOrm, **kw) != []
 
 
-def patients_for_user(user: UserOrm) -> List[PatientOrm]:
+def patients_for_user(user: UserOrm) -> list[PatientOrm]:
     """
     Returns a list of distinct patients associated with a given user.
 
@@ -139,7 +139,7 @@ def patients_for_user(user: UserOrm) -> List[PatientOrm]:
     return list(dict.fromkeys(patients))
 
 
-def patients_at_facility(facility: HealthFacilityOrm) -> List[PatientOrm]:
+def patients_at_facility(facility: HealthFacilityOrm) -> list[PatientOrm]:
     """
     Return a list of distinct patients associated with a given health facility.
 

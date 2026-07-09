@@ -18,7 +18,7 @@ These helpers reduce code duplication across CRUD modules such as patient, refer
 and workflow queries.
 """
 
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Query
@@ -38,6 +38,7 @@ def __filter_by_patient_association(
     user_id: Optional[int],
     is_cho,
 ) -> Query:
+    """Filter a query to only include records associated with the given user, using CHO supervision subquery if applicable."""
     if user_id is not None:
         if hasattr(model, model.patient_id):
             join_column = model.patient_id
@@ -61,6 +62,7 @@ def __filter_by_patient_association(
 
 
 def __filter_by_patient_search(query: Query, **kwargs) -> Query:
+    """Filter a query by a search string matched against patient ID, name, and village number."""
     search_text = kwargs.get("search")
     if search_text:
         search_text = f"%{search_text}%"
@@ -75,7 +77,10 @@ def __filter_by_patient_search(query: Query, **kwargs) -> Query:
 
 
 def __order_by_column(query: Query, models: list, **kwargs) -> Query:
+    """Apply an ORDER BY clause to the query based on the order_by and direction kwargs."""
+
     def __get_column(models):
+        """Return the column attribute matching order_by from the first model that has it."""
         for model in models:
             if hasattr(model, order_by):
                 return getattr(model, order_by)
@@ -89,7 +94,8 @@ def __order_by_column(query: Query, models: list, **kwargs) -> Query:
     return query
 
 
-def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
+def __get_slice_indexes(page: str, limit: str) -> tuple[int, int]:
+    """Return the start and stop slice indexes for the given page and limit."""
     start = (int(page) - 1) * int(limit)
     stop = start + int(limit)
     return start, stop

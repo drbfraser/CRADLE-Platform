@@ -1,5 +1,3 @@
-from typing import List
-
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
@@ -21,12 +19,12 @@ from validation.workflow_models import (
 
 # Response model for a list of workflow collections
 class WorkflowCollectionListResponse(CradleBaseModel):
-    items: List[WorkflowCollectionModel]
+    items: list[WorkflowCollectionModel]
 
 
 # Response model for a list of workflow classifications
 class WorkflowClassificationListResponse(CradleBaseModel):
-    items: List[WorkflowClassificationModel]
+    items: list[WorkflowClassificationModel]
 
 
 api_workflow_collections = APIBlueprint(
@@ -72,6 +70,7 @@ def check_if_existing_workflow_collection_exists(
 
 
 def get_workflow_collection_from_db(collection_id: str) -> WorkflowCollectionOrm:
+    """Get a workflow collection by ID, or abort with 404 if not found."""
     workflow_collection = crud.read(WorkflowCollectionOrm, id=collection_id)
 
     if workflow_collection is None:
@@ -84,6 +83,7 @@ def get_workflow_collection_from_db(collection_id: str) -> WorkflowCollectionOrm
 
 
 def check_if_workflow_collection_exists(collection_id: str) -> None:
+    """Abort with 404 if no workflow collection with the given ID exists."""
     workflow_collection = crud.read(WorkflowCollectionOrm, id=collection_id)
 
     if workflow_collection is None:
@@ -158,6 +158,7 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
 def update_workflow_collection(
     path: WorkflowCollectionIdPath, body: WorkflowCollectionModel
 ):
+    """Update a workflow collection."""
     workflow_collection_changes = body.model_dump()
 
     check_if_workflow_collection_exists(path.workflow_collection_id)

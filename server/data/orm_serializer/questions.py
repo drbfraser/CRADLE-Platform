@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import List
 
 from models import (
     FormQuestionTemplateOrmV2,
@@ -117,6 +116,7 @@ def __marshal_form_question_template_v2(q: FormQuestionTemplateOrmV2) -> dict:
 
 
 def marshal_question_to_single_version(q: QuestionOrm, lang: str) -> dict:
+    """Marshal a question ORM to a dict with only the requested language version's text and options."""
     # Base shallow marshal without versions
     d = __marshal_question(q, if_include_versions=False)
 
@@ -211,7 +211,7 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
     return question_orm
 
 
-def unmarshal_question_list(d: list) -> List[QuestionOrm]:
+def unmarshal_question_list(d: list) -> list[QuestionOrm]:
     """
     Unmarshal a list of question dicts into ``QuestionOrm`` instances.
 

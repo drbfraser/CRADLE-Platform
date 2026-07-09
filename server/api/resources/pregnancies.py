@@ -104,6 +104,7 @@ def _check_conflicts(
     patient_id: str,
     pregnancy_id: Optional[int] = None,
 ):
+    """Abort with 409 if the given date range conflicts with an existing pregnancy record."""
     if crud.has_conflicting_pregnancy_record(
         patient_id,
         start_date,
@@ -116,6 +117,7 @@ def _check_conflicts(
 
 
 def _get_pregnancy(pregnancy_id: int):
+    """Get a pregnancy record by ID, or abort with 404 if not found."""
     pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
     if pregnancy is None:
         return abort(404, description=f"No pregnancy record with ID: {pregnancy_id}")

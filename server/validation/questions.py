@@ -1,7 +1,7 @@
-from typing import Optional, Union
+from typing import Annotated, Optional, Union
 
 from pydantic import Field, model_validator
-from typing_extensions import Annotated, Self
+from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from enums import QRelationalEnum, QuestionTypeEnum
@@ -109,6 +109,7 @@ class TemplateQuestion(QuestionBase, extra="forbid"):
 
     @model_validator(mode="after")
     def set_lang_version_foreign_keys(self) -> Self:
+        """Raise if lang_versions is empty, then assign question_id to each lang version."""
         if len(self.lang_versions) < 1:
             raise ValueError("lang_versions cannot be empty")
         for lang_version in self.lang_versions:
@@ -125,7 +126,7 @@ class FormQuestion(QuestionBase, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_constraints(self) -> Self:
-        # Check number limits
+        """Raise if numeric answer is outside the min/max bounds defined for this question."""
         if (
             self.num_min is not None
             and self.answers

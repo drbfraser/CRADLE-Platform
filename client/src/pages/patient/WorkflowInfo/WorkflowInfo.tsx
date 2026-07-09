@@ -4,144 +4,27 @@ import { useLocation, useParams } from 'react-router-dom';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
-import Link from '@mui/material/Link';
-import SearchIcon from '@mui/icons-material/Search';
 import { formatISODateNumber } from 'src/shared/utils';
 import { Toast } from 'src/shared/components/toast';
-import {
-  Box,
-  Typography,
-  Button,
-  Paper,
-  Chip,
-  TextField,
-  InputAdornment,
-} from '@mui/material';
+import { Box, Typography, Button, Paper, Chip } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
   GridRenderCellParams,
-  GridToolbarContainer,
-  GridToolbarFilterButton,
-  useGridApiContext,
   GridRowParams,
 } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import { getInstancesByPatient } from 'src/shared/api';
 import { WorkflowInfoRow } from 'src/shared/types/workflow/workflowUiTypes';
-import { buildWorkflowInstanceRowList } from './WorkflowUtils';
+import { buildWorkflowInstanceRowList } from './utils';
 import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 import RuleEngineDemoDialog from './components/RuleEngineDemoDialog';
+import { WorkflowInfoToolbar } from './components/WorkflowInfoToolbar';
 
 type ToastState = {
   severity: React.ComponentProps<typeof Toast>['severity'];
   message: string;
 };
-
-function Toolbar() {
-  const apiRef = useGridApiContext();
-  const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState('');
-  const leaveTimer = React.useRef<number | null>(null);
-
-  const parse = (input: string) =>
-    input
-      .split(/\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-  const applySearch = (v: string) => {
-    setSearch(v);
-    apiRef.current.setQuickFilterValues(parse(v));
-  };
-
-  const handleEnter = () => {
-    if (leaveTimer.current) {
-      window.clearTimeout(leaveTimer.current);
-      leaveTimer.current = null;
-    }
-    setOpen(true);
-  };
-
-  const handleLeave = () => {
-    leaveTimer.current = window.setTimeout(
-      () => setOpen(false),
-      180
-    ) as unknown as number;
-  };
-
-  return (
-    <GridToolbarContainer
-      sx={{
-        px: 1,
-        py: 0.5,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1.25,
-      }}>
-      <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-        <GridToolbarFilterButton />
-      </Box>
-
-      <Box sx={{ height: 24, borderLeft: 1, borderColor: 'divider' }} />
-
-      <Box
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
-        onClick={() => setOpen(true)}
-        sx={{
-          width: open ? 340 : 40,
-          transition: open ? 'width 0.40s ease' : 'width 0.80s ease',
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-        <TextField
-          value={search}
-          onChange={(e) => applySearch(e.target.value)}
-          placeholder="Search..."
-          size="small"
-          fullWidth
-          variant="outlined"
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') setOpen(false);
-          }}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            },
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              height: 36,
-              borderRadius: 1,
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: open ? undefined : '0 !important',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                border: open ? undefined : '0 !important',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderWidth: open ? 2 : 0,
-              },
-              px: open ? 0.5 : 0,
-              transition: 'padding 0.25s ease',
-            },
-            '& .MuiInputBase-input': {
-              opacity: open ? 1 : 0,
-              width: open ? 'auto' : 0,
-              transition: 'opacity 0.18s ease, width 0.38s ease',
-              pointerEvents: open ? 'auto' : 'none',
-            },
-          }}
-        />
-      </Box>
-    </GridToolbarContainer>
-  );
-}
 
 /* -------- component -------- */
 export const WorkflowInfo: React.FC = () => {
@@ -167,14 +50,32 @@ export const WorkflowInfo: React.FC = () => {
   }, [patientId]);
 
   const columns: GridColDef[] = [
-    { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
-    { field: 'templateName', headerName: 'Workflow Template', width: 180 },
+    // { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
+    { field: 'templateName', headerName: 'Workflow Name', width: 180 },
+    {
+      field: 'description',
+      headerName: 'Description',
+      width: 220,
+      renderCell: (p: GridRenderCellParams) => {
+        const val = (p.row as WorkflowInfoRow).description;
+        if (!val) return <>N/A</>;
+        return val.length > 40 ? <>{val.slice(0, 40)}…</> : <>{val}</>;
+      },
+    },
     {
       field: 'status',
       headerName: 'Status',
       type: 'singleSelect',
       valueOptions: ['Active', 'Completed', 'Cancelled'],
       width: 120,
+      sortComparator: (v1, v2) => {
+        const order: Record<InstanceStatus, number> = {
+          [InstanceStatus.ACTIVE]: 0,
+          [InstanceStatus.COMPLETED]: 1,
+          [InstanceStatus.CANCELLED]: 2,
+        };
+        return order[v1 as InstanceStatus] - order[v2 as InstanceStatus];
+      },
       renderCell: (p: GridRenderCellParams) => {
         const row = p.row as WorkflowInfoRow;
         return (
@@ -246,7 +147,7 @@ export const WorkflowInfo: React.FC = () => {
         alignItems="center">
         <Box display="flex" alignItems="center" gap={2}>
           <AccountTreeOutlinedIcon />
-          <Typography variant="h5">Ongoing Workflows</Typography>
+          <Typography variant="h5">Workflows</Typography>
           <Button
             variant="outlined"
             size="small"
@@ -266,18 +167,6 @@ export const WorkflowInfo: React.FC = () => {
             Test Rule Engine
           </Button>
         </Box>
-        <Link
-          href="#"
-          sx={{
-            textTransform: 'none',
-            height: 36,
-            display: 'flex',
-            alignItems: 'center',
-            color: 'primary.main',
-            fontSize: '1rem',
-          }}>
-          View past workflow
-        </Link>
       </Box>
 
       {/* Grid with built-in filtering UI */}
@@ -312,22 +201,16 @@ export const WorkflowInfo: React.FC = () => {
           }}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
-            sorting: { sortModel: [{ field: 'lastEdited', sort: 'desc' }] },
-            filter: {
-              filterModel: {
-                items: [
-                  {
-                    field: 'status',
-                    operator: 'not',
-                    value: InstanceStatus.COMPLETED,
-                  },
-                ],
-              },
+            sorting: {
+              sortModel: [
+                { field: 'status', sort: 'asc' },
+                { field: 'lastEdited', sort: 'desc' },
+              ],
             },
           }}
           pageSizeOptions={[5, 10, 25]}
           disableRowSelectionOnClick
-          slots={{ toolbar: Toolbar }}
+          slots={{ toolbar: WorkflowInfoToolbar }}
           slotProps={{
             toolbar: {
               showQuickFilter: true,
