@@ -21,6 +21,7 @@ interface WorkflowEditorProps {
   allowClassificationEdit?: boolean;
   isSaving?: boolean;
   saveDisabled?: boolean;
+  hasBranchingIssues?: boolean;
   showViewToggle?: boolean;
   viewMode?: WorkflowViewMode;
   onViewModeChange?: (mode: WorkflowViewMode) => void;
@@ -31,6 +32,7 @@ export const WorkflowEditor = ({
   allowClassificationEdit = false,
   isSaving = false,
   saveDisabled = false,
+  hasBranchingIssues = false,
   showViewToggle = false,
   viewMode = WorkflowViewMode.FLOW,
   onViewModeChange,
@@ -71,7 +73,15 @@ export const WorkflowEditor = ({
         </Stack>
       </Box>
 
-      {editor.hasChanges && (
+      {hasBranchingIssues && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          <strong>Cannot save:</strong> One or more branch conditions reference
+          form fields that were removed or changed type in a recent form update.
+          Fix or remove the affected conditions before saving.
+        </Alert>
+      )}
+
+      {!hasBranchingIssues && editor.hasChanges && (
         <Alert severity="info" sx={{ mb: 2 }}>
           You have unsaved changes. Don&apos;t forget to save your work!
         </Alert>
