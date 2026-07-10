@@ -11,7 +11,12 @@ import {
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BlocklyEditor } from '../blocklyEditor';
-import { WorkflowVariable, getWorkflowVariables } from 'src/shared/api';
+import {
+  WorkflowVariable,
+  getWorkflowVariables,
+  getFormTemplateAsyncV2,
+} from 'src/shared/api';
+import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -68,10 +73,47 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   }, [currentRule]);
 
   useEffect(() => {
-    getWorkflowVariables()
-      .then(setVariables)
+    const currentStep = steps.find((s) => s.id === stepId);
+    const formId = currentStep?.formId;
+
+    Promise.all([
+      getWorkflowVariables(),
+      formId ? getFormTemplateAsyncV2(formId) : Promise.resolve(null),
+    ])
+      .then(([globalVars, formTemplate]) => {
+        const formVars: WorkflowVariable[] = formTemplate
+          ? formTemplate.questions
+              .filter(
+                (q) =>
+                  q.userQuestionId &&
+                  q.questionType !== QuestionTypeEnum.CATEGORY
+              )
+              .map((q) => {
+                let type: WorkflowVariable['type'] = 'string';
+                if (q.questionType === QuestionTypeEnum.INTEGER) {
+                  type = 'integer';
+                } else if (
+                  q.questionType === QuestionTypeEnum.DATE ||
+                  q.questionType === QuestionTypeEnum.DATETIME
+                ) {
+                  type = 'date';
+                }
+                return {
+                  tag: `forms[latest].${q.userQuestionId}`,
+                  description:
+                    q.questionText['English'] ??
+                    q.questionText[Object.keys(q.questionText)[0]] ??
+                    q.userQuestionId!,
+                  type,
+                  isComputed: false,
+                  isDynamic: true,
+                };
+              })
+          : [];
+        setVariables([...globalVars, ...formVars]);
+      })
       .finally(() => setVariablesLoading(false));
-  }, []);
+  }, [stepId, steps]);
 
   useEffect(() => {
     if (branch.condition?.rule) {
