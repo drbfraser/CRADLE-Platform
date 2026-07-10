@@ -102,13 +102,15 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 variant="outlined"
                 size="small"
                 multiline
-                rows={3}
+                minRows={5}
+                maxRows={20}
                 value={selectedStep.description || ''}
                 onChange={(e) =>
                   onStepChange?.(selectedStep.id, 'description', e.target.value)
                 }
                 onBlur={() => onCaptureState?.()}
-                placeholder="Enter step description..."
+                placeholder={`# Heading\n\nSupports **bold**, _italic_, lists, and [links](https://example.com).`}
+                helperText="Markdown supported"
                 sx={{ mt: 0.5 }}
               />
             ) : (
