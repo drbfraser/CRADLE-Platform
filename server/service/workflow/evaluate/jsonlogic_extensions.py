@@ -48,19 +48,28 @@ def _compare_strings(
 
 def _op_contains(haystack: Any, needle: Any, case_insensitive: bool = False) -> bool:
     return _compare_strings(
-        haystack, needle, case_insensitive=_case_insensitive(case_insensitive), check="contains"
+        haystack,
+        needle,
+        case_insensitive=_case_insensitive(case_insensitive),
+        check="contains",
     )
 
 
 def _op_starts_with(haystack: Any, prefix: Any, case_insensitive: bool = False) -> bool:
     return _compare_strings(
-        haystack, prefix, case_insensitive=_case_insensitive(case_insensitive), check="startsWith"
+        haystack,
+        prefix,
+        case_insensitive=_case_insensitive(case_insensitive),
+        check="startsWith",
     )
 
 
 def _op_ends_with(haystack: Any, suffix: Any, case_insensitive: bool = False) -> bool:
     return _compare_strings(
-        haystack, suffix, case_insensitive=_case_insensitive(case_insensitive), check="endsWith"
+        haystack,
+        suffix,
+        case_insensitive=_case_insensitive(case_insensitive),
+        check="endsWith",
     )
 
 
@@ -85,6 +94,7 @@ def normalize_rule_literals(node: Any) -> Any:
     if isinstance(node, list):
         return [normalize_rule_literals(item) for item in node]
     return node
+
 
 @functools.lru_cache(maxsize=1)
 def register_custom_operations() -> None:

@@ -36,47 +36,44 @@ class TestNormalizeRuleLiterals:
 
 class TestStringOperations:
     def test_contains_case_sensitive(self):
-        rule = json.dumps(
-            {"contains": [{"var": "notes"}, "Flu", False]}
-        )
+        rule = json.dumps({"contains": [{"var": "notes"}, "Flu", False]})
         engine = RulesEngineFacade(rule, {})
-        assert engine.evaluate({"notes": "Patient has Flu symptoms"}).status == RuleStatus.TRUE
-        assert engine.evaluate({"notes": "Patient has flu symptoms"}).status == RuleStatus.FALSE
+        assert (
+            engine.evaluate({"notes": "Patient has Flu symptoms"}).status
+            == RuleStatus.TRUE
+        )
+        assert (
+            engine.evaluate({"notes": "Patient has flu symptoms"}).status
+            == RuleStatus.FALSE
+        )
 
     def test_contains_case_insensitive(self):
-        rule = json.dumps(
-            {"contains": [{"var": "notes"}, "flu", True]}
-        )
+        rule = json.dumps({"contains": [{"var": "notes"}, "flu", True]})
         engine = RulesEngineFacade(rule, {})
-        assert engine.evaluate({"notes": "Patient has FLU symptoms"}).status == RuleStatus.TRUE
+        assert (
+            engine.evaluate({"notes": "Patient has FLU symptoms"}).status
+            == RuleStatus.TRUE
+        )
 
     def test_starts_with_case_sensitive(self):
-        rule = json.dumps(
-            {"startsWith": [{"var": "code"}, "AB", False]}
-        )
+        rule = json.dumps({"startsWith": [{"var": "code"}, "AB", False]})
         engine = RulesEngineFacade(rule, {})
         assert engine.evaluate({"code": "AB123"}).status == RuleStatus.TRUE
         assert engine.evaluate({"code": "ab123"}).status == RuleStatus.FALSE
 
     def test_starts_with_case_insensitive(self):
-        rule = json.dumps(
-            {"startsWith": [{"var": "code"}, "ab", True]}
-        )
+        rule = json.dumps({"startsWith": [{"var": "code"}, "ab", True]})
         engine = RulesEngineFacade(rule, {})
         assert engine.evaluate({"code": "AB123"}).status == RuleStatus.TRUE
 
     def test_ends_with_case_sensitive(self):
-        rule = json.dumps(
-            {"endsWith": [{"var": "filename"}, ".PDF", False]}
-        )
+        rule = json.dumps({"endsWith": [{"var": "filename"}, ".PDF", False]})
         engine = RulesEngineFacade(rule, {})
         assert engine.evaluate({"filename": "report.PDF"}).status == RuleStatus.TRUE
         assert engine.evaluate({"filename": "report.pdf"}).status == RuleStatus.FALSE
 
     def test_ends_with_case_insensitive(self):
-        rule = json.dumps(
-            {"endsWith": [{"var": "filename"}, ".pdf", True]}
-        )
+        rule = json.dumps({"endsWith": [{"var": "filename"}, ".pdf", True]})
         engine = RulesEngineFacade(rule, {})
         assert engine.evaluate({"filename": "report.PDF"}).status == RuleStatus.TRUE
 
@@ -119,8 +116,6 @@ class TestDateComparisons:
         assert engine.evaluate({"dob": "2024-01-15"}).status == RuleStatus.TRUE
 
     def test_date_comparison_with_nested_variable(self):
-        rule = json.dumps(
-            {"<": [{"var": "patient.dob"}, {"date": "2000-01-01"}]}
-        )
+        rule = json.dumps({"<": [{"var": "patient.dob"}, {"date": "2000-01-01"}]})
         engine = RulesEngineFacade(rule, {})
         assert engine.evaluate({"patient.dob": "1990-05-20"}).status == RuleStatus.TRUE
