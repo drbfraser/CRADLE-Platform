@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
+  Alert,
   Box,
   IconButton,
   Paper,
@@ -163,6 +164,15 @@ export const ViewWorkflowTemplate = () => {
 
         <Divider sx={{ my: 3 }} />
 
+        {workflowTemplateQuery.data?.hasBranchingIssues && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            <strong>Branching issue detected.</strong> A form used by this
+            workflow was updated in a way that breaks one or more branch
+            conditions. Open the affected step(s) and fix or remove the
+            broken conditions before this workflow can be edited and saved.
+          </Alert>
+        )}
+
         {isEditMode ? (
           <WorkflowEditor
             workflow={workflowEditor.editedWorkflow}
@@ -190,6 +200,8 @@ export const ViewWorkflowTemplate = () => {
             onUndo={workflowEditor.undo}
             onRedo={workflowEditor.redo}
             isSaving={editWorkflowTemplateMutation.isPending}
+            saveDisabled={!!workflowTemplateQuery.data?.hasBranchingIssues}
+            hasBranchingIssues={!!workflowTemplateQuery.data?.hasBranchingIssues}
           />
         ) : (
           <>
