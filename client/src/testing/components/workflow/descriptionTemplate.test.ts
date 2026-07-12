@@ -50,4 +50,37 @@ describe('resolveDescriptionTemplate', () => {
         .format('MMM D, YYYY')}`
     );
   });
+
+  it('resolves {{startDate+3d}} relative to the given start date, not today', () => {
+    const startDate = moment('2050-08-20T00:00:00Z').unix();
+    const result = resolveDescriptionTemplate(
+      'Recommend patient come back in 3 days ({{startDate+3d}}).',
+      { startDate }
+    );
+    expect(result).toBe(
+      `Recommend patient come back in 3 days (${moment
+        .unix(startDate)
+        .add(3, 'days')
+        .format('MMM D, YYYY')}).`
+    );
+    // fixed system time is 2050-08-27, well after the computed date, proving
+    // the result tracks startDate rather than drifting with "today"
+    expect(result).not.toContain(moment().format('MMM D, YYYY'));
+  });
+
+  it('resolves {{startDate}} to the start date itself', () => {
+    const startDate = moment('2050-08-20T00:00:00Z').unix();
+    expect(
+      resolveDescriptionTemplate('Started {{startDate}}.', { startDate })
+    ).toBe(`Started ${moment.unix(startDate).format('MMM D, YYYY')}.`);
+  });
+
+  it('leaves {{startDate...}} as a bracketed placeholder when no start date is available', () => {
+    expect(resolveDescriptionTemplate('Come back on {{startDate+3d}}.')).toBe(
+      'Come back on [start date +3d].'
+    );
+    expect(resolveDescriptionTemplate('Started {{startDate}}.')).toBe(
+      'Started [start date].'
+    );
+  });
 });

@@ -14,6 +14,7 @@ import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates
 import StepDescription from 'src/shared/components/workflow/StepDescription';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
+import DescriptionFormattingHelp from './DescriptionFormattingHelp';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -93,9 +94,19 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           </Box>
 
           <Box>
-            <Typography variant="body2" color="text.secondary">
-              Description
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Typography variant="body2" color="text.secondary">
+                Description
+              </Typography>
+              {isEditMode && (
+                <>
+                  <Typography variant="caption" color="text.disabled">
+                    Click for formatting help
+                  </Typography>
+                  <DescriptionFormattingHelp />
+                </>
+              )}
+            </Stack>
             {isEditMode ? (
               <TextField
                 fullWidth
@@ -109,8 +120,8 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                   onStepChange?.(selectedStep.id, 'description', e.target.value)
                 }
                 onBlur={() => onCaptureState?.()}
-                placeholder={`# Heading\n\nSupports **bold**, _italic_, and [links](https://example.com).\n\n- Bullet item\n- Another item\n\n1. First step\n2. Second step\n\nRecommend patient come back in 3 days ({{today+3d}}).`}
-                helperText="Markdown supported. Bullets: '- item'. Numbered: '1. item'. Computed date: {{today+3d}} inserts today + 3 days (also today-2w, {{today}}, etc.)"
+                placeholder={`# Heading\n\nSupports **bold**, _italic_, and [links](https://example.com).\n\n- Bullet item\n- Another item\n\n1. First step\n2. Second step\n\nRecommend patient come back in 3 days ({{startDate+3d}}).`}
+                helperText="Markdown supported"
                 sx={{ mt: 0.5 }}
               />
             ) : (

@@ -5,11 +5,14 @@ import { resolveDescriptionTemplate } from './descriptionTemplate';
 type StepDescriptionProps = {
   description?: string | null;
   fallback?: string;
+  /** Epoch seconds the step started, used to resolve `{{startDate...}}`. */
+  startDate?: number;
 };
 
 export default function StepDescription({
   description,
   fallback = 'No description available.',
+  startDate,
 }: StepDescriptionProps) {
   if (!description) {
     return (
@@ -21,7 +24,9 @@ export default function StepDescription({
 
   return (
     <Typography variant="body2" color="text.secondary" component="div">
-      <ReactMarkdown>{resolveDescriptionTemplate(description)}</ReactMarkdown>
+      <ReactMarkdown>
+        {resolveDescriptionTemplate(description, { startDate })}
+      </ReactMarkdown>
     </Typography>
   );
 }

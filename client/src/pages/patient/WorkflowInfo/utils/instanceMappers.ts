@@ -53,6 +53,7 @@ export function mapWorkflowStep(
     title: apiStep.name,
     status: apiStep.status,
     startedOn: formatISODateNumberWithTime(apiStep.startDate),
+    startDateEpoch: apiStep.startDate,
     completedOn: apiStep.completionDate
       ? formatISODateNumberWithTime(apiStep.completionDate)
       : null,
