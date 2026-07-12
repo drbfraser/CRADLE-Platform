@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as Blockly from 'blockly';
 import { Box, GlobalStyles, Typography } from '@mui/material';
-import SouthWestIcon from '@mui/icons-material/SouthWest';
+import SouthEastIcon from '@mui/icons-material/SouthEast';
 import { registerBlocks } from './blocks';
 import { buildToolboxConfig } from './toolboxConfig';
 import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
@@ -185,13 +185,13 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
                   textAlign: 'center',
                   maxWidth: 360,
                 }}>
-                <SouthWestIcon sx={{ fontSize: 40, opacity: 0.45 }} />
+                <SouthEastIcon sx={{ fontSize: 40, opacity: 0.45 }} />
                 <Typography variant="body2" color="text.secondary">
                   Drag a compare block here to define when this branch is taken
                 </Typography>
                 <Typography variant="caption" color="text.disabled">
                   Start with Number Compare, Text Compare, Date Compare, or Logic
-                  Compare from the toolbox
+                  Compare from the toolbox on the left
                 </Typography>
               </Box>
             </Box>
