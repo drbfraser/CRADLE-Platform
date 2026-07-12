@@ -7,13 +7,17 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Box,
+  IconButton,
 } from '@mui/material';
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
 import {
   validateJsonLogic,
   stripRuleMetadata,
 } from '../blocklyEditor/jsonLogicGenerator';
+import { RuleEditorHelpDialog } from '../blocklyEditor/RuleEditorHelpDialog';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -76,6 +80,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [newTargetStepId, setNewTargetStepId] = useState<string | undefined>(
     undefined
   );
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useEffect(() => {
     setLocalConditionRule(branch?.condition?.rule || '');
@@ -190,10 +195,34 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
           minHeight: 0,
           p: 2,
         }}>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          From: <strong>{selectedStep.name}</strong> → To:{' '}
-          <strong>{targetStep?.name || 'Unknown Step'}</strong>
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 1,
+            mb: 2,
+          }}>
+          <Typography variant="body2" color="text.secondary">
+            From: <strong>{selectedStep.name}</strong> → To:{' '}
+            <strong>{targetStep?.name || 'Unknown Step'}</strong>
+          </Typography>
+          {isEditMode && (
+            <IconButton
+              size="small"
+              aria-label="Rule editor help"
+              onClick={() => setHelpOpen(true)}
+              sx={{
+                flexShrink: 0,
+                bgcolor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                '&:hover': { bgcolor: 'action.hover' },
+              }}>
+              <HelpOutlineOutlinedIcon fontSize="small" />
+            </IconButton>
+          )}
+        </Box>
         <BranchConditionEditor
           branch={branch}
           branchIndex={selectedBranchIndex}
@@ -227,6 +256,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
           </Button>
         )}
       </DialogActions>
+      <RuleEditorHelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
     </>
   );
 };

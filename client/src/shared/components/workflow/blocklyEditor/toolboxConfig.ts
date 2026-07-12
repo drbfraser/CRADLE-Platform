@@ -14,13 +14,6 @@ const TYPE_LABELS: Record<string, string> = {
   Date: 'Date Variables',
 };
 
-const COMPARISON_LABELS: Record<string, string> = {
-  Number: 'Number Compare',
-  String: 'Text Compare',
-  Boolean: 'True/False Compare',
-  Date: 'Date Compare',
-};
-
 const COMPARISON_BLOCK_BY_TYPE: Record<string, string> = {
   Number: 'number_comparison',
   Date: 'date_comparison',
@@ -62,27 +55,52 @@ function buildVariableCategories(variables: WorkflowVariable[]) {
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
   const variableCategories = buildVariableCategories(variables);
 
-  // Comparison and text-operation blocks are always available so authors can
-  // build conditions with literal Values even when a step has no variables yet.
-  const comparisonCategories = ['Number', 'Date', 'String', 'Boolean'].map(
-    (t) => ({
-      kind: 'category',
-      name: COMPARISON_LABELS[t],
-      colour: String(TYPE_COLOURS[t]),
-      contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE[t] }],
-    })
-  );
+  // Compare blocks are always available so authors can build conditions with
+  // literal Values even when a step has no variables yet.
+  const numberCompareCategory = {
+    kind: 'category',
+    name: 'Number Compare',
+    colour: String(TYPE_COLOURS.Number),
+    contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Number }],
+  };
 
-  return {
-    kind: 'categoryToolbox',
+  const dateCompareCategory = {
+    kind: 'category',
+    name: 'Date Compare',
+    colour: String(TYPE_COLOURS.Date),
+    contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Date }],
+  };
+
+  const textCompareCategory = {
+    kind: 'category',
+    name: 'Text Compare',
+    colour: String(TYPE_COLOURS.String),
     contents: [
-      ...variableCategories,
-      ...comparisonCategories,
       {
         kind: 'category',
-        name: 'Text Operations',
+        name: 'Comparison',
+        colour: String(TYPE_COLOURS.String),
+        contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.String }],
+      },
+      {
+        kind: 'category',
+        name: 'Operations',
         colour: String(TYPE_COLOURS.String),
         contents: [{ kind: 'block', type: 'string_op' }],
+      },
+    ],
+  };
+
+  const logicCompareCategory = {
+    kind: 'category',
+    name: 'Logic Compare',
+    colour: '120',
+    contents: [
+      {
+        kind: 'category',
+        name: 'True/False',
+        colour: String(TYPE_COLOURS.Boolean),
+        contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Boolean }],
       },
       {
         kind: 'category',
@@ -93,6 +111,17 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
           { kind: 'block', type: 'logic_negate' },
         ],
       },
+    ],
+  };
+
+  return {
+    kind: 'categoryToolbox',
+    contents: [
+      ...variableCategories,
+      numberCompareCategory,
+      dateCompareCategory,
+      textCompareCategory,
+      logicCompareCategory,
       {
         kind: 'category',
         name: 'Values',
