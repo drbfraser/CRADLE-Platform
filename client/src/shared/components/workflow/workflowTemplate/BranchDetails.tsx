@@ -256,7 +256,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
           </Button>
         )}
       </DialogActions>
-      <RuleEditorHelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <RuleEditorHelpDialog
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </>
   );
 };

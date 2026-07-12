@@ -164,38 +164,38 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
           flex: fillHeight ? 1 : undefined,
         }}>
         {showWorkspaceHint && !readOnly && (
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+              px: 4,
+            }}>
             <Box
               sx={{
-                position: 'absolute',
-                inset: 0,
-                zIndex: 1,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: 'none',
-                px: 4,
+                gap: 1,
+                color: 'text.secondary',
+                textAlign: 'center',
+                maxWidth: 360,
               }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 1,
-                  color: 'text.secondary',
-                  textAlign: 'center',
-                  maxWidth: 360,
-                }}>
-                <SouthEastIcon sx={{ fontSize: 40, opacity: 0.45 }} />
-                <Typography variant="body2" color="text.secondary">
-                  Drag a compare block here to define when this branch is taken
-                </Typography>
-                <Typography variant="caption" color="text.disabled">
-                  Start with Number Compare, Text Compare, Date Compare, or Logic
-                  Compare from the toolbox on the left
-                </Typography>
-              </Box>
+              <SouthEastIcon sx={{ fontSize: 40, opacity: 0.45 }} />
+              <Typography variant="body2" color="text.secondary">
+                Drag a compare block here to define when this branch is taken
+              </Typography>
+              <Typography variant="caption" color="text.disabled">
+                Start with Number Compare, Text Compare, Date Compare, or Logic
+                Compare from the toolbox on the left
+              </Typography>
             </Box>
-          )}
+          </Box>
+        )}
 
         <Box
           ref={blocklyDiv}
