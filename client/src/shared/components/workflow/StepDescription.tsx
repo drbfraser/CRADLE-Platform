@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import { Typography } from '@mui/material';
+import { resolveDescriptionTemplate } from './descriptionTemplate';
 
 type StepDescriptionProps = {
   description?: string | null;
@@ -20,7 +21,7 @@ export default function StepDescription({
 
   return (
     <Typography variant="body2" color="text.secondary" component="div">
-      <ReactMarkdown>{description}</ReactMarkdown>
+      <ReactMarkdown>{resolveDescriptionTemplate(description)}</ReactMarkdown>
     </Typography>
   );
 }

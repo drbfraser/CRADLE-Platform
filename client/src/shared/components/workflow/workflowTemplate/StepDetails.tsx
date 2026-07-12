@@ -109,8 +109,8 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                   onStepChange?.(selectedStep.id, 'description', e.target.value)
                 }
                 onBlur={() => onCaptureState?.()}
-                placeholder={`# Heading\n\nSupports **bold**, _italic_, and [links](https://example.com).\n\n- Bullet item\n- Another item\n\n1. First step\n2. Second step`}
-                helperText="Markdown supported. Bullets: start a line with '- '. Numbered: start a line with '1. '"
+                placeholder={`# Heading\n\nSupports **bold**, _italic_, and [links](https://example.com).\n\n- Bullet item\n- Another item\n\n1. First step\n2. Second step\n\nRecommend patient come back in 3 days ({{today+3d}}).`}
+                helperText="Markdown supported. Bullets: '- item'. Numbered: '1. item'. Computed date: {{today+3d}} inserts today + 3 days (also today-2w, {{today}}, etc.)"
                 sx={{ mt: 0.5 }}
               />
             ) : (
