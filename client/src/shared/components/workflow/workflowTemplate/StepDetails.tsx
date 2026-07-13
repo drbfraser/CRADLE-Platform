@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Box,
   Typography,
@@ -35,6 +35,38 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     queryKey: ['workflowStepFormTemplatesV2', false],
     queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
   });
+
+  const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const handleInsertDateToken = (token: string) => {
+    if (!selectedStep) return;
+    const textarea = descriptionInputRef.current;
+    const currentValue = selectedStep.description || '';
+
+    if (!textarea) {
+      onStepChange?.(
+        selectedStep.id,
+        'description',
+        `${currentValue}${token}`
+      );
+      onCaptureState?.();
+      return;
+    }
+
+    const start = textarea.selectionStart ?? currentValue.length;
+    const end = textarea.selectionEnd ?? currentValue.length;
+    const newValue =
+      currentValue.slice(0, start) + token + currentValue.slice(end);
+
+    onStepChange?.(selectedStep.id, 'description', newValue);
+    onCaptureState?.();
+
+    requestAnimationFrame(() => {
+      const cursorPosition = start + token.length;
+      textarea.focus();
+      textarea.setSelectionRange(cursorPosition, cursorPosition);
+    });
+  };
 
   if (!selectedStep) {
     return (
@@ -103,7 +135,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                   <Typography variant="caption" color="text.disabled">
                     Click for formatting help
                   </Typography>
-                  <DescriptionFormattingHelp />
+                  <DescriptionFormattingHelp onInsertDate={handleInsertDateToken} />
                 </>
               )}
             </Stack>
@@ -115,6 +147,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 multiline
                 minRows={5}
                 maxRows={20}
+                inputRef={descriptionInputRef}
                 value={selectedStep.description || ''}
                 onChange={(e) =>
                   onStepChange?.(selectedStep.id, 'description', e.target.value)

@@ -6,6 +6,9 @@ import {
   Box,
   Stack,
   Divider,
+  TextField,
+  MenuItem,
+  Button,
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
@@ -18,16 +21,16 @@ const MARKDOWN_EXAMPLES: { label: string; syntax: string }[] = [
   { label: 'Numbered list', syntax: '1. item' },
 ];
 
-const START_DATE_EXAMPLES: { label: string; syntax: string }[] = [
-  { label: 'When the step started', syntax: '{{startDate}}' },
-  { label: '3 days after step started', syntax: '{{startDate+3d}}' },
-  { label: '2 weeks after step started', syntax: '{{startDate+2w}}' },
+const ANCHOR_OPTIONS = [
+  { value: 'startDate', label: 'this step starts' },
+  { value: 'today', label: 'someone views this (changes daily)' },
 ];
 
-const TODAY_EXAMPLES: { label: string; syntax: string }[] = [
-  { label: "Today's date", syntax: '{{today}}' },
-  { label: '3 days from today', syntax: '{{today+3d}}' },
-  { label: '2 weeks ago', syntax: '{{today-2w}}' },
+const UNIT_OPTIONS = [
+  { value: 'd', label: 'day(s)' },
+  { value: 'w', label: 'week(s)' },
+  { value: 'm', label: 'month(s)' },
+  { value: 'y', label: 'year(s)' },
 ];
 
 function SyntaxRow({ label, syntax }: { label: string; syntax: string }) {
@@ -46,8 +49,31 @@ function SyntaxRow({ label, syntax }: { label: string; syntax: string }) {
   );
 }
 
-export default function DescriptionFormattingHelp() {
+type DescriptionFormattingHelpProps = {
+  /** Called with the resolved `{{...}}` token to insert into the description. */
+  onInsertDate?: (token: string) => void;
+};
+
+export default function DescriptionFormattingHelp({
+  onInsertDate,
+}: DescriptionFormattingHelpProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [amount, setAmount] = useState('3');
+  const [unit, setUnit] = useState('d');
+  const [anchor, setAnchor] = useState('startDate');
+
+  const handleClose = () => setAnchorEl(null);
+
+  const parsedAmount = Number(amount);
+  const hasOffset = Number.isFinite(parsedAmount) && parsedAmount > 0;
+  const token = hasOffset
+    ? `{{${anchor}+${parsedAmount}${unit}}}`
+    : `{{${anchor}}}`;
+
+  const handleInsert = () => {
+    onInsertDate?.(token);
+    handleClose();
+  };
 
   return (
     <>
@@ -61,47 +87,68 @@ export default function DescriptionFormattingHelp() {
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
+        onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}>
-        <Box sx={{ p: 2, maxWidth: 320 }}>
+        <Box sx={{ p: 2, width: 300 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            Insert a date
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+            <TextField
+              type="number"
+              size="small"
+              label="Number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              slotProps={{ htmlInput: { min: 0 } }}
+              sx={{ width: 90 }}
+            />
+            <TextField
+              select
+              size="small"
+              label="Unit"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              sx={{ flex: 1 }}>
+              {UNIT_OPTIONS.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label="After"
+            value={anchor}
+            onChange={(e) => setAnchor(e.target.value)}
+            sx={{ mb: 1.5 }}>
+            {ANCHOR_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Button
+            fullWidth
+            variant="contained"
+            size="small"
+            onClick={handleInsert}>
+            Insert into description
+          </Button>
+
+          <Divider sx={{ my: 2 }} />
+
           <Typography variant="subtitle2" gutterBottom>
             Markdown formatting
           </Typography>
-          <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+          <Stack spacing={0.5}>
             {MARKDOWN_EXAMPLES.map((example) => (
               <SyntaxRow key={example.label} {...example} />
             ))}
           </Stack>
-
-          <Divider sx={{ mb: 1.5 }} />
-
-          <Typography variant="subtitle2" gutterBottom>
-            Computed dates — relative to step start (recommended)
-          </Typography>
-          <Stack spacing={0.5} sx={{ mb: 1.5 }}>
-            {START_DATE_EXAMPLES.map((example) => (
-              <SyntaxRow key={example.label} {...example} />
-            ))}
-          </Stack>
-          <Typography variant="caption" color="text.secondary">
-            Stays fixed once the step starts, no matter when it&apos;s viewed.
-          </Typography>
-
-          <Divider sx={{ my: 1.5 }} />
-
-          <Typography variant="subtitle2" gutterBottom>
-            Computed dates — relative to today
-          </Typography>
-          <Stack spacing={0.5} sx={{ mb: 1 }}>
-            {TODAY_EXAMPLES.map((example) => (
-              <SyntaxRow key={example.label} {...example} />
-            ))}
-          </Stack>
-          <Typography variant="caption" color="text.secondary">
-            Recalculated every time the description is viewed — the date
-            shown will shift if viewed on a later day. Units: d = days, w =
-            weeks, m = months, y = years.
-          </Typography>
         </Box>
       </Popover>
     </>
