@@ -20,16 +20,16 @@ export type DescriptionTemplateContext = {
  * date strings.
  *
  * Two anchors are supported:
- * - `{{today...}}` is evaluated relative to the moment the description is
+ * - '{{today...}}' is evaluated relative to the moment the description is
  *   rendered, so it drifts every time the step is viewed on a later day.
- * - `{{startDate...}}` is evaluated relative to `context.startDate`, so it
- *   stays fixed once the step has actually started. If no `startDate` is
+ * - '{{startDate...}}' is evaluated relative to 'context.startDate', so it
+ *   stays fixed once the step has actually started. If no 'startDate' is
  *   available (e.g. previewing a template that has no instance yet), the
  *   token is left as a bracketed placeholder instead of silently falling
  *   back to "today".
  *
- * Both anchors accept an optional offset, e.g. `{{today+3d}}`,
- * `{{startDate-2w}}`. Units: d = days, w = weeks, m = months, y = years.
+ * Both anchors accept an optional offset, e.g. '{{today+3d}}',
+ * '{{startDate-2w}}'. Units: d = days, w = weeks, m = months, y = years.
  */
 export function resolveDescriptionTemplate(
   description: string,

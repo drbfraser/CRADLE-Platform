@@ -63,7 +63,7 @@ describe('resolveDescriptionTemplate', () => {
         .add(3, 'days')
         .format('MMM D, YYYY')}).`
     );
-    // fixed system time is 2050-08-27, well after the computed date, proving
+    // fixed system time is 2050-08-27, proving
     // the result tracks startDate rather than drifting with "today"
     expect(result).not.toContain(moment().format('MMM D, YYYY'));
   });

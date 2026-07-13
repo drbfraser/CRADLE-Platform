@@ -84,7 +84,7 @@ export default function DescriptionFormattingHelp() {
             ))}
           </Stack>
           <Typography variant="caption" color="text.secondary">
-            Stays fixed once the step starts, no matter when it's viewed.
+            Stays fixed once the step starts, no matter when it&apos;s viewed.
           </Typography>
 
           <Divider sx={{ my: 1.5 }} />
