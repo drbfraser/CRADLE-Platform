@@ -792,7 +792,7 @@ def get_new_lang_versions_and_questions(
         question_text = question.get("question_text")
         question.pop("question_text")
 
-        mc_opts = question.get("mc_options", [])
+        mc_opts = question.get("mc_options") or []
         question["mc_options"] = json.dumps([opt.get("string_id") for opt in mc_opts])
 
         new_questions.append(question)

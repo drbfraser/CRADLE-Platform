@@ -262,7 +262,7 @@ class CreateFormSubmissionRequest(CradleBaseModel):
     id: Optional[str] = None
     form_template_id: str
     patient_id: str
-    user_id: int
+    user_id: Optional[int] = None
     lang: str = "English"
     answers: list[FormAnswer]
 
