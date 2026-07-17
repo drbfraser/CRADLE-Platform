@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Typography,
   Paper,
@@ -28,6 +28,7 @@ import { ConfirmDialog } from 'src/shared/components/confirmDialog';
 import { Toast } from 'src/shared/components/toast';
 import { WorkflowVariable } from 'src/shared/api';
 import { getStepWorkflowVariables } from 'src/shared/utils/workflow/getStepWorkflowVariables';
+import { suggestPastedConditionName } from 'src/shared/utils/workflow/suggestPastedConditionName';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -48,6 +49,18 @@ interface BranchDetailsProps {
   onClose: () => void;
 }
 
+type FeedbackToast = {
+  open: boolean;
+  message: string;
+  severity: 'success' | 'error' | 'warning' | 'info';
+};
+
+const CLOSED_TOAST: FeedbackToast = {
+  open: false,
+  message: '',
+  severity: 'success',
+};
+
 export const BranchDetails: React.FC<BranchDetailsProps> = ({
   selectedStep,
   selectedBranchIndex,
@@ -58,7 +71,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   onClose,
 }) => {
   const branch = selectedStep?.branches?.[selectedBranchIndex || 0];
-  const { copy, peek, hasCopiedRule } = useWorkflowRuleClipboard();
+  const { copy, peek, hasCopiedRule, copiedRule } = useWorkflowRuleClipboard();
 
   //For Manual Saving
   const [localConditionRule, setLocalConditionRule] = useState<string>(
@@ -92,8 +105,8 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     undefined
   );
   const [helpOpen, setHelpOpen] = useState(false);
-  const [copyToastOpen, setCopyToastOpen] = useState(false);
-  const [pasteToastOpen, setPasteToastOpen] = useState(false);
+  const [feedbackToast, setFeedbackToast] =
+    useState<FeedbackToast>(CLOSED_TOAST);
   const [editorReloadKey, setEditorReloadKey] = useState(0);
   const [pasteWarning, setPasteWarning] = useState<string[] | null>(null);
   const [replaceConfirmOpen, setReplaceConfirmOpen] = useState(false);
@@ -103,6 +116,8 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [availableVariables, setAvailableVariables] = useState<
     WorkflowVariable[]
   >([]);
+  // Skip clearing paste warning on the first Blockly onChange after paste remount.
+  const skipPasteWarningClearRef = useRef(false);
 
   useEffect(() => {
     setLocalConditionRule(branch?.condition?.rule || '');
@@ -151,6 +166,13 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     };
   }, [selectedStep?.id, selectedStep?.formId]);
 
+  const showToast = (
+    message: string,
+    severity: FeedbackToast['severity'] = 'success'
+  ) => {
+    setFeedbackToast({ open: true, message, severity });
+  };
+
   const handleTargetStepChange = (
     stepId: string,
     branchIndex: number,
@@ -158,6 +180,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   ) => {
     setNewTargetStepId(targetStepId);
   };
+
   const handleBranchChange = (
     stepId: string,
     branchIndex: number,
@@ -167,15 +190,22 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   ) => {
     setLocalConditionRule(conditionRule);
     setLocalConditionName(conditionName || '');
+    if (skipPasteWarningClearRef.current) {
+      skipPasteWarningClearRef.current = false;
+    } else if (pasteWarning) {
+      setPasteWarning(null);
+    }
     if (validationError !== undefined) {
       setValidationError(validationError);
     } else if (conditionRule === '') {
       setValidationError(null);
     }
   };
+
   const handleCancel = () => {
     onClose();
   };
+
   const handleSave = () => {
     if (selectedStep && selectedBranchIndex !== undefined) {
       onBranchChange?.(
@@ -207,17 +237,29 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     const sourceLabel = `${selectedStep.name} → ${targetName}`;
     const ok = copy(localConditionRule, sourceLabel);
     if (ok) {
-      setCopyToastOpen(true);
+      showToast('Condition copied');
+    } else {
+      showToast('Could not copy condition', 'error');
     }
   };
 
-  const applyPaste = (rule: string, missingVariables: string[]) => {
+  const applyPaste = (
+    rule: string,
+    missingVariables: string[],
+    sourceLabel: string
+  ) => {
+    skipPasteWarningClearRef.current = true;
     setLocalConditionRule(rule);
-    setLocalConditionName('');
+    setLocalConditionName(suggestPastedConditionName(sourceLabel));
     setValidationError(null);
     setPasteWarning(missingVariables.length > 0 ? missingVariables : null);
     setEditorReloadKey((key) => key + 1);
-    setPasteToastOpen(true);
+    showToast(
+      missingVariables.length > 0
+        ? 'Condition pasted — some variables may be missing on this step'
+        : 'Condition pasted',
+      missingVariables.length > 0 ? 'warning' : 'success'
+    );
     setReplaceConfirmOpen(false);
     setPendingPasteRule(null);
   };
@@ -230,7 +272,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
       rule: copied.rule,
       availableVariables,
     });
-    if (!validation.ok) return;
+    if (!validation.ok) {
+      showToast(validation.reason || 'Could not paste condition', 'error');
+      return;
+    }
 
     const hasExistingCondition = !!localConditionRule.trim();
     if (hasExistingCondition) {
@@ -239,11 +284,16 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
       return;
     }
 
-    applyPaste(copied.rule, validation.missingVariables);
+    applyPaste(copied.rule, validation.missingVariables, copied.sourceLabel);
   };
 
   const handleConfirmReplace = () => {
-    if (!pendingPasteRule) return;
+    const copied = peek();
+    if (!pendingPasteRule || !copied) {
+      setReplaceConfirmOpen(false);
+      setPendingPasteRule(null);
+      return;
+    }
 
     const validation = validateRuleForPaste({
       rule: pendingPasteRule,
@@ -252,10 +302,15 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     if (!validation.ok) {
       setReplaceConfirmOpen(false);
       setPendingPasteRule(null);
+      showToast(validation.reason || 'Could not paste condition', 'error');
       return;
     }
 
-    applyPaste(pendingPasteRule, validation.missingVariables);
+    applyPaste(
+      pendingPasteRule,
+      validation.missingVariables,
+      copied.sourceLabel
+    );
   };
 
   if (!selectedStep || selectedBranchIndex === undefined) {
@@ -286,6 +341,9 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   }
 
   const targetStep = steps.find((s) => s.id === branch.targetStepId);
+  const pasteTooltip = hasCopiedRule
+    ? `Paste condition from ${copiedRule?.sourceLabel ?? 'clipboard'}`
+    : 'Copy a condition from another branch first';
 
   return (
     <>
@@ -349,12 +407,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
                 </Button>
               </span>
             </Tooltip>
-            <Tooltip
-              title={
-                hasCopiedRule
-                  ? 'Paste the copied condition into this branch'
-                  : 'Copy a condition from another branch first'
-              }>
+            <Tooltip title={pasteTooltip}>
               <span>
                 <Button
                   size="small"
@@ -370,7 +423,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         )}
 
         {isEditMode && pasteWarning && pasteWarning.length > 0 && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
+          <Alert
+            severity="warning"
+            sx={{ mb: 2 }}
+            onClose={() => setPasteWarning(null)}>
             Some variables in this condition are not available on this step:{' '}
             {pasteWarning.join(', ')}. You can still edit or remove them before
             saving.
@@ -428,16 +484,10 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
         onConfirm={handleConfirmReplace}
       />
       <Toast
-        severity="success"
-        message="Condition copied"
-        open={copyToastOpen}
-        onClose={() => setCopyToastOpen(false)}
-      />
-      <Toast
-        severity="success"
-        message="Condition pasted"
-        open={pasteToastOpen}
-        onClose={() => setPasteToastOpen(false)}
+        severity={feedbackToast.severity}
+        message={feedbackToast.message}
+        open={feedbackToast.open}
+        onClose={() => setFeedbackToast(CLOSED_TOAST)}
       />
     </>
   );

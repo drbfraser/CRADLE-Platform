@@ -32,6 +32,8 @@ export const useWorkflowBranchMutations = ({
   ) => {
     if (!editedWorkflow) return;
 
+    let newWorkflow: WorkflowTemplate | null = null;
+
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
 
@@ -69,12 +71,18 @@ export const useWorkflowBranchMutations = ({
         return step;
       });
 
-      return {
+      newWorkflow = {
         ...prev,
         steps: updatedSteps,
       };
+
+      return newWorkflow;
     });
     setHasChanges(true);
+
+    if (newWorkflow) {
+      captureCurrentState(newWorkflow);
+    }
   };
 
   const handleAddBranch = (stepId: string) => {
