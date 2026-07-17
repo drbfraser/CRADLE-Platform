@@ -1,0 +1,17 @@
+[run]
+source =
+    api
+    authentication
+    common
+    data
+    models
+    service
+    validation
+
+omit =
+    */tests/*
+    */system_tests/*
+    */migrations/*
+
+[report]
+show_missing = True
