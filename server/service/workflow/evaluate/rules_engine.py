@@ -4,6 +4,7 @@ from typing import Any
 
 from json_logic import jsonLogic
 
+from service.workflow.evaluate.jsonlogic_extensions import normalize_rule_literals
 from service.workflow.evaluate.jsonlogic_parser import (
     extract_variables_from_rule,
 )
@@ -121,9 +122,9 @@ class RulesEngineImpl:
                 }
                 candidate = {k: v for k, v in parsed.items() if k not in metadata_keys}
                 if len(candidate) == 1:
-                    return candidate
+                    return normalize_rule_literals(candidate)
 
-            return parsed
+            return normalize_rule_literals(parsed)
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in rule: {e}")
 

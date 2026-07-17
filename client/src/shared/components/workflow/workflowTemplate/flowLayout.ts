@@ -8,9 +8,60 @@ export const VERTICAL_SPACING = 180;
 
 export type Position = { x: number; y: number };
 
+function buildParentMap(
+  steps: WorkflowTemplateStepWithFormAndIndex[]
+): Map<string, string[]> {
+  const parents = new Map<string, string[]>();
+
+  for (const step of steps) {
+    for (const branch of step.branches ?? []) {
+      const list = parents.get(branch.targetStepId) ?? [];
+      list.push(step.id);
+      parents.set(branch.targetStepId, list);
+    }
+  }
+
+  return parents;
+}
+
+function stepOrderKey(
+  stepId: string,
+  steps: WorkflowTemplateStepWithFormAndIndex[]
+): number {
+  const step = steps.find((s) => s.id === stepId);
+  if (step?.index !== undefined) return step.index;
+  const arrayIndex = steps.findIndex((s) => s.id === stepId);
+  return arrayIndex === -1 ? 0 : arrayIndex;
+}
+
+function horizontalSortKey(
+  stepId: string,
+  parents: Map<string, string[]>,
+  steps: WorkflowTemplateStepWithFormAndIndex[],
+  positions: Map<string, Position>
+): number {
+  const parentIds = parents.get(stepId) ?? [];
+  if (parentIds.length === 0) {
+    return stepOrderKey(stepId, steps);
+  }
+
+  const parentXs = parentIds
+    .map((id) => positions.get(id)?.x)
+    .filter((x): x is number => x !== undefined);
+
+  if (parentXs.length > 0) {
+    return parentXs.reduce((sum, x) => sum + x, 0) / parentXs.length;
+  }
+
+  const parentOrders = parentIds.map((id) => stepOrderKey(id, steps));
+  return (
+    parentOrders.reduce((sum, order) => sum + order, 0) / parentOrders.length
+  );
+}
+
 /**
  * Calculate each node using BFS.
- * Nodes with multiple parents get assigned the level of their closest parent
+ * Nodes with multiple parents get the shallowest reachable level (closest to root).
  */
 export function calculateNodeLevels(
   steps: WorkflowTemplateStepWithFormAndIndex[],
@@ -27,15 +78,19 @@ export function calculateNodeLevels(
 
     const step = steps.find((s) => s.id === currentId);
     step?.branches?.forEach((branch: WorkflowTemplateStepBranch) => {
-      const existingLevel = stepLevels.get(branch.targetStepId);
       const newLevel = currentLevel + 1;
+      const existingLevel = stepLevels.get(branch.targetStepId);
 
       if (existingLevel === undefined) {
+        stepLevels.set(branch.targetStepId, newLevel);
+        queue.push(branch.targetStepId);
+      } else if (newLevel < existingLevel) {
         stepLevels.set(branch.targetStepId, newLevel);
         queue.push(branch.targetStepId);
       }
     });
   }
+
   return stepLevels;
 }
 
@@ -45,6 +100,7 @@ export function calculateStepPositions(
   stepLevels: Map<string, number>
 ): Map<string, Position> {
   const stepPositions = new Map<string, Position>();
+  const parents = buildParentMap(steps);
   const levelNodes = new Map<number, string[]>();
 
   stepLevels.forEach((level, stepId) => {
@@ -52,18 +108,28 @@ export function calculateStepPositions(
     levelNodes.get(level)!.push(stepId);
   });
 
-  levelNodes.forEach((nodeIds, level) => {
+  const sortedLevels = [...levelNodes.keys()].sort((a, b) => a - b);
+
+  for (const level of sortedLevels) {
+    const nodeIds = levelNodes.get(level)!;
+    const sortedIds = [...nodeIds].sort((a, b) => {
+      const keyA = horizontalSortKey(a, parents, steps, stepPositions);
+      const keyB = horizontalSortKey(b, parents, steps, stepPositions);
+      if (keyA !== keyB) return keyA - keyB;
+      return stepOrderKey(a, steps) - stepOrderKey(b, steps);
+    });
+
     const y = level * VERTICAL_SPACING;
-    const totalWidth = (nodeIds.length - 1) * HORIZONTAL_SPACING;
+    const totalWidth = (sortedIds.length - 1) * HORIZONTAL_SPACING;
     const startX = -totalWidth / 2;
 
-    nodeIds.forEach((stepId, index) => {
+    sortedIds.forEach((stepId, index) => {
       stepPositions.set(stepId, {
         x: startX + index * HORIZONTAL_SPACING,
         y,
       });
     });
-  });
+  }
 
   let orphanX = 0;
   steps.forEach((step) => {
@@ -72,6 +138,7 @@ export function calculateStepPositions(
       orphanX += HORIZONTAL_SPACING;
     }
   });
+
   return stepPositions;
 }
 

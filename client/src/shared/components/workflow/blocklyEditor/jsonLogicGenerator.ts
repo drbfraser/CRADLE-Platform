@@ -1,12 +1,34 @@
 import * as Blockly from 'blockly';
+import { getPrimaryConditionBlock } from './blocklyWorkspaceUtils';
 
 export const jsonLogicGenerator = new Blockly.Generator('JSON_LOGIC');
 
+function generateComparison(
+  block: Blockly.Block,
+  leftInput: string,
+  rightInput: string
+): [string, number] {
+  const op = block.getFieldValue('OP');
+  const left = jsonLogicGenerator.valueToCode(block, leftInput, 0) || 'null';
+  const right = jsonLogicGenerator.valueToCode(block, rightInput, 0) || 'null';
+  const result = { [op]: [JSON.parse(left), JSON.parse(right)] };
+  return [JSON.stringify(result), 0];
+}
+
+function variableBlockGenerator(block: Blockly.Block): [string, number] {
+  const varName = block.getFieldValue('VAR_NAME');
+  return [JSON.stringify({ var: varName }), 0];
+}
+
+export function ensureVariableBlockGenerator(blockType: string): void {
+  if (!jsonLogicGenerator.forBlock[blockType]) {
+    jsonLogicGenerator.forBlock[blockType] = variableBlockGenerator;
+  }
+}
+
+// Legacy combined variable blocks (pre–source grouping).
 for (const bType of ['Number', 'String', 'Boolean', 'Date']) {
-  jsonLogicGenerator.forBlock[`app_variable_${bType}`] = function (block) {
-    const varName = block.getFieldValue('VAR_NAME');
-    return [JSON.stringify({ var: varName }), 0];
-  };
+  ensureVariableBlockGenerator(`app_variable_${bType}`);
 }
 
 jsonLogicGenerator.forBlock['number_value'] = function (block) {
@@ -29,11 +51,32 @@ jsonLogicGenerator.forBlock['date_value'] = function (block) {
   return [JSON.stringify({ date: date }), 0];
 };
 
-jsonLogicGenerator.forBlock['comparison'] = function (block) {
+for (const blockType of [
+  'number_comparison',
+  'date_comparison',
+  'string_comparison',
+  'boolean_comparison',
+  'comparison',
+]) {
+  jsonLogicGenerator.forBlock[blockType] = function (block) {
+    return generateComparison(block, 'LEFT', 'RIGHT');
+  };
+}
+
+jsonLogicGenerator.forBlock['string_op'] = function (block) {
   const op = block.getFieldValue('OP');
-  const left = jsonLogicGenerator.valueToCode(block, 'LEFT', 0) || 'null';
-  const right = jsonLogicGenerator.valueToCode(block, 'RIGHT', 0) || 'null';
-  const result = { [op]: [JSON.parse(left), JSON.parse(right)] };
+  const haystack =
+    jsonLogicGenerator.valueToCode(block, 'HAYSTACK', 0) || 'null';
+
+  if (op === 'length') {
+    return [JSON.stringify({ length: [JSON.parse(haystack)] }), 0];
+  }
+
+  const needle = jsonLogicGenerator.valueToCode(block, 'NEEDLE', 0) || 'null';
+  const caseInsensitive = block.getFieldValue('CASE') === 'INSENSITIVE';
+  const result = {
+    [op]: [JSON.parse(haystack), JSON.parse(needle), caseInsensitive],
+  };
   return [JSON.stringify(result), 0];
 };
 
@@ -54,10 +97,10 @@ jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
 export function workspaceToJsonLogic(
   workspace: Blockly.Workspace
 ): string | null {
-  const topBlocks = workspace.getTopBlocks(false);
-  if (topBlocks.length === 0) return null;
+  const rootBlock = getPrimaryConditionBlock(workspace);
+  if (!rootBlock) return null;
 
-  const code = jsonLogicGenerator.blockToCode(topBlocks[0]);
+  const code = jsonLogicGenerator.blockToCode(rootBlock);
   const codeStr = Array.isArray(code) ? code[0] : code;
   return codeStr || null;
 }
@@ -71,6 +114,13 @@ const METADATA_KEYS = new Set([
   'notes',
   'enabled',
   'version',
+]);
+
+const CUSTOM_STRING_OPS = new Set([
+  'contains',
+  'startsWith',
+  'endsWith',
+  'length',
 ]);
 
 export function stripRuleMetadata(rule: unknown): unknown {
@@ -96,7 +146,19 @@ export function validateJsonLogic(rule: unknown, isRoot = false): boolean {
   if (typeof logicRule === 'object') {
     const entries = Object.entries(logicRule as Record<string, unknown>);
     if (entries.length !== 1) return false;
-    const [, args] = entries[0];
+    const [operator, args] = entries[0];
+    if (CUSTOM_STRING_OPS.has(operator)) {
+      if (!Array.isArray(args)) return false;
+      if (operator === 'length') {
+        return args.length === 1 && validateJsonLogic(args[0]);
+      }
+      return (
+        args.length >= 2 &&
+        args.slice(0, 2).every((arg) => validateJsonLogic(arg)) &&
+        (args.length === 2 ||
+          (args.length === 3 && typeof args[2] === 'boolean'))
+      );
+    }
     if (Array.isArray(args)) return args.every((arg) => validateJsonLogic(arg));
     return validateJsonLogic(args);
   }

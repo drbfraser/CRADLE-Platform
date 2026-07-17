@@ -1,5 +1,12 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
+import { DATE_OUTPUT_SHAPE } from './typedZelosRenderer';
+import { ensureVariableBlockGenerator } from './jsonLogicGenerator';
+import {
+  groupVariablesBySource,
+  sortedSourceKeys,
+  variableBlockType,
+} from './variableGrouping';
 
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
@@ -19,62 +26,183 @@ export function blocklyTypeFromVariableType(
   }
 }
 
-const TYPE_COLOURS: Record<string, number> = {
+export const TYPE_COLOURS: Record<string, number> = {
   Number: 30,
   String: 170,
   Boolean: 270,
   Date: 220,
 };
 
+const NUMBER_COMPARISON_OPS: [string, string][] = [
+  ['<', '<'],
+  ['>', '>'],
+  ['=', '=='],
+  ['≤', '<='],
+  ['≥', '>='],
+  ['≠', '!='],
+];
+
+const DATE_COMPARISON_OPS: [string, string][] = [
+  ['= equal', '=='],
+  ['< before', '<'],
+  ['> after', '>'],
+  ['≤ on or before', '<='],
+  ['≥ on or after', '>='],
+  ['≠ not equal', '!='],
+];
+
+const EQUALITY_OPS: [string, string][] = [
+  ['=', '=='],
+  ['≠', '!='],
+];
+
+const STRING_OP_OPTIONS: [string, string][] = [
+  ['contains', 'contains'],
+  ['starts with', 'startsWith'],
+  ['ends with', 'endsWith'],
+  ['length', 'length'],
+];
+
+const CASE_OPTIONS: [string, string][] = [
+  ['case sensitive', 'SENSITIVE'],
+  ['case insensitive', 'INSENSITIVE'],
+];
+
 function variableDisplayName(v: WorkflowVariable): string {
   return v.description ?? v.tag;
 }
 
-export function registerBlocks(variables: WorkflowVariable[]): void {
-  const byType: Record<string, [string, string][]> = {
-    Number: [],
-    String: [],
-    Boolean: [],
-    Date: [],
+function defineComparisonBlock(
+  blockType: string,
+  typeLabel: string,
+  typeCheck: string,
+  ops: [string, string][],
+  colour: number
+): void {
+  Blockly.Blocks[blockType] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput('TYPE_LABEL').appendField(typeLabel);
+      this.appendValueInput('LEFT').setCheck(typeCheck);
+      this.appendDummyInput().appendField(new Blockly.FieldDropdown(ops), 'OP');
+      this.appendValueInput('RIGHT').setCheck(typeCheck);
+      this.setInputsInline(true);
+      this.setOutput(true, 'Boolean');
+      this.setColour(colour);
+    },
   };
+}
 
-  for (const v of variables) {
-    const bType = blocklyTypeFromVariableType(v.type);
-    if (bType && bType in byType) {
-      byType[bType].push([variableDisplayName(v), v.tag]);
+function updateStringOpShape(block: Blockly.Block): void {
+  const op = block.getFieldValue('OP');
+  const isLength = op === 'length';
+
+  if (isLength) {
+    if (block.getInput('NEEDLE')) {
+      block.removeInput('NEEDLE');
+    }
+    if (block.getInput('CASE')) {
+      block.removeInput('CASE');
+    }
+    block.setOutput(true, 'Number');
+  } else {
+    if (!block.getInput('NEEDLE')) {
+      block
+        .appendValueInput('NEEDLE')
+        .setCheck('String')
+        .appendField(
+          op === 'contains'
+            ? 'contains'
+            : op === 'startsWith'
+              ? 'starts with'
+              : 'ends with'
+        );
+    }
+    if (!block.getInput('CASE')) {
+      block
+        .appendDummyInput('CASE')
+        .appendField(new Blockly.FieldDropdown(CASE_OPTIONS), 'CASE');
+    }
+    block.setOutput(true, 'Boolean');
+  }
+}
+
+export function registerBlocks(variables: WorkflowVariable[]): void {
+  const sourceGroups = groupVariablesBySource(variables);
+
+  for (const sourceKey of sortedSourceKeys(sourceGroups)) {
+    const sourceVars = sourceGroups.get(sourceKey)!;
+    const byType: Record<string, [string, string][]> = {
+      Number: [],
+      String: [],
+      Boolean: [],
+      Date: [],
+    };
+
+    for (const v of sourceVars) {
+      const bType = blocklyTypeFromVariableType(v.type);
+      if (bType && bType in byType) {
+        byType[bType].push([variableDisplayName(v), v.tag]);
+      }
+    }
+
+    for (const [bType, options] of Object.entries(byType)) {
+      if (options.length === 0) continue;
+
+      const colour = TYPE_COLOURS[bType];
+      const blockName = variableBlockType(sourceKey, bType);
+      ensureVariableBlockGenerator(blockName);
+
+      Blockly.Blocks[blockName] = {
+        init: function (this: Blockly.Block) {
+          this.appendDummyInput().appendField(
+            new Blockly.FieldDropdown(options),
+            'VAR_NAME'
+          );
+          this.setOutput(true, bType);
+          if (bType === 'Date') {
+            this.setOutputShape(DATE_OUTPUT_SHAPE);
+          }
+          this.setColour(colour);
+        },
+      };
     }
   }
 
-  for (const [bType, options] of Object.entries(byType)) {
-    if (options.length === 0) continue;
+  defineComparisonBlock(
+    'number_comparison',
+    'number',
+    'Number',
+    NUMBER_COMPARISON_OPS,
+    TYPE_COLOURS.Number
+  );
+  defineComparisonBlock(
+    'date_comparison',
+    'date',
+    'Date',
+    DATE_COMPARISON_OPS,
+    TYPE_COLOURS.Date
+  );
+  defineComparisonBlock(
+    'string_comparison',
+    'text',
+    'String',
+    EQUALITY_OPS,
+    TYPE_COLOURS.String
+  );
+  defineComparisonBlock(
+    'boolean_comparison',
+    'true/false',
+    'Boolean',
+    EQUALITY_OPS,
+    TYPE_COLOURS.Boolean
+  );
 
-    const colour = TYPE_COLOURS[bType];
-    const blockName = `app_variable_${bType}`;
-
-    Blockly.Blocks[blockName] = {
-      init: function (this: Blockly.Block) {
-        this.appendDummyInput().appendField(
-          new Blockly.FieldDropdown(options),
-          'VAR_NAME'
-        );
-        this.setOutput(true, bType);
-        this.setColour(colour);
-      },
-    };
-  }
-
+  // Legacy block kept for loading saved rules created before per-type comparisons.
   Blockly.Blocks['comparison'] = {
     init: function (this: Blockly.Block) {
       this.appendValueInput('LEFT').setCheck(['Number', 'String', 'Date']);
       this.appendDummyInput().appendField(
-        new Blockly.FieldDropdown([
-          ['<', '<'],
-          ['>', '>'],
-          ['=', '=='],
-          ['≤', '<='],
-          ['≥', '>='],
-          ['≠', '!='],
-        ]),
+        new Blockly.FieldDropdown(NUMBER_COMPARISON_OPS),
         'OP'
       );
       this.appendValueInput('RIGHT').setCheck(['Number', 'String', 'Date']);
@@ -113,6 +241,32 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
       const check = connectedType ? [connectedType] : baseTypes;
       leftConn?.setCheck(check);
       rightConn?.setCheck(check);
+    },
+  };
+
+  Blockly.Blocks['string_op'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput('TYPE_LABEL').appendField('text');
+      this.appendValueInput('HAYSTACK').setCheck('String');
+      this.appendDummyInput('OP_ROW').appendField(
+        new Blockly.FieldDropdown(STRING_OP_OPTIONS, (value) => {
+          updateStringOpShape(this);
+          return value;
+        }),
+        'OP'
+      );
+      this.appendValueInput('NEEDLE')
+        .setCheck('String')
+        .appendField('contains');
+      this.appendDummyInput('CASE').appendField(
+        new Blockly.FieldDropdown(CASE_OPTIONS),
+        'CASE'
+      );
+      this.setOutput(true, 'Boolean');
+      this.setColour(TYPE_COLOURS.String);
+    },
+    onchange: function (this: Blockly.Block) {
+      updateStringOpShape(this);
     },
   };
 
@@ -181,6 +335,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         'DATE'
       );
       this.setOutput(true, 'Date');
+      this.setOutputShape(DATE_OUTPUT_SHAPE);
       this.setColour(TYPE_COLOURS['Date']);
     },
     onchange: function (this: Blockly.Block) {

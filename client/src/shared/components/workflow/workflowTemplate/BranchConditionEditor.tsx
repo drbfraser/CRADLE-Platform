@@ -52,6 +52,7 @@ interface BranchConditionEditorProps {
   isEditMode?: boolean;
   isSelected?: boolean;
   showFullEditor?: boolean;
+  editorFillHeight?: boolean;
   onChange?: (
     stepId: string,
     branchIndex: number,
@@ -75,6 +76,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   isEditMode = false,
   isSelected = false,
   showFullEditor = false,
+  editorFillHeight = false,
   onChange,
   onTargetStepChange,
   steps = [],
@@ -103,6 +105,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 
   useEffect(() => {
     let cancelled = false;
+    setVariablesLoading(true);
+
     const load = async () => {
       const globalVars = await getWorkflowVariables();
       let formVars: WorkflowVariable[] = [];
@@ -128,7 +132,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [formId]);
+  }, [formId, stepId]);
 
   useEffect(() => {
     if (branch.condition?.rule) {
@@ -178,14 +182,28 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   return (
     <Box
       sx={{
-        p: 2,
-        border: isSelected ? '2px solid #1976d2' : '1px solid #e0e0e0',
-        borderRadius: 1,
-        backgroundColor: isSelected
-          ? 'rgba(25, 118, 210, 0.05)'
-          : 'transparent',
-        transition: 'all 0.2s ease-in-out',
-        boxShadow: isSelected ? '0 2px 8px rgba(25, 118, 210, 0.2)' : 'none',
+        p: showFullEditor ? 0 : 2,
+        border: showFullEditor
+          ? 'none'
+          : isSelected
+            ? '2px solid #1976d2'
+            : '1px solid #e0e0e0',
+        borderRadius: showFullEditor ? 0 : 1,
+        backgroundColor: showFullEditor
+          ? 'transparent'
+          : isSelected
+            ? 'rgba(25, 118, 210, 0.05)'
+            : 'transparent',
+        transition: showFullEditor ? 'none' : 'all 0.2s ease-in-out',
+        boxShadow: showFullEditor
+          ? 'none'
+          : isSelected
+            ? '0 2px 8px rgba(25, 118, 210, 0.2)'
+            : 'none',
+        display: editorFillHeight ? 'flex' : 'block',
+        flexDirection: editorFillHeight ? 'column' : undefined,
+        flex: editorFillHeight ? 1 : undefined,
+        minHeight: editorFillHeight ? 0 : undefined,
       }}>
       {!showFullEditor && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -194,7 +212,13 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       )}
 
       {isEditMode ? (
-        <Box>
+        <Box
+          sx={{
+            display: editorFillHeight ? 'flex' : 'block',
+            flexDirection: editorFillHeight ? 'column' : undefined,
+            flex: editorFillHeight ? 1 : undefined,
+            minHeight: editorFillHeight ? 0 : undefined,
+          }}>
           {showFullEditor && (
             <>
               <TextField
@@ -215,11 +239,21 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
               <CircularProgress size={24} />
             </Box>
           ) : (
-            <BlocklyEditor
-              variables={variables}
-              initialJsonLogic={initialJsonLogic}
-              onChange={handleBlocklyChange}
-            />
+            <Box
+              sx={{
+                flex: editorFillHeight ? 1 : undefined,
+                minHeight: editorFillHeight ? 200 : undefined,
+                display: editorFillHeight ? 'flex' : 'block',
+                flexDirection: editorFillHeight ? 'column' : undefined,
+              }}>
+              <BlocklyEditor
+                key={`${stepId}-${branchIndex}`}
+                variables={variables}
+                initialJsonLogic={initialJsonLogic}
+                onChange={handleBlocklyChange}
+                fillHeight={editorFillHeight}
+              />
+            </Box>
           )}
 
           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
