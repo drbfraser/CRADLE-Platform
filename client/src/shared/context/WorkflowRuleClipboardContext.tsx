@@ -9,7 +9,7 @@ const WorkflowRuleClipboardContext =
 
 /**
  * Provides an in-memory condition clipboard for one workflow editor session.
- * Mount around WorkflowEditor / WorkflowFlowView; unmount clears the clipboard.
+ * Mount around WorkflowFlowView; unmount clears the clipboard.
  */
 export const WorkflowRuleClipboardProvider: React.FC<{
   children: React.ReactNode;

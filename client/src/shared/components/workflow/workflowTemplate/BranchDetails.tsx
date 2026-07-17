@@ -9,8 +9,11 @@ import {
   DialogActions,
   Box,
   IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BranchConditionEditor } from './BranchConditionEditor';
 import {
@@ -18,6 +21,8 @@ import {
   stripRuleMetadata,
 } from '../blocklyEditor/jsonLogicGenerator';
 import { RuleEditorHelpDialog } from '../blocklyEditor/RuleEditorHelpDialog';
+import { useWorkflowRuleClipboard } from 'src/shared/context/WorkflowRuleClipboardContext';
+import { Toast } from 'src/shared/components/toast';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -48,6 +53,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   onClose,
 }) => {
   const branch = selectedStep?.branches?.[selectedBranchIndex || 0];
+  const { copy } = useWorkflowRuleClipboard();
 
   //For Manual Saving
   const [localConditionRule, setLocalConditionRule] = useState<string>(
@@ -81,6 +87,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     undefined
   );
   const [helpOpen, setHelpOpen] = useState(false);
+  const [copyToastOpen, setCopyToastOpen] = useState(false);
 
   useEffect(() => {
     setLocalConditionRule(branch?.condition?.rule || '');
@@ -152,6 +159,22 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     }
     onClose();
   };
+
+  const canCopyCondition =
+    isEditMode && !!localConditionRule && !validationError;
+
+  const handleCopyCondition = () => {
+    if (!canCopyCondition || !selectedStep) return;
+
+    const targetName =
+      steps.find((s) => s.id === branch?.targetStepId)?.name || 'Unknown Step';
+    const sourceLabel = `${selectedStep.name} → ${targetName}`;
+    const ok = copy(localConditionRule, sourceLabel);
+    if (ok) {
+      setCopyToastOpen(true);
+    }
+  };
+
   if (!selectedStep || selectedBranchIndex === undefined) {
     return (
       <Paper sx={{ p: 3, height: '100%' }}>
@@ -201,7 +224,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 1,
-            mb: 2,
+            mb: 1,
           }}>
           <Typography variant="body2" color="text.secondary">
             From: <strong>{selectedStep.name}</strong> → To:{' '}
@@ -223,6 +246,29 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
             </IconButton>
           )}
         </Box>
+
+        {isEditMode && (
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+            <Tooltip
+              title={
+                canCopyCondition
+                  ? 'Copy this condition to paste into another branch'
+                  : 'Build a complete condition before copying'
+              }>
+              <span>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<ContentCopyIcon />}
+                  onClick={handleCopyCondition}
+                  disabled={!canCopyCondition}>
+                  Copy condition
+                </Button>
+              </span>
+            </Tooltip>
+          </Stack>
+        )}
+
         <BranchConditionEditor
           branch={branch}
           branchIndex={selectedBranchIndex}
@@ -259,6 +305,12 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
       <RuleEditorHelpDialog
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
+      />
+      <Toast
+        severity="success"
+        message="Condition copied"
+        open={copyToastOpen}
+        onClose={() => setCopyToastOpen(false)}
       />
     </>
   );
