@@ -23,6 +23,12 @@ interface BranchConditionEditorProps {
   isSelected?: boolean;
   showFullEditor?: boolean;
   editorFillHeight?: boolean;
+  /** Rule shown in Blockly; parent is source of truth when set. */
+  editorJsonLogic?: string;
+  /** Bump to remount Blockly after paste. */
+  editorReloadKey?: number;
+  /** Controlled condition name (branch dialog). */
+  conditionName?: string;
   onChange?: (
     stepId: string,
     branchIndex: number,
@@ -47,13 +53,20 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   isSelected = false,
   showFullEditor = false,
   editorFillHeight = false,
+  editorJsonLogic,
+  editorReloadKey = 0,
+  conditionName: controlledConditionName,
   onChange,
   onTargetStepChange,
   steps = [],
 }) => {
   const [variables, setVariables] = useState<WorkflowVariable[]>([]);
   const [variablesLoading, setVariablesLoading] = useState(true);
-  const [conditionName, setConditionName] = useState<string>('');
+  const [internalConditionName, setInternalConditionName] = useState<string>('');
+  const conditionName =
+    controlledConditionName !== undefined
+      ? controlledConditionName
+      : internalConditionName;
   const [currentRule, setCurrentRule] = useState<string | null>(
     branch.condition?.rule || null
   );
@@ -91,19 +104,28 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   }, [formId, stepId]);
 
   useEffect(() => {
-    if (branch.condition?.rule) {
-      try {
-        const rule = JSON.parse(branch.condition.rule);
-        setConditionName(rule.name || '');
-      } catch {
-        setConditionName('');
-      }
-      setCurrentRule(branch.condition.rule);
-    } else {
-      setConditionName('');
-      setCurrentRule(null);
+    if (editorJsonLogic !== undefined) {
+      setCurrentRule(editorJsonLogic || null);
     }
-  }, [branch, stepId, branchIndex]);
+  }, [editorJsonLogic, editorReloadKey]);
+
+  useEffect(() => {
+    if (controlledConditionName === undefined) {
+      if (branch.condition?.rule) {
+        try {
+          const rule = JSON.parse(branch.condition.rule);
+          setInternalConditionName(rule.name || '');
+        } catch {
+          setInternalConditionName('');
+        }
+      } else {
+        setInternalConditionName('');
+      }
+    }
+    if (editorJsonLogic === undefined) {
+      setCurrentRule(branch.condition?.rule || null);
+    }
+  }, [branch, stepId, branchIndex, controlledConditionName, editorJsonLogic]);
 
   const handleBlocklyChange = (
     jsonLogic: string | null,
@@ -122,18 +144,23 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   };
 
   const handleConditionNameChange = (name: string) => {
-    setConditionName(name);
+    if (controlledConditionName === undefined) {
+      setInternalConditionName(name);
+    }
     if (onChange) {
       onChange(
         stepId,
         branchIndex,
-        currentRuleRef.current ?? branch.condition?.rule ?? '',
+        currentRuleRef.current ?? editorJsonLogic ?? branch.condition?.rule ?? '',
         name
       );
     }
   };
 
-  const initialJsonLogic = branch.condition?.rule || undefined;
+  const initialJsonLogic =
+    editorJsonLogic !== undefined
+      ? editorJsonLogic || undefined
+      : branch.condition?.rule || undefined;
 
   return (
     <Box
@@ -203,7 +230,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
                 flexDirection: editorFillHeight ? 'column' : undefined,
               }}>
               <BlocklyEditor
-                key={`${stepId}-${branchIndex}`}
+                key={`${stepId}-${branchIndex}-${editorReloadKey}`}
                 variables={variables}
                 initialJsonLogic={initialJsonLogic}
                 onChange={handleBlocklyChange}
