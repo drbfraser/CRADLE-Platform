@@ -44,11 +44,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     const currentValue = selectedStep.description || '';
 
     if (!textarea) {
-      onStepChange?.(
-        selectedStep.id,
-        'description',
-        `${currentValue}${token}`
-      );
+      onStepChange?.(selectedStep.id, 'description', `${currentValue}${token}`);
       onCaptureState?.();
       return;
     }
@@ -135,7 +131,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                   <Typography variant="caption" color="text.disabled">
                     Click for formatting help
                   </Typography>
-                  <DescriptionFormattingHelp onInsertDate={handleInsertDateToken} />
+                  <DescriptionFormattingHelp
+                    onInsertDate={handleInsertDateToken}
+                  />
                 </>
               )}
             </Stack>

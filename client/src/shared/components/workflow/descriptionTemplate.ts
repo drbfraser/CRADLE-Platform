@@ -37,14 +37,9 @@ export function resolveDescriptionTemplate(
 ): string {
   return description.replace(
     DATE_TOKEN_PATTERN,
-    (
-      _match,
-      anchor: string,
-      sign?: string,
-      amount?: string,
-      unit?: string
-    ) => {
-      const offsetLabel = sign && amount && unit ? `${sign}${amount}${unit}` : '';
+    (_match, anchor: string, sign?: string, amount?: string, unit?: string) => {
+      const offsetLabel =
+        sign && amount && unit ? `${sign}${amount}${unit}` : '';
 
       let date: moment.Moment;
       if (anchor.toLowerCase() === 'startdate') {
