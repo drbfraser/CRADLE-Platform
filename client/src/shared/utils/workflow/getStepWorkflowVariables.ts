@@ -36,8 +36,7 @@ export function formQuestionsToWorkflowVariables(
 ): WorkflowVariable[] {
   return questions
     .filter(
-      (q) =>
-        q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
+      (q) => q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
     )
     .map(questionToWorkflowVariable);
 }

@@ -62,7 +62,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
 }) => {
   const [variables, setVariables] = useState<WorkflowVariable[]>([]);
   const [variablesLoading, setVariablesLoading] = useState(true);
-  const [internalConditionName, setInternalConditionName] = useState<string>('');
+  const [internalConditionName, setInternalConditionName] =
+    useState<string>('');
   const conditionName =
     controlledConditionName !== undefined
       ? controlledConditionName
@@ -151,7 +152,10 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       onChange(
         stepId,
         branchIndex,
-        currentRuleRef.current ?? editorJsonLogic ?? branch.condition?.rule ?? '',
+        currentRuleRef.current ??
+          editorJsonLogic ??
+          branch.condition?.rule ??
+          '',
         name
       );
     }

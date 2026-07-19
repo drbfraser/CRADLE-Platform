@@ -110,9 +110,7 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [editorReloadKey, setEditorReloadKey] = useState(0);
   const [pasteWarning, setPasteWarning] = useState<string[] | null>(null);
   const [replaceConfirmOpen, setReplaceConfirmOpen] = useState(false);
-  const [pendingPasteRule, setPendingPasteRule] = useState<string | null>(
-    null
-  );
+  const [pendingPasteRule, setPendingPasteRule] = useState<string | null>(null);
   const [availableVariables, setAvailableVariables] = useState<
     WorkflowVariable[]
   >([]);

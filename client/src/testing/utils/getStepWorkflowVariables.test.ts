@@ -79,9 +79,7 @@ describe('formQuestionsToWorkflowVariables', () => {
       questionType: QuestionTypeEnum.DATE,
       questionText: { French: 'Date de naissance' },
     });
-    expect(questionToWorkflowVariable(q).description).toBe(
-      'Date de naissance'
-    );
+    expect(questionToWorkflowVariable(q).description).toBe('Date de naissance');
     expect(questionToWorkflowVariable(q).type).toBe('date');
   });
 });
@@ -101,9 +99,7 @@ describe('getStepWorkflowVariables', () => {
 
   it('returns only global vars when step has no form', async () => {
     const vars = await getStepWorkflowVariables({});
-    expect(vars).toEqual([
-      expect.objectContaining({ tag: 'patient.age' }),
-    ]);
+    expect(vars).toEqual([expect.objectContaining({ tag: 'patient.age' })]);
     expect(api.getFormTemplateAsyncV2).not.toHaveBeenCalled();
   });
 
@@ -121,10 +117,7 @@ describe('getStepWorkflowVariables', () => {
     });
 
     const vars = await getStepWorkflowVariables({ formId: 'form-1' });
-    expect(vars.map((v) => v.tag)).toEqual([
-      'patient.age',
-      'forms[latest].q1',
-    ]);
+    expect(vars.map((v) => v.tag)).toEqual(['patient.age', 'forms[latest].q1']);
     expect(api.getFormTemplateAsyncV2).toHaveBeenCalledWith('form-1');
   });
 
