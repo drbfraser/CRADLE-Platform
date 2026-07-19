@@ -71,6 +71,9 @@ class PatientWithHistory(PatientWithPregnancy):
 class UpdatePatientRequestBody(PatientModel, extra="forbid"):
     """Request Body for Update Patient Endpoint"""
 
+    medical_history: Optional[str] = None
+    drug_history: Optional[str] = None
+    allergy: Optional[str] = None
     last_edited: int = Field(default_factory=get_current_time)
 
 

@@ -222,11 +222,29 @@ patient_put_with_valid_fields_should_return_none = {
     "village_number": VILLAGE_NUMBER,
 }
 
+# Mirrors the real payload sent by the personal info edit form, which always
+# includes these camelCase history fields alongside the core patient fields.
+patient_put_with_history_fields_should_return_none = {
+    "id": PATIENT_ID,
+    "name": PATIENT_NAME,
+    "is_pregnant": True,
+    "sex": SEX,
+    "household_number": HOUSEHOLD_NUMBER,
+    "date_of_birth": DATE_STRING,
+    "is_exact_date_of_birth": False,
+    "zone": ZONE,
+    "village_number": VILLAGE_NUMBER,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
         (patient_put_with_valid_fields_should_return_none, None),
+        (patient_put_with_history_fields_should_return_none, None),
         (
             patient_field_name_has_invalid_type_should_throw_exception,
             ValidationError,
@@ -250,3 +268,11 @@ def test_put_validation(json, expectation):
             UpdatePatientRequestBody(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
+
+
+def test_put_validation_maps_history_fields_to_snake_case():
+    body = UpdatePatientRequestBody(**patient_put_with_history_fields_should_return_none)
+    dumped = body.model_dump()
+    assert dumped["drug_history"] == HISTORY
+    assert dumped["medical_history"] == HISTORY
+    assert dumped["allergy"] == ALLERGY
