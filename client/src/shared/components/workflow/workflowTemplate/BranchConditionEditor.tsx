@@ -29,6 +29,10 @@ interface BranchConditionEditorProps {
   editorReloadKey?: number;
   /** Controlled condition name (branch dialog). */
   conditionName?: string;
+  /** Optional actions rendered below Blockly and above "then go to". */
+  actionsBelowEditor?: React.ReactNode;
+  /** Overlay centered on top of the Blockly workspace (e.g. paste warning). */
+  editorOverlay?: React.ReactNode;
   onChange?: (
     stepId: string,
     branchIndex: number,
@@ -56,6 +60,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   editorJsonLogic,
   editorReloadKey = 0,
   conditionName: controlledConditionName,
+  actionsBelowEditor,
+  editorOverlay,
   onChange,
   onTargetStepChange,
   steps = [],
@@ -228,6 +234,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
           ) : (
             <Box
               sx={{
+                position: 'relative',
                 flex: editorFillHeight ? 1 : undefined,
                 minHeight: editorFillHeight ? 200 : undefined,
                 display: editorFillHeight ? 'flex' : 'block',
@@ -240,8 +247,32 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
                 onChange={handleBlocklyChange}
                 fillHeight={editorFillHeight}
               />
+              {editorOverlay && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                    px: 2,
+                  }}>
+                  <Box
+                    sx={{
+                      pointerEvents: 'auto',
+                      maxWidth: 520,
+                      width: '100%',
+                    }}>
+                    {editorOverlay}
+                  </Box>
+                </Box>
+              )}
             </Box>
           )}
+
+          {actionsBelowEditor}
 
           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
             <Grid item>

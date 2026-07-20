@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Paper,
@@ -29,6 +29,7 @@ import { Toast } from 'src/shared/components/toast';
 import { WorkflowVariable } from 'src/shared/api';
 import { getStepWorkflowVariables } from 'src/shared/utils/workflow/getStepWorkflowVariables';
 import { suggestPastedConditionName } from 'src/shared/utils/workflow/suggestPastedConditionName';
+import { formatMissingVariablesWarning } from 'src/shared/utils/workflow/formatPasteMissingVariables';
 
 interface BranchDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -108,14 +109,12 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   const [feedbackToast, setFeedbackToast] =
     useState<FeedbackToast>(CLOSED_TOAST);
   const [editorReloadKey, setEditorReloadKey] = useState(0);
-  const [pasteWarning, setPasteWarning] = useState<string[] | null>(null);
+  const [pasteWarning, setPasteWarning] = useState<string | null>(null);
   const [replaceConfirmOpen, setReplaceConfirmOpen] = useState(false);
   const [pendingPasteRule, setPendingPasteRule] = useState<string | null>(null);
   const [availableVariables, setAvailableVariables] = useState<
     WorkflowVariable[]
   >([]);
-  // Skip clearing paste warning on the first Blockly onChange after paste remount.
-  const skipPasteWarningClearRef = useRef(false);
 
   useEffect(() => {
     setLocalConditionRule(branch?.condition?.rule || '');
@@ -188,11 +187,6 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
   ) => {
     setLocalConditionRule(conditionRule);
     setLocalConditionName(conditionName || '');
-    if (skipPasteWarningClearRef.current) {
-      skipPasteWarningClearRef.current = false;
-    } else if (pasteWarning) {
-      setPasteWarning(null);
-    }
     if (validationError !== undefined) {
       setValidationError(validationError);
     } else if (conditionRule === '') {
@@ -246,18 +240,20 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
     missingVariables: string[],
     sourceLabel: string
   ) => {
-    skipPasteWarningClearRef.current = true;
     setLocalConditionRule(rule);
-    setLocalConditionName(suggestPastedConditionName(sourceLabel));
-    setValidationError(null);
-    setPasteWarning(missingVariables.length > 0 ? missingVariables : null);
-    setEditorReloadKey((key) => key + 1);
-    showToast(
-      missingVariables.length > 0
-        ? 'Condition pasted — some variables may be missing on this step'
-        : 'Condition pasted',
-      missingVariables.length > 0 ? 'warning' : 'success'
+    setLocalConditionName((current) =>
+      current.trim() ? current : suggestPastedConditionName(sourceLabel)
     );
+    setValidationError(null);
+    setPasteWarning(
+      missingVariables.length > 0
+        ? formatMissingVariablesWarning(missingVariables)
+        : null
+    );
+    setEditorReloadKey((key) => key + 1);
+    if (missingVariables.length === 0) {
+      showToast('Condition pasted');
+    }
     setReplaceConfirmOpen(false);
     setPendingPasteRule(null);
   };
@@ -386,51 +382,6 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
           )}
         </Box>
 
-        {isEditMode && (
-          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-            <Tooltip
-              title={
-                canCopyCondition
-                  ? 'Copy this condition to paste into another branch'
-                  : 'Build a complete condition before copying'
-              }>
-              <span>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<ContentCopyIcon />}
-                  onClick={handleCopyCondition}
-                  disabled={!canCopyCondition}>
-                  Copy condition
-                </Button>
-              </span>
-            </Tooltip>
-            <Tooltip title={pasteTooltip}>
-              <span>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<ContentPasteIcon />}
-                  onClick={handlePasteCondition}
-                  disabled={!hasCopiedRule}>
-                  Paste condition
-                </Button>
-              </span>
-            </Tooltip>
-          </Stack>
-        )}
-
-        {isEditMode && pasteWarning && pasteWarning.length > 0 && (
-          <Alert
-            severity="warning"
-            sx={{ mb: 2 }}
-            onClose={() => setPasteWarning(null)}>
-            Some variables in this condition are not available on this step:{' '}
-            {pasteWarning.join(', ')}. You can still edit or remove them before
-            saving.
-          </Alert>
-        )}
-
         <BranchConditionEditor
           branch={branch}
           branchIndex={selectedBranchIndex}
@@ -446,6 +397,55 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
           conditionName={localConditionName}
           onChange={handleBranchChange}
           steps={steps}
+          editorOverlay={
+            pasteWarning ? (
+              <Alert
+                severity="warning"
+                variant="filled"
+                onClose={() => setPasteWarning(null)}
+                sx={{
+                  boxShadow: 4,
+                  alignItems: 'flex-start',
+                }}>
+                {pasteWarning}
+              </Alert>
+            ) : undefined
+          }
+          actionsBelowEditor={
+            isEditMode ? (
+              <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                <Tooltip
+                  title={
+                    canCopyCondition
+                      ? 'Copy this condition to paste into another branch'
+                      : 'Build a complete condition before copying'
+                  }>
+                  <span>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<ContentCopyIcon />}
+                      onClick={handleCopyCondition}
+                      disabled={!canCopyCondition}>
+                      Copy condition
+                    </Button>
+                  </span>
+                </Tooltip>
+                <Tooltip title={pasteTooltip}>
+                  <span>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<ContentPasteIcon />}
+                      onClick={handlePasteCondition}
+                      disabled={!hasCopiedRule}>
+                      Paste condition
+                    </Button>
+                  </span>
+                </Tooltip>
+              </Stack>
+            ) : undefined
+          }
         />
         {isEditMode && validationError && (
           <Alert severity="error" sx={{ mt: 2 }}>

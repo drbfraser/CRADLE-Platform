@@ -226,4 +226,41 @@ describe('Blockly workspace rules', () => {
       expect(JSON.parse(exported!)).toEqual(JSON.parse(rule));
     });
   });
+
+  describe('loading rules with missing variables', () => {
+    it('leaves the variable slot empty when the form question is not available', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({
+          '==': [{ var: 'forms[latest].missing_q' }, 'Yes'],
+        }),
+        TEST_VARIABLES
+      );
+
+      const roots = getConditionRootBlocks(workspace);
+      expect(roots).toHaveLength(1);
+      const root = roots[0]!;
+      expect(root.type).toBe('string_comparison');
+      expect(root.getInputTargetBlock('LEFT')).toBeNull();
+      const right = root.getInputTargetBlock('RIGHT');
+      expect(right?.type).toBe('string_value');
+      expect(right?.getFieldValue('TEXT')).toBe('Yes');
+      expect(root.getFieldValue('OP')).toBe('==');
+    });
+
+    it('still loads known form questions', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({
+          '==': [{ var: 'forms[latest].q1' }, 'Yes'],
+        }),
+        TEST_VARIABLES
+      );
+
+      const roots = getConditionRootBlocks(workspace);
+      expect(roots).toHaveLength(1);
+      const left = roots[0]!.getInputTargetBlock('LEFT');
+      expect(left?.getFieldValue('VAR_NAME')).toBe('forms[latest].q1');
+    });
+  });
 });

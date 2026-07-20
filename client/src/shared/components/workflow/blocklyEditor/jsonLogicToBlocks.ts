@@ -7,6 +7,14 @@ import { resolveVariableBlockType } from './variableGrouping';
 const COMPARISON_OPS = ['<', '>', '==', '<=', '>=', '!='];
 const STRING_OPS = ['contains', 'startsWith', 'endsWith'];
 
+function extractVarTag(varValue: unknown): string | null {
+  if (typeof varValue === 'string') return varValue;
+  if (Array.isArray(varValue) && typeof varValue[0] === 'string') {
+    return varValue[0];
+  }
+  return null;
+}
+
 export function loadJsonLogicToWorkspace(
   workspace: Blockly.WorkspaceSvg,
   jsonLogicStr: string,
@@ -171,7 +179,11 @@ function createBlockFromRule(
   }
 
   if ('var' in ruleObj) {
-    const tag = String(ruleObj.var);
+    const tag = extractVarTag(ruleObj.var);
+    if (!tag || !variables.some((v) => v.tag === tag)) {
+      // Missing on this step — leave the input empty
+      return null;
+    }
     const bType = tagToType.get(tag) ?? 'String';
     const blockType = resolveVariableBlockType(tag, variables, bType);
     const block = workspace.newBlock(blockType);
