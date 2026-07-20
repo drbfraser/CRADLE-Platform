@@ -200,7 +200,6 @@ export const ViewWorkflowTemplate = () => {
             onUndo={workflowEditor.undo}
             onRedo={workflowEditor.redo}
             isSaving={editWorkflowTemplateMutation.isPending}
-            saveDisabled={!!workflowTemplateQuery.data?.hasBranchingIssues}
             hasBranchingIssues={!!workflowTemplateQuery.data?.hasBranchingIssues}
           />
         ) : (

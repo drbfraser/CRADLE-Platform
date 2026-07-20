@@ -507,7 +507,17 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
     """
     This function is called everytime a form is updated. It finds all the templates and their steps that link
     to the older form and replaces it with the new version, generating a new workflow template version in the process.
+
+    If branching conditions reference questions that no longer exist (or changed type) in the new form,
+    the workflow's has_branching_issues flag is set and the version bump is skipped until the issues
+    are resolved. A second pass also re-checks any workflows that previously had branching issues
+    to see if the new form resolves them.
     """
+    old_form = crud.read(FormTemplateOrmV2, id=old_form_id)
+    new_form = crud.read(FormTemplateOrmV2, id=new_form_id)
+    if old_form is None or new_form is None:
+        return
+
     # find all existing, non-archived workflows with steps that link to old_form_id
     steps_to_update = (
         crud.db_session.query(WorkflowTemplateStepOrm)
@@ -524,6 +534,14 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
             WorkflowTemplateOrm, id=workflow_template_id, archived=False
         )
         if not workflow_orm:
+            continue
+
+        compatible, _ = check_form_compatibility_for_workflow(
+            workflow_orm, old_form, new_form
+        )
+        if not compatible:
+            workflow_orm.has_branching_issues = True
+            crud.db_session.commit()
             continue
 
         template_dict = orm_serializer.marshal(workflow_orm)
@@ -548,6 +566,7 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
         updated_workflow_template = generate_updated_workflow_template(
             workflow_orm, patch_body, auto_assign_id=True
         )
+        updated_workflow_template.has_branching_issues = False
         workflow_orm.archived = True
 
         try:
@@ -558,6 +577,75 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
                 code=409,
                 description=f"Error updating workflow with id {classification_id}.",
             )
+
+    # find workflows that previously had branching issues related to this form's classification and check whether the new form resolves them.
+    stale_issue_workflows = (
+        crud.db_session.query(WorkflowTemplateOrm)
+        .join(WorkflowTemplateStepOrm)
+        .join(
+            FormTemplateOrmV2,
+            WorkflowTemplateStepOrm.form_id == FormTemplateOrmV2.id,
+        )
+        .filter(WorkflowTemplateOrm.has_branching_issues == True)
+        .filter(WorkflowTemplateOrm.archived == False)
+        .filter(
+            FormTemplateOrmV2.form_classification_id == new_form.form_classification_id
+        )
+        .filter(WorkflowTemplateOrm.id.notin_(target_workflows_ids))
+        .distinct()
+        .all()
+    )
+
+    for stale_workflow in stale_issue_workflows:
+        # find the step pointing to a form of the same classification as new_form
+        current_step_form = None
+        for step in stale_workflow.steps:
+            if (
+                step.form is not None
+                and step.form.form_classification_id == new_form.form_classification_id
+            ):
+                current_step_form = step.form
+                break
+        if current_step_form is None:
+            continue
+
+        compatible, _ = check_form_compatibility_for_workflow(
+            stale_workflow, current_step_form, new_form
+        )
+        if not compatible:
+            continue
+
+        template_dict = orm_serializer.marshal(stale_workflow)
+        for workflow_step in template_dict["steps"]:
+            step_form_id = workflow_step.get("form_id")
+            if step_form_id:
+                step_form = crud.read(FormTemplateOrmV2, id=step_form_id)
+                if (
+                    step_form is not None
+                    and step_form.form_classification_id
+                    == new_form.form_classification_id
+                ):
+                    workflow_step["form_id"] = new_form_id
+            workflow_step.pop("form", None)
+
+        classification_id = stale_workflow.classification_id
+        lock_workflow_classification_for_update(classification_id)
+
+        patch_body = {}
+        patch_body["version"] = get_next_workflow_template_version(classification_id)
+        patch_body["steps"] = template_dict["steps"]
+        patch_body["starting_step_id"] = stale_workflow.starting_step_id
+
+        updated_workflow_template = generate_updated_workflow_template(
+            stale_workflow, patch_body, auto_assign_id=True
+        )
+        updated_workflow_template.has_branching_issues = False
+        stale_workflow.archived = True
+
+        try:
+            crud.create(model=updated_workflow_template, refresh=True)
+        except IntegrityError:
+            crud.db_session.rollback()
 
 
 def check_form_compatibility_for_workflow(
@@ -588,7 +676,7 @@ def check_form_compatibility_for_workflow(
 
     for step in workflow_orm.steps:
         for branch in step.branches:
-            if branch.condition is None or branch.condition.rule is None:
+            if branch.condition is None or not branch.condition.rule:
                 continue
 
             try:

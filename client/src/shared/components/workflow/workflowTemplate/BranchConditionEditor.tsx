@@ -15,6 +15,7 @@ import {
   WorkflowVariable,
   getWorkflowVariables,
   getFormTemplateAsyncV2,
+  getAllFormTemplatesAsyncV2,
 } from 'src/shared/api';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
@@ -73,46 +74,82 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   }, [currentRule]);
 
   useEffect(() => {
-    const currentStep = steps.find((s) => s.id === stepId);
-    const formId = currentStep?.formId;
+    let cancelled = false;
 
-    Promise.all([
-      getWorkflowVariables(),
-      formId ? getFormTemplateAsyncV2(formId) : Promise.resolve(null),
-    ])
-      .then(([globalVars, formTemplate]) => {
-        const formVars: WorkflowVariable[] = formTemplate
-          ? formTemplate.questions
-              .filter(
-                (q) =>
-                  q.userQuestionId &&
-                  q.questionType !== QuestionTypeEnum.CATEGORY
-              )
-              .map((q) => {
-                let type: WorkflowVariable['type'] = 'string';
-                if (q.questionType === QuestionTypeEnum.INTEGER) {
-                  type = 'integer';
-                } else if (
-                  q.questionType === QuestionTypeEnum.DATE ||
-                  q.questionType === QuestionTypeEnum.DATETIME
-                ) {
-                  type = 'date';
-                }
-                return {
-                  tag: `forms[latest].${q.userQuestionId}`,
-                  description:
-                    q.questionText['English'] ??
-                    q.questionText[Object.keys(q.questionText)[0]] ??
-                    q.userQuestionId!,
-                  type,
-                  isComputed: false,
-                  isDynamic: true,
-                };
-              })
-          : [];
-        setVariables([...globalVars, ...formVars]);
-      })
-      .finally(() => setVariablesLoading(false));
+    const load = async () => {
+      const currentStep = steps.find((s) => s.id === stepId);
+      let formId = currentStep?.formId;
+
+      // Resolve the latest non-archived form for the step's classification.
+      if (formId && currentStep?.form?.archived) {
+        try {
+          // Use the classification ID from the step's form object
+          const classificationId = currentStep.form?.classification?.id;
+          if (classificationId) {
+            const { templates } = await getAllFormTemplatesAsyncV2(false);
+            const latestForm = templates.find((t) => {
+              const tClassId =
+                t.form_classification_id ??
+                (t as Record<string, unknown>).formClassificationId;
+              return !t.archived && tClassId === classificationId;
+            });
+            if (latestForm?.id) {
+              formId = latestForm.id;
+            }
+          }
+        } catch {
+          // fall back to the original formId
+        }
+      }
+
+      const [globalVars, formTemplate] = await Promise.all([
+        getWorkflowVariables(),
+        formId ? getFormTemplateAsyncV2(formId) : Promise.resolve(null),
+      ]);
+
+      if (cancelled) return;
+
+      const formVars: WorkflowVariable[] = formTemplate
+        ? formTemplate.questions
+            .filter(
+              (q) =>
+                q.userQuestionId &&
+                q.questionType !== QuestionTypeEnum.CATEGORY
+            )
+            .map((q) => {
+              let type: WorkflowVariable['type'] = 'string';
+              if (q.questionType === QuestionTypeEnum.INTEGER) {
+                type = 'integer';
+              } else if (
+                q.questionType === QuestionTypeEnum.DATE ||
+                q.questionType === QuestionTypeEnum.DATETIME
+              ) {
+                type = 'date';
+              }
+              return {
+                tag: `forms[latest].${q.userQuestionId}`,
+                description:
+                  q.questionText['English'] ??
+                  q.questionText[Object.keys(q.questionText)[0]] ??
+                  q.userQuestionId!,
+                type,
+                isComputed: false,
+                isDynamic: true,
+              };
+            })
+        : [];
+
+      setVariables([...globalVars, ...formVars]);
+      setVariablesLoading(false);
+    };
+
+    load().catch(() => {
+      if (!cancelled) setVariablesLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [stepId, steps]);
 
   useEffect(() => {

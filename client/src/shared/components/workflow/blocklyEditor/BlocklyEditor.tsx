@@ -107,6 +107,13 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // take form association and other details into consideration when saving
+  useEffect(() => {
+    if (!workspaceRef.current) return;
+    registerBlocks(variables);
+    workspaceRef.current.updateToolbox(buildToolboxConfig(variables));
+  }, [variables]);
+
   return (
     <>
       {blocklyZIndexFix}

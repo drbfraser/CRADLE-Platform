@@ -72,6 +72,14 @@ function createBlockFromRule(
 
   if ('var' in ruleObj) {
     const tag = String(ruleObj.var);
+    if (!tagToType.has(tag)) {
+      // Variable was removed from the form so showing it in a red placeholder so the
+      const block = workspace.newBlock('app_variable_missing');
+      block.setFieldValue(tag, 'VAR_NAME');
+      block.initSvg();
+      block.render();
+      return block;
+    }
     const bType = tagToType.get(tag) ?? 'String';
     const block = workspace.newBlock(`app_variable_${bType}`);
     block.setFieldValue(tag, 'VAR_NAME');

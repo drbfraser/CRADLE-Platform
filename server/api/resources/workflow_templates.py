@@ -12,6 +12,7 @@ from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
+    check_form_compatibility_for_workflow,
     generate_updated_workflow_template,
     get_next_workflow_template_version,
     lock_workflow_classification_for_update,
@@ -20,6 +21,7 @@ from common.workflow_utils import (
 from data import orm_serializer
 from enums import RoleEnum
 from models import (
+    FormTemplateOrmV2,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
@@ -412,6 +414,39 @@ def update_workflow_template_patch(
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
+
+    # For each step, check compatibility against the latest non-archived form for
+    # that step's classification. If compatible, update the step to the latest form.
+    # If any step is incompatible, mark has_branching_issues without updating form_ids.
+    has_issues = False
+    for old_step, new_step in zip(
+        workflow_template.steps, new_workflow_template.steps
+    ):
+        if not old_step.form_id:
+            continue
+        current_form = crud.read(FormTemplateOrmV2, id=old_step.form_id)
+        if current_form is None or not current_form.form_classification_id:
+            continue
+        latest_form = (
+            crud.db_session.query(FormTemplateOrmV2)
+            .filter(
+                FormTemplateOrmV2.form_classification_id
+                == current_form.form_classification_id
+            )
+            .filter(FormTemplateOrmV2.archived == False)
+            .first()
+        )
+        if latest_form is None or latest_form.id == old_step.form_id:
+            continue
+        compatible, _ = check_form_compatibility_for_workflow(
+            new_workflow_template, current_form, latest_form
+        )
+        if compatible:
+            new_step.form_id = latest_form.id
+        else:
+            has_issues = True
+
+    new_workflow_template.has_branching_issues = has_issues
 
     workflow_template.archived = True
 

@@ -63,6 +63,21 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
     };
   }
 
+  // Placeholder block for variables removed from the form that are shown in red so
+  // the user knows to delete or replace it before saving.
+  Blockly.Blocks['app_variable_missing'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput()
+        .appendField('⚠ Removed: ')
+        .appendField(new Blockly.FieldLabel('?'), 'VAR_NAME');
+      this.setOutput(true, null);
+      this.setColour(0);
+      this.setTooltip(
+        'This variable no longer exists in the form. Delete this block or replace it with a valid variable.'
+      );
+    },
+  };
+
   Blockly.Blocks['comparison'] = {
     init: function (this: Blockly.Block) {
       this.appendValueInput('LEFT').setCheck(['Number', 'String', 'Date']);
