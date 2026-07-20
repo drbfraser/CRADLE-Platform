@@ -248,6 +248,26 @@ describe('Blockly workspace rules', () => {
       expect(root.getFieldValue('OP')).toBe('==');
     });
 
+    it('keeps number compare when a missing form question had a numeric value', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({
+          '>=': [{ var: 'forms[latest].patient_age' }, 18],
+        }),
+        TEST_VARIABLES
+      );
+
+      const roots = getConditionRootBlocks(workspace);
+      expect(roots).toHaveLength(1);
+      const root = roots[0]!;
+      expect(root.type).toBe('number_comparison');
+      expect(root.getInputTargetBlock('LEFT')).toBeNull();
+      expect(root.getFieldValue('OP')).toBe('>=');
+      const right = root.getInputTargetBlock('RIGHT');
+      expect(right?.type).toBe('number_value');
+      expect(Number(right?.getFieldValue('NUM'))).toBe(18);
+    });
+
     it('still loads known form questions', () => {
       loadJsonLogicToWorkspace(
         workspace,

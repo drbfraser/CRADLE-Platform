@@ -60,7 +60,7 @@ function createComparisonBlock(
   blockType?: string
 ): Blockly.BlockSvg {
   const resolvedType =
-    blockType ?? comparisonBlockType(args[0], args[1], tagToType);
+    blockType ?? comparisonBlockType(args[0], args[1], tagToType, op);
   const block = workspace.newBlock(resolvedType);
   block.setFieldValue(op, 'OP');
   block.initSvg();

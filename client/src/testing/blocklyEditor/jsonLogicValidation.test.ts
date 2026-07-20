@@ -79,4 +79,35 @@ describe('ruleTypeInference', () => {
       )
     ).toBe('date_comparison');
   });
+
+  it('uses the value side when the variable is missing from the catalogue', () => {
+    expect(
+      comparisonBlockType({ var: 'forms[latest].missing_age' }, 18, tagToType)
+    ).toBe('number_comparison');
+    expect(
+      comparisonBlockType(
+        { var: 'forms[latest].missing_dob' },
+        { date: '2024-01-01' },
+        tagToType
+      )
+    ).toBe('date_comparison');
+    expect(
+      comparisonBlockType(
+        { var: 'forms[latest].missing_q' },
+        'male',
+        tagToType
+      )
+    ).toBe('string_comparison');
+  });
+
+  it('uses ordered operators as a number hint when both sides are unknown', () => {
+    expect(
+      comparisonBlockType(
+        { var: 'forms[latest].missing' },
+        { var: 'also.missing' },
+        tagToType,
+        '>='
+      )
+    ).toBe('number_comparison');
+  });
 });
