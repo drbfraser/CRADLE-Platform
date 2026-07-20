@@ -154,7 +154,11 @@ def get_patient_info(path: PatientIdPath):
 @api_patients.put("/<string:patient_id>/info", responses={201: PatientModel})
 def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     """Update Patient Info"""
-    update_patient = body.model_dump()
+    # `exclude_unset=True` so fields the client didn't send are left untouched
+    # instead of being overwritten with their model defaults (e.g. `id=None`,
+    # `date_created=None`), which would otherwise violate NOT NULL columns or
+    # silently wipe data like `is_pregnant` on every partial-form save.
+    update_patient = body.model_dump(exclude_unset=True)
     # If the inbound JSON contains a `base` field then we need to check if it is the
     # same as the `last_edited` field of the existing patient. If it is then that
     # means that the patient has not been edited on the server since this inbound
@@ -174,9 +178,10 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
         if base != last_edited:
             return abort(409, description="Unable to merge changes, conflict detected")
 
-        # Delete the `base` field once we are done with it as to not confuse the
-        # ORM as there is no "base" column in the database for patients.
-        del update_patient["base"]
+    # Remove the `base` field as there is no "base" column in the database for
+    # patients. It may or may not be present depending on whether the client
+    # sent one, since `exclude_unset=True` omits it entirely when absent.
+    update_patient.pop("base", None)
 
     crud.update(PatientOrm, update_patient, id=path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)

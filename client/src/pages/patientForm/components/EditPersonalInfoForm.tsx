@@ -13,7 +13,7 @@ import PatientFormHeader from './PatientFormHeader';
 import { PersonalInfoForm } from './personalInfo';
 import { getPatientInfoAsync } from 'src/shared/api';
 import { Patient } from 'src/shared/types/patientTypes';
-import { getAgeBasedOnDOB } from 'src/shared/utils';
+import { getAgeBasedOnDOB, getDOBForEstimatedAge } from 'src/shared/utils';
 
 export type PatientData = {
   name: string;
@@ -77,6 +77,11 @@ const EditPersonalInfoForm = () => {
 
   const handleSubmit = (values: PatientState) => {
     const patientData = getPatientData(values);
+    if (!patientData.isExactDateOfBirth) {
+      patientData.dateOfBirth = getDOBForEstimatedAge(
+        parseInt(values[PatientField.estimatedAge])
+      );
+    }
     updatePatient.mutate(patientData, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });

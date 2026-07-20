@@ -271,7 +271,9 @@ def test_put_validation(json, expectation):
 
 
 def test_put_validation_maps_history_fields_to_snake_case():
-    body = UpdatePatientRequestBody(**patient_put_with_history_fields_should_return_none)
+    body = UpdatePatientRequestBody(
+        **patient_put_with_history_fields_should_return_none
+    )
     dumped = body.model_dump()
     assert dumped["drug_history"] == HISTORY
     assert dumped["medical_history"] == HISTORY
