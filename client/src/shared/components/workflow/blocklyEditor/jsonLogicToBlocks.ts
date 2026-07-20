@@ -180,9 +180,18 @@ function createBlockFromRule(
 
   if ('var' in ruleObj) {
     const tag = extractVarTag(ruleObj.var);
-    if (!tag || !variables.some((v) => v.tag === tag)) {
-      // Missing on this step — leave the input empty
+    if (!tag) {
+      // Malformed var reference — leave the input empty
       return null;
+    }
+    if (!tagToType.has(tag)) {
+      // Variable was removed from the form so show it in a red placeholder so the
+      // user knows to delete or replace it before saving.
+      const block = workspace.newBlock('app_variable_missing');
+      block.setFieldValue(tag, 'VAR_NAME');
+      block.initSvg();
+      block.render();
+      return block;
     }
     const bType = tagToType.get(tag) ?? 'String';
     const blockType = resolveVariableBlockType(tag, variables, bType);

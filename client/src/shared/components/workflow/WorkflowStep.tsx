@@ -28,6 +28,12 @@ export const WorkflowStep = ({
     step.form?.classification?.name ||
     step.form?.classification?.name?.english ||
     (step.formId ? `Form ID: ${step.formId}` : null);
+  const isFormArchived = step.form?.archived === true;
+  const displayFormName = formName
+    ? isFormArchived
+      ? `${formName} [OLD]`
+      : formName
+    : null;
 
   return (
     <>
@@ -64,9 +70,9 @@ export const WorkflowStep = ({
           <Typography>
             <Box component="b">Description: </Box> {step.description}
           </Typography>
-          {formName && (
+          {displayFormName && (
             <Typography>
-              <Box component="b">Form: </Box> {formName}
+              <Box component="b">Form: </Box> {displayFormName}
             </Typography>
           )}
           {step.expectedCompletion && (

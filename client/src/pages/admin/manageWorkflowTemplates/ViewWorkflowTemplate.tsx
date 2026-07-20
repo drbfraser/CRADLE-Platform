@@ -101,7 +101,6 @@ export const ViewWorkflowTemplate = () => {
             editor={workflowEditor}
             allowClassificationEdit={true}
             isSaving={editWorkflowTemplateMutation.isPending}
-            saveDisabled={!!workflowTemplateQuery.data?.hasBranchingIssues}
             hasBranchingIssues={!!workflowTemplateQuery.data?.hasBranchingIssues}
           />
         ) : (
