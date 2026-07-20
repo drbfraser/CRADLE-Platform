@@ -24,7 +24,7 @@ export function inferBlocklyType(
     if ('var' in ruleObj) {
       const tag = extractVarTag(ruleObj.var);
       if (!tag) return null;
-      // Unknown / missing variable 
+      // Unknown / missing variable
       return tagToType.get(tag) ?? null;
     }
     if ('length' in ruleObj) return 'Number';

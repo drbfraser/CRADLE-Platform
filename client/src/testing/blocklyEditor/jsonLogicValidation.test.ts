@@ -92,11 +92,7 @@ describe('ruleTypeInference', () => {
       )
     ).toBe('date_comparison');
     expect(
-      comparisonBlockType(
-        { var: 'forms[latest].missing_q' },
-        'male',
-        tagToType
-      )
+      comparisonBlockType({ var: 'forms[latest].missing_q' }, 'male', tagToType)
     ).toBe('string_comparison');
   });
 
