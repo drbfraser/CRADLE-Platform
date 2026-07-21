@@ -33,7 +33,7 @@ class WorkflowClassificationOrm(db.Model):
 
     __tablename__ = "workflow_classification"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    name = db.Column(db.String(200), index=True, nullable=False)
+    name_string_id = db.Column(db.String(50), index=True, nullable=False)
 
     # FOREIGN KEYS
     collection_id = db.Column(
@@ -82,7 +82,7 @@ class WorkflowTemplateOrm(db.Model):
         ),
     )
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    description = db.Column(db.Text, nullable=False)
+    description_string_id = db.Column(db.String(50), nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     starting_step_id = db.Column(db.String(50), nullable=True)
@@ -119,8 +119,8 @@ class WorkflowTemplateStepOrm(db.Model):
 
     __tablename__ = "workflow_template_step"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    name = db.Column(db.String(200), index=True, nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    name_string_id = db.Column(db.String(50), nullable=False)
+    description_string_id = db.Column(db.String(50), nullable=False)
     expected_completion = db.Column(
         db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
@@ -203,6 +203,7 @@ class WorkflowInstanceOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
+    lang = db.Column(db.String(50), nullable=False, default="English")
     start_date = db.Column(db.BigInteger, nullable=True, default=None)
     current_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
