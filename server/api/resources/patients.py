@@ -154,7 +154,7 @@ def get_patient_info(path: PatientIdPath):
 @api_patients.put("/<string:patient_id>/info", responses={201: PatientModel})
 def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     """Update Patient Info"""
-    update_patient = body.model_dump()
+    update_patient = body.model_dump(exclude_unset=True)
     # If the inbound JSON contains a `base` field then we need to check if it is the
     # same as the `last_edited` field of the existing patient. If it is then that
     # means that the patient has not been edited on the server since this inbound

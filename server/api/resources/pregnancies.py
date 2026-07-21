@@ -71,6 +71,7 @@ def get_pregnancy(path: PregnancyIdPath):
 def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
     """Update Pregnancy"""
     pregnancy_model_dump = body.model_dump()
+    pregnancy_model_dump["id"] = path.pregnancy_id
 
     pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
     if pregnancy is None:
