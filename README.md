@@ -22,6 +22,16 @@ For CRADLE Mobile set up see [docs/mobile_setup.md](docs/mobile_setup.md).
 
 For CRADLE SMS relay set up see [docs/sms_relay_setup.md](docs/sms_relay_setup.md).
 
+## Downloading the Backend Test Coverage Report
+
+Every CI run generates an HTML coverage report for the backend test suite. To download it:
+
+1. On a commit or pull request, click the status icon (✅/❌) next to the commit to open the checks list.
+2. Click **Details** on any of the listed checks to open the GitHub Actions run.
+3. On the run page, open the **Summary** tab (in the left sidebar).
+4. Scroll down to the **Artifacts** section at the bottom of the page.
+5. Click **coverage_report** — it downloads automatically as a zip file. Extract it and open `index.html` in a browser to view line-by-line coverage.
+
 ## Default Usernames & Passwords
 
 When you `seed_minimal`, only one user is added:
