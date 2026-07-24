@@ -121,7 +121,10 @@ export default function WorkflowStepHistory({
                   Description
                 </Typography>
                 <Box sx={{ mb: 3 }}>
-                  <StepDescription description={currentStep.description} />
+                  <StepDescription
+                    description={currentStep.description}
+                    startDate={currentStep.startDateEpoch}
+                  />
                 </Box>
 
                 <StepHistoryActions
