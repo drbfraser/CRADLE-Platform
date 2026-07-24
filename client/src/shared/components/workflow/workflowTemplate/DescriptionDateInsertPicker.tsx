@@ -68,7 +68,7 @@ export default function DescriptionDateInsertPicker({
             variant="caption"
             color="text.secondary"
             sx={{ mb: 1.5, display: 'block' }}>
-            Date will be realtive to when this step is created. 
+            Date will be realtive to when this step is created.
           </Typography>
           <Stack direction="row" spacing={1} sx={{ mb: 1.5 }}>
             <TextField
