@@ -15,6 +15,7 @@ import StepDescription from 'src/shared/components/workflow/StepDescription';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import DescriptionFormattingHelp from './DescriptionFormattingHelp';
+import DescriptionDateInsertPicker from './DescriptionDateInsertPicker';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -128,10 +129,8 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               </Typography>
               {isEditMode && (
                 <>
-                  <Typography variant="caption" color="text.disabled">
-                    Click for formatting help
-                  </Typography>
-                  <DescriptionFormattingHelp
+                  <DescriptionFormattingHelp />
+                  <DescriptionDateInsertPicker
                     onInsertDate={handleInsertDateToken}
                   />
                 </>
