@@ -35,7 +35,13 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   });
 
   useEffect(() => {
-    if (!selectedStep || !isEditMode || !formTemplatesQuery.data || !selectedStep.formId) return;
+    if (
+      !selectedStep ||
+      !isEditMode ||
+      !formTemplatesQuery.data ||
+      !selectedStep.formId
+    )
+      return;
 
     const classificationId = selectedStep.form?.classification?.id;
     if (!classificationId) return;
@@ -87,11 +93,11 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
 
   // In edit mode, when the step's form is archived, resolve the latest non-archived form for the same classification so the dropdown defaults to it.
   const latestNonArchivedForm = isFormArchived
-    ? (formTemplatesQuery.data ?? []).find((f: FormTemplateList) => {
+    ? ((formTemplatesQuery.data ?? []).find((f: FormTemplateList) => {
         if (f.archived) return false;
         const fClassId = f.form_classification_id ?? f.formClassificationId;
         return fClassId === selectedStep.form?.classification?.id;
-      }) ?? null
+      }) ?? null)
     : null;
 
   const autocompleteValue = isEditMode
@@ -164,7 +170,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
             {isEditMode ? (
               <Autocomplete
                 fullWidth
-                options={(formTemplatesQuery.data ?? []).filter((f: FormTemplateList) => !f.archived)}
+                options={(formTemplatesQuery.data ?? []).filter(
+                  (f: FormTemplateList) => !f.archived
+                )}
                 getOptionLabel={(option) => option.name}
                 value={autocompleteValue}
                 onChange={(_, newValue) => {

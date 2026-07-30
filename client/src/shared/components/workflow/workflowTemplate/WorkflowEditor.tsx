@@ -73,14 +73,6 @@ export const WorkflowEditor = ({
         </Stack>
       </Box>
 
-      {hasBranchingIssues && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          <strong>Branching issues detected:</strong> One or more branch
-          conditions reference form fields that were removed or changed type.
-          Fix or remove the affected conditions, then save to re-evaluate.
-        </Alert>
-      )}
-
       {editor.hasChanges && (
         <Alert severity="info" sx={{ mb: 2 }}>
           You have unsaved changes. Don&apos;t forget to save your work!

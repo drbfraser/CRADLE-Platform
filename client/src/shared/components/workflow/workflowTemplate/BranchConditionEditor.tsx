@@ -134,8 +134,7 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
         ? formTemplate.questions
             .filter(
               (q) =>
-                q.userQuestionId &&
-                q.questionType !== QuestionTypeEnum.CATEGORY
+                q.userQuestionId && q.questionType !== QuestionTypeEnum.CATEGORY
             )
             .map((q) => {
               let type: WorkflowVariable['type'] = 'string';
