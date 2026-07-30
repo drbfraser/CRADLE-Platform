@@ -516,7 +516,7 @@ def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
     old_form = crud.read(FormTemplateOrmV2, id=old_form_id)
     new_form = crud.read(FormTemplateOrmV2, id=new_form_id)
     if old_form is None or new_form is None:
-        return
+        return None
 
     # find all existing, non-archived workflows with steps that link to old_form_id
     steps_to_update = (

@@ -34,7 +34,6 @@ from models import (
     RelayServerPhoneNumberOrm,
     RuleGroupOrm,
     VillageOrm,
-    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
