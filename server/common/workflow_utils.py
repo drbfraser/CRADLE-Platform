@@ -699,7 +699,10 @@ def check_form_compatibility_for_workflow(
                         f"Step '{step.name}': branch condition references '{user_question_id}', "
                         f"which was removed from the updated form."
                     )
-                elif old_questions.get(user_question_id) != new_questions[user_question_id]:
+                elif (
+                    old_questions.get(user_question_id)
+                    != new_questions[user_question_id]
+                ):
                     old_type = old_questions.get(user_question_id, "unknown")
                     new_type = new_questions[user_question_id]
                     issues.append(

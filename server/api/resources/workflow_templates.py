@@ -419,9 +419,7 @@ def update_workflow_template_patch(
     # that step's classification. If compatible, update the step to the latest form.
     # If any step is incompatible, mark has_branching_issues without updating form_ids.
     has_issues = False
-    for old_step, new_step in zip(
-        workflow_template.steps, new_workflow_template.steps
-    ):
+    for old_step, new_step in zip(workflow_template.steps, new_workflow_template.steps):
         if not old_step.form_id:
             continue
         current_form = crud.read(FormTemplateOrmV2, id=old_step.form_id)
