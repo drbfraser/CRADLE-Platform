@@ -30,8 +30,10 @@ describe('buildToolboxConfig', () => {
       }>;
     }>;
 
-    const patient = categories.find((c) => c.name === 'Patient');
-    const forms = categories.find((c) => c.name === 'Form Questions');
+    const variables = categories.find((c) => c.name == 'Variables')?.contents;
+
+    const patient = variables?.find((c) => c.name === 'Patient');
+    const forms = variables?.find((c) => c.name === 'Form Questions');
 
     const patientNumber = patient?.contents.find(
       (c) => c.name === 'Number Variables'
