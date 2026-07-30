@@ -13,6 +13,7 @@ import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from data import orm_serializer
 from enums import QuestionTypeEnum, SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
+from enums import WorkflowVariableTypeEnum as VariableType
 from models import (
     FormAnswerOrmV2,
     FormClassificationOrm,
@@ -40,6 +41,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    WorkflowVariableCatalogueOrm,
     db,
 )
 from seed_users import (
@@ -64,6 +66,7 @@ def reset_db_cli():
 def reset_db():
     db.drop_all()
     db.create_all()
+    seed_required_data()
     db.session.commit()
 
 
@@ -112,6 +115,319 @@ def seed_minimal(ctx):
     reset_db()
     seed_minimal_users()
     print("Finished seeding minimal data set")
+
+
+def seed_required_data() -> None:
+    seed_workflow_variable_catalogue()
+
+
+def seed_workflow_variable_catalogue() -> None:
+    def catalogue_variable(
+        id,
+        tag,
+        description,
+        variable_type,
+        namespace,
+        field_path=None,
+        collection_name=None,
+        *,
+        computed=False,
+        dynamic=False,
+    ):
+        return {
+            "id": id,
+            "tag": tag,
+            "description": description,
+            "variable_type": variable_type,
+            "namespace": namespace,
+            "collection_name": collection_name,
+            "field_path": field_path,
+            "is_computed": computed,
+            "is_dynamic": dynamic,
+        }
+
+    WORKFLOW_VARIABLE_CATALOGUE = [
+        # Patient
+        catalogue_variable(
+            "var-patient-id",
+            "patient.id",
+            "Patient identifier",
+            VariableType.STRING,
+            "patient",
+            '["id"]',
+        ),
+        catalogue_variable(
+            "var-patient-name",
+            "patient.name",
+            "Patient full name",
+            VariableType.STRING,
+            "patient",
+            '["name"]',
+        ),
+        catalogue_variable(
+            "var-patient-sex",
+            "patient.sex",
+            "Patient sex",
+            VariableType.STRING,
+            "patient",
+            '["sex"]',
+        ),
+        catalogue_variable(
+            "var-patient-date-of-birth",
+            "patient.date_of_birth",
+            "Patient date of birth",
+            VariableType.DATE,
+            "patient",
+            '["date_of_birth"]',
+        ),
+        catalogue_variable(
+            "var-patient-is-exact-dob",
+            "patient.is_exact_date_of_birth",
+            "Whether date of birth is exact",
+            VariableType.BOOLEAN,
+            "patient",
+            '["is_exact_date_of_birth"]',
+        ),
+        catalogue_variable(
+            "var-patient-age",
+            "patient.age",
+            "Patient age",
+            VariableType.INTEGER,
+            "patient",
+            '["age"]',
+            computed=True,
+        ),
+        catalogue_variable(
+            "var-patient-is-pregnant",
+            "patient.is_pregnant",
+            "Whether the patient is currently pregnant",
+            VariableType.BOOLEAN,
+            "patient",
+            '["is_pregnant"]',
+        ),
+        catalogue_variable(
+            "var-patient-household-number",
+            "patient.household_number",
+            "Patient household number",
+            VariableType.STRING,
+            "patient",
+            '["household_number"]',
+        ),
+        catalogue_variable(
+            "var-patient-zone",
+            "patient.zone",
+            "Patient zone",
+            VariableType.STRING,
+            "patient",
+            '["zone"]',
+        ),
+        catalogue_variable(
+            "var-patient-village-number",
+            "patient.village_number",
+            "Patient village number",
+            VariableType.STRING,
+            "patient",
+            '["village_number"]',
+        ),
+        catalogue_variable(
+            "var-patient-is-archived",
+            "patient.is_archived",
+            "Whether the patient is archived",
+            VariableType.BOOLEAN,
+            "patient",
+            '["is_archived"]',
+        ),
+        # System context
+        catalogue_variable(
+            "var-local-date",
+            "local-date",
+            "Local date",
+            VariableType.DATE,
+            "local-date",
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-local-time",
+            "local-time",
+            "Local time",
+            VariableType.STRING,
+            "local-time",
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-local-date-time",
+            "local-date-time",
+            "Local date and time",
+            VariableType.STRING,
+            "local-date-time",
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-current-user-id",
+            "current-user.id",
+            "Current user identifier",
+            VariableType.INTEGER,
+            "current-user",
+            '["id"]',
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-current-user-name",
+            "current-user.name",
+            "Current user name",
+            VariableType.STRING,
+            "current-user",
+            '["name"]',
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-current-user-username",
+            "current-user.username",
+            "Current username",
+            VariableType.STRING,
+            "current-user",
+            '["username"]',
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-current-user-email",
+            "current-user.email",
+            "Current user email",
+            VariableType.STRING,
+            "current-user",
+            '["email"]',
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-current-user-health-facility-name",
+            "current-user.health_facility_name",
+            "Current user's health facility",
+            VariableType.STRING,
+            "current-user",
+            '["health_facility_name"]',
+            dynamic=True,
+        ),
+        catalogue_variable(
+            "var-current-user-role",
+            "current-user.role",
+            "Current user role",
+            VariableType.STRING,
+            "current-user",
+            '["role"]',
+            dynamic=True,
+        ),
+        # Vitals
+        catalogue_variable(
+            "var-vitals-size",
+            "vitals.size",
+            "Number of vital records",
+            VariableType.INTEGER,
+            "vitals",
+            '["size"]',
+            "vitals",
+            computed=True,
+        ),
+        catalogue_variable(
+            "var-vitals-latest-sbp",
+            "vitals[latest].systolic_blood_pressure",
+            "Latest systolic blood pressure",
+            VariableType.INTEGER,
+            "vitals",
+            '["systolic_blood_pressure"]',
+            "vitals",
+        ),
+        catalogue_variable(
+            "var-vitals-latest-dbp",
+            "vitals[latest].diastolic_blood_pressure",
+            "Latest diastolic blood pressure",
+            VariableType.INTEGER,
+            "vitals",
+            '["diastolic_blood_pressure"]',
+            "vitals",
+        ),
+        catalogue_variable(
+            "var-vitals-latest-hr",
+            "vitals[latest].heart_rate",
+            "Latest heart rate",
+            VariableType.INTEGER,
+            "vitals",
+            '["heart_rate"]',
+            "vitals",
+        ),
+        catalogue_variable(
+            "var-vitals-latest-date-taken",
+            "vitals[latest].date_taken",
+            "Date of the latest vital record",
+            VariableType.INTEGER,
+            "vitals",
+            '["date_taken"]',
+            "vitals",
+        ),
+        # Pregnancy history
+        catalogue_variable(
+            "var-preg-latest-start",
+            "pregnancies[latest].start_date",
+            "Start date of the latest pregnancy",
+            VariableType.INTEGER,
+            "pregnancies",
+            '["start_date"]',
+            "pregnancies",
+        ),
+        # Workflow
+        catalogue_variable(
+            "var-all-wf-latest-status",
+            "all_wf[latest].status",
+            "Status of the patient's latest workflow",
+            VariableType.STRING,
+            "all_wf",
+            '["status"]',
+            "all_wf",
+        ),
+        catalogue_variable(
+            "var-wf-info-status",
+            "wf.info.status",
+            "Status of the active workflow",
+            VariableType.STRING,
+            "wf",
+            '["info", "status"]',
+        ),
+        catalogue_variable(
+            "var-wf-info-start",
+            "wf.info.start_date",
+            "Start date of the active workflow",
+            VariableType.INTEGER,
+            "wf",
+            '["info", "start_date"]',
+        ),
+    ]
+    tags = [definition["tag"] for definition in WORKFLOW_VARIABLE_CATALOGUE]
+
+    existing = {
+        row.tag: row
+        for row in WorkflowVariableCatalogueOrm.query.filter(
+            WorkflowVariableCatalogueOrm.tag.in_(tags)
+        ).all()
+    }
+
+    update_fields = (
+        "description",
+        "variable_type",
+        "namespace",
+        "collection_name",
+        "field_path",
+        "is_computed",
+        "is_dynamic",
+    )
+
+    for definition in WORKFLOW_VARIABLE_CATALOGUE:
+        row = existing.get(definition["tag"])
+
+        if row is None:
+            db.session.add(WorkflowVariableCatalogueOrm(**definition))
+            continue
+
+        for field in update_fields:
+            setattr(row, field, definition[field])
 
 
 def seed_test_data():

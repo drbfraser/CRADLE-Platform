@@ -302,7 +302,10 @@ class WorkflowVariableCatalogueOrm(db.Model):
     tag = db.Column(db.String(200), unique=True, nullable=False, index=True)
     description = db.Column(db.Text, nullable=True)
     variable_type = db.Column(
-        db.Enum(WorkflowVariableTypeEnum),
+        db.Enum(
+            WorkflowVariableTypeEnum,
+            values_callable=lambda enum_class: [member.value for member in enum_class],
+        ),
         nullable=False,
     )
     namespace = db.Column(db.String(100), nullable=True, index=True)
