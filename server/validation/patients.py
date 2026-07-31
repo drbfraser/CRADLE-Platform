@@ -75,7 +75,6 @@ class UpdatePatientRequestBody(PatientModel, extra="forbid"):
     drug_history: Optional[str] = None
     allergy: Optional[str] = None
     last_edited: int = Field(default_factory=get_current_time)
-    allergy: Optional[str] = None
 
 
 def is_correct_date_format(s: Any) -> bool:

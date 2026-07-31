@@ -165,7 +165,7 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
         last_edited = patient.last_edited
         if base != last_edited:
             return abort(409, description="Unable to merge changes, conflict detected")
-            
+
     update_patient.pop("base", None)
 
     crud.update(PatientOrm, update_patient, id=path.patient_id)
