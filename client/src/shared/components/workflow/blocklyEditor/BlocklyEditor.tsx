@@ -12,7 +12,6 @@ import {
   registerTypedZelosRenderer,
   TYPED_ZELOS_RENDERER,
 } from './typedZelosRenderer';
-import { getConditionRootBlocks } from './blocklyWorkspaceUtils';
 import { evaluateWorkspace } from './workspaceValidation';
 import { WorkflowVariable } from 'src/shared/api';
 

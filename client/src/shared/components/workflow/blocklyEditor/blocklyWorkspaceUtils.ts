@@ -69,13 +69,14 @@ export function getNextTopBlockPosition(workspace: Blockly.Workspace): {
     return { x: 20, y: 20 };
   }
 
-  let maxRight = 0;
+  let maxX = 0;
   let minY = Infinity;
   for (const block of topBlocks) {
     const xy = block.getRelativeToSurfaceXY();
-    maxRight = Math.max(maxRight, xy.x + block.width);
+    maxX = Math.max(maxX, xy.x);
     minY = Math.min(minY, xy.y);
   }
 
-  return { x: maxRight + 40, y: minY };
+  // Approximate block width so appended conditions sit beside existing ones.
+  return { x: maxX + 320, y: minY };
 }
