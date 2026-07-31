@@ -10,39 +10,9 @@ import {
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
-import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { BlocklyEditor } from '../blocklyEditor';
-import {
-  WorkflowVariable,
-  getWorkflowVariables,
-  getFormTemplateAsyncV2,
-} from 'src/shared/api';
-import { QuestionTypeEnum } from 'src/shared/enums';
-
-const QUESTION_TYPE_TO_VAR_TYPE: Partial<
-  Record<QuestionTypeEnum, WorkflowVariable['type']>
-> = {
-  [QuestionTypeEnum.INTEGER]: 'integer',
-  [QuestionTypeEnum.DECIMAL]: 'double',
-  [QuestionTypeEnum.STRING]: 'string',
-  [QuestionTypeEnum.MULTIPLE_CHOICE]: 'string',
-  [QuestionTypeEnum.DATE]: 'date',
-  [QuestionTypeEnum.DATETIME]: 'date',
-};
-
-function questionToWorkflowVariable(q: TQuestion): WorkflowVariable {
-  const englishText =
-    q.questionText['English'] ?? Object.values(q.questionText)[0] ?? '';
-  return {
-    tag: `forms[latest].${q.userQuestionId}`,
-    description: englishText,
-    type: QUESTION_TYPE_TO_VAR_TYPE[q.questionType]!,
-    namespace: 'forms',
-    collectionName: 'forms',
-    isComputed: false,
-    isDynamic: true,
-  };
-}
+import { WorkflowVariable } from 'src/shared/api';
+import { getStepWorkflowVariables } from 'src/shared/utils/workflow/getStepWorkflowVariables';
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -53,6 +23,16 @@ interface BranchConditionEditorProps {
   isSelected?: boolean;
   showFullEditor?: boolean;
   editorFillHeight?: boolean;
+  /** Rule shown in Blockly; parent is source of truth when set. */
+  editorJsonLogic?: string;
+  /** Bump to remount Blockly after paste. */
+  editorReloadKey?: number;
+  /** Controlled condition name (branch dialog). */
+  conditionName?: string;
+  /** Optional actions rendered below Blockly and above "then go to". */
+  actionsBelowEditor?: React.ReactNode;
+  /** Overlay centered on top of the Blockly workspace (e.g. paste warning). */
+  editorOverlay?: React.ReactNode;
   onChange?: (
     stepId: string,
     branchIndex: number,
@@ -77,13 +57,23 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   isSelected = false,
   showFullEditor = false,
   editorFillHeight = false,
+  editorJsonLogic,
+  editorReloadKey = 0,
+  conditionName: controlledConditionName,
+  actionsBelowEditor,
+  editorOverlay,
   onChange,
   onTargetStepChange,
   steps = [],
 }) => {
   const [variables, setVariables] = useState<WorkflowVariable[]>([]);
   const [variablesLoading, setVariablesLoading] = useState(true);
-  const [conditionName, setConditionName] = useState<string>('');
+  const [internalConditionName, setInternalConditionName] =
+    useState<string>('');
+  const conditionName =
+    controlledConditionName !== undefined
+      ? controlledConditionName
+      : internalConditionName;
   const [currentRule, setCurrentRule] = useState<string | null>(
     branch.condition?.rule || null
   );
@@ -108,23 +98,9 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     setVariablesLoading(true);
 
     const load = async () => {
-      const globalVars = await getWorkflowVariables();
-      let formVars: WorkflowVariable[] = [];
-      if (formId) {
-        try {
-          const template = await getFormTemplateAsyncV2(formId);
-          formVars = template.questions
-            .filter(
-              (q) =>
-                q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
-            )
-            .map(questionToWorkflowVariable);
-        } catch {
-          // form fetch failure is non-fatal; branch editor still works with global vars
-        }
-      }
+      const vars = await getStepWorkflowVariables({ formId });
       if (!cancelled) {
-        setVariables([...globalVars, ...formVars]);
+        setVariables(vars);
         setVariablesLoading(false);
       }
     };
@@ -135,19 +111,28 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   }, [formId, stepId]);
 
   useEffect(() => {
-    if (branch.condition?.rule) {
-      try {
-        const rule = JSON.parse(branch.condition.rule);
-        setConditionName(rule.name || '');
-      } catch {
-        setConditionName('');
-      }
-      setCurrentRule(branch.condition.rule);
-    } else {
-      setConditionName('');
-      setCurrentRule(null);
+    if (editorJsonLogic !== undefined) {
+      setCurrentRule(editorJsonLogic || null);
     }
-  }, [branch, stepId, branchIndex]);
+  }, [editorJsonLogic, editorReloadKey]);
+
+  useEffect(() => {
+    if (controlledConditionName === undefined) {
+      if (branch.condition?.rule) {
+        try {
+          const rule = JSON.parse(branch.condition.rule);
+          setInternalConditionName(rule.name || '');
+        } catch {
+          setInternalConditionName('');
+        }
+      } else {
+        setInternalConditionName('');
+      }
+    }
+    if (editorJsonLogic === undefined) {
+      setCurrentRule(branch.condition?.rule || null);
+    }
+  }, [branch, stepId, branchIndex, controlledConditionName, editorJsonLogic]);
 
   const handleBlocklyChange = (
     jsonLogic: string | null,
@@ -166,18 +151,26 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   };
 
   const handleConditionNameChange = (name: string) => {
-    setConditionName(name);
+    if (controlledConditionName === undefined) {
+      setInternalConditionName(name);
+    }
     if (onChange) {
       onChange(
         stepId,
         branchIndex,
-        currentRuleRef.current ?? branch.condition?.rule ?? '',
+        currentRuleRef.current ??
+          editorJsonLogic ??
+          branch.condition?.rule ??
+          '',
         name
       );
     }
   };
 
-  const initialJsonLogic = branch.condition?.rule || undefined;
+  const initialJsonLogic =
+    editorJsonLogic !== undefined
+      ? editorJsonLogic || undefined
+      : branch.condition?.rule || undefined;
 
   return (
     <Box
@@ -241,20 +234,45 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
           ) : (
             <Box
               sx={{
+                position: 'relative',
                 flex: editorFillHeight ? 1 : undefined,
                 minHeight: editorFillHeight ? 200 : undefined,
                 display: editorFillHeight ? 'flex' : 'block',
                 flexDirection: editorFillHeight ? 'column' : undefined,
               }}>
               <BlocklyEditor
-                key={`${stepId}-${branchIndex}`}
+                key={`${stepId}-${branchIndex}-${editorReloadKey}`}
                 variables={variables}
                 initialJsonLogic={initialJsonLogic}
                 onChange={handleBlocklyChange}
                 fillHeight={editorFillHeight}
               />
+              {editorOverlay && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                    px: 2,
+                  }}>
+                  <Box
+                    sx={{
+                      pointerEvents: 'auto',
+                      maxWidth: 520,
+                      width: '100%',
+                    }}>
+                    {editorOverlay}
+                  </Box>
+                </Box>
+              )}
             </Box>
           )}
+
+          {actionsBelowEditor}
 
           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
             <Grid item>

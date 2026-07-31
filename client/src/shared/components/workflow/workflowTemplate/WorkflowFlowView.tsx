@@ -15,6 +15,7 @@ import { ID } from 'src/shared/constants';
 import { WorkflowFlow } from './WorkflowFlow';
 import { StepDetails } from './StepDetails';
 import { BranchDetails } from './BranchDetails';
+import { WorkflowRuleClipboardProvider } from 'src/shared/context/WorkflowRuleClipboardContext';
 
 interface WorkflowFlowViewProps {
   steps: WorkflowTemplateStepWithFormAndIndex[];
@@ -141,122 +142,124 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   };
 
   return (
-    <Box sx={{ height: '600px', width: '100%', overflow: 'hidden' }}>
-      <Grid container spacing={2} sx={{ height: '100%' }}>
-        {/* Left side - Flow Diagram */}
-        <Grid item xs={12} md={8} sx={{ height: '100%' }}>
-          <Paper
-            sx={{
-              height: '100%',
-              p: 1,
-              overflow: 'hidden',
-              border: '1px solid #e0e0e0',
-              borderRadius: 1,
-            }}>
-            {/* <Typography variant="h6" sx={{ mb: 2, px: 2 }}>
+    <WorkflowRuleClipboardProvider>
+      <Box sx={{ height: '600px', width: '100%', overflow: 'hidden' }}>
+        <Grid container spacing={2} sx={{ height: '100%' }}>
+          {/* Left side - Flow Diagram */}
+          <Grid item xs={12} md={8} sx={{ height: '100%' }}>
+            <Paper
+              sx={{
+                height: '100%',
+                p: 1,
+                overflow: 'hidden',
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+              }}>
+              {/* <Typography variant="h6" sx={{ mb: 2, px: 2 }}>
               Workflow Flow Diagram
             </Typography> */}
-            {isEditMode && (
-              <Stack direction="row" spacing={1}>
-                <Tooltip title="Undo the last action" placement="top">
-                  <span>
-                    <Button
-                      onClick={onUndo}
-                      disabled={!canUndo}
-                      size="small"
-                      variant="outlined"
-                      color="primary"
-                      startIcon={<UndoIcon />}>
-                      Undo
-                    </Button>
-                  </span>
-                </Tooltip>
-                <Tooltip title="Redo the last action" placement="top">
-                  <span>
-                    <Button
-                      onClick={onRedo}
-                      disabled={!canRedo}
-                      size="small"
-                      variant="outlined"
-                      color="primary"
-                      startIcon={<RedoIcon />}>
-                      Redo
-                    </Button>
-                  </span>
-                </Tooltip>
-              </Stack>
-            )}
+              {isEditMode && (
+                <Stack direction="row" spacing={1}>
+                  <Tooltip title="Undo the last action" placement="top">
+                    <span>
+                      <Button
+                        onClick={onUndo}
+                        disabled={!canUndo}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<UndoIcon />}>
+                        Undo
+                      </Button>
+                    </span>
+                  </Tooltip>
+                  <Tooltip title="Redo the last action" placement="top">
+                    <span>
+                      <Button
+                        onClick={onRedo}
+                        disabled={!canRedo}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<RedoIcon />}>
+                        Redo
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </Stack>
+              )}
 
-            <Box sx={{ height: 'calc(100% - 60px)', overflow: 'hidden' }}>
-              <WorkflowFlow
-                steps={steps}
-                firstStepId={firstStepId}
-                selectedStepId={selectedStepId}
+              <Box sx={{ height: 'calc(100% - 60px)', overflow: 'hidden' }}>
+                <WorkflowFlow
+                  steps={steps}
+                  firstStepId={firstStepId}
+                  selectedStepId={selectedStepId}
+                  isEditMode={isEditMode}
+                  onStepSelect={handleStepSelect}
+                  onInsertNode={onInsertNode}
+                  onInsertNodeBetween={onInsertNodeBetween}
+                  onAddBranch={handleAddBranch}
+                  onConnectionCreate={onConnectionCreate}
+                  onDeleteNode={onDeleteNode}
+                  onAddRule={onAddRule}
+                />
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Right side - Step Details or Branch Details */}
+          <Grid item xs={12} md={4} sx={{ height: '100%' }}>
+            <Box
+              sx={{
+                height: '100%',
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                overflow: 'hidden',
+              }}>
+              <StepDetails
+                selectedStep={selectedStep}
+                isInstance={isInstance}
                 isEditMode={isEditMode}
-                onStepSelect={handleStepSelect}
-                onInsertNode={onInsertNode}
-                onInsertNodeBetween={onInsertNodeBetween}
-                onAddBranch={handleAddBranch}
-                onConnectionCreate={onConnectionCreate}
-                onDeleteNode={onDeleteNode}
-                onAddRule={onAddRule}
+                onStepChange={onStepChange}
+                onCaptureState={onCaptureState}
               />
             </Box>
-          </Paper>
+          </Grid>
         </Grid>
-
-        {/* Right side - Step Details or Branch Details */}
-        <Grid item xs={12} md={4} sx={{ height: '100%' }}>
-          <Box
-            sx={{
-              height: '100%',
-              border: '1px solid #e0e0e0',
-              borderRadius: 1,
+        {/* POPUP */}
+        <Dialog
+          open={branchIndex !== undefined && selectedStep !== undefined}
+          onClose={handleCloseBranchEditor}
+          maxWidth={false}
+          scroll="paper"
+          disableEnforceFocus
+          PaperProps={{
+            sx: {
+              width: 'min(1000px, 90vw)',
+              minWidth: 520,
+              height: 'min(85vh, 880px)',
+              minHeight: 420,
+              maxWidth: '95vw',
+              maxHeight: '95vh',
+              resize: 'both',
               overflow: 'hidden',
-            }}>
-            <StepDetails
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          }}>
+          {selectedStep && branchIndex !== undefined && (
+            <BranchDetails
               selectedStep={selectedStep}
-              isInstance={isInstance}
+              selectedBranchIndex={branchIndex}
+              steps={steps}
               isEditMode={isEditMode}
-              onStepChange={onStepChange}
-              onCaptureState={onCaptureState}
+              onBranchChange={onBranchChange}
+              onTargetStepChange={onTargetStepChange}
+              onClose={handleCloseBranchEditor}
             />
-          </Box>
-        </Grid>
-      </Grid>
-      {/* POPUP */}
-      <Dialog
-        open={branchIndex !== undefined && selectedStep !== undefined}
-        onClose={handleCloseBranchEditor}
-        maxWidth={false}
-        scroll="paper"
-        disableEnforceFocus
-        PaperProps={{
-          sx: {
-            width: 'min(1000px, 90vw)',
-            minWidth: 520,
-            height: 'min(85vh, 880px)',
-            minHeight: 420,
-            maxWidth: '95vw',
-            maxHeight: '95vh',
-            resize: 'both',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          },
-        }}>
-        {selectedStep && branchIndex !== undefined && (
-          <BranchDetails
-            selectedStep={selectedStep}
-            selectedBranchIndex={branchIndex}
-            steps={steps}
-            isEditMode={isEditMode}
-            onBranchChange={onBranchChange}
-            onTargetStepChange={onTargetStepChange}
-            onClose={handleCloseBranchEditor}
-          />
-        )}
-      </Dialog>
-    </Box>
+          )}
+        </Dialog>
+      </Box>
+    </WorkflowRuleClipboardProvider>
   );
 };
