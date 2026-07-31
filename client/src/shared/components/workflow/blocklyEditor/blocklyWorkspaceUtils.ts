@@ -60,9 +60,10 @@ export function getBlocksNotInTree(
 }
 
 /** Position for placing a new top-level block alongside existing ones. */
-export function getNextTopBlockPosition(
-  workspace: Blockly.Workspace
-): { x: number; y: number } {
+export function getNextTopBlockPosition(workspace: Blockly.Workspace): {
+  x: number;
+  y: number;
+} {
   const topBlocks = workspace.getTopBlocks(false);
   if (topBlocks.length === 0) {
     return { x: 20, y: 20 };
