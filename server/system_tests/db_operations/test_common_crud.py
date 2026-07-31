@@ -166,6 +166,7 @@ def test_update_basic(patient_factory):
     assert patientDict != updatedPatientDict
 
     patientDict["name"] = "Updated Name"
+    patientDict["last_edited"] = updatedPatientDict["last_edited"]
     assert patientDict == updatedPatientDict
 
 
