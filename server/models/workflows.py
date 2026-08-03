@@ -223,6 +223,26 @@ class WorkflowInstanceOrm(db.Model):
     patient_id = db.Column(
         db.String(50), db.ForeignKey("patient.id", ondelete="CASCADE"), nullable=False
     )
+    # SKELETON: pins this instance to the pregnancy that was active when it was
+    # created, so `{{pregnancies[latest]...}}`-style variables in step
+    # descriptions stay tied to *this* pregnancy even if the patient later
+    # starts a new one. Null for instances not tied to a specific pregnancy
+    # (created while the patient wasn't pregnant, or for non-pregnancy
+    # workflows) -- those fall back to "whatever's currently latest".
+    #
+    # TODO:
+    # - Generate the actual Alembic migration (`alembic revision --autogenerate
+    #   -m "add pregnancy_id to workflow_instance"`) rather than hand-writing
+    #   one -- revision chaining needs to run against a live DB/alembic env.
+    # - Stamp this at creation time in WorkflowService.generate_workflow_instance
+    #   (or the create_workflow_instance endpoint): look up the patient's
+    #   current pregnancy (is_pregnant / latest PregnancyOrm with no end_date)
+    #   and set it once; never recompute afterward.
+    pregnancy_id = db.Column(
+        db.Integer,
+        db.ForeignKey("pregnancy.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     # RELATIONSHIPS
     patient = db.relationship(
@@ -231,6 +251,10 @@ class WorkflowInstanceOrm(db.Model):
     )
     workflow_template = db.relationship(
         "WorkflowTemplateOrm",
+        backref=db.backref("workflow_instances", lazy=True),
+    )
+    pregnancy = db.relationship(
+        "PregnancyOrm",
         backref=db.backref("workflow_instances", lazy=True),
     )
 

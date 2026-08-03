@@ -4,8 +4,13 @@ from flask_openapi3.models.tag import Tag
 
 from common import patient_utils, user_utils, workflow_utils
 from common.api_utils import (
+    WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
+)
+from service.workflow.datasourcing.data_sourcing import ResolverContext
+from service.workflow.datasourcing.description_variables import (
+    resolve_description_variables,
 )
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService, WorkflowView
@@ -13,7 +18,10 @@ from validation.workflow_api_models import (
     AdvanceWorkflowRequest,
     ApplyActionRequest,
     CreateWorkflowInstanceRequest,
+    DescriptionVariableResolutionModel,
     GetAvailableActionsResponse,
+    GetDescriptionVariablesRequest,
+    GetDescriptionVariablesResponse,
     GetWorkflowInstanceDataResponse,
     GetWorkflowInstancesResponse,
     OverrideCurrentStepRequest,
@@ -248,3 +256,51 @@ def set_workflow_instance_data(
     rows = WorkflowService.get_workflow_instance_data_rows(path.workflow_instance_id)
     items = [WorkflowInstanceDataRowModel(**r) for r in rows]
     return GetWorkflowInstanceDataResponse(items=items).model_dump(), 200
+
+
+# /api/workflow/instances/<id>/steps/<step_id>/description-variables [POST]
+# SKELETON: resolves the `{{...}}` variable tags a step description references,
+# reusing the rule engine's variable catalogue (see description_variables.py).
+#
+# TODO before this is real:
+# - Authorization: add whatever this project's equivalent of
+#   @patient_association_required is for workflow-instance routes -- right now
+#   nothing stops a caller who merely knows a workflow_instance_id from pulling
+#   patient data through this route.
+# - Pass a reference timestamp (the step's start_date) into resolution so
+#   age/"latest"-style values freeze relative to when the step started, not
+#   wall-clock "now" -- see the staleness discussion. Requires extending
+#   resolve_description_variables()'s context contract first.
+# - Decide response caching: this can be called once per rendered step; a
+#   step-history page rendering several steps at once will fire several of
+#   these unless the frontend batches by patient instead of by step.
+@api_workflow_instances.post(
+    "/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/description-variables",
+    responses={200: GetDescriptionVariablesResponse},
+)
+def get_description_variables(
+    path: WorkflowInstanceAndStepIdPath, body: GetDescriptionVariablesRequest
+):
+    """Resolve the variable tags referenced by a step description's `{{...}}` tokens."""
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    # TODO: use the step (e.g. its start_date) once "as of" resolution exists.
+    workflow_utils.find_workflow_instance_step_or_404(
+        workflow_view.instance, path.workflow_instance_step_id
+    )
+
+    context: ResolverContext = {
+        "patient_id": workflow_view.instance.patient_id,
+        "workflow_instance_id": path.workflow_instance_id,
+    }
+
+    resolved = resolve_description_variables(context, body.variable_tags)
+
+    response = GetDescriptionVariablesResponse(
+        resolutions=[
+            DescriptionVariableResolutionModel(
+                var=r.var, value=r.value, status=r.status.value
+            )
+            for r in resolved.values()
+        ]
+    )
+    return response.model_dump(), 200
