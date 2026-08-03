@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import pytest
 
-from common import commonUtil
 from common.form_utils import validate_form_answers
 from enums import QuestionTypeEnum
 from tests.common.form_utils.helpers import TEMPLATE_ID, make_question, make_template
@@ -23,6 +22,8 @@ STRING_Q_ID = "q-string"
 MC_Q_ID = "q-mc"
 DATE_Q_ID = "q-date"
 UNKNOWN_Q_ID = "q-unknown"
+SECONDS_PER_DAY = 24 * 60 * 60
+FIXED_NOW = 1_700_000_000
 
 
 @pytest.fixture
@@ -207,15 +208,12 @@ def test_mc_empty_selection_skipped(mock_template_read):
     assert result.code is None
 
 
-@patch("common.form_utils.commonUtil.get_current_time")
+@patch("common.form_utils.commonUtil.get_current_time", return_value=FIXED_NOW)
 def test_date_past_not_allowed(mock_get_current_time, mock_template_read):
-    now = commonUtil.get_current_time()
-    mock_get_current_time.return_value = now
-
     answers = [
         FormAnswer(
             question_id=DATE_Q_ID,
-            answer=DateAnswer(date=str(commonUtil.get_past_date(days_before=10))),
+            answer=DateAnswer(date=str(FIXED_NOW - 10 * SECONDS_PER_DAY)),
         )
     ]
 
@@ -226,7 +224,7 @@ def test_date_past_not_allowed(mock_get_current_time, mock_template_read):
     assert result.msg == "Past dates are not allowed"
 
 
-@patch("common.form_utils.commonUtil.get_current_time")
+@patch("common.form_utils.commonUtil.get_current_time", return_value=FIXED_NOW)
 def test_date_future_not_allowed(mock_get_current_time, mock_template_read):
     future_only_question = make_question(
         "q-future-date",
@@ -236,14 +234,11 @@ def test_date_future_not_allowed(mock_get_current_time, mock_template_read):
     )
     template = make_template([future_only_question])
 
-    now = commonUtil.get_current_time()
-    mock_get_current_time.return_value = now
-
     with patch("common.form_utils.crud.read", return_value=template):
         answers = [
             FormAnswer(
                 question_id="q-future-date",
-                answer=DateAnswer(date=str(commonUtil.get_future_date(days_after=10))),
+                answer=DateAnswer(date=str(FIXED_NOW + 10 * SECONDS_PER_DAY)),
             )
         ]
 
