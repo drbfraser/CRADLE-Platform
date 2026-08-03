@@ -53,6 +53,10 @@ const parsePatientQueryData = (data: Patient) => {
       !data.isExactDateOfBirth && data.dateOfBirth !== null
         ? String(getAgeBasedOnDOB(data.dateOfBirth))
         : '',
+    // Preserved so an unchanged estimated age can be saved back as-is instead
+    // of being recomputed from today's date, which would drift the stored
+    // date_of_birth forward on every save.
+    originalDateOfBirth: data.dateOfBirth,
   };
 };
 
@@ -78,9 +82,15 @@ const EditPersonalInfoForm = () => {
   const handleSubmit = (values: PatientState) => {
     const patientData = getPatientData(values);
     if (!patientData.isExactDateOfBirth) {
-      patientData.dateOfBirth = getDOBForEstimatedAge(
-        parseInt(values[PatientField.estimatedAge])
-      );
+      const ageUnchanged =
+        values[PatientField.estimatedAge] ===
+        patientInfoQuery.data?.[PatientField.estimatedAge];
+      const originalDateOfBirth = patientInfoQuery.data?.originalDateOfBirth;
+
+      patientData.dateOfBirth =
+        ageUnchanged && originalDateOfBirth
+          ? originalDateOfBirth
+          : getDOBForEstimatedAge(parseInt(values[PatientField.estimatedAge]));
     }
     updatePatient.mutate(patientData, {
       onSuccess: () => navigate(`/patients/${patientId}`),
