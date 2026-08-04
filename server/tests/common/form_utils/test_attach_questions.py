@@ -117,7 +117,7 @@ def test_attach_questions_enriches_string_answer(
     assert len(results) == 1
     enriched = results[0]
     assert enriched.question_id == STRING_Q_ID
-    assert enriched.question_type == QuestionTypeEnum.STRING
+    assert enriched.question_type == QuestionTypeEnum.STRING.value
     assert enriched.order == 0
     assert enriched.question_text == f"{QUESTION_TEXT_ID}:English"
     assert enriched.answer == TextAnswer(text="Patient name")
@@ -142,8 +142,8 @@ def test_attach_questions_enriches_numeric_answer(
     results = attach_questions(submission)
 
     assert len(results) == 1
-    assert results[0].question_type == QuestionTypeEnum.INTEGER
-    assert results[0].answer == NumberAnswer(number=90)
+    assert results[0].question_type == QuestionTypeEnum.INTEGER.value
+    assert results[0].answer == NumberAnswer(number=90.0)
 
 
 @patch("data.orm_serializer.marshal", side_effect=_marshal_side_effect)
@@ -164,7 +164,7 @@ def test_attach_questions_resolves_mc_labels(
     results = attach_questions(submission)
 
     assert len(results) == 1
-    assert results[0].question_type == QuestionTypeEnum.MULTIPLE_CHOICE
+    assert results[0].question_type == QuestionTypeEnum.MULTIPLE_CHOICE.value
     assert results[0].question_text == f"{MC_QUESTION_TEXT_ID}:English"
     assert results[0].mc_options == [
         f"{MC_OPT_A}:English",
