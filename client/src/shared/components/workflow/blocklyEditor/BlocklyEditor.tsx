@@ -4,16 +4,14 @@ import { Box, GlobalStyles, Typography } from '@mui/material';
 import SouthEastIcon from '@mui/icons-material/SouthEast';
 import { registerBlocks } from './blocks';
 import { buildToolboxConfig } from './toolboxConfig';
-import { loadJsonLogicToWorkspace } from './jsonLogicToBlocks';
+import {
+  appendJsonLogicToWorkspace,
+  loadJsonLogicToWorkspace,
+} from './jsonLogicToBlocks';
 import {
   registerTypedZelosRenderer,
   TYPED_ZELOS_RENDERER,
 } from './typedZelosRenderer';
-import {
-  enforceSingleConditionRoot,
-  getConditionRootBlocks,
-  isConditionRootBlock,
-} from './blocklyWorkspaceUtils';
 import { evaluateWorkspace } from './workspaceValidation';
 import { WorkflowVariable } from 'src/shared/api';
 
@@ -30,18 +28,23 @@ const blocklyZIndexFix = (
 interface BlocklyEditorProps {
   variables: WorkflowVariable[];
   initialJsonLogic?: string;
+  /** When set, appends this rule as a new block cluster beside existing blocks. */
+  appendJsonLogic?: string | null;
+  onAppendComplete?: () => void;
   onChange: (jsonLogic: string | null, error: string | null) => void;
   readOnly?: boolean;
   fillHeight?: boolean;
 }
 
-function workspaceHasCondition(workspace: Blockly.Workspace): boolean {
-  return getConditionRootBlocks(workspace).length > 0;
+function workspaceHasBlocks(workspace: Blockly.Workspace): boolean {
+  return workspace.getAllBlocks(false).length > 0;
 }
 
 export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
   variables,
   initialJsonLogic,
+  appendJsonLogic,
+  onAppendComplete,
   onChange,
   readOnly = false,
   fillHeight = false,
@@ -50,7 +53,17 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const isLoadingRef = useRef(false);
   const validateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const onChangeRef = useRef(onChange);
+  const onAppendCompleteRef = useRef(onAppendComplete);
   const [showWorkspaceHint, setShowWorkspaceHint] = useState(!initialJsonLogic);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    onAppendCompleteRef.current = onAppendComplete;
+  }, [onAppendComplete]);
 
   useEffect(() => {
     if (!blocklyDiv.current) return;
@@ -76,7 +89,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     workspaceRef.current = workspace;
 
     const updateWorkspaceHint = () => {
-      setShowWorkspaceHint(!workspaceHasCondition(workspace));
+      setShowWorkspaceHint(!workspaceHasBlocks(workspace));
     };
 
     if (initialJsonLogic) {
@@ -91,29 +104,14 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
       validateTimeoutRef.current = setTimeout(() => {
         if (isLoadingRef.current || workspace.isDragging()) return;
 
-        const roots = getConditionRootBlocks(workspace);
-        if (roots.length > 1) {
-          enforceSingleConditionRoot(workspace, roots[roots.length - 1]!);
-        }
-
         updateWorkspaceHint();
         const result = evaluateWorkspace(workspace);
-        onChange(result.jsonLogic, result.error);
+        onChangeRef.current(result.jsonLogic, result.error);
       }, 0);
     };
 
     workspace.addChangeListener((event: Blockly.Events.Abstract) => {
       if (isLoadingRef.current) return;
-
-      if (event.type === Blockly.Events.BLOCK_CREATE) {
-        const createEvent = event as Blockly.Events.BlockCreate;
-        if (createEvent.blockId) {
-          const block = workspace.getBlockById(createEvent.blockId);
-          if (block && isConditionRootBlock(block) && !block.getParent()) {
-            enforceSingleConditionRoot(workspace, block);
-          }
-        }
-      }
 
       if (
         event.type !== Blockly.Events.BLOCK_CHANGE &&
@@ -135,6 +133,24 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace || !appendJsonLogic) return;
+
+    isLoadingRef.current = true;
+    appendJsonLogicToWorkspace(workspace, appendJsonLogic, variables);
+    isLoadingRef.current = false;
+    setShowWorkspaceHint(false);
+
+    clearTimeout(validateTimeoutRef.current);
+    validateTimeoutRef.current = setTimeout(() => {
+      const result = evaluateWorkspace(workspace);
+      onChangeRef.current(result.jsonLogic, result.error);
+      onAppendCompleteRef.current?.();
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appendJsonLogic, variables]);
 
   useEffect(() => {
     const el = blocklyDiv.current;
@@ -187,11 +203,11 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
               }}>
               <SouthEastIcon sx={{ fontSize: 40, opacity: 0.45 }} />
               <Typography variant="body2" color="text.secondary">
-                Drag a compare block here to define when this branch is taken
+                Drag compare blocks here to build your condition
               </Typography>
               <Typography variant="caption" color="text.disabled">
-                Start with Number Compare, Text Compare, Date Compare, or Logic
-                Compare from the toolbox on the left
+                Drop multiple comparisons, connect them with AND/OR from Logic
+                Compare, then save once everything is linked
               </Typography>
             </Box>
           </Box>

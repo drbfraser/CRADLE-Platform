@@ -21,8 +21,9 @@ const SECTIONS = [
   {
     title: 'Getting started',
     body: [
-      'Drag one compare block into the workspace — that is the main condition for this branch.',
-      'Connect variables or values to every empty slot before saving.',
+      'Drag compare blocks into the workspace — you can drop several at once.',
+      'Connect them with AND/OR from Logic Compare to build one combined condition.',
+      'Connect variables or values to every empty slot before saving or copying.',
       'Give the condition a name so it appears on the flow diagram.',
     ],
   },
@@ -54,7 +55,8 @@ const SECTIONS = [
     body: [
       'Open Logic Compare in the toolbox, then pick a sub-category:',
       'True/False — test yes/no or boolean fields (e.g. is pregnant).',
-      'Logic — AND / OR to combine two conditions, or NOT to flip a result.',
+      'Logic — AND / OR to combine conditions, or NOT to flip a result.',
+      'Drag an AND/OR block and plug compare blocks into both sides to link them.',
     ],
   },
   {
@@ -75,7 +77,7 @@ export const RuleEditorHelpDialog: React.FC<RuleEditorHelpDialogProps> = ({
     <DialogTitle>How to build branch conditions</DialogTitle>
     <DialogContent dividers>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Each branch needs one top-level rule. When it evaluates to true, the
+        Each branch needs one combined rule. When it evaluates to true, the
         workflow follows this branch to the next step.
       </Typography>
       {SECTIONS.map((section, index) => (
