@@ -294,7 +294,25 @@ def form_submission_v2(patient_id, vht_user_id):
     return _make
 
 
-    return _make
+def _bundle_from_template_response(database, response, payload=None):
+    assert response.status_code == 201
+
+    database.session.flush()
+    database.session.commit()
+
+    body = decamelize(response.json())
+    classification = crud.read(
+        FormClassificationOrmV2, id=body["form_classification_id"]
+    )
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+
+    return {
+        "body": body,
+        "payload": payload,
+        "classification": classification,
+        "template": template,
+        "lang_ids": _collect_form_v2_lang_version_ids(classification, template),
+    }
 
 
 def _collect_form_v2_lang_version_ids(classification, template):
@@ -357,8 +375,11 @@ def _create_form_template_v2(
 def _track_form_template_v2(state, template_bundle):
     body = template_bundle["body"]
     state["template_ids"].append(body["id"])
-    state["classification_ids"].append(body["form_classification_id"])
-    state["lang_ids"].extend(template_bundle["lang_ids"])
+    if body["form_classification_id"] not in state["classification_ids"]:
+        state["classification_ids"].append(body["form_classification_id"])
+    for lang_id in template_bundle["lang_ids"]:
+        if lang_id not in state["lang_ids"]:
+            state["lang_ids"].append(lang_id)
 
 
 def _create_form_submission_v2_record(
@@ -370,11 +391,15 @@ def _create_form_submission_v2_record(
     extra_answers=None,
     submission_id=None,
     patient_id=None,
+    template_question_id=None,
 ):
     template = template_bundle["template"]
+    question_id = template_question_id or next(
+        question.id for question in template.questions if question.order == 1
+    )
     submission_payload = form_submission_v2(
         template_id=template_bundle["body"]["id"],
-        template_question_id=template.questions[1].id,
+        template_question_id=question_id,
         extra_answers=extra_answers,
     )
     if submission_id is not None:
@@ -417,12 +442,33 @@ def form_v2_resources(database, api_post, form_template_v2_payload, form_submiss
         _track_form_template_v2(state, template_bundle)
         return template_bundle
 
+    def create_template_from_payload(payload):
+        response = api_post(endpoint="/api/forms/v2/templates/body", json=payload)
+        template_bundle = _bundle_from_template_response(database, response, payload)
+        _track_form_template_v2(state, template_bundle)
+        return template_bundle
+
+    def create_template_version(template_bundle, *, version, **payload_kwargs):
+        v1 = template_bundle
+        overrides = {
+            "id": v1["body"]["id"],
+            "version": version,
+            "classification": {
+                "id": v1["body"]["form_classification_id"],
+                "name": v1["payload"]["classification"]["name"],
+            },
+        }
+        if "overrides" in payload_kwargs:
+            overrides.update(payload_kwargs.pop("overrides"))
+        return create_template(overrides=overrides, **payload_kwargs)
+
     def create_submission(
         template_bundle,
         *,
         extra_answers=None,
         submission_id=None,
         patient_id=None,
+        template_question_id=None,
     ):
         submission = _create_form_submission_v2_record(
             database,
@@ -432,13 +478,20 @@ def form_v2_resources(database, api_post, form_template_v2_payload, form_submiss
             extra_answers=extra_answers,
             submission_id=submission_id,
             patient_id=patient_id,
+            template_question_id=template_question_id,
         )
         state["submission_ids"].append(submission["id"])
         return submission
 
+    def track_submission(submission_id):
+        state["submission_ids"].append(submission_id)
+
     yield SimpleNamespace(
         create_template=create_template,
+        create_template_from_payload=create_template_from_payload,
+        create_template_version=create_template_version,
         create_submission=create_submission,
+        track_submission=track_submission,
         state=state,
     )
 
@@ -447,6 +500,31 @@ def form_v2_resources(database, api_post, form_template_v2_payload, form_submiss
         classification_ids=state["classification_ids"],
         lang_ids=state["lang_ids"],
         submission_ids=state["submission_ids"],
+    )
+
+
+@pytest.fixture
+def form_classification_v2_resources(database, api_post):
+    """Factory fixture for form v2 classifications with guaranteed teardown."""
+    state = {
+        "classification_ids": [],
+        "lang_ids": [],
+    }
+
+    def create(payload):
+        response = api_post(endpoint="/api/forms/v2/classifications", json=payload)
+        assert response.status_code == 201
+        database.session.commit()
+        body = decamelize(response.json())
+        state["classification_ids"].append(body["id"])
+        state["lang_ids"].append(body["name_string_id"])
+        return body
+
+    yield SimpleNamespace(create=create, state=state)
+
+    _cleanup_form_v2_resources(
+        classification_ids=state["classification_ids"],
+        lang_ids=state["lang_ids"],
     )
 
 
