@@ -1,12 +1,262 @@
 from humps import decamelize
 
 import data.db_operations as crud
+from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrmV2,
     FormQuestionTemplateOrmV2,
     FormTemplateOrmV2,
     LangVersionOrmV2,
 )
+
+
+def _cleanup_template_resources(
+    *,
+    created_template_ids=None,
+    created_classification_ids=None,
+    created_lang_versions=None,
+):
+    for template_id in created_template_ids or []:
+        crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
+        crud.delete_all(FormTemplateOrmV2, id=template_id)
+
+    for classification_id in created_classification_ids or []:
+        crud.delete_all(FormClassificationOrmV2, id=classification_id)
+
+    for string_id in created_lang_versions or []:
+        crud.delete_all(LangVersionOrmV2, string_id=string_id)
+
+
+def _collect_lang_version_ids(classification, template):
+    lang_ids = [classification.name_string_id]
+    for question in template.questions:
+        lang_ids.append(question.question_string_id)
+    return lang_ids
+
+
+def _create_template(database, api_post, form_template_v2_payload, **payload_kwargs):
+    payload = form_template_v2_payload(**payload_kwargs)
+    response = api_post("/api/forms/v2/templates/body", json=payload)
+    assert response.status_code == 201
+
+    database.session.flush()
+    database.session.commit()
+
+    body = decamelize(response.json())
+    classification = crud.read(
+        FormClassificationOrmV2, id=body["form_classification_id"]
+    )
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+
+    return {
+        "body": body,
+        "payload": payload,
+        "classification": classification,
+        "template": template,
+        "lang_ids": _collect_lang_version_ids(classification, template),
+    }
+
+
+def _localized_text(value: dict | str) -> str:
+    if isinstance(value, str):
+        return value
+
+    for key in ("english", "English", "french", "French"):
+        if key in value:
+            return value[key]
+
+    return next(iter(value.values()))
+
+
+def test_get_form_template_v2_by_id(
+    database, form_template_v2_payload, api_post, api_get
+):
+    created_template_ids = []
+    created_classification_ids = []
+    created_lang_versions = []
+
+    try:
+        created = _create_template(database, api_post, form_template_v2_payload)
+        body = created["body"]
+        created_template_ids.append(body["id"])
+        created_classification_ids.append(body["form_classification_id"])
+        created_lang_versions.extend(created["lang_ids"])
+
+        response = api_get(endpoint=f"/api/forms/v2/templates/{body['id']}")
+        assert response.status_code == 200
+
+        template = decamelize(response.json())
+        assert template["id"] == body["id"]
+        assert template["version"] == created["payload"]["version"]
+        assert len(template["questions"]) == len(created["payload"]["questions"])
+
+        heart_rate_question = next(
+            question for question in template["questions"] if question["order"] == 1
+        )
+        assert _localized_text(heart_rate_question["question_text"]) == "Heart rate"
+        assert _localized_text(template["classification"]["name"]) == "Vitals Form"
+
+    finally:
+        _cleanup_template_resources(
+            created_template_ids=created_template_ids,
+            created_classification_ids=created_classification_ids,
+            created_lang_versions=created_lang_versions,
+        )
+
+
+def test_get_form_template_v2_with_lang(
+    database, form_template_v2_payload, api_post, api_get
+):
+    created_template_ids = []
+    created_classification_ids = []
+    created_lang_versions = []
+
+    try:
+        created = _create_template(
+            database,
+            api_post,
+            form_template_v2_payload,
+            overrides={
+                "classification": {
+                    "name": {
+                        "english": "Vitals Form",
+                        "french": "Formulaire de signes vitaux",
+                    },
+                },
+                "questions": [
+                    {
+                        "question_type": QuestionTypeEnum.CATEGORY.value,
+                        "order": 0,
+                        "required": False,
+                        "question_text": {
+                            "english": "Vitals",
+                            "french": "Signes vitaux",
+                        },
+                        "mc_options": [],
+                    },
+                    {
+                        "question_type": QuestionTypeEnum.INTEGER.value,
+                        "order": 1,
+                        "required": True,
+                        "question_text": {
+                            "english": "Heart rate",
+                            "french": "Frequence cardiaque",
+                        },
+                        "num_min": 0,
+                        "num_max": 300,
+                        "category_index": 0,
+                        "user_question_id": "heart_rate",
+                        "mc_options": [],
+                    },
+                ],
+            },
+        )
+        body = created["body"]
+        created_template_ids.append(body["id"])
+        created_classification_ids.append(body["form_classification_id"])
+        created_lang_versions.extend(created["lang_ids"])
+
+        response = api_get(
+            endpoint=f"/api/forms/v2/templates/{body['id']}?lang=french"
+        )
+        assert response.status_code == 200
+
+        template = decamelize(response.json())
+        heart_rate_question = next(
+            question for question in template["questions"] if question["order"] == 1
+        )
+        assert _localized_text(heart_rate_question["question_text"]) == (
+            "Frequence cardiaque"
+        )
+        assert _localized_text(template["classification"]["name"]) == (
+            "Formulaire de signes vitaux"
+        )
+
+    finally:
+        _cleanup_template_resources(
+            created_template_ids=created_template_ids,
+            created_classification_ids=created_classification_ids,
+            created_lang_versions=created_lang_versions,
+        )
+
+
+def test_list_form_templates_v2(database, form_template_v2_payload, api_post, api_get):
+    created_template_ids = []
+    created_classification_ids = []
+    created_lang_versions = []
+
+    try:
+        list_before = api_get(endpoint="/api/forms/v2/templates")
+        assert list_before.status_code == 200
+        existing_count = len(decamelize(list_before.json())["templates"])
+
+        created = _create_template(database, api_post, form_template_v2_payload)
+        body = created["body"]
+        created_template_ids.append(body["id"])
+        created_classification_ids.append(body["form_classification_id"])
+        created_lang_versions.extend(created["lang_ids"])
+
+        response = api_get(endpoint="/api/forms/v2/templates")
+        assert response.status_code == 200
+
+        templates = decamelize(response.json())["templates"]
+        assert len(templates) == existing_count + 1
+
+        listed_template = next(
+            template for template in templates if template["id"] == body["id"]
+        )
+        assert listed_template["version"] == created["payload"]["version"]
+        assert listed_template["name"] == "Vitals Form"
+        assert listed_template["archived"] is False
+
+    finally:
+        _cleanup_template_resources(
+            created_template_ids=created_template_ids,
+            created_classification_ids=created_classification_ids,
+            created_lang_versions=created_lang_versions,
+        )
+
+
+def test_get_template_languages(database, form_template_v2_payload, api_post, api_get):
+    created_template_ids = []
+    created_classification_ids = []
+    created_lang_versions = []
+
+    try:
+        created = _create_template(
+            database,
+            api_post,
+            form_template_v2_payload,
+            overrides={
+                "classification": {
+                    "name": {
+                        "english": "Vitals Form",
+                        "french": "Formulaire de signes vitaux",
+                    },
+                },
+            },
+        )
+        body = created["body"]
+        created_template_ids.append(body["id"])
+        created_classification_ids.append(body["form_classification_id"])
+        created_lang_versions.extend(created["lang_ids"])
+
+        response = api_get(
+            endpoint=f"/api/forms/v2/templates/{body['id']}/languages"
+        )
+        assert response.status_code == 200
+
+        languages = {
+            lang.lower() for lang in decamelize(response.json())["lang_versions"]
+        }
+        assert languages == {"english", "french"}
+
+    finally:
+        _cleanup_template_resources(
+            created_template_ids=created_template_ids,
+            created_classification_ids=created_classification_ids,
+            created_lang_versions=created_lang_versions,
+        )
 
 
 def test_create_form_template_v2(database, form_template_v2_payload, api_post):
