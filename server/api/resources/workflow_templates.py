@@ -11,6 +11,7 @@ from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
+from common.form_utils import resolve_string_text
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
     generate_updated_workflow_template,
@@ -306,6 +307,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     with_steps = convert_query_parameter_to_bool(with_steps)
     with_classification = request.args.get("with_classification", default=False)
     with_classification = convert_query_parameter_to_bool(with_classification)
+    lang = request.args.get("lang", default="English")
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
@@ -318,6 +320,29 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
         )
 
     response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
+
+    # Quick demo resolution: turn the *_string_id pointers back into plain
+    # text in the requested language, falling back to English if missing.
+    # (Temporary — the real dual-shape/editor design comes in a later phase.)
+    response_data["description"] = resolve_string_text(
+        workflow_template.description_string_id, lang
+    ) or resolve_string_text(workflow_template.description_string_id, "English")
+
+    if with_classification and "classification" in response_data:
+        classification = workflow_template.classification
+        response_data["classification"]["name"] = resolve_string_text(
+            classification.name_string_id, lang
+        ) or resolve_string_text(classification.name_string_id, "English")
+
+    for step_data, step_orm in zip(
+        response_data.get("steps", []), workflow_template.steps
+    ):
+        step_data["name"] = resolve_string_text(
+            step_orm.name_string_id, lang
+        ) or resolve_string_text(step_orm.name_string_id, "English")
+        step_data["description"] = resolve_string_text(
+            step_orm.description_string_id, lang
+        ) or resolve_string_text(step_orm.description_string_id, "English")
 
     if not with_steps:
         del response_data["steps"]

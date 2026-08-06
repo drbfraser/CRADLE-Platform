@@ -12,6 +12,7 @@ from flask.cli import FlaskGroup
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from data import orm_serializer
+from common.form_utils import resolve_string_text
 from enums import QuestionTypeEnum, SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
 from models import (
     FormAnswerOrmV2,
@@ -1569,6 +1570,20 @@ def create_relay_nums():
         db.session.commit()
 
 
+def create_lang_text(text_en, text_fr=None):
+    """
+    Create a string_id plus its LangVersionOrmV2 row(s).
+
+    Temporary seeding helper for the workflow-language demo slice - real
+    multi-lang authoring will go through the editor UI/API instead.
+    """
+    string_id = get_uuid()
+    db.session.add(LangVersionOrmV2(string_id=string_id, lang="English", text=text_en))
+    if text_fr:
+        db.session.add(LangVersionOrmV2(string_id=string_id, lang="French", text=text_fr))
+    return string_id
+
+
 def create_single_step_workflow_classification():
     classification_id = "wc-single-step-1"
 
@@ -1577,7 +1592,7 @@ def create_single_step_workflow_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name": "Get Patient Info Workflow",
+        "name_string_id": create_lang_text("Get Patient Info Workflow"),
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1595,7 +1610,9 @@ def create_simple_workflow_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name": "Making Tea Workflow",
+        "name_string_id": create_lang_text(
+            "Making Tea Workflow", "Recette de thé"
+        ),
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1613,7 +1630,7 @@ def create_simple_workflow_with_branching_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name": "Troubleshooting Wi-Fi Workflow",
+        "name_string_id": create_lang_text("Troubleshooting Wi-Fi Workflow"),
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1631,7 +1648,7 @@ def create_complex_workflow_with_loops_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name": "Escape Room Workflow",
+        "name_string_id": create_lang_text("Escape Room Workflow"),
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
@@ -1652,7 +1669,7 @@ def create_single_step_workflow_template(
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Collect patient information",
+        "description_string_id": create_lang_text("Collect patient information"),
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1668,8 +1685,8 @@ def create_single_step_workflow_template(
 
     step = {
         "id": f"{workflow_template_id}-step-1",
-        "name": "Get Patient Details",
-        "description": "Enter the patient's details",
+        "name_string_id": create_lang_text("Get Patient Details"),
+        "description_string_id": create_lang_text("Enter the patient's details"),
         "expected_completion": get_current_time()
         + 86400,  # Expected completion is 24 hours after this step was created
         "last_edited": get_current_time(),
@@ -1696,7 +1713,9 @@ def create_simple_workflow_template(
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Linear steps to make tea",
+        "description_string_id": create_lang_text(
+            "Linear steps to make tea", "Étapes simples pour préparer le thé"
+        ),
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1711,16 +1730,19 @@ def create_simple_workflow_template(
     )
 
     stepDetails = [
-        "Boil water",
-        "Place tea bag in cup",
-        "Pour water over bag",
-        "Wait for 3 minutes",
+        ("Boil water", "Faire bouillir de l'eau"),
+        ("Place tea bag in cup", "Mettre le sachet de thé dans la tasse"),
+        ("Pour water over bag", "Verser l'eau sur le sachet"),
+        ("Wait for 3 minutes", "Attendre 3 minutes"),
     ]
     for step_number in range(1, num_steps + 1):
+        step_name_en, step_name_fr = stepDetails[step_number - 1]
         step = {
             "id": f"{workflow_template_id}-step-{step_number}",
-            "name": stepDetails[step_number - 1],
-            "description": "Indicate step is done",
+            "name_string_id": create_lang_text(step_name_en, step_name_fr),
+            "description_string_id": create_lang_text(
+                "Indicate step is done", "Indiquer que l'étape est terminée"
+            ),
             "expected_completion": get_current_time()
             + 86400,  # Expected completion is 24 hours after this step was created
             "last_edited": get_current_time(),
@@ -1761,7 +1783,7 @@ def create_simple_workflow_template_with_branching(
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Troubleshoot Wi-Fi",
+        "description_string_id": create_lang_text("Troubleshoot Wi-Fi"),
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1815,8 +1837,8 @@ def create_simple_workflow_template_with_branching(
         name, description = step_details[step_number]
         step_data = {
             "id": step_id,
-            "name": name,
-            "description": description,
+            "name_string_id": create_lang_text(name),
+            "description_string_id": create_lang_text(description),
             "expected_completion": get_current_time() + 86400,
             "last_edited": get_current_time(),
             "form_id": form_template_id,
@@ -1869,7 +1891,7 @@ def create_complex_workflow_with_loops_template(workflow_template_id, form_templ
 
     workflow_template = {
         "id": workflow_template_id,
-        "description": "Play an escape room game",
+        "description_string_id": create_lang_text("Play an escape room game"),
         "archived": False,
         "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
@@ -1942,8 +1964,8 @@ def create_complex_workflow_with_loops_template(workflow_template_id, form_templ
         name, description = step_details[step_number]
         step_data = {
             "id": step_id,
-            "name": name,
-            "description": description,
+            "name_string_id": create_lang_text(name),
+            "description_string_id": create_lang_text(description),
             "expected_completion": get_current_time() + 86400,
             "last_edited": get_current_time(),
             "form_id": form_template_id,
@@ -2429,7 +2451,7 @@ def create_complex_workflow_classification():
 
     papagaio_study_workflow_classification = {
         "id": "papagaio_study_workflow_classification",
-        "name": "PAPAGAIO Research Study",
+        "name_string_id": create_lang_text("PAPAGAIO Research Study"),
     }
 
     papagaio_study_workflow_classification_orm = WorkflowClassificationOrm(
@@ -2450,8 +2472,10 @@ def create_complex_workflow_template():
 
     papagaio_study_workflow_template = {
         "id": "papagaio_study_workflow_template",
-        "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
-        "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
+        "description_string_id": create_lang_text(
+            "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
+            "mortality and morbidity from pre-eclampsia, across low- and middle-income countries"
+        ),
         "archived": True,
         "starting_step_id": "prerequisites_template_step",
         "date_created": get_current_time(),
@@ -2486,8 +2510,8 @@ def create_complex_workflow_template_steps():
     if crud.read(WorkflowTemplateStepOrm, id="prerequisites_template_step") is None:
         prerequisites_template_step = {
             "id": "prerequisites_template_step",
-            "name": "prerequisites_step",
-            "description": "Prerequisites Step",
+            "name_string_id": create_lang_text("prerequisites_step"),
+            "description_string_id": create_lang_text("Prerequisites Step"),
             "expected_completion": None,
             "last_edited": get_current_time(),
             "form_id": "prerequisites_form_template",
@@ -2511,8 +2535,8 @@ def create_complex_workflow_template_steps():
     if crud.read(WorkflowTemplateStepOrm, id="papagaio_consent_template_step") is None:
         papagaio_consent_template_step = {
             "id": "papagaio_consent_template_step",
-            "name": "papagaio_consent_step",
-            "description": "PAPAGAIO Consent Step",
+            "name_string_id": create_lang_text("papagaio_consent_step"),
+            "description_string_id": create_lang_text("PAPAGAIO Consent Step"),
             "expected_completion": None,
             "last_edited": get_current_time(),
             "form_id": "papagaio_consent_form_template",
@@ -2541,8 +2565,10 @@ def create_complex_workflow_template_steps():
     ):
         papagaio_randomized_treatment_template_step = {
             "id": "papagaio_randomized_treatment_template_step",
-            "name": "papagaio_randomized_treatment_step",
-            "description": "PAPAGAIO Randomized Treatment Step",
+            "name_string_id": create_lang_text("papagaio_randomized_treatment_step"),
+            "description_string_id": create_lang_text(
+                "PAPAGAIO Randomized Treatment Step"
+            ),
             "expected_completion": None,
             "last_edited": get_current_time(),
             "form_id": "papagaio_randomized_treatment_plan_form_template",
@@ -2571,8 +2597,10 @@ def create_complex_workflow_template_steps():
     ):
         papagaio_observation_treatment_template_step = {
             "id": "papagaio_observation_treatment_template_step",
-            "name": "papagaio_observation_treatment_step",
-            "description": "PAPAGAIO Observation Treatment Step",
+            "name_string_id": create_lang_text("papagaio_observation_treatment_step"),
+            "description_string_id": create_lang_text(
+                "PAPAGAIO Observation Treatment Step"
+            ),
             "expected_completion": None,
             "last_edited": get_current_time(),
             "form_id": "papagaio_observation_treatment_plan_form_template",
@@ -3144,10 +3172,14 @@ def create_workflow_instance(
             template_step = crud.read(WorkflowTemplateStepOrm, id=template_step_id)
             workflow_instance_step = {
                 "id": f"{instance_id}-step{step_number}",
-                "name": template_step.name
+                "name": resolve_string_text(template_step.name_string_id, "English")
                 if template_step
                 else f"{instance_name} Step {step_number}",
-                "description": template_step.description if template_step else None,
+                "description": resolve_string_text(
+                    template_step.description_string_id, "English"
+                )
+                if template_step
+                else None,
                 "start_date": get_current_time(),
                 "triggered_by": None,
                 "last_edited": get_current_time(),

@@ -1,5 +1,7 @@
+import data.db_operations as crud
 from data import db_session
 from models import (
+    LangVersionOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -17,6 +19,19 @@ from .forms import (
     __unmarshal_form_template_v2,
 )
 from .utils import __load, __pre_process
+
+
+def __resolve_lang_text(string_id: str, lang: str = "English") -> str | None:
+    """
+    Quick-demo helper: look up translated text by string_id/lang directly,
+    avoiding an import of common.form_utils here (that module already imports
+    data.orm_serializer, and this file is loaded as part of that same
+    package - importing form_utils from here would recreate the same
+    circular-import trap fixed in manage.py). Real Phase 4 work should
+    reconcile this with form_utils.resolve_string_text properly.
+    """
+    translation = crud.read(LangVersionOrmV2, string_id=string_id, lang=lang)
+    return translation.text if translation else None
 
 
 def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
@@ -113,7 +128,7 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
         d["classification"] = __marshal_workflow_classification(
             wc=wt.classification, if_include_templates=False
         )
-        d["name"] = wt.classification.name
+        d["name"] = __resolve_lang_text(wt.classification.name_string_id)
 
     if not shallow:
         d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
