@@ -37,7 +37,6 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
   });
 
-
   useEffect(() => {
     if (
       !selectedStep ||
@@ -61,7 +60,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
       onStepChange?.(selectedStep.id, 'formId', latestForm.id);
     }
   }, [isEditMode, selectedStep?.id, formTemplatesQuery.data]);
-    
+
   const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleInsertDateToken = (token: string) => {
