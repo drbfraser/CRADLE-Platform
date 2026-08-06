@@ -675,6 +675,9 @@ def check_form_compatibility_for_workflow(
     }
 
     for step in workflow_orm.steps:
+        if step.form_id != old_form.id:
+            continue
+
         for branch in step.branches:
             if branch.condition is None or not branch.condition.rule:
                 continue
