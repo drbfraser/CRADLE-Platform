@@ -36,28 +36,47 @@ export function getPrimaryConditionBlock(
   return roots[0] ?? null;
 }
 
-/**
- * The editor only supports one top-level condition. When the user drags a new
- * condition block onto the workspace, replace any previous root instead of
- * leaving two disconnected roots (which blocked further editing).
- */
-export function enforceSingleConditionRoot(
-  workspace: Blockly.WorkspaceSvg,
-  keepBlock: Blockly.Block
-): void {
-  if (workspace.isDragging()) return;
+/** Blocks in the workspace that are not part of the given root's tree. */
+export function getBlocksNotInTree(
+  workspace: Blockly.Workspace,
+  rootBlock: Blockly.Block
+): Blockly.Block[] {
+  const inTree = new Set<string>();
 
-  const roots = getConditionRootBlocks(workspace).filter(
-    (block) => block.id !== keepBlock.id
-  );
-  if (roots.length === 0) return;
-
-  Blockly.Events.setGroup(true);
-  try {
-    for (const block of roots) {
-      block.dispose(true);
+  const visit = (block: Blockly.Block) => {
+    if (inTree.has(block.id)) return;
+    inTree.add(block.id);
+    for (const input of block.inputList) {
+      const target = input.connection?.targetBlock();
+      if (target) visit(target);
     }
-  } finally {
-    Blockly.Events.setGroup(false);
+  };
+
+  visit(rootBlock);
+
+  return workspace
+    .getAllBlocks(false)
+    .filter((block) => !block.isShadow() && !inTree.has(block.id));
+}
+
+/** Position for placing a new top-level block alongside existing ones. */
+export function getNextTopBlockPosition(workspace: Blockly.Workspace): {
+  x: number;
+  y: number;
+} {
+  const topBlocks = workspace.getTopBlocks(false);
+  if (topBlocks.length === 0) {
+    return { x: 20, y: 20 };
   }
+
+  let maxX = 0;
+  let minY = Infinity;
+  for (const block of topBlocks) {
+    const xy = block.getRelativeToSurfaceXY();
+    maxX = Math.max(maxX, xy.x);
+    minY = Math.min(minY, xy.y);
+  }
+
+  // Approximate block width so appended conditions sit beside existing ones.
+  return { x: maxX + 320, y: minY };
 }

@@ -1,6 +1,7 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
 import { blocklyTypeFromVariableType } from './blocks';
+import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { comparisonBlockType, inferBlocklyType } from './ruleTypeInference';
 import { resolveVariableBlockType } from './variableGrouping';
 
@@ -37,6 +38,30 @@ export function loadJsonLogicToWorkspace(
   if (block) {
     block.moveBy(20, 20);
   }
+}
+
+export function appendJsonLogicToWorkspace(
+  workspace: Blockly.WorkspaceSvg,
+  jsonLogicStr: string,
+  variables: WorkflowVariable[] = []
+): boolean {
+  let rule: unknown;
+  try {
+    rule = JSON.parse(jsonLogicStr);
+  } catch {
+    return false;
+  }
+
+  const tagToType = new Map(
+    variables.map((v) => [v.tag, blocklyTypeFromVariableType(v.type)])
+  );
+
+  const { x, y } = getNextTopBlockPosition(workspace);
+  const block = createBlockFromRule(workspace, rule, tagToType, variables);
+  if (!block) return false;
+
+  block.moveBy(x, y);
+  return true;
 }
 
 // Re-export for tests.

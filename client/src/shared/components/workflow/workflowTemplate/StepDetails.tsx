@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -11,8 +11,11 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 import { getAllFormTemplatesAsyncV2 } from 'src/shared/api/modules/formTemplates';
+import StepDescription from 'src/shared/components/workflow/StepDescription';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
+import DescriptionFormattingHelp from './DescriptionFormattingHelp';
+import DescriptionDateInsertPicker from './DescriptionDateInsertPicker';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -33,6 +36,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     queryKey: ['workflowStepFormTemplatesV2', false],
     queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
   });
+
 
   useEffect(() => {
     if (
@@ -57,6 +61,34 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
       onStepChange?.(selectedStep.id, 'formId', latestForm.id);
     }
   }, [isEditMode, selectedStep?.id, formTemplatesQuery.data]);
+    
+  const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const handleInsertDateToken = (token: string) => {
+    if (!selectedStep) return;
+    const textarea = descriptionInputRef.current;
+    const currentValue = selectedStep.description || '';
+
+    if (!textarea) {
+      onStepChange?.(selectedStep.id, 'description', `${currentValue}${token}`);
+      onCaptureState?.();
+      return;
+    }
+
+    const start = textarea.selectionStart ?? currentValue.length;
+    const end = textarea.selectionEnd ?? currentValue.length;
+    const newValue =
+      currentValue.slice(0, start) + token + currentValue.slice(end);
+
+    onStepChange?.(selectedStep.id, 'description', newValue);
+    onCaptureState?.();
+
+    requestAnimationFrame(() => {
+      const cursorPosition = start + token.length;
+      textarea.focus();
+      textarea.setSelectionRange(cursorPosition, cursorPosition);
+    });
+  };
 
   if (!selectedStep) {
     return (
@@ -138,28 +170,44 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           </Box>
 
           <Box>
-            <Typography variant="body2" color="text.secondary">
-              Description
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Typography variant="body2" color="text.secondary">
+                Description
+              </Typography>
+              {isEditMode && (
+                <>
+                  <DescriptionFormattingHelp />
+                  <DescriptionDateInsertPicker
+                    onInsertDate={handleInsertDateToken}
+                  />
+                </>
+              )}
+            </Stack>
             {isEditMode ? (
               <TextField
                 fullWidth
                 variant="outlined"
                 size="small"
                 multiline
-                rows={3}
+                minRows={5}
+                maxRows={20}
+                inputRef={descriptionInputRef}
                 value={selectedStep.description || ''}
                 onChange={(e) =>
                   onStepChange?.(selectedStep.id, 'description', e.target.value)
                 }
                 onBlur={() => onCaptureState?.()}
-                placeholder="Enter step description..."
+                placeholder={`# Heading\n\nSupports **bold**, _italic_, and [links](https://example.com).\n\n- Bullet item\n- Another item\n\n1. First step\n2. Second step\n\nRecommend patient come back in 3 days ({{startDate+3d}}).`}
+                helperText="Markdown supported"
                 sx={{ mt: 0.5 }}
               />
             ) : (
-              <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {selectedStep.description || 'No description provided'}
-              </Typography>
+              <Box sx={{ mt: 0.5 }}>
+                <StepDescription
+                  description={selectedStep.description}
+                  fallback="No description provided"
+                />
+              </Box>
             )}
           </Box>
 

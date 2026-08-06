@@ -13,6 +13,8 @@ export type InstanceStep = {
   title: string;
   description?: string;
   startedOn?: ISODate;
+  /** Epoch seconds the step started, for resolving `{{startDate...}}` in the description. */
+  startDateEpoch?: number;
   formTemplateId?: string;
   expectedCompletion?: Nullable<ISODate>;
   completedOn?: Nullable<ISODate>;

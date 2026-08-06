@@ -32,6 +32,9 @@ interface BranchConditionEditorProps {
   editorJsonLogic?: string;
   /** Bump to remount Blockly after paste. */
   editorReloadKey?: number;
+  /** Append a copied rule beside existing blocks instead of replacing the workspace. */
+  appendJsonLogic?: string | null;
+  onAppendComplete?: () => void;
   /** Controlled condition name (branch dialog). */
   conditionName?: string;
   /** Optional actions rendered below Blockly and above "then go to". */
@@ -64,6 +67,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   editorFillHeight = false,
   editorJsonLogic,
   editorReloadKey = 0,
+  appendJsonLogic,
+  onAppendComplete,
   conditionName: controlledConditionName,
   actionsBelowEditor,
   editorOverlay,
@@ -306,6 +311,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
                 key={`${stepId}-${branchIndex}-${editorReloadKey}`}
                 variables={variables}
                 initialJsonLogic={initialJsonLogic}
+                appendJsonLogic={appendJsonLogic}
+                onAppendComplete={onAppendComplete}
                 onChange={handleBlocklyChange}
                 fillHeight={editorFillHeight}
               />
