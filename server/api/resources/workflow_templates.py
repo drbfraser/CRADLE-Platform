@@ -1,4 +1,3 @@
-import re
 from typing import Optional
 
 from flask import abort, request
@@ -13,12 +12,16 @@ from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
+    check_form_compatibility_for_workflow,
     generate_updated_workflow_template,
+    get_next_workflow_template_version,
+    lock_workflow_classification_for_update,
     validate_workflow_template_step,
 )
 from data import orm_serializer
 from enums import RoleEnum
 from models import (
+    FormTemplateOrmV2,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
@@ -45,65 +48,6 @@ api_workflow_templates = APIBlueprint(
 )
 
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
-# Version values must be parsed numerically (V1, V2, ...), not lexically.
-# For example, lexical order would place V10 before V2, which is incorrect.
-# (since 1 comes before 2 lexically)
-workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
-
-
-def parse_workflow_template_version(version: Optional[str]) -> Optional[int]:
-    """Return numeric part for versions in the form V<number>, else None."""
-    if version is None:
-        return None
-
-    normalized_version = version.strip()
-    version_match = workflow_template_version_regex.match(normalized_version)
-    if version_match is None:
-        return None
-
-    return int(version_match.group("number"))
-
-
-def get_next_workflow_template_version(
-    workflow_classification_id: Optional[str],
-) -> str:
-    """
-    Compute the next template version for a classification.
-
-    - New classification starts at V1.
-    - Existing classification increments the max known V<number>.
-    """
-    if workflow_classification_id is None:
-        return "V1"
-
-    existing_templates = (
-        crud.db_session.query(WorkflowTemplateOrm)
-        .filter(WorkflowTemplateOrm.classification_id == workflow_classification_id)
-        .all()
-    )
-
-    max_version_number = 0
-    for existing_template in existing_templates:
-        parsed_version = parse_workflow_template_version(existing_template.version)
-        if parsed_version is not None:
-            max_version_number = max(max_version_number, parsed_version)
-
-    return f"V{max_version_number + 1}"
-
-
-def lock_workflow_classification_for_update(
-    workflow_classification_id: Optional[str],
-) -> Optional[WorkflowClassificationOrm]:
-    """Acquire a row lock for classification-scoped version sequencing."""
-    if workflow_classification_id is None:
-        return None
-
-    return (
-        crud.db_session.query(WorkflowClassificationOrm)
-        .filter(WorkflowClassificationOrm.id == workflow_classification_id)
-        .with_for_update()
-        .one_or_none()
-    )
 
 
 def find_and_archive_previous_workflow_template(
@@ -470,6 +414,37 @@ def update_workflow_template_patch(
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
+
+    # For each step, check compatibility against the latest non-archived form for
+    # that step's classification. If compatible, update the step to the latest form.
+    # If any step is incompatible, mark has_branching_issues without updating form_ids.
+    has_issues = False
+    for old_step, new_step in zip(workflow_template.steps, new_workflow_template.steps):
+        if not old_step.form_id:
+            continue
+        current_form = crud.read(FormTemplateOrmV2, id=old_step.form_id)
+        if current_form is None or not current_form.form_classification_id:
+            continue
+        latest_form = (
+            crud.db_session.query(FormTemplateOrmV2)
+            .filter(
+                FormTemplateOrmV2.form_classification_id
+                == current_form.form_classification_id
+            )
+            .filter(FormTemplateOrmV2.archived == False)
+            .first()
+        )
+        if latest_form is None or latest_form.id == old_step.form_id:
+            continue
+        compatible, _ = check_form_compatibility_for_workflow(
+            new_workflow_template, current_form, latest_form
+        )
+        if compatible:
+            new_step.form_id = latest_form.id
+        else:
+            has_issues = True
+
+    new_workflow_template.has_branching_issues = has_issues
 
     workflow_template.archived = True
 

@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Paper, Divider } from '@mui/material';
+import { Alert } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
@@ -84,11 +85,24 @@ export const ViewWorkflowTemplate = () => {
 
         <Divider sx={{ my: 3 }} />
 
+        {workflowTemplateQuery.data?.hasBranchingIssues &&
+          (!isEditMode || !workflowEditor.hasChanges) && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              <strong>Branching issue detected.</strong> A form used by this
+              workflow was updated in a way that breaks one or more branch
+              conditions. Open the affected step(s) and fix or remove the broken
+              conditions, then save to re-evaluate.
+            </Alert>
+          )}
+
         {isEditMode ? (
           <WorkflowEditor
             editor={workflowEditor}
             allowClassificationEdit={true}
             isSaving={editWorkflowTemplateMutation.isPending}
+            hasBranchingIssues={
+              !!workflowTemplateQuery.data?.hasBranchingIssues
+            }
           />
         ) : (
           <WorkflowTemplateViewContent

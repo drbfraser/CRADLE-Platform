@@ -24,6 +24,8 @@ export interface FormTemplateList {
   dateCreated: number;
   id: string;
   version: number;
+  form_classification_id?: string;
+  formClassificationId?: string;
   classification?: IFormClassification;
 }
 

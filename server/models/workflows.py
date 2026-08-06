@@ -84,6 +84,7 @@ class WorkflowTemplateOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
+    has_branching_issues = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     starting_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(

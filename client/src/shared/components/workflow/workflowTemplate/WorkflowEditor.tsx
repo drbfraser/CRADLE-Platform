@@ -21,6 +21,7 @@ interface WorkflowEditorProps {
   allowClassificationEdit?: boolean;
   isSaving?: boolean;
   saveDisabled?: boolean;
+  hasBranchingIssues?: boolean;
   showViewToggle?: boolean;
   viewMode?: WorkflowViewMode;
   onViewModeChange?: (mode: WorkflowViewMode) => void;
@@ -31,6 +32,7 @@ export const WorkflowEditor = ({
   allowClassificationEdit = false,
   isSaving = false,
   saveDisabled = false,
+  hasBranchingIssues = false,
   showViewToggle = false,
   viewMode = WorkflowViewMode.FLOW,
   onViewModeChange,

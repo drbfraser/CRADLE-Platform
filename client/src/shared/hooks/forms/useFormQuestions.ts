@@ -229,10 +229,18 @@ export const useFormQuestions = (
 
           let isConditionMet = true;
           switch (parentQuestion.questionType) {
-            // TODO: This does not work. The multiple choice and multiple select questions do not save properly in the QCondition object type
+            // The multiple choice and multiple select questions save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
-            case QuestionTypeEnum.MULTIPLE_SELECT:
+            case QuestionTypeEnum.MULTIPLE_SELECT: {
+              const requiredLabels = getValuesFromIDs(
+                parentQuestion,
+                condition.answers.mcIdArray
+              );
+              isConditionMet = requiredLabels.some((label) =>
+                (parentAnswer.val as string[]).includes(label)
+              );
               break;
+            }
             case QuestionTypeEnum.STRING:
               switch (condition.relation) {
                 case QRelationEnum.EQUAL_TO:

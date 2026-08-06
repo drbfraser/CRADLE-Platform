@@ -8,6 +8,7 @@ from pydantic import ValidationError
 import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils
+from common.workflow_utils import update_workflow_version_with_new_form
 from data import orm_serializer
 from enums import ContentTypeEnum, RoleEnum
 from models import (
@@ -260,6 +261,7 @@ def handle_form_template_upload(
             )
             crud.create(form_classification_orm, refresh=True, autocommit=False)
 
+        previous_template_id = None
         if archive_previous_template:
             previous_template = crud.read(
                 FormTemplateOrmV2,
@@ -267,6 +269,7 @@ def handle_form_template_upload(
                 archived=False,
             )
             if previous_template is not None:
+                previous_template_id = previous_template.id
                 previous_template.archived = True
 
         form_template_orm.classification = form_classification_orm
@@ -276,6 +279,12 @@ def handle_form_template_upload(
         created_form_template["name"] = english_name
 
         crud.db_session.commit()
+
+        # update the workflow steps usng this form to the latest version
+        if previous_template_id:
+            update_workflow_version_with_new_form(
+                previous_template_id, form_template_orm.id
+            )
         return created_form_template
     except Exception:
         crud.db_session.rollback()

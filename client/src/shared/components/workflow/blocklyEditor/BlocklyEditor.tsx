@@ -168,6 +168,12 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!workspaceRef.current) return;
+    registerBlocks(variables);
+    workspaceRef.current.updateToolbox(buildToolboxConfig(variables));
+  }, [variables]);
+
   return (
     <>
       {blocklyZIndexFix}
