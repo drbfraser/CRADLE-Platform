@@ -1,6 +1,7 @@
 from humps import decamelize
 
 import data.db_operations as crud
+from common.commonUtil import get_uuid
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrmV2,
@@ -257,6 +258,120 @@ def test_get_template_languages(database, form_template_v2_payload, api_post, ap
             created_classification_ids=created_classification_ids,
             created_lang_versions=created_lang_versions,
         )
+
+
+def test_export_template_csv(database, form_template_v2_payload, api_post, api_get):
+    created_template_ids = []
+    created_classification_ids = []
+    created_lang_versions = []
+
+    try:
+        created = _create_template(database, api_post, form_template_v2_payload)
+        body = created["body"]
+        template_version = created["payload"]["version"]
+        created_template_ids.append(body["id"])
+        created_classification_ids.append(body["form_classification_id"])
+        created_lang_versions.extend(created["lang_ids"])
+
+        response = api_get(
+            endpoint=(
+                f"/api/forms/v2/templates/{body['id']}/versions/{template_version}/csv"
+            )
+        )
+        assert response.status_code == 200
+        assert "text/csv" in response.headers.get("Content-Type", "")
+
+        csv_text = response.text
+        assert "Question ID" in csv_text
+        assert "Heart rate" in csv_text
+        assert "Vitals Form" in csv_text
+        assert "Version" in csv_text
+        assert str(template_version) in csv_text
+
+    finally:
+        _cleanup_template_resources(
+            created_template_ids=created_template_ids,
+            created_classification_ids=created_classification_ids,
+            created_lang_versions=created_lang_versions,
+        )
+
+
+def test_form_version_update_archives_previous_and_creates_new(
+    database, api_post, form_template_v2_payload
+):
+    form_v1_id = None
+    form_v2_id = None
+    form_classification_id = None
+    lang_ids = []
+
+    try:
+        form_name = f"Version Test Form {get_uuid()}"
+
+        v1_payload = form_template_v2_payload(
+            overrides={"classification": {"name": {"english": form_name}}}
+        )
+        v1_response = api_post("/api/forms/v2/templates/body", json=v1_payload)
+        database.session.commit()
+        assert v1_response.status_code == 201
+
+        v1_body = decamelize(v1_response.json())
+        form_v1_id = v1_body["id"]
+        form_classification_id = v1_body["form_classification_id"]
+
+        classification = crud.read(FormClassificationOrmV2, id=form_classification_id)
+        form_v1_orm = crud.read(FormTemplateOrmV2, id=form_v1_id)
+        lang_ids.append(classification.name_string_id)
+        for question in form_v1_orm.questions:
+            lang_ids.append(question.question_string_id)
+
+        v2_payload = form_template_v2_payload(
+            overrides={
+                "id": form_v1_id,
+                "version": 2,
+                "classification": {
+                    "id": form_classification_id,
+                    "name": {"english": form_name},
+                },
+            }
+        )
+        v2_response = api_post("/api/forms/v2/templates/body", json=v2_payload)
+        database.session.commit()
+        assert v2_response.status_code == 201
+
+        v2_body = decamelize(v2_response.json())
+        form_v2_id = v2_body["id"]
+
+        form_v2_orm = crud.read(FormTemplateOrmV2, id=form_v2_id)
+        for question in form_v2_orm.questions:
+            lang_ids.append(question.question_string_id)
+
+        assert form_v2_id != form_v1_id
+        assert v2_body["form_classification_id"] == form_classification_id
+        assert form_v2_orm.version == 2
+        assert form_v2_orm.archived is False
+
+        form_v1_orm = crud.read(FormTemplateOrmV2, id=form_v1_id)
+        assert form_v1_orm.archived is True
+
+        active_forms = (
+            crud.db_session.query(FormTemplateOrmV2)
+            .filter_by(form_classification_id=form_classification_id, archived=False)
+            .all()
+        )
+        assert len(active_forms) == 1
+        assert active_forms[0].id == form_v2_id
+
+    finally:
+        if form_v2_id:
+            crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=form_v2_id)
+            crud.delete_all(FormTemplateOrmV2, id=form_v2_id)
+        if form_v1_id:
+            crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=form_v1_id)
+            crud.delete_all(FormTemplateOrmV2, id=form_v1_id)
+        if form_classification_id:
+            crud.delete_all(FormClassificationOrmV2, id=form_classification_id)
+        for string_id in lang_ids:
+            crud.delete_all(LangVersionOrmV2, string_id=string_id)
 
 
 def test_create_form_template_v2(database, form_template_v2_payload, api_post):
