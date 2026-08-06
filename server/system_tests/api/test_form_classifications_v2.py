@@ -3,7 +3,6 @@ import copy
 import pytest
 from humps import decamelize
 
-import data.db_operations as crud
 from common.commonUtil import get_uuid
 
 

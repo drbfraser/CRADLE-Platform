@@ -613,7 +613,6 @@ def form_with_db(database, api_post, form_template_v2_payload, form_submission_v
         database, api_post, form_template_v2_payload
     )
     body = template_bundle["body"]
-    template = template_bundle["template"]
 
     submission = _create_form_submission_v2_record(
         database,

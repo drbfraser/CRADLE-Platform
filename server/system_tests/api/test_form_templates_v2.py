@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from humps import decamelize
 
 import data.db_operations as crud

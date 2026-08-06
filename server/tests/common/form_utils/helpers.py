@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
-from enums import QuestionTypeEnum
+if TYPE_CHECKING:
+    from enums import QuestionTypeEnum
 
 TEMPLATE_ID = "template-test-1"
 

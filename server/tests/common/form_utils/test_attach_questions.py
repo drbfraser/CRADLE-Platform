@@ -77,7 +77,7 @@ def _make_answer_orm(
     answer_payload: dict,
 ) -> SimpleNamespace:
     return SimpleNamespace(
-        _marshal={
+        marshal_data={
             "id": answer_id,
             "question_id": question_id,
             "form_submission_id": SUBMISSION_ID,
@@ -87,7 +87,7 @@ def _make_answer_orm(
 
 
 def _marshal_side_effect(answer_orm: SimpleNamespace) -> dict:
-    return answer_orm._marshal
+    return answer_orm.marshal_data
 
 
 @pytest.fixture
