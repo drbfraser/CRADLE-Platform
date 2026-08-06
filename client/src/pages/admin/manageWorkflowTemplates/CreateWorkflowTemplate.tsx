@@ -41,6 +41,7 @@ const createEmptyTemplate = (): WorkflowTemplate => {
     ],
     startingStepId: defaultStepId,
     archived: false,
+    hasBranchingIssues: false,
     dateCreated: now,
     lastEdited: now,
     lastEditedBy: '',

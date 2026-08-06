@@ -160,6 +160,13 @@ def test_export_template_csv(api_get, form_v2_resources):
 def test_form_version_update_archives_previous_and_creates_new(
     form_v2_resources,
 ):
+    """
+    Submitting a new form version (same classification, incremented version number) must:
+    - produce a new row with a different UUID (not an in-place edit)
+    - keep the same classification
+    - archive the previous active version
+    - leave exactly one active form under the classification
+    """
     form_name = f"Version Test Form {get_uuid()}"
 
     v1 = form_v2_resources.create_template(

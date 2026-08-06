@@ -155,14 +155,6 @@ def get_patient_info(path: PatientIdPath):
 def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     """Update Patient Info"""
     update_patient = body.model_dump(exclude_unset=True)
-    # If the inbound JSON contains a `base` field then we need to check if it is the
-    # same as the `last_edited` field of the existing patient. If it is then that
-    # means that the patient has not been edited on the server since this inbound
-    # patient was last synced and we can apply the changes. If they are not equal,
-    # then that means the patient has been edited on the server after it was last
-    # synced with the client. In these cases, we reject the changes for the client.
-    #
-    # You can think of this like aborting a git merge due to conflicts.
     base = body.base
     if base:
         patient = crud.read(PatientOrm, id=path.patient_id)
@@ -174,9 +166,7 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
         if base != last_edited:
             return abort(409, description="Unable to merge changes, conflict detected")
 
-        # Delete the `base` field once we are done with it as to not confuse the
-        # ORM as there is no "base" column in the database for patients.
-        del update_patient["base"]
+    update_patient.pop("base", None)
 
     crud.update(PatientOrm, update_patient, id=path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)

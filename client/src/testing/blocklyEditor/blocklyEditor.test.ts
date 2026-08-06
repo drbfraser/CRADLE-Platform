@@ -14,13 +14,16 @@ import {
   connectBlockToInput,
   TEST_VARIABLES,
 } from './blocklyTestHarness';
-import { loadJsonLogicToWorkspace } from 'src/shared/components/workflow/blocklyEditor/jsonLogicToBlocks';
+import {
+  appendJsonLogicToWorkspace,
+  loadJsonLogicToWorkspace,
+} from 'src/shared/components/workflow/blocklyEditor/jsonLogicToBlocks';
 import {
   workspaceToJsonLogic,
   validateJsonLogic,
 } from 'src/shared/components/workflow/blocklyEditor/jsonLogicGenerator';
 import {
-  enforceSingleConditionRoot,
+  getBlocksNotInTree,
   getConditionRootBlocks,
   isConditionRootBlock,
 } from 'src/shared/components/workflow/blocklyEditor/blocklyWorkspaceUtils';
@@ -98,17 +101,15 @@ describe('Blockly workspace rules', () => {
       expect(getConditionRootBlocks(workspace)).toHaveLength(0);
     });
 
-    it('replacing a condition root removes the previous root', () => {
+    it('allows multiple condition roots while building', () => {
       placeRootBlock(workspace, 'string_comparison', { OP: '==' });
-      const stringOp = placeRootBlock(workspace, 'string_op', {
-        OP: 'contains',
-        CASE: 'SENSITIVE',
-      });
+      placeRootBlock(workspace, 'number_comparison', { OP: '>' });
 
-      enforceSingleConditionRoot(workspace, stringOp);
-
-      expect(getConditionRootBlocks(workspace)).toHaveLength(1);
-      expect(getConditionRootBlocks(workspace)[0]?.type).toBe('string_op');
+      expect(getConditionRootBlocks(workspace)).toHaveLength(2);
+      expect(evaluateWorkspace(workspace).error).toContain(
+        'Connect your conditions with AND/OR logic blocks'
+      );
+      expect(evaluateWorkspace(workspace).jsonLogic).toBeNull();
     });
   });
 
@@ -193,6 +194,78 @@ describe('Blockly workspace rules', () => {
         'Date value must be in YYYY-MM-DD format (e.g. 2024-01-15).'
       );
     });
+
+    it('combines two comparisons with AND into one valid condition', () => {
+      const ageCompare = placeRootBlock(workspace, 'number_comparison', {
+        OP: '>',
+      });
+      const ageVar = workspace.newBlock('app_variable_patient_Number');
+      ageVar.setFieldValue('patient.age', 'VAR_NAME');
+      ageVar.initSvg();
+      ageVar.render();
+      const ageValue = workspace.newBlock('number_value');
+      ageValue.setFieldValue(18, 'NUM');
+      ageValue.initSvg();
+      ageValue.render();
+      connectBlockToInput(ageCompare, 'LEFT', ageVar);
+      connectBlockToInput(ageCompare, 'RIGHT', ageValue);
+
+      const nameCompare = placeRootBlock(workspace, 'string_comparison', {
+        OP: '==',
+      });
+      const nameVar = workspace.newBlock('app_variable_forms_String');
+      nameVar.setFieldValue('forms[latest].q1', 'VAR_NAME');
+      nameVar.initSvg();
+      nameVar.render();
+      const nameValue = workspace.newBlock('string_value');
+      nameValue.setFieldValue('Jane', 'TEXT');
+      nameValue.initSvg();
+      nameValue.render();
+      connectBlockToInput(nameCompare, 'LEFT', nameVar);
+      connectBlockToInput(nameCompare, 'RIGHT', nameValue);
+
+      expect(getConditionRootBlocks(workspace)).toHaveLength(2);
+      expect(evaluateWorkspace(workspace).error).toContain(
+        'Connect your conditions with AND/OR logic blocks'
+      );
+
+      const logic = placeRootBlock(workspace, 'logic_op', { OP: 'and' });
+      connectBlockToInput(logic, 'A', ageCompare);
+      connectBlockToInput(logic, 'B', nameCompare);
+
+      expect(getConditionRootBlocks(workspace)).toHaveLength(1);
+      const result = evaluateWorkspace(workspace);
+      expect(result.error).toBeNull();
+      expect(JSON.parse(result.jsonLogic!)).toEqual({
+        and: [
+          { '>': [{ var: 'patient.age' }, 18] },
+          { '==': [{ var: 'forms[latest].q1' }, 'Jane'] },
+        ],
+      });
+    });
+
+    it('flags disconnected blocks that are not part of the condition tree', () => {
+      const comparison = placeRootBlock(workspace, 'string_comparison', {
+        OP: '==',
+      });
+      const variable = workspace.newBlock('app_variable_forms_String');
+      variable.setFieldValue('forms[latest].q1', 'VAR_NAME');
+      variable.initSvg();
+      variable.render();
+      const value = workspace.newBlock('string_value');
+      value.setFieldValue('Yes', 'TEXT');
+      value.initSvg();
+      value.render();
+      connectBlockToInput(comparison, 'LEFT', variable);
+      connectBlockToInput(comparison, 'RIGHT', value);
+
+      placeRootBlock(workspace, 'string_value', { TEXT: 'loose' });
+
+      expect(getBlocksNotInTree(workspace, comparison)).toHaveLength(1);
+      expect(evaluateWorkspace(workspace).error).toContain(
+        'Some blocks are not connected to your condition'
+      );
+    });
   });
 
   describe('round-trip loading', () => {
@@ -224,6 +297,28 @@ describe('Blockly workspace rules', () => {
       loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
       const exported = workspaceToJsonLogic(workspace);
       expect(JSON.parse(exported!)).toEqual(JSON.parse(rule));
+    });
+  });
+
+  describe('append loading', () => {
+    it('appends a condition beside an existing one without clearing', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({ '>': [{ var: 'patient.age' }, 18] }),
+        TEST_VARIABLES
+      );
+      expect(getConditionRootBlocks(workspace)).toHaveLength(1);
+
+      const appended = appendJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({ '==': [{ var: 'forms[latest].q1' }, 'Jane'] }),
+        TEST_VARIABLES
+      );
+      expect(appended).toBe(true);
+      expect(getConditionRootBlocks(workspace)).toHaveLength(2);
+      expect(evaluateWorkspace(workspace).error).toContain(
+        'Connect your conditions with AND/OR logic blocks'
+      );
     });
   });
 

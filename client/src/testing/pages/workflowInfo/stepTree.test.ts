@@ -225,6 +225,7 @@ describe('initiateWorkflowPossibleSteps', () => {
     description: 'Template with A -> B -> A cycle',
     version: '1',
     archived: false,
+    hasBranchingIssues: false,
     dateCreated: 1741373694,
     lastEdited: 1741373694,
     lastEditedBy: 'user-1',

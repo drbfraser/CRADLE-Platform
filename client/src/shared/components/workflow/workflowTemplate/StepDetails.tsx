@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -36,6 +36,30 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     queryKey: ['workflowStepFormTemplatesV2', false],
     queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
   });
+
+  useEffect(() => {
+    if (
+      !selectedStep ||
+      !isEditMode ||
+      !formTemplatesQuery.data ||
+      !selectedStep.formId
+    )
+      return;
+
+    const classificationId = selectedStep.form?.classification?.id;
+    if (!classificationId) return;
+
+    if (!selectedStep.form?.archived) return;
+
+    const latestForm = formTemplatesQuery.data.find((f: FormTemplateList) => {
+      if (f.archived) return false;
+      const fClassId = f.form_classification_id ?? f.formClassificationId;
+      return fClassId === classificationId;
+    });
+    if (latestForm) {
+      onStepChange?.(selectedStep.id, 'formId', latestForm.id);
+    }
+  }, [isEditMode, selectedStep?.id, formTemplatesQuery.data]);
 
   const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -82,12 +106,34 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     (form: FormTemplateList) => form.id === selectedStep.formId
   );
 
-  const selectedFormName =
+  const isFormArchived =
+    selectedFormOption?.archived ?? selectedStep.form?.archived ?? false;
+
+  const resolvedFormName =
     selectedFormOption?.name ||
     (typeof selectedStep.form?.classification?.name === 'string'
       ? selectedStep.form.classification.name
       : undefined) ||
     (selectedStep.formId ? `Form ID: ${selectedStep.formId}` : undefined);
+
+  const selectedFormName = resolvedFormName
+    ? isFormArchived
+      ? `${resolvedFormName} [OLD]`
+      : resolvedFormName
+    : undefined;
+
+  // In edit mode, when the step's form is archived, resolve the latest non-archived form for the same classification so the dropdown defaults to it.
+  const latestNonArchivedForm = isFormArchived
+    ? ((formTemplatesQuery.data ?? []).find((f: FormTemplateList) => {
+        if (f.archived) return false;
+        const fClassId = f.form_classification_id ?? f.formClassificationId;
+        return fClassId === selectedStep.form?.classification?.id;
+      }) ?? null)
+    : null;
+
+  const autocompleteValue = isEditMode
+    ? (latestNonArchivedForm ?? selectedFormOption ?? null)
+    : (selectedFormOption ?? null);
 
   return (
     <Paper sx={{ p: 3, height: '100%', overflow: 'auto' }}>
@@ -171,11 +217,14 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
             {isEditMode ? (
               <Autocomplete
                 fullWidth
-                options={formTemplatesQuery.data || []}
+                options={(formTemplatesQuery.data ?? []).filter(
+                  (f: FormTemplateList) => !f.archived
+                )}
                 getOptionLabel={(option) => option.name}
-                value={selectedFormOption || null}
+                value={autocompleteValue}
                 onChange={(_, newValue) => {
                   onStepChange?.(selectedStep.id, 'formId', newValue?.id || '');
+                  onCaptureState?.();
                 }}
                 loading={formTemplatesQuery.isLoading}
                 renderInput={(params) => (
@@ -187,7 +236,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                     sx={{ mt: 0.5 }}
                   />
                 )}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                isOptionEqualToValue={(option, value) =>
+                  value != null && option.id === value.id
+                }
               />
             ) : (
               <Typography variant="body1" sx={{ mt: 0.5 }}>

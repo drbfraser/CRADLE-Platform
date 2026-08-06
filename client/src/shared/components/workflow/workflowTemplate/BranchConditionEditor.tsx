@@ -11,8 +11,13 @@ import {
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { BlocklyEditor } from '../blocklyEditor';
-import { WorkflowVariable } from 'src/shared/api';
-import { getStepWorkflowVariables } from 'src/shared/utils/workflow/getStepWorkflowVariables';
+import {
+  WorkflowVariable,
+  getWorkflowVariables,
+  getFormTemplateAsyncV2,
+  getAllFormTemplatesAsyncV2,
+} from 'src/shared/api';
+import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -27,6 +32,9 @@ interface BranchConditionEditorProps {
   editorJsonLogic?: string;
   /** Bump to remount Blockly after paste. */
   editorReloadKey?: number;
+  /** Append a copied rule beside existing blocks instead of replacing the workspace. */
+  appendJsonLogic?: string | null;
+  onAppendComplete?: () => void;
   /** Controlled condition name (branch dialog). */
   conditionName?: string;
   /** Optional actions rendered below Blockly and above "then go to". */
@@ -59,6 +67,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   editorFillHeight = false,
   editorJsonLogic,
   editorReloadKey = 0,
+  appendJsonLogic,
+  onAppendComplete,
   conditionName: controlledConditionName,
   actionsBelowEditor,
   editorOverlay,
@@ -90,25 +100,82 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     currentRuleRef.current = currentRule;
   }, [currentRule]);
 
-  const currentStep = steps?.find((s) => s.id === stepId);
-  const formId = currentStep?.formId;
-
   useEffect(() => {
     let cancelled = false;
-    setVariablesLoading(true);
 
     const load = async () => {
-      const vars = await getStepWorkflowVariables({ formId });
-      if (!cancelled) {
-        setVariables(vars);
-        setVariablesLoading(false);
+      const currentStep = steps.find((s) => s.id === stepId);
+      let formId = currentStep?.formId;
+
+      // Resolve the latest non-archived form for the step's classification.
+      if (formId && currentStep?.form?.archived) {
+        try {
+          // Use the classification ID from the step's form object
+          const classificationId = currentStep.form?.classification?.id;
+          if (classificationId) {
+            const { templates } = await getAllFormTemplatesAsyncV2(false);
+            const latestForm = templates.find((t) => {
+              const tClassId =
+                t.form_classification_id ?? t.formClassificationId;
+              return !t.archived && tClassId === classificationId;
+            });
+            if (latestForm?.id) {
+              formId = latestForm.id;
+            }
+          }
+        } catch {
+          // fall back to the original formId
+        }
       }
+
+      const [globalVars, formTemplate] = await Promise.all([
+        getWorkflowVariables(),
+        formId ? getFormTemplateAsyncV2(formId) : Promise.resolve(null),
+      ]);
+
+      if (cancelled) return;
+
+      const formVars: WorkflowVariable[] = formTemplate
+        ? formTemplate.questions
+            .filter(
+              (q) =>
+                q.userQuestionId && q.questionType !== QuestionTypeEnum.CATEGORY
+            )
+            .map((q) => {
+              let type: WorkflowVariable['type'] = 'string';
+              if (q.questionType === QuestionTypeEnum.INTEGER) {
+                type = 'integer';
+              } else if (
+                q.questionType === QuestionTypeEnum.DATE ||
+                q.questionType === QuestionTypeEnum.DATETIME
+              ) {
+                type = 'date';
+              }
+              return {
+                tag: `forms[latest].${q.userQuestionId}`,
+                description:
+                  q.questionText['English'] ??
+                  q.questionText[Object.keys(q.questionText)[0]] ??
+                  q.userQuestionId!,
+                type,
+                isComputed: false,
+                isDynamic: true,
+              };
+            })
+        : [];
+
+      setVariables([...globalVars, ...formVars]);
+      setVariablesLoading(false);
     };
-    load();
+
+    load().catch(() => {
+      if (!cancelled) setVariablesLoading(false);
+    });
+
     return () => {
       cancelled = true;
     };
-  }, [formId, stepId]);
+  }, [stepId, steps]);
 
   useEffect(() => {
     if (editorJsonLogic !== undefined) {
@@ -244,6 +311,8 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
                 key={`${stepId}-${branchIndex}-${editorReloadKey}`}
                 variables={variables}
                 initialJsonLogic={initialJsonLogic}
+                appendJsonLogic={appendJsonLogic}
+                onAppendComplete={onAppendComplete}
                 onChange={handleBlocklyChange}
                 fillHeight={editorFillHeight}
               />
