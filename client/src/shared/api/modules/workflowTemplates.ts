@@ -123,7 +123,6 @@ export const getTemplate = async (
   params?: {
     with_steps?: boolean;
     with_classification?: boolean;
-    lang?: string;
   }
 ): Promise<WorkflowTemplate> => {
   const response = await axiosFetch.get<WorkflowTemplate>(
@@ -188,13 +187,11 @@ export const getTemplateWithSteps = async (
 };
 
 export const getTemplateWithStepsAndClassification = async (
-  templateId: ID,
-  lang?: string
+  templateId: ID
 ): Promise<WorkflowTemplate> => {
   return getTemplate(templateId, {
     with_steps: true,
     with_classification: true,
-    lang,
   });
 };
 

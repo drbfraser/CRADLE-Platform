@@ -1,13 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  Paper,
-  Divider,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material';
+import { Paper, Divider } from '@mui/material';
+import { Alert } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
@@ -34,17 +27,16 @@ export const ViewWorkflowTemplate = () => {
   );
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
-  // TEMP: quick demo of language switching - real implementation comes in a later phase
-  const [lang, setLang] = useState('English');
 
   const workflowTemplateQuery = useQuery({
-    queryKey: ['workflowTemplate', viewWorkflow?.id, lang],
+    queryKey: ['workflowTemplate', viewWorkflow?.id],
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
-      return getTemplateWithStepsAndClassification(viewWorkflow.id, lang);
+      return getTemplateWithStepsAndClassification(viewWorkflow.id);
     },
     enabled: !!viewWorkflow?.id,
+    initialData: viewWorkflow,
   });
 
   const editWorkflowTemplateMutation = useEditWorkflowTemplate();
@@ -70,7 +62,7 @@ export const ViewWorkflowTemplate = () => {
   }, [isEditMode, workflowTemplateQuery.data]);
 
   const currentWorkflow = isEditMode
-    ? (workflowEditor.editedWorkflow ?? undefined)
+    ? workflowEditor.editedWorkflow
     : workflowTemplateQuery.data;
   const classificationName =
     currentWorkflow?.classification?.name || currentWorkflow?.name;
@@ -90,20 +82,6 @@ export const ViewWorkflowTemplate = () => {
           onArchive={() => setIsArchivePopupOpen(true)}
           onUnarchive={() => setIsUnarchivePopupOpen(true)}
         />
-
-        {!isEditMode && (
-          <FormControl size="small" sx={{ mb: 2, minWidth: 160 }}>
-            <InputLabel id="workflow-lang-select-label">Language</InputLabel>
-            <Select
-              labelId="workflow-lang-select-label"
-              label="Language"
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}>
-              <MenuItem value="English">English</MenuItem>
-              <MenuItem value="French">French</MenuItem>
-            </Select>
-          </FormControl>
-        )}
 
         <Divider sx={{ my: 3 }} />
 
