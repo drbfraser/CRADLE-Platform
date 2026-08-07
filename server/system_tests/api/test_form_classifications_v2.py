@@ -6,7 +6,9 @@ from humps import decamelize
 from common.commonUtil import get_uuid
 
 
-def test_get_classification_by_id(api_get, form_classification_v2_resources, fc_payload_1):
+def test_get_classification_by_id(
+    api_get, form_classification_v2_resources, fc_payload_1
+):
     created = form_classification_v2_resources.create(fc_payload_1)
 
     response = api_get(endpoint=f"/api/forms/v2/classifications/{created['id']}")
@@ -68,9 +70,7 @@ def test_duplicate_classification_name(
 ):
     form_classification_v2_resources.create(fc_payload_1)
 
-    response = api_post(
-        endpoint="/api/forms/v2/classifications", json=fc_payload_1
-    )
+    response = api_post(endpoint="/api/forms/v2/classifications", json=fc_payload_1)
     assert response.status_code == 409
     assert (
         response.json()["description"]

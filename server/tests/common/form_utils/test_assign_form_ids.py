@@ -208,7 +208,9 @@ def test_assign_form_template_ids_v2_assigns_mc_option_string_ids():
 
 
 def test_assign_form_template_ids_v2_preserves_existing_mc_option_string_id():
-    request = _make_upload_request(template_id=EXISTING_TEMPLATE_ID, include_mc_question=True)
+    request = _make_upload_request(
+        template_id=EXISTING_TEMPLATE_ID, include_mc_question=True
+    )
 
     with _uuid_sequence(
         "uuid-classification-id",

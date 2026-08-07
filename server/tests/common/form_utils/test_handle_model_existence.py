@@ -138,7 +138,9 @@ def test_edit_looks_up_classification_and_template_by_id_and_version():
             return None
         return None
 
-    with patch("common.form_utils.crud.read", side_effect=read_side_effect) as mock_read:
+    with patch(
+        "common.form_utils.crud.read", side_effect=read_side_effect
+    ) as mock_read:
         handle_model_existence(
             new_template=False,
             classification_dict=CLASSIFICATION_DICT,

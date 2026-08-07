@@ -77,9 +77,7 @@ def test_get_form_template_v2_with_lang(api_get, form_v2_resources):
     )
     body = created["body"]
 
-    response = api_get(
-        endpoint=f"/api/forms/v2/templates/{body['id']}?lang=french"
-    )
+    response = api_get(endpoint=f"/api/forms/v2/templates/{body['id']}?lang=french")
     assert response.status_code == 200
 
     template = decamelize(response.json())
@@ -132,9 +130,7 @@ def test_get_template_languages(api_get, form_v2_resources):
     response = api_get(endpoint=f"/api/forms/v2/templates/{body['id']}/languages")
     assert response.status_code == 200
 
-    languages = {
-        lang.lower() for lang in decamelize(response.json())["lang_versions"]
-    }
+    languages = {lang.lower() for lang in decamelize(response.json())["lang_versions"]}
     assert languages == {"english", "french"}
 
 

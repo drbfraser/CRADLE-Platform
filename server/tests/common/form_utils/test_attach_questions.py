@@ -234,9 +234,7 @@ def test_attach_questions_raises_when_question_not_found(
 
 
 @patch("data.orm_serializer.marshal", side_effect=_marshal_side_effect)
-def test_attach_questions_skips_unresolved_mc_options(
-    mock_marshal, mock_template_read
-):
+def test_attach_questions_skips_unresolved_mc_options(mock_marshal, mock_template_read):
     def resolve_with_missing(string_id: str, lang: str = "English") -> str | None:
         if string_id == MC_OPT_B:
             return None
@@ -289,7 +287,8 @@ def test_attach_questions_returns_all_answers_in_order(
 @patch("data.orm_serializer.marshal", side_effect=_marshal_side_effect)
 @patch("common.form_utils.crud.read")
 def test_attach_questions_loads_template_by_submission_form_template_id(
-    mock_read, mock_marshal,
+    mock_read,
+    mock_marshal,
 ):
     template = SimpleNamespace(questions=_make_template_questions())
     mock_read.return_value = template

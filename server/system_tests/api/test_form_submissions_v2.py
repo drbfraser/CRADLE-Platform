@@ -62,9 +62,7 @@ def test_submit_duplicate_submission_id(
     assert first_response.status_code == 201
     form_v2_resources.track_submission(submission_id)
 
-    duplicate_response = api_post(
-        "/api/forms/v2/submissions", json=submission_payload
-    )
+    duplicate_response = api_post("/api/forms/v2/submissions", json=submission_payload)
     assert duplicate_response.status_code == 409
     assert duplicate_response.json()["description"] == "Form submission already exists."
 
@@ -218,7 +216,10 @@ def test_patch_string_too_long(
         json=patch_payload,
     )
     assert patch_response.status_code == 422
-    assert "exceeds the max length of 10 characters" in patch_response.json()["description"]
+    assert (
+        "exceeds the max length of 10 characters"
+        in patch_response.json()["description"]
+    )
 
 
 def test_get_submission_resolves_mc_labels(
@@ -374,9 +375,7 @@ def test_invalid_form_answers_v2(
     }
 
     create_patient()
-    bundle = form_v2_resources.create_template(
-        extra_questions=[name_ques, date_ques]
-    )
+    bundle = form_v2_resources.create_template(extra_questions=[name_ques, date_ques])
     template = bundle["template"]
     name_ques_order = _question_by_order(template, 2)
     date_ques_order = _question_by_order(template, 3)

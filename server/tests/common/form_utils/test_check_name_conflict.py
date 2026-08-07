@@ -49,9 +49,7 @@ def test_exclude_string_id_allows_own_name_on_update():
         patch("common.form_utils.crud.read_all", return_value=[lang_version]),
         patch("common.form_utils.crud.read") as mock_read,
     ):
-        assert (
-            check_name_conflict(FORM_NAME, exclude_string_id=NAME_STRING_ID) is False
-        )
+        assert check_name_conflict(FORM_NAME, exclude_string_id=NAME_STRING_ID) is False
         mock_read.assert_not_called()
 
 
@@ -75,9 +73,7 @@ def test_exclude_string_id_still_flags_other_classification():
         ),
         patch("common.form_utils.crud.read", side_effect=read_side_effect),
     ):
-        assert (
-            check_name_conflict(FORM_NAME, exclude_string_id=NAME_STRING_ID) is True
-        )
+        assert check_name_conflict(FORM_NAME, exclude_string_id=NAME_STRING_ID) is True
 
 
 def test_read_all_uses_english_language_filter():
