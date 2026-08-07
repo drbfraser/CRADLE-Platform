@@ -6,48 +6,49 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import WorkflowInstanceDataFieldTypeEnum
 from validation import CradleBaseModel
+from validation.shared_models import MultiLangText
 from validation.workflow_models import (
     WorkflowActionModel,
-    WorkflowClassificationModel,
+    WorkflowClassificationMultiLangModel,
     WorkflowCollectionModel,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
-    WorkflowTemplateModel,
-    WorkflowTemplateStepModel,
+    WorkflowTemplateMultiLangModel,
+    WorkflowTemplateStepMultiLangModel,
 )
 
 
-class WorkflowClassificationUploadModel(WorkflowClassificationModel):
+class WorkflowClassificationUploadModel(WorkflowClassificationMultiLangModel):
     id: Optional[str] = None
 
 
 class WorkflowClassificationPatchModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
-    name: Optional[str] = None
+    name: Optional[MultiLangText] = None
 
 
 class WorkflowCollectionUploadModel(WorkflowCollectionModel):
     id: Optional[str] = None
 
 
-class WorkflowTemplateUploadModel(WorkflowTemplateModel):
+class WorkflowTemplateUploadModel(WorkflowTemplateMultiLangModel):
     id: Optional[str] = None
     version: Optional[str] = (
-        None  # Version is optional on upload to allow for auto-generation if not provided
+        None 
     )
 
 
 class WorkflowTemplatePatchBody(CradleBaseModel):
     id: Optional[str] = None
-    description: Optional[str] = None
+    description: Optional[MultiLangText] = None
     archived: Optional[bool] = None
     starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     version: Optional[str] = None
     classification_id: Optional[str] = None
-    classification: Optional[WorkflowClassificationModel] = None
-    steps: Optional[list[WorkflowTemplateStepModel]] = None
+    classification: Optional[WorkflowClassificationMultiLangModel] = None
+    steps: Optional[list[WorkflowTemplateStepMultiLangModel]] = None
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
@@ -57,8 +58,25 @@ class WorkflowTemplatePatchBody(CradleBaseModel):
         return self
 
 
-class WorkflowTemplateStepUploadModel(WorkflowTemplateStepModel):
+class WorkflowTemplateStepUploadModel(WorkflowTemplateStepMultiLangModel):
     id: Optional[str] = None
+
+
+class WorkflowTemplateLangList(CradleBaseModel):
+    """Response model for the list of languages a workflow template has translations for."""
+
+    langVersions: list[str]
+
+
+class GetWorkflowTemplateQuery(CradleBaseModel):
+    lang: Optional[str] = Field(
+        None,
+        description=(
+            "Language to resolve name/description into. If not provided, "
+            "defaults to English on the existing (backward-compatible) response "
+            "shape - never returns raw string_ids from this endpoint."
+        ),
+    )
 
 
 class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
@@ -106,6 +124,7 @@ class CreateWorkflowInstanceRequest(CradleBaseModel, extra="forbid"):
     patient_id: str
     name: Optional[str] = None
     description: Optional[str] = None
+    lang: Optional[str] = None
 
 
 class GetAvailableActionsResponse(CradleBaseModel):
