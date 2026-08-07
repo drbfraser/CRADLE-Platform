@@ -47,6 +47,11 @@ const CURATED_ENTRIES: { label: string; description: string; tag: string }[] = [
     tag: 'pregnancies[latest].start_date',
   },
   {
+    label: 'Pregnancy end date',
+    description: 'When the current pregnancy ended, if it has',
+    tag: 'pregnancies[latest].end_date',
+  },
+  {
     label: 'Allergies',
     description: "Patient's recorded allergies",
     tag: 'patient.allergy',

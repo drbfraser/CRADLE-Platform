@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import moment from 'moment';
 import {
   extractVariableTags,
   resolveDescriptionVariables,
@@ -85,5 +86,48 @@ describe('resolveDescriptionVariables', () => {
     expect(
       resolveDescriptionVariables('Started {{startDate+3d}}.', [])
     ).toBe('Started {{startDate+3d}}.');
+  });
+
+  it('formats pregnancy start/end dates as calendar dates, not raw epoch numbers', () => {
+    const epoch = moment('2050-03-03T00:00:00Z').unix();
+    const resolutions: DescriptionVariableResolution[] = [
+      {
+        var: 'pregnancies[latest].start_date',
+        value: epoch,
+        status: 'RESOLVED',
+      },
+      {
+        var: 'pregnancies[latest].end_date',
+        value: epoch,
+        status: 'RESOLVED',
+      },
+    ];
+    const result = resolveDescriptionVariables(
+      'Started {{pregnancies[latest].start_date}}, ended {{pregnancies[latest].end_date}}.',
+      resolutions
+    );
+    const formatted = moment.unix(epoch).format('MMM D, YYYY');
+    expect(result).toBe(`Started ${formatted}, ended ${formatted}.`);
+  });
+
+  it('leaves a placeholder for an ongoing pregnancy (end_date is null)', () => {
+    const resolutions: DescriptionVariableResolution[] = [
+      { var: 'pregnancies[latest].end_date', value: null, status: 'RESOLVED' },
+    ];
+    expect(
+      resolveDescriptionVariables(
+        'Ended {{pregnancies[latest].end_date}}.',
+        resolutions
+      )
+    ).toBe('Ended [pregnancies[latest].end_date].');
+  });
+
+  it('does not date-format unrelated numeric variables', () => {
+    const resolutions: DescriptionVariableResolution[] = [
+      { var: 'patient.age', value: 34, status: 'RESOLVED' },
+    ];
+    expect(
+      resolveDescriptionVariables('Age: {{patient.age}}.', resolutions)
+    ).toBe('Age: 34.');
   });
 });

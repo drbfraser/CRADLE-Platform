@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { DescriptionVariableResolution } from 'src/shared/api/modules/workflowInstance';
 
 // Matches any `{{...}}` token that ISN'T the startDate anchor -- that one is
@@ -5,6 +6,23 @@ import { DescriptionVariableResolution } from 'src/shared/api/modules/workflowIn
 // offset grammar. This covers rule-engine variable tags instead, e.g.
 // `{{patient.age}}`, `{{pregnancies[latest].start_date}}`.
 const VARIABLE_TOKEN_PATTERN = /\{\{\s*(?!startDate\b)([^{}]+?)\s*\}\}/gi;
+
+// Tags whose resolved value is a Unix-epoch-seconds timestamp that should
+// render as a calendar date, not a raw number. The rule engine's variable
+// type registry marks these as INTEGER (correct for rule comparisons like
+// `>=`), so display formatting has to be handled here rather than inferred
+// from that type.
+const DATE_VALUE_TAGS = new Set([
+  'pregnancies[latest].start_date',
+  'pregnancies[latest].end_date',
+]);
+
+function formatResolvedValue(tag: string, value: string | number | boolean) {
+  if (DATE_VALUE_TAGS.has(tag) && typeof value === 'number') {
+    return moment.unix(value).format('MMM D, YYYY');
+  }
+  return String(value);
+}
 
 /** Pull every non-startDate `{{...}}` tag out of a description, deduplicated. */
 export function extractVariableTags(description: string): string[] {
@@ -40,7 +58,7 @@ export function resolveDescriptionVariables(
       case 'RESOLVED':
         return resolution.value === null || resolution.value === undefined
           ? `[${tag}]`
-          : String(resolution.value);
+          : formatResolvedValue(tag, resolution.value);
       case 'NOT_IMPLEMENTED':
         return `[${tag} — not yet available]`;
       case 'NO_DATA':
