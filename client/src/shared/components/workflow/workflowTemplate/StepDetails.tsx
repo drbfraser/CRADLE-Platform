@@ -15,7 +15,7 @@ import StepDescription from 'src/shared/components/workflow/StepDescription';
 import { FormTemplateList } from 'src/shared/types/form/formTemplateTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import DescriptionFormattingHelp from './DescriptionFormattingHelp';
-import DescriptionDateInsertPicker from './DescriptionDateInsertPicker';
+import DescriptionInsertPicker from './DescriptionInsertPicker';
 
 interface StepDetailsProps {
   selectedStep?: WorkflowTemplateStepWithFormAndIndex;
@@ -39,7 +39,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
 
   const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const handleInsertDateToken = (token: string) => {
+  const handleInsertToken = (token: string) => {
     if (!selectedStep) return;
     const textarea = descriptionInputRef.current;
     const currentValue = selectedStep.description || '';
@@ -130,9 +130,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               {isEditMode && (
                 <>
                   <DescriptionFormattingHelp />
-                  <DescriptionDateInsertPicker
-                    onInsertDate={handleInsertDateToken}
-                  />
+                  <DescriptionInsertPicker onInsertToken={handleInsertToken} />
                 </>
               )}
             </Stack>

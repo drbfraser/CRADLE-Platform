@@ -52,6 +52,12 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
 
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
+    # Pin to whatever pregnancy is active right now, if any, so
+    # `{{pregnancies[latest]...}}`-style description tokens stay tied to
+    # *this* pregnancy even if the patient later starts a new one.
+    workflow_instance.pregnancy_id = workflow_utils.find_active_pregnancy_id(
+        body.patient_id
+    )
 
     if body.name is not None:
         workflow_instance.name = body.name
@@ -293,6 +299,11 @@ def get_description_variables(
         "patient_id": workflow_view.instance.patient_id,
         "workflow_instance_id": path.workflow_instance_id,
     }
+    if workflow_view.instance.pregnancy_id is not None:
+        # Pinned at instance-creation time (see find_active_pregnancy_id) so
+        # `{{pregnancies[latest]...}}` keeps referring to *this* pregnancy
+        # even if the patient has since started a new one.
+        context["pregnancy_id"] = str(workflow_view.instance.pregnancy_id)
 
     resolved = resolve_description_variables(context, body.variable_tags)
 

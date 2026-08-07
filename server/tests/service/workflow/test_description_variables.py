@@ -134,6 +134,85 @@ def test_invalid_variable_tag():
     assert result["notavalidtag"].status == VariableOutcomeStatus.INVALID_VARIABLE
 
 
+def test_uses_true_latest_pregnancy_when_not_pinned():
+    catalogue = {
+        "pregnancies": {
+            "query": lambda _patient_id: [
+                {"id": 2, "start_date": 200},
+                {"id": 1, "start_date": 100},
+            ],
+            "collection": True,
+        }
+    }
+    with patch.object(description_variables, "get_catalogue", return_value=catalogue):
+        result = resolve_description_variables(
+            {"patient_id": "p1"}, ["pregnancies[latest].start_date"]
+        )
+
+    assert result["pregnancies[latest].start_date"].value == 200
+
+
+def test_pins_pregnancies_collection_to_pregnancy_id_in_context():
+    """
+    When a workflow instance is pinned to a specific pregnancy, resolving
+    `pregnancies[latest]...` should return *that* pregnancy's data, even if
+    the patient now has a newer, more-recent pregnancy on file.
+    """
+    catalogue = {
+        "pregnancies": {
+            "query": lambda _patient_id: [
+                {"id": 2, "start_date": 200},  # the patient's actual latest
+                {"id": 1, "start_date": 100},  # the pinned one
+            ],
+            "collection": True,
+        }
+    }
+    pinned_pregnancy_orm = SimpleNamespace(id=1, start_date=100, patient_id="p1")
+
+    with (
+        patch.object(description_variables, "get_catalogue", return_value=catalogue),
+        patch.object(
+            description_variables.crud, "read", return_value=pinned_pregnancy_orm
+        ),
+        patch.object(
+            description_variables.orm_serializer,
+            "marshal",
+            return_value={"id": 1, "start_date": 100},
+        ),
+    ):
+        result = resolve_description_variables(
+            {"patient_id": "p1", "pregnancy_id": "1"},
+            ["pregnancies[latest].start_date"],
+        )
+
+    assert result["pregnancies[latest].start_date"].status == (
+        VariableOutcomeStatus.RESOLVED
+    )
+    assert result["pregnancies[latest].start_date"].value == 100
+
+
+def test_pinned_pregnancy_not_found_resolves_to_no_data():
+    catalogue = {
+        "pregnancies": {
+            "query": lambda _patient_id: [{"id": 2, "start_date": 200}],
+            "collection": True,
+        }
+    }
+    with (
+        patch.object(description_variables, "get_catalogue", return_value=catalogue),
+        patch.object(description_variables.crud, "read", return_value=None),
+    ):
+        result = resolve_description_variables(
+            {"patient_id": "p1", "pregnancy_id": "999"},
+            ["pregnancies[latest].start_date"],
+        )
+
+    assert (
+        result["pregnancies[latest].start_date"].status
+        == VariableOutcomeStatus.NO_DATA
+    )
+
+
 def test_duplicate_and_equivalent_tags_resolve_once():
     call_count = {"n": 0}
 

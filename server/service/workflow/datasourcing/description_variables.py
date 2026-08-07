@@ -17,7 +17,10 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from service.workflow.datasourcing.data_catalogue import get_catalogue
+import data.db_operations as crud
+from data import orm_serializer
+from models import PregnancyOrm
+from service.workflow.datasourcing.data_catalogue import ObjectCatalogue, get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
     MISSING,
     WORKFLOW_VARIABLE_NAMESPACE,
@@ -52,6 +55,32 @@ class ResolvedVariable(BaseModel):
     status: VariableOutcomeStatus
 
 
+def _catalogue_with_pinned_pregnancy(
+    catalogue: dict[str, ObjectCatalogue], pregnancy_id: str
+) -> dict[str, ObjectCatalogue]:
+    """
+    Override the ``pregnancies`` collection so ``pregnancies[latest]...`` (and
+    any explicit index) resolves against *only* the pinned pregnancy, instead
+    of the patient's actual most-recent one.
+
+    Note this only affects the ``pregnancies`` collection namespace used in
+    description tokens. The singular ``pregnancy.*`` object namespace already
+    prefers a ``pregnancy_id`` in context over ``patient_id`` (see
+    ``data_sourcing._resolve_object``), so it's pinned automatically without
+    needing this override.
+    """
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
+    pinned_items = [orm_serializer.marshal(pregnancy)] if pregnancy else []
+
+    return {
+        **catalogue,
+        "pregnancies": {
+            "query": lambda _patient_id: pinned_items,
+            "collection": True,
+        },
+    }
+
+
 def resolve_description_variables(
     context: ResolverContext,
     raw_variable_tags: list[str],
@@ -71,6 +100,10 @@ def resolve_description_variables(
         against the exact tokens found in the description text.
     """
     catalogue = get_catalogue()
+    pinned_pregnancy_id = context.get("pregnancy_id")
+    if pinned_pregnancy_id:
+        catalogue = _catalogue_with_pinned_pregnancy(catalogue, pinned_pregnancy_id)
+
     results: dict[str, ResolvedVariable] = {}
 
     # Group by namespace kind first so each of the three resolvers below is

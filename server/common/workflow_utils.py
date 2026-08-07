@@ -12,6 +12,7 @@ from data import orm_serializer
 from models import (
     FormSubmissionOrmV2,
     FormTemplateOrmV2,
+    PregnancyOrm,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -422,6 +423,24 @@ def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     )
 
     return WorkflowView(workflow_template, workflow_instance)
+
+
+def find_active_pregnancy_id(patient_id: str) -> int | None:
+    """
+    Return the ID of the patient's currently-ongoing pregnancy (no end_date),
+    or None if they don't have one.
+
+    Used to pin a workflow instance to a specific pregnancy at creation time,
+    so `{{pregnancies[latest]...}}`-style description tokens keep referring to
+    *that* pregnancy even if the patient later starts a new one.
+    """
+    pregnancies = crud.read_all(PregnancyOrm, patient_id=patient_id) or []
+    active = [p for p in pregnancies if p.end_date is None]
+    if not active:
+        return None
+    # Defensive: patients should have at most one ongoing pregnancy at a time,
+    # but if data is in a bad state, pick the most recently started.
+    return max(active, key=lambda p: p.start_date or 0).id
 
 
 def find_workflow_instance_step_or_404(
