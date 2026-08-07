@@ -6,6 +6,7 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import QRelationalEnum, QuestionTypeEnum
 from validation import CradleBaseModel
+from validation.shared_models import LangVersion, MultiLangText  # noqa: F401
 
 
 class FormTemplateIdPath(CradleBaseModel):
@@ -53,19 +54,6 @@ class GetFormTemplateV2Query(CradleBaseModel):
         None,
         description="Language code for translations. If not provided, returns string_ids.",
     )
-
-
-class LangVersion(CradleBaseModel):
-    string_id: str
-    lang: str = Field("English")
-    text: str
-
-
-class MultiLangText(RootModel[dict[str, str]]):
-    """
-    Represents multilingual text like:
-    {"english": "Hello", "french": "Bonjour"}
-    """
 
 
 class AnswerTypeNumber(CradleBaseModel):

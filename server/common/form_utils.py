@@ -24,8 +24,8 @@ from validation.formsV2_models import (
     FormSubmissionWithAnswers,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
-    MultiLangText,
 )
+from validation.shared_models import MultiLangText
 
 FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
 
