@@ -124,6 +124,8 @@ export default function WorkflowStepHistory({
                   <StepDescription
                     description={currentStep.description}
                     startDate={currentStep.startDateEpoch}
+                    instanceId={workflowInstance.id}
+                    stepId={currentStep.id}
                   />
                 </Box>
 
@@ -187,6 +189,7 @@ export default function WorkflowStepHistory({
                   <WorkflowStepHistoryItem
                     key={step.id}
                     step={step}
+                    instanceId={workflowInstance.id}
                     isExpanded={isExpanded}
                     expandAll={expandAll}
                     onToggleExpand={() =>

@@ -1,19 +1,39 @@
 import ReactMarkdown from 'react-markdown';
 import { Typography } from '@mui/material';
 import { resolveDescriptionTemplate } from './descriptionTemplate';
+import { resolveDescriptionVariables } from './descriptionVariables';
+import useDescriptionVariables from 'src/shared/hooks/patient/useDescriptionVariables';
+import { ID } from 'src/shared/constants';
 
 type StepDescriptionProps = {
   description?: string | null;
   fallback?: string;
   /** Epoch seconds the step started, used to resolve `{{startDate...}}`. */
   startDate?: number;
+  /**
+   * Instance/step IDs, used to resolve rule-engine variable tokens like
+   * `{{patient.age}}` against current data. Omit when there's no live
+   * instance to resolve against (e.g. previewing a template) -- those
+   * tokens are left as bracketed placeholders, same as an unresolved
+   * `{{startDate}}`.
+   */
+  instanceId?: ID;
+  stepId?: ID;
 };
 
 export default function StepDescription({
   description,
   fallback = 'No description available.',
   startDate,
+  instanceId,
+  stepId,
 }: StepDescriptionProps) {
+  const { resolutions } = useDescriptionVariables(
+    instanceId,
+    stepId,
+    description
+  );
+
   if (!description) {
     return (
       <Typography variant="body2" color="text.secondary">
@@ -22,11 +42,17 @@ export default function StepDescription({
     );
   }
 
+  const withDateTokensResolved = resolveDescriptionTemplate(description, {
+    startDate,
+  });
+  const withVariablesResolved = resolveDescriptionVariables(
+    withDateTokensResolved,
+    resolutions
+  );
+
   return (
     <Typography variant="body2" color="text.secondary" component="div">
-      <ReactMarkdown>
-        {resolveDescriptionTemplate(description, { startDate })}
-      </ReactMarkdown>
+      <ReactMarkdown>{withVariablesResolved}</ReactMarkdown>
     </Typography>
   );
 }
