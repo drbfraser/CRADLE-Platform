@@ -35,6 +35,7 @@ from data.db_operations.common_crud import delete, delete_by, read, read_by_filt
 from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowStatusEnum
 from models import (
     FormOrm,
+    LangVersionOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceDataOrm,
@@ -208,6 +209,40 @@ def read_workflow_templates(
         query = query.filter(WorkflowTemplateOrm.archived == is_archived)
 
     return query.all()
+
+
+def read_workflow_template_language_versions(workflow_template_id: str) -> list[str]:
+    """
+    Return the languages a workflow template fully supports: the
+    intersection of languages available for the classification name,
+    template description, and every step's name/description.
+
+    A workflow only "supports" a language if every one of those pieces has
+    a translation in it - a partial translation would otherwise silently
+    show blank text for whatever wasn't translated.
+    """
+    template = read(WorkflowTemplateOrm, id=workflow_template_id)
+    if template is None:
+        return []
+
+    string_ids = [template.description_string_id]
+    if template.classification is not None:
+        string_ids.append(template.classification.name_string_id)
+    for step in template.steps:
+        string_ids.append(step.name_string_id)
+        string_ids.append(step.description_string_id)
+
+    lang_sets = [
+        {
+            lv.lang
+            for lv in db_session.query(LangVersionOrmV2)
+            .filter(LangVersionOrmV2.string_id == string_id)
+            .all()
+        }
+        for string_id in string_ids
+    ]
+
+    return sorted(set.intersection(*lang_sets)) if lang_sets else []
 
 
 def read_workflow_classifications(

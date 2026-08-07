@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
+from common.form_utils import resolve_string_text
 from data import orm_serializer
 from enums import (
     WorkflowInstanceDataFieldTypeEnum,
@@ -31,6 +32,64 @@ from validation.workflow_models import (
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
 )
+
+
+def _resolve_workflow_step_text(step_dict: dict, lang: str = "English") -> dict:
+    """
+    Mutate a marshalled workflow step dict in place, resolving
+    name_string_id/description_string_id into the plain name/description
+    text WorkflowTemplateStepModel expects (extra="forbid", so the
+    *_string_id keys must be popped once resolved). Falls back to English
+    if the requested language has no translation.
+    """
+    name_string_id = step_dict.pop("name_string_id", None)
+    if name_string_id is not None:
+        step_dict["name"] = resolve_string_text(
+            name_string_id, lang
+        ) or resolve_string_text(name_string_id, "English")
+
+    description_string_id = step_dict.pop("description_string_id", None)
+    if description_string_id is not None:
+        step_dict["description"] = resolve_string_text(
+            description_string_id, lang
+        ) or resolve_string_text(description_string_id, "English")
+
+    return step_dict
+
+
+def _resolve_workflow_template_text(template_dict: dict, lang: str = "English") -> dict:
+    """
+    Mutate a marshalled workflow template dict in place, resolving every
+    *_string_id pointer (template description, classification name, each
+    step's name/description) into the plain text WorkflowTemplateModel
+    expects. Required before constructing WorkflowTemplateModel from
+    marshalled ORM data - the model has extra="forbid" and doesn't know
+    about *_string_id fields.
+    """
+    description_string_id = template_dict.pop("description_string_id", None)
+    if description_string_id is not None:
+        template_dict["description"] = resolve_string_text(
+            description_string_id, lang
+        ) or resolve_string_text(description_string_id, "English")
+
+    classification = template_dict.get("classification")
+    if classification is not None:
+        name_string_id = classification.pop("name_string_id", None)
+        if name_string_id is not None:
+            classification["name"] = resolve_string_text(
+                name_string_id, lang
+            ) or resolve_string_text(name_string_id, "English")
+            # `name` at the top level is derived from the classification's
+            # name for convenience - keep it consistent with the resolved
+            # language rather than whatever marshal() defaulted it to
+            # (marshal has no `lang` parameter, so it always resolves to
+            # English there for callers like the list endpoint).
+            template_dict["name"] = classification["name"]
+
+    for step in template_dict.get("steps", []):
+        _resolve_workflow_step_text(step, lang)
+
+    return template_dict
 
 
 class WorkflowService:
@@ -247,6 +306,7 @@ class WorkflowService:
     @staticmethod
     def get_workflow_template(
         workflow_template_id: str,
+        lang: str = "English",
     ) -> Optional[WorkflowTemplateModel]:
         """
         Fetch a workflow template by ID, returning None if it does not exist.
@@ -257,12 +317,14 @@ class WorkflowService:
             return None
 
         workflow_template_dict = orm_serializer.marshal(workflow_template_orm)
+        _resolve_workflow_template_text(workflow_template_dict, lang)
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
 
     @staticmethod
     def get_workflow_template_step(
         workflow_template_step_id: str,
+        lang: str = "English",
     ) -> Optional[WorkflowTemplateStepModel]:
         """
         Fetch a workflow template step by ID, returning None if it does not exist.
@@ -275,6 +337,7 @@ class WorkflowService:
             return None
 
         workflow_template_step_dict = orm_serializer.marshal(workflow_template_step_orm)
+        _resolve_workflow_step_text(workflow_template_step_dict, lang)
         workflow_template_step = WorkflowTemplateStepModel(
             **workflow_template_step_dict
         )

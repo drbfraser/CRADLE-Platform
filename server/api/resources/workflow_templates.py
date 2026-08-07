@@ -10,11 +10,15 @@ from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
-from common.form_utils import resolve_string_text
+from common.form_utils import upsert_multilang_versions
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
     check_form_compatibility_for_workflow,
+    check_workflow_classification_name_conflict,
+    format_workflow_template,
     generate_updated_workflow_template,
+    get_english_text,
+    get_new_lang_versions_for_workflow_template,
     get_next_workflow_template_version,
     lock_workflow_classification_for_update,
     validate_workflow_template_step,
@@ -26,12 +30,14 @@ from models import (
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
+from service.workflow.workflow_service import WorkflowService
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
+    WorkflowTemplateLangList,
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
-from validation.workflow_models import WorkflowTemplateModel
+from validation.workflow_models import WorkflowTemplateModel, WorkflowTemplateMultiLangModel
 
 
 # Create a response model for the list endpoints
@@ -118,6 +124,34 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
     )
 
+    classification_dict = workflow_template_dict.get("classification")
+    if classification_dict is not None:
+        existing_classification = crud.read(
+            WorkflowClassificationOrm, id=classification_dict.get("id")
+        )
+        if existing_classification is None:
+            # Brand-new classification: every workflow classification must
+            # have an English name (mirrors forms' handle_model_existence),
+            # since English is the fallback language every read path relies on.
+            english_name = get_english_text(classification_dict.get("name") or {})
+            if not english_name:
+                return abort(
+                    code=422,
+                    description="Workflow classification must have an English name.",
+                )
+            if check_workflow_classification_name_conflict(english_name):
+                return abort(
+                    code=409,
+                    description=(
+                        f"Workflow classification with name '{english_name}' already exists."
+                    ),
+                )
+
+    # convert incoming translation maps into pointers
+    new_lang_versions = get_new_lang_versions_for_workflow_template(
+        workflow_template_dict, new_template=True
+    )
+
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
 
@@ -168,6 +202,9 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
     if workflow_classification_orm is not None:
         workflow_template_orm.classification = workflow_classification_orm
+
+    for lang_version in new_lang_versions:
+        crud.db_session.add(lang_version)
 
     try:
         crud.create(model=workflow_template_orm, refresh=True)
@@ -245,7 +282,12 @@ def get_workflow_templates():
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
 def get_workflow_template(path: WorkflowTemplateIdPath):
-    """Get Workflow Template"""
+    """
+    Get Workflow Template.
+
+    Returns the normal enlgish version unless
+    GET .../translations is used for multi-lingual one (for mobile compatibility).
+    """
     # Get query parameters
     with_steps = request.args.get("with_steps", default=False)
     with_steps = convert_query_parameter_to_bool(with_steps)
@@ -253,7 +295,9 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     with_classification = convert_query_parameter_to_bool(with_classification)
     lang = request.args.get("lang", default="English")
 
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    workflow_template = WorkflowService.get_workflow_template(
+        path.workflow_template_id, lang=lang
+    )
 
     if workflow_template is None:
         return abort(
@@ -263,37 +307,68 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = orm_serializer.marshal(obj=workflow_template, shallow=False)
-
-    # Quick demo resolution: turn the *_string_id pointers back into plain
-    # text in the requested language, falling back to English if missing.
-    # (Temporary — the real dual-shape/editor design comes in a later phase.)
-    response_data["description"] = resolve_string_text(
-        workflow_template.description_string_id, lang
-    ) or resolve_string_text(workflow_template.description_string_id, "English")
-
-    if with_classification and "classification" in response_data:
-        classification = workflow_template.classification
-        response_data["classification"]["name"] = resolve_string_text(
-            classification.name_string_id, lang
-        ) or resolve_string_text(classification.name_string_id, "English")
-
-    for step_data, step_orm in zip(
-        response_data.get("steps", []), workflow_template.steps
-    ):
-        step_data["name"] = resolve_string_text(
-            step_orm.name_string_id, lang
-        ) or resolve_string_text(step_orm.name_string_id, "English")
-        step_data["description"] = resolve_string_text(
-            step_orm.description_string_id, lang
-        ) or resolve_string_text(step_orm.description_string_id, "English")
+    response_data = workflow_template.model_dump()
 
     if not with_steps:
         del response_data["steps"]
-    if not with_classification and "classification" in response_data:
+    if not with_classification:
         del response_data["classification"]
 
     return response_data, 200
+
+
+# /api/workflow/templates/<string:workflow_template_id>/languages [GET]
+@api_workflow_templates.get(
+    "/<string:workflow_template_id>/languages",
+    responses={200: WorkflowTemplateLangList},
+)
+def get_workflow_template_languages(path: WorkflowTemplateIdPath):
+    """
+    Get the languages a workflow template fully supports (classification
+    name, template description, and every step's name/description all
+    have a translation in that language).
+    """
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
+        )
+
+    lang_versions = crud.read_workflow_template_language_versions(
+        path.workflow_template_id
+    )
+    return {"langVersions": lang_versions}, 200
+
+
+# /api/workflow/templates/<string:workflow_template_id>/translations [GET]
+@api_workflow_templates.get(
+    "/<string:workflow_template_id>/translations",
+    responses={200: WorkflowTemplateMultiLangModel},
+)
+@roles_required([RoleEnum.ADMIN])
+def get_workflow_template_translations(path: WorkflowTemplateIdPath):
+    """
+    Get the raw multi-language shape of a workflow template (every
+    translatable field as a {lang: text} map), for the admin editor only.
+    """
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
+        )
+
+    available_langs = crud.read_workflow_template_language_versions(
+        path.workflow_template_id
+    )
+    marshalled = orm_serializer.marshal(workflow_template, shallow=False)
+    formatted = format_workflow_template(marshalled, available_langs)
+    return formatted, 200
 
 
 # /api/workflow/templates/<string:workflow_template_id>/steps [GET]
@@ -414,19 +489,34 @@ def update_workflow_template_patch(
         if classification_orm is None:
             return abort(code=404, description="Classification not found.")
 
-        classification_name = body_dict["classification"].get("name")
-        if classification_name is not None:
-            crud.update(
-                WorkflowClassificationOrm,
-                changes={"name": classification_name},
-                autocommit=False,
-                id=existing_classification_id,
-            )
+        name_map = body_dict["classification"].get("name")
+        if name_map is not None:
+            english_name = get_english_text(name_map)
+            if not english_name:
+                return abort(
+                    code=422,
+                    description="Workflow classification must have an English name.",
+                )
+            if check_workflow_classification_name_conflict(
+                english_name, exclude_string_id=classification_orm.name_string_id
+            ):
+                return abort(
+                    code=409,
+                    description=(
+                        f"Workflow classification with name '{english_name}' already exists."
+                    ),
+                )
+            upsert_multilang_versions(classification_orm.name_string_id, name_map)
 
         # Always keep template bound to its existing classification ID.
         body_dict["classification_id"] = existing_classification_id
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
+
+    # Convert any remaining translation maps string id pointers
+    new_lang_versions = get_new_lang_versions_for_workflow_template(
+        body_dict, new_template=True
+    )
 
     classification_id = (
         body_dict.get("classification_id") or workflow_template.classification_id
@@ -439,6 +529,9 @@ def update_workflow_template_patch(
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
     )
+
+    for lang_version in new_lang_versions:
+        crud.db_session.add(lang_version)
 
     # For each step, check compatibility against the latest non-archived form for
     # that step's classification. If compatible, update the step to the latest form.
