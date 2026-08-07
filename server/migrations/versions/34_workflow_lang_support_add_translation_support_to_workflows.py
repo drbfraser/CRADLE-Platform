@@ -11,8 +11,8 @@ otherwise keep their plain text columns untouched (see Phase 0 decisions in
 the workflow-language-support plan: instances snapshot one language rather
 than tracking live translations).
 
-Revision ID: 33_workflow_lang_support
-Revises: 32_613305db5978
+Revision ID: 34_workflow_lang_support
+Revises: 33_add_has_branching_issues
 Create Date: 2026-07-31
 """
 
@@ -21,8 +21,8 @@ import uuid
 import sqlalchemy as sa
 from alembic import op
 
-revision = "33_workflow_lang_support"
-down_revision = "32_613305db5978"
+revision = "34_workflow_lang_support"
+down_revision = "33_add_has_branching_issues"
 branch_labels = None
 depends_on = None
 
