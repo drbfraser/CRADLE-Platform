@@ -33,9 +33,7 @@ class WorkflowCollectionUploadModel(WorkflowCollectionModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateMultiLangModel):
     id: Optional[str] = None
-    version: Optional[str] = (
-        None 
-    )
+    version: Optional[str] = None
 
 
 class WorkflowTemplatePatchBody(CradleBaseModel):

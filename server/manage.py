@@ -1580,7 +1580,9 @@ def create_lang_text(text_en, text_fr=None):
     string_id = get_uuid()
     db.session.add(LangVersionOrmV2(string_id=string_id, lang="English", text=text_en))
     if text_fr:
-        db.session.add(LangVersionOrmV2(string_id=string_id, lang="French", text=text_fr))
+        db.session.add(
+            LangVersionOrmV2(string_id=string_id, lang="French", text=text_fr)
+        )
     return string_id
 
 
@@ -1610,9 +1612,7 @@ def create_simple_workflow_classification():
 
     workflow_classification = {
         "id": classification_id,
-        "name_string_id": create_lang_text(
-            "Making Tea Workflow", "Recette de thé"
-        ),
+        "name_string_id": create_lang_text("Making Tea Workflow", "Recette de thé"),
     }
 
     workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)

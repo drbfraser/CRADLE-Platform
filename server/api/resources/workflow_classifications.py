@@ -101,7 +101,9 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
     name_string_id = get_uuid()
     workflow_classification_dict["name_string_id"] = name_string_id
 
-    new_lang_versions = _extend_lang_version(name_map, name_string_id, new_template=True)
+    new_lang_versions = _extend_lang_version(
+        name_map, name_string_id, new_template=True
+    )
     for lang_version in new_lang_versions:
         crud.db_session.add(lang_version)
 
@@ -111,7 +113,9 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
 
     crud.create(model=workflow_classification_orm, refresh=True)
 
-    response_data = orm_serializer.marshal(obj=workflow_classification_orm, shallow=True)
+    response_data = orm_serializer.marshal(
+        obj=workflow_classification_orm, shallow=True
+    )
     _resolve_classification_dict(response_data, "English")
 
     return response_data, 201

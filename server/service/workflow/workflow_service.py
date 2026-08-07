@@ -254,7 +254,10 @@ class WorkflowService:
                 "English": workflow_template_dict["description"]
             }
         classification_dict = workflow_template_dict.get("classification")
-        if classification_dict is not None and classification_dict.get("name") is not None:
+        if (
+            classification_dict is not None
+            and classification_dict.get("name") is not None
+        ):
             classification_dict["name"] = {"English": classification_dict["name"]}
         for step in workflow_template_dict.get("steps", []):
             if step.get("name") is not None:

@@ -161,7 +161,6 @@ def update_workflow_template_step(
         workflow_template_step_changes
     )  # If new branches are being added to the step
 
-
     workflow_template_step_changes["name_string_id"] = template_step.name_string_id
     workflow_template_step_changes["description_string_id"] = (
         template_step.description_string_id

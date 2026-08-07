@@ -377,7 +377,9 @@ def check_workflow_classification_name_conflict(
         if exclude_string_id and existing_lang.string_id == exclude_string_id:
             continue
 
-        wc = crud.read(WorkflowClassificationOrm, name_string_id=existing_lang.string_id)
+        wc = crud.read(
+            WorkflowClassificationOrm, name_string_id=existing_lang.string_id
+        )
         if wc:
             return True
 
