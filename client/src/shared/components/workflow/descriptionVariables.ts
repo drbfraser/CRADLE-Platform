@@ -15,6 +15,7 @@ const VARIABLE_TOKEN_PATTERN = /\{\{\s*(?!startDate\b)([^{}]+?)\s*\}\}/gi;
 const DATE_VALUE_TAGS = new Set([
   'pregnancies[latest].start_date',
   'pregnancies[latest].end_date',
+  'vitals[latest].date_taken',
 ]);
 
 function formatResolvedValue(tag: string, value: string | number | boolean) {
