@@ -8,7 +8,6 @@ from common.api_utils import (
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
 )
-from service.workflow.datasourcing.data_sourcing import ResolverContext
 from service.workflow.datasourcing.description_variables import (
     resolve_description_variables,
 )
@@ -259,10 +258,12 @@ def set_workflow_instance_data(
 
 
 # /api/workflow/instances/<id>/steps/<step_id>/description-variables [POST]
-# SKELETON: resolves the `{{...}}` variable tags a step description references,
-# reusing the rule engine's variable catalogue (see description_variables.py).
+# Resolves the `{{...}}` variable tags a step description references, reusing
+# the rule engine's variable catalogue (see description_variables.py). This
+# resolves current ("floating") values only -- see description_variables.py's
+# module docstring for why freezing values is a separate feature.
 #
-# TODO before this is real:
+# TODO: remaining items before this is production-ready:
 # - Authorization: add whatever this project's equivalent of
 #   @patient_association_required is for workflow-instance routes -- right now
 #   nothing stops a caller who merely knows a workflow_instance_id from pulling
@@ -288,7 +289,7 @@ def get_description_variables(
         workflow_view.instance, path.workflow_instance_step_id
     )
 
-    context: ResolverContext = {
+    context = {
         "patient_id": workflow_view.instance.patient_id,
         "workflow_instance_id": path.workflow_instance_id,
     }

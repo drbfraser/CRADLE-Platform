@@ -230,7 +230,7 @@ class WorkflowInstanceOrm(db.Model):
     # (created while the patient wasn't pregnant, or for non-pregnancy
     # workflows) -- those fall back to "whatever's currently latest".
     #
-    # TODO:
+    # TODO: remaining items before this is production-ready:
     # - Generate the actual Alembic migration (`alembic revision --autogenerate
     #   -m "add pregnancy_id to workflow_instance"`) rather than hand-writing
     #   one -- revision chaining needs to run against a live DB/alembic env.
