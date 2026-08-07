@@ -7,6 +7,10 @@ import {
   WorkflowTemplateStep,
   TemplateGroupArray,
 } from '../../types/workflow/workflowApiTypes';
+import {
+  WorkflowTemplateMultiLang,
+  TemplateMultiLangInput,
+} from '../../types/workflow/workflowMultiLangTypes';
 
 // full base path
 const TEMPLATES = EndpointEnum.WORKFLOW_TEMPLATES;
@@ -64,53 +68,16 @@ export const getAllWorkflowTemplatesAsync = async (
 
 // PATCH /workflow/templates/{templateId}
 // Uses the full PATCH endpoint which creates a new version and archives the previous one
+// The caller builds the complete multi-lang patch body (see ViewWorkflowTemplate.tsx's
+// onSave) - this function just sends it through, since classification.name/description/
+// step name+description are now MultiLangText dicts, not plain strings you can .trim().
 export const editWorkflowTemplateAsync = async (
-  template: Partial<WorkflowTemplate>
+  templateId: ID,
+  patchBody: Partial<TemplateMultiLangInput>
 ) => {
-  if (!template.id) {
-    throw new Error('Template ID is required for updates');
-  }
-  const patchBody: Record<string, unknown> = {};
-
-  // Only include fields that have actually changed
-  if (template.description !== undefined) {
-    patchBody.description = template.description;
-  }
-  if (template.archived !== undefined) {
-    patchBody.archived = template.archived;
-  }
-  if (template.classificationId !== undefined) {
-    patchBody.classificationId = template.classificationId;
-  }
-
-  const classificationName = template.classification?.name?.trim();
-  const classificationId =
-    template.classificationId || template.classification?.id;
-
-  if (classificationName) {
-    patchBody.classification = {
-      ...(classificationId ? { id: classificationId } : {}),
-      name: classificationName,
-    };
-  }
-  if (template.startingStepId !== undefined) {
-    patchBody.startingStepId = template.startingStepId;
-  }
-  if (template.steps !== undefined) {
-    // Exclude form data from steps to avoid validation errors
-    // The backend will preserve existing forms when creating the new version
-    patchBody.steps = template.steps.map((step) => {
-      const stepWithoutForm = {
-        ...step,
-      } as WorkflowTemplateStep & { form?: unknown };
-      delete stepWithoutForm.form;
-      return stepWithoutForm;
-    });
-  }
-
   const response = await axiosFetch({
     method: 'PATCH',
-    url: `${TEMPLATES}/${template.id}`,
+    url: `${TEMPLATES}/${templateId}`,
     data: patchBody,
   });
 
@@ -134,7 +101,7 @@ export const getTemplate = async (
 };
 
 // POST /workflow/templates/body
-export const createTemplate = (payload: TemplateInput) =>
+export const createTemplate = (payload: TemplateMultiLangInput) =>
   axiosFetch
     .post<WorkflowTemplate>(`${TEMPLATES}/body`, payload)
     .then((r) => r.data);
@@ -194,6 +161,24 @@ export const getTemplateWithStepsAndClassification = async (
     with_classification: true,
   });
 };
+
+// GET /workflow/templates/{templateId}/languages
+// Mirrors getFormTemplateLangsAsyncV2 in formTemplates.ts
+export const getTemplateLangs = async (templateId: ID): Promise<string[]> =>
+  (await axiosFetch.get(`${templatePath(templateId)}/languages`)).data
+    .langVersions;
+
+// GET /workflow/templates/{templateId}/translations (admin-only)
+// Raw multi-language shape for the editor - use this instead of getTemplate
+// when entering edit mode, so no existing language's text is silently lost.
+export const getTemplateTranslations = async (
+  templateId: ID
+): Promise<WorkflowTemplateMultiLang> =>
+  (
+    await axiosFetch.get<WorkflowTemplateMultiLang>(
+      `${templatePath(templateId)}/translations`
+    )
+  ).data;
 
 // Template Step APIs - align with backend workflow_template_steps.py
 const TEMPLATE_STEPS = '/workflow/template/steps';

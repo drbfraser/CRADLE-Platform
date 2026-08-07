@@ -24,6 +24,9 @@ interface WorkflowMetadataProps {
   isEditMode?: boolean;
   isClassificationEditable?: boolean;
   onFieldChange?: (field: keyof WorkflowTemplate, value: unknown) => void;
+  languages?: string[];
+  selectedLanguage?: string;
+  onTranslatedFieldChange?: (field: 'name' | 'description', value: string) => void;
 }
 
 const InlineField = ({
@@ -97,15 +100,38 @@ export const WorkflowMetadata = ({
   isEditMode = false,
   isClassificationEditable = false,
   onFieldChange,
+  languages = [],
+  selectedLanguage,
+  onTranslatedFieldChange,
 }: WorkflowMetadataProps) => {
   const versionText = `${version ?? ''}`;
   const lastEditedDate = lastEdited
     ? getPrettyDateTime(new Date(lastEdited).getTime())
     : 'N/A';
+  const isMultiLang = languages.length > 0;
 
   const handleFieldChange = (field: keyof WorkflowTemplate, value: unknown) => {
     onFieldChange?.(field, value);
   };
+
+  const handleNameChange = (value: string) => {
+    if (isMultiLang) {
+      onTranslatedFieldChange?.('name', value);
+    } else {
+      handleFieldChange('name', value);
+    }
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    if (isMultiLang) {
+      onTranslatedFieldChange?.('description', value);
+    } else {
+      handleFieldChange('description', value);
+    }
+  };
+
+  const nameMissing = isMultiLang && !classificationName?.trim();
+  const descriptionMissing = isMultiLang && !description?.trim();
 
   return (
     <>
@@ -121,7 +147,7 @@ export const WorkflowMetadata = ({
           <Stack spacing={2}>
             <Stack spacing={1.5}>
               <Typography variant="subtitle1">
-                Template Name:{' '}
+                Template Name{selectedLanguage ? ` (${selectedLanguage})` : ''}:{' '}
                 {isClassificationEditable && (
                   <Typography component="span" color="error">
                     *
@@ -132,28 +158,41 @@ export const WorkflowMetadata = ({
                 value={classificationName || ''}
                 placeholder="Enter template name"
                 fullWidth
+                error={isEditMode && isClassificationEditable && nameMissing}
+                helperText={
+                  isEditMode && isClassificationEditable && nameMissing
+                    ? `Required for ${selectedLanguage}`
+                    : undefined
+                }
                 InputProps={{
                   readOnly: !isEditMode || !isClassificationEditable,
                 }}
                 onChange={
                   isEditMode && isClassificationEditable
-                    ? (e) => handleFieldChange('name', e.target.value)
+                    ? (e) => handleNameChange(e.target.value)
                     : undefined
                 }
               />
             </Stack>
             <Stack spacing={1.5}>
-              <Typography variant="subtitle1">Description:</Typography>
+              <Typography variant="subtitle1">
+                Description{selectedLanguage ? ` (${selectedLanguage})` : ''}:
+              </Typography>
               <TextField
                 value={description || ''}
                 placeholder="Enter description"
                 multiline
                 minRows={3}
                 fullWidth
+                helperText={
+                  isEditMode && descriptionMissing
+                    ? `No description added for ${selectedLanguage} yet`
+                    : undefined
+                }
                 InputProps={{ readOnly: !isEditMode }}
                 onChange={
                   isEditMode
-                    ? (e) => handleFieldChange('description', e.target.value)
+                    ? (e) => handleDescriptionChange(e.target.value)
                     : undefined
                 }
               />

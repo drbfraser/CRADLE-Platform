@@ -42,7 +42,12 @@ export function useWorkflowInstanceActions({
     handleOpenFormModal,
     handleCloseFormModal,
     onRefetchForm,
-  } = useWorkflowFormModal(currentStep, reload);
+  } = useWorkflowFormModal(
+    currentStep,
+    reload,
+    instanceDetails?.lang,
+    showSnackbar
+  );
 
   const {
     nextOptions,

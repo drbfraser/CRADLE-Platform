@@ -49,6 +49,7 @@ export type InstanceDetails = {
 
   // Details section (sketch fields)
   description: string;
+  lang?: string;
   collection: string;
   version: string;
   firstCreatedOn: string;

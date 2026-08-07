@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useFormResponseQuery } from 'src/pages/customizedForm/queries';
 import { getFormTemplateLangAsyncV2 } from 'src/shared/api';
-import { FormRenderStateEnum } from 'src/shared/enums';
+import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
 import {
   FormModalState,
   InstanceStep,
@@ -9,7 +9,9 @@ import {
 
 export function useWorkflowFormModal(
   currentStep: InstanceStep | null,
-  reload: () => void
+  reload: () => void,
+  lang: string = 'English',
+  showSnackbar?: (message: string, severity: SnackbarSeverity) => void
 ) {
   const [formModalState, setFormModalState] = useState<FormModalState>({
     open: false,
@@ -35,11 +37,13 @@ export function useWorkflowFormModal(
           return;
         }
 
+        const formTemplateId = currentStep.formTemplateId;
+        const isEnglish = lang.trim().toLowerCase() === 'english';
+
         try {
-          const formTemplateId = currentStep.formTemplateId;
           const formTemplate = await getFormTemplateLangAsyncV2(
             formTemplateId,
-            'English' // TODO: To be updated based on user selected language
+            lang
           );
           setFormModalState({
             open: true,
@@ -48,7 +52,40 @@ export function useWorkflowFormModal(
           });
           return;
         } catch {
+          if (isEnglish) {
+            console.error('Error in getting form template');
+            showSnackbar?.(
+              'Unable to load this form. Please try again.',
+              SnackbarSeverity.ERROR
+            );
+            return;
+          }
+        }
+
+        // The form attached to this step isn't translated into the
+        // instance's language - fall back to English rather than leaving
+        // the "Complete Form" action looking broken.
+        try {
+          const formTemplate = await getFormTemplateLangAsyncV2(
+            formTemplateId,
+            'English'
+          );
+          setFormModalState({
+            open: true,
+            renderState: formRenderState,
+            form: formTemplate,
+          });
+          showSnackbar?.(
+            `This form isn't available in ${lang} yet - showing it in English instead.`,
+            SnackbarSeverity.WARNING
+          );
+          return;
+        } catch {
           console.error('Error in getting form template');
+          showSnackbar?.(
+            'Unable to load this form. Please try again.',
+            SnackbarSeverity.ERROR
+          );
           return;
         }
       }

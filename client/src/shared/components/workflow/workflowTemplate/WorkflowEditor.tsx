@@ -6,6 +6,8 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -15,6 +17,7 @@ import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplat
 import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 import { WorkflowEditorController } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
+import LanguageModal from 'src/pages/admin/manageFormTemplates/editFormTemplate/LanguageModal';
 
 interface WorkflowEditorProps {
   editor: WorkflowEditorController;
@@ -39,6 +42,14 @@ export const WorkflowEditor = ({
 }: WorkflowEditorProps) => {
   const workflow = editor.editedWorkflow;
   if (!workflow) return null;
+
+  const isMultiLang = editor.languages.length > 0;
+  const missingRequired = isMultiLang
+    ? editor.missingRequiredTranslations()
+    : [];
+  const uncheckedWithText = isMultiLang
+    ? editor.uncheckedLanguagesWithText()
+    : [];
 
   return (
     <>
@@ -66,6 +77,7 @@ export const WorkflowEditor = ({
               !editor.hasChanges ||
               isSaving ||
               saveDisabled ||
+              missingRequired.length > 0 ||
               !workflow.name?.trim()
             }>
             {isSaving ? 'Saving...' : 'Save'}
@@ -76,6 +88,32 @@ export const WorkflowEditor = ({
       {editor.hasChanges && (
         <Alert severity="info" sx={{ mb: 2 }}>
           You have unsaved changes. Don&apos;t forget to save your work!
+        </Alert>
+      )}
+
+      {isMultiLang && (
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 2 }}>
+          <LanguageModal
+            language={editor.languages}
+            setLanguage={editor.setLanguages}
+          />
+          <Autocomplete
+            disableClearable
+            options={editor.languages}
+            value={editor.selectedLanguage}
+            onChange={(_, newValue) => editor.setSelectedLanguage(newValue)}
+            sx={{ minWidth: 220 }}
+            renderInput={(params) => (
+              <TextField {...params} label="View Language" size="small" />
+            )}
+          />
+        </Box>
+      )}
+
+      {uncheckedWithText.length > 0 && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {uncheckedWithText.join(', ')} {uncheckedWithText.length > 1 ? 'have' : 'has'}{' '}
+          unsaved text that won&apos;t be included unless re-enabled.
         </Alert>
       )}
 
@@ -95,6 +133,9 @@ export const WorkflowEditor = ({
         isEditMode={true}
         isClassificationEditable={allowClassificationEdit}
         onFieldChange={editor.handleFieldChange}
+        languages={editor.languages}
+        selectedLanguage={editor.selectedLanguage}
+        onTranslatedFieldChange={editor.handleTranslatedFieldChange}
       />
 
       <Divider sx={{ my: 3 }} />
@@ -153,6 +194,9 @@ export const WorkflowEditor = ({
           setSelectedBranchIndex={editor.setSelectedBranchIndex}
           onStepChange={editor.handleStepChange}
           onCaptureState={editor.onCaptureState}
+          languages={editor.languages}
+          selectedLanguage={editor.selectedLanguage}
+          onTranslatedStepFieldChange={editor.handleTranslatedStepFieldChange}
           onBranchChange={editor.handleBranchChange}
           onTargetStepChange={editor.onTargetStepChange}
           onInsertNode={editor.handleInsertNode}
