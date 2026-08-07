@@ -37,7 +37,10 @@ from validation.workflow_api_models import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
-from validation.workflow_models import WorkflowTemplateModel, WorkflowTemplateMultiLangModel
+from validation.workflow_models import (
+    WorkflowTemplateModel,
+    WorkflowTemplateMultiLangModel,
+)
 
 
 # Create a response model for the list endpoints

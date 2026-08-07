@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Literal, NamedTuple, Optional
+from typing import TYPE_CHECKING, Literal, NamedTuple, Optional
 
 import data.db_operations as crud
 from common import commonUtil
@@ -25,7 +25,9 @@ from validation.formsV2_models import (
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
 )
-from validation.shared_models import MultiLangText
+
+if TYPE_CHECKING:
+    from validation.shared_models import MultiLangText
 
 FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
 

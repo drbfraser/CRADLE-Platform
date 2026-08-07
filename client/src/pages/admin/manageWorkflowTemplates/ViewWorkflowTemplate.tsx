@@ -70,7 +70,7 @@ export const ViewWorkflowTemplate = () => {
   }, [isEditMode, workflowTemplateQuery.data]);
 
   const currentWorkflow = isEditMode
-    ? workflowEditor.editedWorkflow
+    ? (workflowEditor.editedWorkflow ?? undefined)
     : workflowTemplateQuery.data;
   const classificationName =
     currentWorkflow?.classification?.name || currentWorkflow?.name;

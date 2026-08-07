@@ -72,7 +72,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
 
 
 class WorkflowTemplateStepMultiLangModel(WorkflowTemplateStepModel):
-    """ changing template fields to represent general names and descriptions rather than hard strings"""
+    """changing template fields to represent general names and descriptions rather than hard strings"""
 
     name: MultiLangText
     description: MultiLangText

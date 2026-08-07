@@ -11,8 +11,8 @@ from flask.cli import FlaskGroup
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
-from data import orm_serializer
 from common.form_utils import resolve_string_text
+from data import orm_serializer
 from enums import QuestionTypeEnum, SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
 from models import (
     FormAnswerOrmV2,
