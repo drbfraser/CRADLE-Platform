@@ -230,15 +230,46 @@ class WorkflowService:
     @staticmethod
     def upsert_workflow_template(workflow_template: WorkflowTemplateModel):
         """
-        Insert or update a workflow template in the database.
+        Insert or update a workflow template in the database. Test-support
+        helper only (not called from any real API route) - takes the
+        resolved, plain-string WorkflowTemplateModel and wraps each
+        translatable field as an English-only entry before handing off to
+        the same string_id conversion the real upload/patch routes use,
+        since the ORM itself only has *_string_id columns now.
         """
+        # Local import to avoid a circular import: workflow_utils imports
+        # WorkflowService from this module.
+        from common.workflow_utils import get_new_lang_versions_for_workflow_template
+
         workflow_template.last_edited = get_current_time()
 
         for template_step in workflow_template.steps:
             template_step.last_edited = get_current_time()
 
+        workflow_template_dict = workflow_template.model_dump()
+        workflow_template_dict.pop("name", None)
+
+        if workflow_template_dict.get("description") is not None:
+            workflow_template_dict["description"] = {
+                "English": workflow_template_dict["description"]
+            }
+        classification_dict = workflow_template_dict.get("classification")
+        if classification_dict is not None and classification_dict.get("name") is not None:
+            classification_dict["name"] = {"English": classification_dict["name"]}
+        for step in workflow_template_dict.get("steps", []):
+            if step.get("name") is not None:
+                step["name"] = {"English": step["name"]}
+            if step.get("description") is not None:
+                step["description"] = {"English": step["description"]}
+
+        new_lang_versions = get_new_lang_versions_for_workflow_template(
+            workflow_template_dict, new_template=True
+        )
+        for lang_version in new_lang_versions:
+            crud.db_session.add(lang_version)
+
         workflow_template_orm = orm_serializer.unmarshal(
-            WorkflowTemplateOrm, workflow_template.model_dump()
+            WorkflowTemplateOrm, workflow_template_dict
         )
 
         crud.common_crud.merge(workflow_template_orm)

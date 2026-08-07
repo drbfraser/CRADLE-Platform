@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from common.commonUtil import get_uuid
 from data import orm_serializer
 from models import (
     FormTemplateOrmV2,
@@ -15,6 +16,31 @@ from tests.helpers import (
     make_workflow_template_branch,
     make_workflow_template_step,
 )
+
+
+def _as_string_id_step(**overrides) -> dict:
+    """See _as_string_id_step in test_unmarshal_workflow_template_step.py."""
+    payload = make_workflow_template_step(**overrides)
+    payload.pop("name")
+    payload.pop("description")
+    payload["name_string_id"] = get_uuid()
+    payload["description_string_id"] = get_uuid()
+    return payload
+
+
+def _as_string_id_template(**overrides) -> dict:
+    """
+    make_workflow_template() produces the resolved, plain-string shape
+    (matching WorkflowTemplateModel). WorkflowTemplateOrm.load() needs the
+    raw description_string_id pointer column instead (db.String(50)), and
+    has no name column at all (derived from classification), so drop name
+    and convert description for unmarshal tests.
+    """
+    payload = make_workflow_template(**overrides)
+    payload.pop("name", None)
+    payload["description_string_id"] = get_uuid()
+    payload.pop("description")
+    return payload
 
 
 def test_unmarshal_workflow_template_with_steps_and_classification():
@@ -36,7 +62,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     ]
 
     # Step 1 with form + branch
-    step1 = make_workflow_template_step(
+    step1 = _as_string_id_step(
         id=step1_id,
         name="Registration",
         description="Capture intake details",
@@ -48,7 +74,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     )
 
     # Step 2 without form/branches
-    step2 = make_workflow_template_step(
+    step2 = _as_string_id_step(
         id=step2_id,
         name="Review",
         description="Supervisor review",
@@ -58,12 +84,11 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     )
 
     # Classification payload
-    classification_payload = {"id": "wc-007", "name": "ANC"}
+    classification_payload = {"id": "wc-007", "name_string_id": get_uuid()}
 
     # Top-level workflow template payload
-    payload = make_workflow_template(
+    payload = _as_string_id_template(
         id=wt_id,
-        name="ANC Workflow v1",
         description="Standard ANC flow",
         version="1.0",
         archived=False,
@@ -79,7 +104,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     # Top-level object
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == wt_id
-    assert obj.description == "Standard ANC flow"
+    assert obj.description_string_id == payload["description_string_id"]
     assert obj.version == "1.0"
     assert obj.archived is False
     assert obj.date_created == 1_699_999_999
@@ -111,7 +136,7 @@ def test_unmarshal_workflow_template_with_steps_and_classification():
     # Classification
     assert isinstance(obj.classification, WorkflowClassificationOrm)
     assert obj.classification.id == "wc-007"
-    assert getattr(obj.classification, "name", None) == "ANC"
+    assert obj.classification.name_string_id == classification_payload["name_string_id"]
 
 
 def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
@@ -120,9 +145,8 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
     forwards the payload as-is to WorkflowTemplateOrm.load(), and that no nested
     loads occur.
     """
-    payload = make_workflow_template(
+    payload = _as_string_id_template(
         id="wt-2",
-        name="Simple Flow",
         description="A very small template",
         version="0.1",
         archived=True,
@@ -137,7 +161,7 @@ def test_unmarshal_workflow_template_minimal_no_steps_no_classification():
 
     assert isinstance(obj, WorkflowTemplateOrm)
     assert obj.id == "wt-2"
-    assert obj.description == "A very small template"
+    assert obj.description_string_id == payload["description_string_id"]
     assert obj.version == "0.1"
     assert obj.archived is True
     assert obj.date_created == 1_700_000_000
@@ -155,9 +179,8 @@ def test_unmarshal_workflow_template_strips_none_and_handles_empty_steps():
     should result in an object with starting_step_id=None and steps=[].
     No classification is expected.
     """
-    payload = make_workflow_template(
+    payload = _as_string_id_template(
         id="wt-3",
-        name="Nulls Example",
         description="Demonstrates stripping of None",
         version="1.2",
         archived=False,

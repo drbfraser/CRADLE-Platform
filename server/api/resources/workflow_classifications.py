@@ -198,6 +198,7 @@ def update_workflow_classification(
         )
 
     upsert_multilang_versions(workflow_classification.name_string_id, name_map)
+    crud.db_session.commit()
 
     if body.collection_id != workflow_classification.collection_id:
         crud.update(
@@ -263,6 +264,7 @@ def patch_workflow_classification(
             )
 
         upsert_multilang_versions(workflow_classification.name_string_id, name_map)
+        crud.db_session.commit()
 
     # Apply any remaining changes (e.g. collection_id)
     if workflow_classification_changes:

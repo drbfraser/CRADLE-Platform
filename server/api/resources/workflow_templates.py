@@ -577,9 +577,11 @@ def update_workflow_template_patch(
             ),
         )
 
-    response_data = crud.read(WorkflowTemplateOrm, id=new_workflow_template.id)
-
-    response_data = orm_serializer.marshal(response_data, shallow=True)
+    updated_workflow_template = WorkflowService.get_workflow_template(
+        new_workflow_template.id, lang="English"
+    )
+    response_data = updated_workflow_template.model_dump()
+    del response_data["steps"]
 
     return response_data, 200
 
