@@ -120,6 +120,36 @@ def test_integer_above_max(mock_template_read):
     assert "above the maximum required: 300" in result.msg
 
 
+def test_integer_at_min_boundary(mock_template_read):
+    answers = [
+        FormAnswer(
+            question_id=INTEGER_Q_ID,
+            answer=NumberAnswer(number=0),
+        )
+    ]
+
+    result = validate_form_answers(answers, TEMPLATE_ID)
+
+    assert result.ok is True
+    assert result.code is None
+    assert result.msg == "Answers are all valid"
+
+
+def test_integer_at_max_boundary(mock_template_read):
+    answers = [
+        FormAnswer(
+            question_id=INTEGER_Q_ID,
+            answer=NumberAnswer(number=300),
+        )
+    ]
+
+    result = validate_form_answers(answers, TEMPLATE_ID)
+
+    assert result.ok is True
+    assert result.code is None
+    assert result.msg == "Answers are all valid"
+
+
 def test_required_question_empty(mock_template_read):
     answers = [
         FormAnswer.model_construct(
