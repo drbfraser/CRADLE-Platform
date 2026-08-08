@@ -138,8 +138,7 @@ export const useWorkflowLanguages = ({
 }: UseWorkflowLanguagesOptions) => {
   const [languages, setLanguages] = useState<string[]>([]);
   const [selectedLanguage, setSelectedLanguageState] = useState<string>('');
-  const [translations, setTranslations] =
-    useState<TranslationsBag>(emptyBag());
+  const [translations, setTranslations] = useState<TranslationsBag>(emptyBag());
 
   // Every selected language always has a (possibly empty) slot in the bag.
   // Never deletes a language's text here - unchecking a language only removes it
@@ -313,11 +312,14 @@ export const useWorkflowLanguages = ({
   // editedWorkflow mutation) so the two effects above seed the bag *from* the
   // already-initialized editedWorkflow's defaults, instead of overwriting them
   // with an empty bag the way setSelectedLanguage's view-swap would.
-  const initializeCreateLanguages = useCallback((initialLanguages: string[]) => {
-    const languages = normalizeLanguages(initialLanguages);
-    setLanguages(languages);
-    setSelectedLanguageState(languages[0] ?? '');
-  }, []);
+  const initializeCreateLanguages = useCallback(
+    (initialLanguages: string[]) => {
+      const languages = normalizeLanguages(initialLanguages);
+      setLanguages(languages);
+      setSelectedLanguageState(languages[0] ?? '');
+    },
+    []
+  );
 
   // Sibling to useWorkflowEditor's initializeEditor - seeds the bag from a fetched
   // multi-lang payload and returns the plain-string WorkflowTemplate resolved at a

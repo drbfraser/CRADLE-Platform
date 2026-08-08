@@ -87,7 +87,10 @@ export const CreateWorkflowTemplate = () => {
         `wc-${Date.now()}`;
 
       const payload = {
-        description: pruneToLanguages(translations.templateDescription, languages),
+        description: pruneToLanguages(
+          translations.templateDescription,
+          languages
+        ),
         archived: false,
         classification_id: classificationId,
         classification: {
@@ -102,7 +105,10 @@ export const CreateWorkflowTemplate = () => {
           return {
             id: step.id,
             name: pruneToLanguages(stepTranslations.name, languages),
-            description: pruneToLanguages(stepTranslations.description, languages),
+            description: pruneToLanguages(
+              stepTranslations.description,
+              languages
+            ),
             workflow_template_id: step.workflowTemplateId || tempTemplateId,
             branches: (step.branches || []).map((branch) => ({
               id: branch.id,
@@ -139,14 +145,18 @@ export const CreateWorkflowTemplate = () => {
   // lazy useState initializer above), so this still only runs once on mount.
   useEffect(() => {
     workflowEditor.initializeEditor(emptyTemplate);
-    workflowEditor.initializeCreateLanguages([getDefaultLanguage() ?? 'English']);
+    workflowEditor.initializeCreateLanguages([
+      getDefaultLanguage() ?? 'English',
+    ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emptyTemplate]);
 
   return (
     <>
       {createWorkflowTemplateMutation.isError && (
-        <APIErrorToast errorMessage={createWorkflowTemplateMutation.error.message} />
+        <APIErrorToast
+          errorMessage={createWorkflowTemplateMutation.error.message}
+        />
       )}
 
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>

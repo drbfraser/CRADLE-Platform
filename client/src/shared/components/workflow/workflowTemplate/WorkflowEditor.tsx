@@ -112,8 +112,9 @@ export const WorkflowEditor = ({
 
       {uncheckedWithText.length > 0 && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          {uncheckedWithText.join(', ')} {uncheckedWithText.length > 1 ? 'have' : 'has'}{' '}
-          unsaved text that won&apos;t be included unless re-enabled.
+          {uncheckedWithText.join(', ')}{' '}
+          {uncheckedWithText.length > 1 ? 'have' : 'has'} unsaved text that
+          won&apos;t be included unless re-enabled.
         </Alert>
       )}
 

@@ -26,7 +26,10 @@ interface WorkflowMetadataProps {
   onFieldChange?: (field: keyof WorkflowTemplate, value: unknown) => void;
   languages?: string[];
   selectedLanguage?: string;
-  onTranslatedFieldChange?: (field: 'name' | 'description', value: string) => void;
+  onTranslatedFieldChange?: (
+    field: 'name' | 'description',
+    value: string
+  ) => void;
 }
 
 const InlineField = ({

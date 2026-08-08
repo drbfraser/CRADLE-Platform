@@ -1,5 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Paper, Divider, Alert, Autocomplete, TextField, Box } from '@mui/material';
+import {
+  Paper,
+  Divider,
+  Alert,
+  Autocomplete,
+  TextField,
+  Box,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
@@ -91,7 +98,10 @@ export const ViewWorkflowTemplate = () => {
       }
 
       const payload = {
-        description: pruneToLanguages(translations.templateDescription, languages),
+        description: pruneToLanguages(
+          translations.templateDescription,
+          languages
+        ),
         archived: workflow.archived,
         startingStepId: workflow.startingStepId,
         classificationId: workflow.classificationId,
@@ -107,7 +117,10 @@ export const ViewWorkflowTemplate = () => {
           return {
             ...step,
             name: pruneToLanguages(stepTranslations.name, languages),
-            description: pruneToLanguages(stepTranslations.description, languages),
+            description: pruneToLanguages(
+              stepTranslations.description,
+              languages
+            ),
           };
         }),
       };
@@ -122,7 +135,11 @@ export const ViewWorkflowTemplate = () => {
   });
 
   useEffect(() => {
-    if (isEditMode && translationsQuery.data && !workflowEditor.editedWorkflow) {
+    if (
+      isEditMode &&
+      translationsQuery.data &&
+      !workflowEditor.editedWorkflow
+    ) {
       const availableLanguages = Object.keys(
         translationsQuery.data.classification?.name ?? {}
       );
