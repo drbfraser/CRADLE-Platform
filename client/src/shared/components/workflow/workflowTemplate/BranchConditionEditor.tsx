@@ -10,39 +10,14 @@ import {
 } from '@mui/material';
 import { WorkflowTemplateStepBranch } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
-import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { BlocklyEditor } from '../blocklyEditor';
 import {
   WorkflowVariable,
   getWorkflowVariables,
   getFormTemplateAsyncV2,
+  getAllFormTemplatesAsyncV2,
 } from 'src/shared/api';
 import { QuestionTypeEnum } from 'src/shared/enums';
-
-const QUESTION_TYPE_TO_VAR_TYPE: Partial<
-  Record<QuestionTypeEnum, WorkflowVariable['type']>
-> = {
-  [QuestionTypeEnum.INTEGER]: 'integer',
-  [QuestionTypeEnum.DECIMAL]: 'double',
-  [QuestionTypeEnum.STRING]: 'string',
-  [QuestionTypeEnum.MULTIPLE_CHOICE]: 'string',
-  [QuestionTypeEnum.DATE]: 'date',
-  [QuestionTypeEnum.DATETIME]: 'date',
-};
-
-function questionToWorkflowVariable(q: TQuestion): WorkflowVariable {
-  const englishText =
-    q.questionText['English'] ?? Object.values(q.questionText)[0] ?? '';
-  return {
-    tag: `forms[latest].${q.userQuestionId}`,
-    description: englishText,
-    type: QUESTION_TYPE_TO_VAR_TYPE[q.questionType]!,
-    namespace: 'forms',
-    collectionName: 'forms',
-    isComputed: false,
-    isDynamic: true,
-  };
-}
 
 interface BranchConditionEditorProps {
   branch: WorkflowTemplateStepBranch;
@@ -52,6 +27,20 @@ interface BranchConditionEditorProps {
   isEditMode?: boolean;
   isSelected?: boolean;
   showFullEditor?: boolean;
+  editorFillHeight?: boolean;
+  /** Rule shown in Blockly; parent is source of truth when set. */
+  editorJsonLogic?: string;
+  /** Bump to remount Blockly after paste. */
+  editorReloadKey?: number;
+  /** Append a copied rule beside existing blocks instead of replacing the workspace. */
+  appendJsonLogic?: string | null;
+  onAppendComplete?: () => void;
+  /** Controlled condition name (branch dialog). */
+  conditionName?: string;
+  /** Optional actions rendered below Blockly and above "then go to". */
+  actionsBelowEditor?: React.ReactNode;
+  /** Overlay centered on top of the Blockly workspace (e.g. paste warning). */
+  editorOverlay?: React.ReactNode;
   onChange?: (
     stepId: string,
     branchIndex: number,
@@ -75,13 +64,26 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   isEditMode = false,
   isSelected = false,
   showFullEditor = false,
+  editorFillHeight = false,
+  editorJsonLogic,
+  editorReloadKey = 0,
+  appendJsonLogic,
+  onAppendComplete,
+  conditionName: controlledConditionName,
+  actionsBelowEditor,
+  editorOverlay,
   onChange,
   onTargetStepChange,
   steps = [],
 }) => {
   const [variables, setVariables] = useState<WorkflowVariable[]>([]);
   const [variablesLoading, setVariablesLoading] = useState(true);
-  const [conditionName, setConditionName] = useState<string>('');
+  const [internalConditionName, setInternalConditionName] =
+    useState<string>('');
+  const conditionName =
+    controlledConditionName !== undefined
+      ? controlledConditionName
+      : internalConditionName;
   const [currentRule, setCurrentRule] = useState<string | null>(
     branch.condition?.rule || null
   );
@@ -98,52 +100,106 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
     currentRuleRef.current = currentRule;
   }, [currentRule]);
 
-  const currentStep = steps?.find((s) => s.id === stepId);
-  const formId = currentStep?.formId;
-
   useEffect(() => {
     let cancelled = false;
+
     const load = async () => {
-      const globalVars = await getWorkflowVariables();
-      let formVars: WorkflowVariable[] = [];
-      if (formId) {
+      const currentStep = steps.find((s) => s.id === stepId);
+      let formId = currentStep?.formId;
+
+      // Resolve the latest non-archived form for the step's classification.
+      if (formId && currentStep?.form?.archived) {
         try {
-          const template = await getFormTemplateAsyncV2(formId);
-          formVars = template.questions
-            .filter(
-              (q) =>
-                q.userQuestionId && q.questionType in QUESTION_TYPE_TO_VAR_TYPE
-            )
-            .map(questionToWorkflowVariable);
+          // Use the classification ID from the step's form object
+          const classificationId = currentStep.form?.classification?.id;
+          if (classificationId) {
+            const { templates } = await getAllFormTemplatesAsyncV2(false);
+            const latestForm = templates.find((t) => {
+              const tClassId =
+                t.form_classification_id ?? t.formClassificationId;
+              return !t.archived && tClassId === classificationId;
+            });
+            if (latestForm?.id) {
+              formId = latestForm.id;
+            }
+          }
         } catch {
-          // form fetch failure is non-fatal; branch editor still works with global vars
+          // fall back to the original formId
         }
       }
-      if (!cancelled) {
-        setVariables([...globalVars, ...formVars]);
-        setVariablesLoading(false);
-      }
+
+      const [globalVars, formTemplate] = await Promise.all([
+        getWorkflowVariables(),
+        formId ? getFormTemplateAsyncV2(formId) : Promise.resolve(null),
+      ]);
+
+      if (cancelled) return;
+
+      const formVars: WorkflowVariable[] = formTemplate
+        ? formTemplate.questions
+            .filter(
+              (q) =>
+                q.userQuestionId && q.questionType !== QuestionTypeEnum.CATEGORY
+            )
+            .map((q) => {
+              let type: WorkflowVariable['type'] = 'string';
+              if (q.questionType === QuestionTypeEnum.INTEGER) {
+                type = 'integer';
+              } else if (
+                q.questionType === QuestionTypeEnum.DATE ||
+                q.questionType === QuestionTypeEnum.DATETIME
+              ) {
+                type = 'date';
+              }
+              return {
+                tag: `forms[latest].${q.userQuestionId}`,
+                description:
+                  q.questionText['English'] ??
+                  q.questionText[Object.keys(q.questionText)[0]] ??
+                  q.userQuestionId!,
+                type,
+                isComputed: false,
+                isDynamic: true,
+              };
+            })
+        : [];
+
+      setVariables([...globalVars, ...formVars]);
+      setVariablesLoading(false);
     };
-    load();
+
+    load().catch(() => {
+      if (!cancelled) setVariablesLoading(false);
+    });
+
     return () => {
       cancelled = true;
     };
-  }, [formId]);
+  }, [stepId, steps]);
 
   useEffect(() => {
-    if (branch.condition?.rule) {
-      try {
-        const rule = JSON.parse(branch.condition.rule);
-        setConditionName(rule.name || '');
-      } catch {
-        setConditionName('');
-      }
-      setCurrentRule(branch.condition.rule);
-    } else {
-      setConditionName('');
-      setCurrentRule(null);
+    if (editorJsonLogic !== undefined) {
+      setCurrentRule(editorJsonLogic || null);
     }
-  }, [branch, stepId, branchIndex]);
+  }, [editorJsonLogic, editorReloadKey]);
+
+  useEffect(() => {
+    if (controlledConditionName === undefined) {
+      if (branch.condition?.rule) {
+        try {
+          const rule = JSON.parse(branch.condition.rule);
+          setInternalConditionName(rule.name || '');
+        } catch {
+          setInternalConditionName('');
+        }
+      } else {
+        setInternalConditionName('');
+      }
+    }
+    if (editorJsonLogic === undefined) {
+      setCurrentRule(branch.condition?.rule || null);
+    }
+  }, [branch, stepId, branchIndex, controlledConditionName, editorJsonLogic]);
 
   const handleBlocklyChange = (
     jsonLogic: string | null,
@@ -162,30 +218,52 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
   };
 
   const handleConditionNameChange = (name: string) => {
-    setConditionName(name);
+    if (controlledConditionName === undefined) {
+      setInternalConditionName(name);
+    }
     if (onChange) {
       onChange(
         stepId,
         branchIndex,
-        currentRuleRef.current ?? branch.condition?.rule ?? '',
+        currentRuleRef.current ??
+          editorJsonLogic ??
+          branch.condition?.rule ??
+          '',
         name
       );
     }
   };
 
-  const initialJsonLogic = branch.condition?.rule || undefined;
+  const initialJsonLogic =
+    editorJsonLogic !== undefined
+      ? editorJsonLogic || undefined
+      : branch.condition?.rule || undefined;
 
   return (
     <Box
       sx={{
-        p: 2,
-        border: isSelected ? '2px solid #1976d2' : '1px solid #e0e0e0',
-        borderRadius: 1,
-        backgroundColor: isSelected
-          ? 'rgba(25, 118, 210, 0.05)'
-          : 'transparent',
-        transition: 'all 0.2s ease-in-out',
-        boxShadow: isSelected ? '0 2px 8px rgba(25, 118, 210, 0.2)' : 'none',
+        p: showFullEditor ? 0 : 2,
+        border: showFullEditor
+          ? 'none'
+          : isSelected
+            ? '2px solid #1976d2'
+            : '1px solid #e0e0e0',
+        borderRadius: showFullEditor ? 0 : 1,
+        backgroundColor: showFullEditor
+          ? 'transparent'
+          : isSelected
+            ? 'rgba(25, 118, 210, 0.05)'
+            : 'transparent',
+        transition: showFullEditor ? 'none' : 'all 0.2s ease-in-out',
+        boxShadow: showFullEditor
+          ? 'none'
+          : isSelected
+            ? '0 2px 8px rgba(25, 118, 210, 0.2)'
+            : 'none',
+        display: editorFillHeight ? 'flex' : 'block',
+        flexDirection: editorFillHeight ? 'column' : undefined,
+        flex: editorFillHeight ? 1 : undefined,
+        minHeight: editorFillHeight ? 0 : undefined,
       }}>
       {!showFullEditor && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -194,7 +272,13 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
       )}
 
       {isEditMode ? (
-        <Box>
+        <Box
+          sx={{
+            display: editorFillHeight ? 'flex' : 'block',
+            flexDirection: editorFillHeight ? 'column' : undefined,
+            flex: editorFillHeight ? 1 : undefined,
+            minHeight: editorFillHeight ? 0 : undefined,
+          }}>
           {showFullEditor && (
             <>
               <TextField
@@ -215,12 +299,49 @@ export const BranchConditionEditor: React.FC<BranchConditionEditorProps> = ({
               <CircularProgress size={24} />
             </Box>
           ) : (
-            <BlocklyEditor
-              variables={variables}
-              initialJsonLogic={initialJsonLogic}
-              onChange={handleBlocklyChange}
-            />
+            <Box
+              sx={{
+                position: 'relative',
+                flex: editorFillHeight ? 1 : undefined,
+                minHeight: editorFillHeight ? 200 : undefined,
+                display: editorFillHeight ? 'flex' : 'block',
+                flexDirection: editorFillHeight ? 'column' : undefined,
+              }}>
+              <BlocklyEditor
+                key={`${stepId}-${branchIndex}-${editorReloadKey}`}
+                variables={variables}
+                initialJsonLogic={initialJsonLogic}
+                appendJsonLogic={appendJsonLogic}
+                onAppendComplete={onAppendComplete}
+                onChange={handleBlocklyChange}
+                fillHeight={editorFillHeight}
+              />
+              {editorOverlay && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                    px: 2,
+                  }}>
+                  <Box
+                    sx={{
+                      pointerEvents: 'auto',
+                      maxWidth: 520,
+                      width: '100%',
+                    }}>
+                    {editorOverlay}
+                  </Box>
+                </Box>
+              )}
+            </Box>
           )}
+
+          {actionsBelowEditor}
 
           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
             <Grid item>
