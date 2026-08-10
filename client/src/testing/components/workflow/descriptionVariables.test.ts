@@ -130,4 +130,21 @@ describe('resolveDescriptionVariables', () => {
       resolveDescriptionVariables('Age: {{patient.age}}.', resolutions)
     ).toBe('Age: 34.');
   });
+
+  it('formats booleans as Yes/No instead of true/false', () => {
+    const resolutions: DescriptionVariableResolution[] = [
+      {
+        var: 'vitals[latest].is_flagged_for_follow_up',
+        value: true,
+        status: 'RESOLVED',
+      },
+      { var: 'patient.is_pregnant', value: false, status: 'RESOLVED' },
+    ];
+    expect(
+      resolveDescriptionVariables(
+        'Flagged: {{vitals[latest].is_flagged_for_follow_up}}. Pregnant: {{patient.is_pregnant}}.',
+        resolutions
+      )
+    ).toBe('Flagged: Yes. Pregnant: No.');
+  });
 });

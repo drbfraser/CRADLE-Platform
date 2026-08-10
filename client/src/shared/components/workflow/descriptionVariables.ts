@@ -22,6 +22,9 @@ function formatResolvedValue(tag: string, value: string | number | boolean) {
   if (DATE_VALUE_TAGS.has(tag) && typeof value === 'number') {
     return moment.unix(value).format('MMM D, YYYY');
   }
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
+  }
   return String(value);
 }
 

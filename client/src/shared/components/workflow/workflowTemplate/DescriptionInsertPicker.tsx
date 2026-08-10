@@ -42,16 +42,6 @@ const CURATED_ENTRIES: { label: string; description: string; tag: string }[] = [
     tag: 'patient.age',
   },
   {
-    label: 'Pregnancy start date',
-    description: 'When the current pregnancy began',
-    tag: 'pregnancies[latest].start_date',
-  },
-  {
-    label: 'Pregnancy end date',
-    description: 'When the current pregnancy ended, if it has',
-    tag: 'pregnancies[latest].end_date',
-  },
-  {
     label: 'Allergies',
     description: "Patient's recorded allergies",
     tag: 'patient.allergy',
@@ -61,6 +51,14 @@ const CURATED_ENTRIES: { label: string; description: string; tag: string }[] = [
     description: "Patient's drug history",
     tag: 'patient.drug_history',
   },
+];
+
+// Pregnancy fields, shown in their own drill-down submenu (like "Readings")
+// instead of as separate flat top-level entries.
+const PREGNANCY_ENTRIES: { label: string; tag: string }[] = [
+  { label: 'Start date', tag: 'pregnancies[latest].start_date' },
+  { label: 'End date', tag: 'pregnancies[latest].end_date' },
+  { label: 'Outcome', tag: 'pregnancies[latest].outcome' },
 ];
 
 // Reading/vitals fields, shown in their own drill-down submenu (like
@@ -85,7 +83,7 @@ type DescriptionInsertPickerProps = {
   onInsertToken?: (token: string) => void;
 };
 
-type PickerView = 'menu' | 'date' | 'readings';
+type PickerView = 'menu' | 'date' | 'readings' | 'pregnancy';
 
 export default function DescriptionInsertPicker({
   onInsertToken,
@@ -105,6 +103,7 @@ export default function DescriptionInsertPicker({
     () =>
       new Set([
         ...CURATED_ENTRIES.map((e) => e.tag),
+        ...PREGNANCY_ENTRIES.map((e) => e.tag),
         ...READING_ENTRIES.map((e) => e.tag),
       ]),
     []
@@ -200,6 +199,12 @@ export default function DescriptionInsertPicker({
                   secondary="Blood pressure, heart rate, urine test, etc."
                 />
               </ListItemButton>
+              <ListItemButton onClick={() => setView('pregnancy')}>
+                <ListItemText
+                  primary="Pregnancy"
+                  secondary="Start date, end date, outcome"
+                />
+              </ListItemButton>
               {filteredCuratedEntries.map((entry) => (
                 <ListItemButton
                   key={entry.tag}
@@ -293,7 +298,7 @@ export default function DescriptionInsertPicker({
               Insert into description
             </Button>
           </Box>
-        ) : (
+        ) : view === 'readings' ? (
           <Box sx={{ width: 280 }}>
             <Box sx={{ p: 2, pb: 1 }}>
               <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -308,6 +313,29 @@ export default function DescriptionInsertPicker({
             </Box>
             <List dense sx={{ maxHeight: 320, overflow: 'auto' }}>
               {READING_ENTRIES.map((entry) => (
+                <ListItemButton
+                  key={entry.tag}
+                  onClick={() => insertAndClose(`{{${entry.tag}}}`)}>
+                  <ListItemText primary={entry.label} />
+                </ListItemButton>
+              ))}
+            </List>
+          </Box>
+        ) : (
+          <Box sx={{ width: 280 }}>
+            <Box sx={{ p: 2, pb: 1 }}>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <IconButton
+                  size="small"
+                  aria-label="Back"
+                  onClick={() => setView('menu')}>
+                  <ArrowBackIcon fontSize="small" />
+                </IconButton>
+                <Typography variant="subtitle2">Pregnancy</Typography>
+              </Stack>
+            </Box>
+            <List dense sx={{ maxHeight: 320, overflow: 'auto' }}>
+              {PREGNANCY_ENTRIES.map((entry) => (
                 <ListItemButton
                   key={entry.tag}
                   onClick={() => insertAndClose(`{{${entry.tag}}}`)}>
