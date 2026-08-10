@@ -67,6 +67,7 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     name: Optional[str] = None
     description: str
     archived: bool
+    has_branching_issues: bool = False
     starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)

@@ -1,5 +1,11 @@
 import { WorkflowVariable } from 'src/shared/api';
-import { blocklyTypeFromVariableType } from './blocks';
+import { blocklyTypeFromVariableType, TYPE_COLOURS } from './blocks';
+import {
+  groupVariablesBySource,
+  sortedSourceKeys,
+  variableBlockType,
+  variableSourceLabel,
+} from './variableGrouping';
 
 const TYPE_LABELS: Record<string, string> = {
   Number: 'Number Variables',
@@ -8,36 +14,93 @@ const TYPE_LABELS: Record<string, string> = {
   Date: 'Date Variables',
 };
 
-const TYPE_COLOURS: Record<string, string> = {
-  Number: '30',
-  String: '170',
-  Boolean: '270',
-  Date: '220',
+const COMPARISON_BLOCK_BY_TYPE: Record<string, string> = {
+  Number: 'number_comparison',
+  Date: 'date_comparison',
+  String: 'string_comparison',
+  Boolean: 'boolean_comparison',
 };
 
-export function buildToolboxConfig(variables: WorkflowVariable[]) {
-  const presentTypes = new Set(
-    variables.map((v) => blocklyTypeFromVariableType(v.type)).filter(Boolean)
+const BLOCKLY_TYPES = ['Number', 'String', 'Boolean', 'Date'] as const;
+
+function typesPresentInSource(variables: WorkflowVariable[]): Set<string> {
+  return new Set(
+    variables
+      .map((v) => blocklyTypeFromVariableType(v.type))
+      .filter((t): t is string => Boolean(t))
   );
+}
 
-  const variableCategories = ['Number', 'String', 'Boolean', 'Date']
-    .filter((t) => presentTypes.has(t))
-    .map((t) => ({
+function buildVariableCategories(variables: WorkflowVariable[]) {
+  const sourceGroups = groupVariablesBySource(variables);
+
+  return sortedSourceKeys(sourceGroups).map((sourceKey) => {
+    const sourceVars = sourceGroups.get(sourceKey)!;
+    const presentTypes = typesPresentInSource(sourceVars);
+
+    return {
       kind: 'category',
-      name: TYPE_LABELS[t],
-      colour: TYPE_COLOURS[t],
-      contents: [{ kind: 'block', type: `app_variable_${t}` }],
-    }));
+      name: variableSourceLabel(sourceKey),
+      colour: '20',
+      contents: BLOCKLY_TYPES.filter((t) => presentTypes.has(t)).map((t) => ({
+        kind: 'category',
+        name: TYPE_LABELS[t],
+        colour: String(TYPE_COLOURS[t]),
+        contents: [{ kind: 'block', type: variableBlockType(sourceKey, t) }],
+      })),
+    };
+  });
+}
 
-  return {
-    kind: 'categoryToolbox',
+export function buildToolboxConfig(variables: WorkflowVariable[]) {
+  const variableCategories = buildVariableCategories(variables);
+
+  // Compare blocks are always available so authors can build conditions with
+  // literal Values even when a step has no variables yet.
+  const numberCompareCategory = {
+    kind: 'category',
+    name: 'Number Compare',
+    colour: String(TYPE_COLOURS.Number),
+    contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Number }],
+  };
+
+  const dateCompareCategory = {
+    kind: 'category',
+    name: 'Date Compare',
+    colour: String(TYPE_COLOURS.Date),
+    contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Date }],
+  };
+
+  const textCompareCategory = {
+    kind: 'category',
+    name: 'Text Compare',
+    colour: String(TYPE_COLOURS.String),
     contents: [
-      ...variableCategories,
       {
         kind: 'category',
         name: 'Comparison',
-        colour: '210',
-        contents: [{ kind: 'block', type: 'comparison' }],
+        colour: String(TYPE_COLOURS.String),
+        contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.String }],
+      },
+      {
+        kind: 'category',
+        name: 'Operations',
+        colour: String(TYPE_COLOURS.String),
+        contents: [{ kind: 'block', type: 'string_op' }],
+      },
+    ],
+  };
+
+  const logicCompareCategory = {
+    kind: 'category',
+    name: 'Logic Compare',
+    colour: '120',
+    contents: [
+      {
+        kind: 'category',
+        name: 'True/False',
+        colour: String(TYPE_COLOURS.Boolean),
+        contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Boolean }],
       },
       {
         kind: 'category',
@@ -48,6 +111,17 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
           { kind: 'block', type: 'logic_negate' },
         ],
       },
+    ],
+  };
+
+  return {
+    kind: 'categoryToolbox',
+    contents: [
+      ...variableCategories,
+      numberCompareCategory,
+      dateCompareCategory,
+      textCompareCategory,
+      logicCompareCategory,
       {
         kind: 'category',
         name: 'Values',
