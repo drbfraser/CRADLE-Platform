@@ -58,7 +58,9 @@ def submit_form(body: CreateFormSubmissionRequest):
     # Verify that patient exists
     patient = crud.read(PatientOrm, id=submission.patient_id)
     LOGGER.info(
-        "submit_form: patient_id=%s found=%s", submission.patient_id, patient is not None
+        "submit_form: patient_id=%s found=%s",
+        submission.patient_id,
+        patient is not None,
     )
     if patient is None:
         return abort(404, description="Patient does not exist.")
