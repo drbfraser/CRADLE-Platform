@@ -5,7 +5,6 @@ from typing import Literal, NamedTuple, Optional
 
 import data.db_operations as crud
 from common import commonUtil
-from data import orm_serializer
 from enums import QuestionTypeEnum
 from models import (
     FormClassificationOrm,
@@ -815,6 +814,8 @@ def get_new_lang_versions_and_questions(
 
 def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
     """Attach question metadata to each answer in a form submission and return the enriched list."""
+    from data import orm_serializer
+
     answers = [
         FormAnswer(**(orm_serializer.marshal(answer))) for answer in submission.answers
     ]
