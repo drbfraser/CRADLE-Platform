@@ -83,7 +83,9 @@ export const TransferQAnswerToAPIStandard = (
       questionList.some(
         (question) =>
           getQuestionIndex(question) === answer.questionIndex &&
-          VALID_QUESTION_TYPES.includes(question.questionType)
+          VALID_QUESTION_TYPES.includes(question.questionType) &&
+          // Categories are structural only — never send empty answer payloads for them.
+          question.questionType !== QuestionTypeEnum.CATEGORY
       )
     )
     .map((answer) => {
@@ -99,9 +101,6 @@ export const TransferQAnswerToAPIStandard = (
       };
 
       switch (question?.questionType) {
-        case QuestionTypeEnum.CATEGORY:
-          break;
-
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
           apiAnswer.answer.mcIdArray = (answer.val ?? [])
