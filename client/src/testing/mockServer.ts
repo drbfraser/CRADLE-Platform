@@ -16,6 +16,27 @@ const handlers = [
         : FORM_TEMPLATE_TEST_DATA.unArchivedTemplates;
     return HttpResponse.json(formTemplates, { status: 200 });
   }),
+  // Default form submission endpoints — individual tests override as needed.
+  http.post(API_URL + '/forms/v2/submissions', () =>
+    HttpResponse.json({ id: 'submission-default' }, { status: 201 })
+  ),
+  http.get(API_URL + '/forms/v2/submissions/:formId', ({ params }) =>
+    HttpResponse.json(
+      {
+        id: params.formId,
+        formTemplateId: 'template-default',
+        patientId: 'patient-default',
+        dateSubmitted: 0,
+        lastEdited: 0,
+        lang: 'English',
+        answers: [],
+      },
+      { status: 200 }
+    )
+  ),
+  http.patch(API_URL + '/forms/v2/submissions/:formId', ({ params }) =>
+    HttpResponse.json({ id: params.formId }, { status: 200 })
+  ),
 ];
 
 export const mockServer = setupServer(...handlers);
