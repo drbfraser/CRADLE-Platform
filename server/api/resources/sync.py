@@ -18,11 +18,13 @@ from models import (
     ReferralOrm,
 )
 from service import invariant, serialize, view
+from service.workflow.workflow_service import WorkflowService
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
 from validation.patients import PatientWithHistory
 from validation.readings import ReadingModel
 from validation.referrals import ReferralModel
+from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 # /api/sync
 api_sync = APIBlueprint(
@@ -53,6 +55,12 @@ class SyncReadingsBody(RootModel[list[ReadingModel]]):
 
 class SyncReferralsBody(RootModel[list[ReferralModel]]):
     model_config = dict(openapi_extra={"description": "List of Referral objects."})  # type: ignore[reportAssignmentType]
+
+
+class SyncWorkflowInstancesBody(RootModel[list[WorkflowInstanceModel]]):
+    model_config = dict(
+        openapi_extra={"description": "List of Workflow Instance objects."}
+    )  # type: ignore[reportAssignmentType]
 
 
 class SyncPatientsResponse(CradleBaseModel):
@@ -356,6 +364,78 @@ def sync_assessments(query: LastSyncQueryParam):
             serialize.serialize_referral_or_assessment(a) for a in new_assessments
         ],
     }, 200
+
+
+class SyncWorkflowTemplatesResponse(CradleBaseModel):
+    workflow_templates: list[WorkflowTemplateModel]
+
+
+@api_sync.post("/workflow_templates", responses={200: SyncWorkflowTemplatesResponse})
+def sync_workflow_templates(query: LastSyncQueryParam):
+    """Sync Workflow Templates"""
+    last_sync = query.since
+
+    workflow_templates = crud.read_workflow_templates(is_archived=False)
+    new_workflow_templates = [
+        workflow_template
+        for workflow_template in workflow_templates
+        if workflow_template.last_edited is None
+        or workflow_template.last_edited > last_sync
+    ]
+
+    return {
+        "workflow_templates": [
+            orm_serializer.marshal(workflow_template, shallow=False)
+            for workflow_template in new_workflow_templates
+        ],
+    }, 200
+
+
+class SyncWorkflowInstancesResponse(CradleBaseModel):
+    workflow_instances: list[WorkflowInstanceModel]
+
+
+@api_sync.post("/workflow_instances", responses={200: SyncWorkflowInstancesResponse})
+def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstancesBody):
+    """Sync Workflow Instances"""
+    last_sync = query.since
+    status_code = 200
+    errors: list[dict] = list()
+
+    mobile_workflow_instances = body.root
+    for mobile_workflow_instance in mobile_workflow_instances:
+        patient_id = mobile_workflow_instance.patient_id
+        if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
+            continue
+        try:
+            WorkflowService.upsert_workflow_instance(mobile_workflow_instance)
+        except Exception as err:
+            errors.append(
+                {
+                    "workflow_instance_id": mobile_workflow_instance.id,
+                    "errors": str(err),
+                }
+            )
+            status_code = 207
+
+    current_user = user_utils.get_current_user_from_jwt()
+    visible_patients = view.patient_list_view(cast("dict[Any, Any]", current_user))
+    visible_patient_ids = {patient.id for patient in visible_patients}
+    new_workflow_instances = [
+        workflow_instance
+        for workflow_instance in WorkflowService.get_workflow_instances()
+        if workflow_instance.patient_id in visible_patient_ids
+        and workflow_instance.last_edited is not None
+        and workflow_instance.last_edited > last_sync
+    ]
+
+    return {
+        "workflow_instances": [
+            workflow_instance.model_dump()
+            for workflow_instance in new_workflow_instances
+        ],
+        "errors": errors,
+    }, status_code
 
 
 ERROR_MESSAGES = {
