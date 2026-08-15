@@ -69,9 +69,22 @@ export const FormQuestions = ({
       languageKey,
       'Untitled question'
     );
-    const mcOptions = question.mcOptions?.map((option) =>
-      resolveLocalizedText(option.translations, languageKey)
-    );
+    const mcOptions = question.mcOptions?.map((option) => {
+      // Submission forms use legacy { opt }; templates use { translations }.
+      if (
+        option &&
+        typeof option === 'object' &&
+        'opt' in option &&
+        typeof (option as { opt?: unknown }).opt === 'string'
+      ) {
+        return (option as { opt: string }).opt;
+      }
+
+      return resolveLocalizedText(
+        (option as { translations?: Record<string, string> }).translations,
+        languageKey
+      );
+    });
 
     return (
       <FieldComponent

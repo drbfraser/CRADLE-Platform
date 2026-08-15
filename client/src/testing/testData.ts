@@ -12,6 +12,7 @@ export const FORM_TEMPLATE_TEST_DATA = {
   unArchivedTemplates: [
     {
       archived: false,
+      name: 'template#1',
       classification: {
         id: '2ed1cf25-34a1-48b0-b458-c8e4830159ca',
         name: 'template#1',
@@ -23,6 +24,7 @@ export const FORM_TEMPLATE_TEST_DATA = {
     },
     {
       archived: false,
+      name: 'Personal Intake Form',
       classification: {
         id: 'dc9',
         name: 'Personal Intake Form',
@@ -36,6 +38,7 @@ export const FORM_TEMPLATE_TEST_DATA = {
   archivedTemplates: [
     {
       archived: true,
+      name: 'Archived Form',
       classification: {
         id: '000',
         name: 'Archived Form',
