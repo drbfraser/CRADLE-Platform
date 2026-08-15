@@ -109,6 +109,9 @@ export const FormTemplateMetadataForm = ({
             inputProps={{ maxLength: 30 }}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const newVersion = Number(e.target.value);
+              if (Number.isNaN(newVersion)) {
+                return;
+              }
               setForm((prev) => ({ ...prev, version: newVersion }));
               setVersionError(previousVersions?.includes(newVersion) ?? false);
             }}
