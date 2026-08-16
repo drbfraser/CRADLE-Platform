@@ -50,9 +50,11 @@ def _resolve_step_dict(d: dict, lang: str) -> dict:
 
     description_string_id = d.pop("description_string_id", None)
     if description_string_id is not None:
-        d["description"] = resolve_string_text(
-            description_string_id, lang
-        ) or resolve_string_text(description_string_id, "English")
+        d["description"] = (
+            resolve_string_text(description_string_id, lang)
+            or resolve_string_text(description_string_id, "English")
+            or ""
+        )
 
     return d
 

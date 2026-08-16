@@ -50,9 +50,11 @@ def _resolve_workflow_step_text(step_dict: dict, lang: str = "English") -> dict:
 
     description_string_id = step_dict.pop("description_string_id", None)
     if description_string_id is not None:
-        step_dict["description"] = resolve_string_text(
-            description_string_id, lang
-        ) or resolve_string_text(description_string_id, "English")
+        step_dict["description"] = (
+            resolve_string_text(description_string_id, lang)
+            or resolve_string_text(description_string_id, "English")
+            or ""
+        )
 
     return step_dict
 
@@ -68,9 +70,11 @@ def _resolve_workflow_template_text(template_dict: dict, lang: str = "English") 
     """
     description_string_id = template_dict.pop("description_string_id", None)
     if description_string_id is not None:
-        template_dict["description"] = resolve_string_text(
-            description_string_id, lang
-        ) or resolve_string_text(description_string_id, "English")
+        template_dict["description"] = (
+            resolve_string_text(description_string_id, lang)
+            or resolve_string_text(description_string_id, "English")
+            or ""
+        )
 
     classification = template_dict.get("classification")
     if classification is not None:

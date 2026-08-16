@@ -7,7 +7,10 @@ from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
 from api.decorator import roles_required
-from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
+from api.resources.workflow_template_steps import (
+    WorkflowTemplateStepListResponse,
+    _resolve_step_dict,
+)
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from common.form_utils import upsert_multilang_versions
@@ -30,7 +33,10 @@ from models import (
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
-from service.workflow.workflow_service import WorkflowService
+from service.workflow.workflow_service import (
+    WorkflowService,
+    _resolve_workflow_template_text,
+)
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
     WorkflowTemplateLangList,
@@ -150,6 +156,14 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
                     ),
                 )
 
+    for step in workflow_template_dict.get("steps") or []:
+        step_name = get_english_text(step.get("name") or {})
+        if not step_name:
+            return abort(
+                code=422,
+                description="Every workflow template step must have an English name.",
+            )
+
     # convert incoming translation maps into pointers
     new_lang_versions = get_new_lang_versions_for_workflow_template(
         workflow_template_dict, new_template=True
@@ -240,7 +254,9 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             ),
         )
 
-    return orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
+    result = orm_serializer.marshal(obj=workflow_template_orm, shallow=True)
+    _resolve_workflow_template_text(result, "English")
+    return result
 
 
 # /api/workflow/templates/body [POST] - JSON body (like form templates)
@@ -272,10 +288,11 @@ def get_workflow_templates():
         is_archived=is_archived,
     )
 
-    response_data = [
-        orm_serializer.marshal(template, shallow=True)
-        for template in workflow_templates
-    ]
+    response_data = []
+    for template in workflow_templates:
+        d = orm_serializer.marshal(template, shallow=True)
+        _resolve_workflow_template_text(d, "English")
+        response_data.append(d)
 
     return {"items": response_data}, 200
 
@@ -387,6 +404,8 @@ because that returns a workflow template + steps if desired, whereas this endpoi
 )
 def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template Steps by Template ID"""
+    lang = request.args.get("lang", default="English")
+
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
@@ -399,11 +418,13 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     template_steps = crud.read_template_steps(
         workflow_template_id=path.workflow_template_id
     )
-    template_steps = [
-        orm_serializer.marshal(template_step) for template_step in template_steps
-    ]
+    response_data = []
+    for template_step in template_steps:
+        d = orm_serializer.marshal(template_step)
+        _resolve_step_dict(d, lang)
+        response_data.append(d)
 
-    return {"items": template_steps}, 200
+    return {"items": response_data}, 200
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
@@ -515,6 +536,14 @@ def update_workflow_template_patch(
         body_dict["classification_id"] = existing_classification_id
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
+
+    for step in body_dict.get("steps") or []:
+        step_name = get_english_text(step.get("name") or {})
+        if not step_name:
+            return abort(
+                code=422,
+                description="Every workflow template step must have an English name.",
+            )
 
     # Convert any remaining translation maps string id pointers
     new_lang_versions = get_new_lang_versions_for_workflow_template(
@@ -643,4 +672,6 @@ def archive_workflow_template(
     )
 
     updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
-    return orm_serializer.marshal(updated_template, shallow=True), 200
+    result = orm_serializer.marshal(updated_template, shallow=True)
+    _resolve_workflow_template_text(result, "English")
+    return result, 200

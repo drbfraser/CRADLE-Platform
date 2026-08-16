@@ -676,7 +676,7 @@ def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     """
     workflow_instance = fetch_workflow_instance_or_404(workflow_instance_id)
     workflow_template = fetch_workflow_template_or_404(
-        workflow_instance.workflow_template_id
+        workflow_instance.workflow_template_id, lang=workflow_instance.lang
     )
 
     return WorkflowView(workflow_template, workflow_instance)
