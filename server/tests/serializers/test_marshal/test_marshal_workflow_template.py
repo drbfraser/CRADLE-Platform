@@ -83,7 +83,6 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     """
     workflow_template = WorkflowTemplateOrm()
     workflow_template.id = "wt-001"
-    workflow_template.name = "ANC Workflow"
     workflow_template.description = "Routine antenatal care"
     workflow_template.archived = False
     workflow_template.date_created = 1_690_000_000
@@ -119,7 +118,6 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
 
     for key in (
         "id",
-        "name",
         "description",
         "archived",
         "date_created",
@@ -129,7 +127,6 @@ def test_workflow_template_marshal_full_embeds_classification_steps():
     ):
         assert key in marshalled
     assert marshalled["id"] == workflow_template.id
-    assert marshalled["name"] == "Antenatal"
     assert marshalled["archived"] is False
     assert marshalled["date_created"] == 1_690_000_000
     assert marshalled["version"] == "v1"

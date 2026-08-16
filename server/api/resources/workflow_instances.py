@@ -37,14 +37,16 @@ api_workflow_instances = APIBlueprint(
 @api_workflow_instances.post("", responses={201: WorkflowInstanceModel})
 def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     """Create Workflow Instance"""
+    lang = body.lang or "English"
     workflow_template = workflow_utils.fetch_workflow_template_or_404(
-        body.workflow_template_id
+        body.workflow_template_id, lang=lang
     )
 
     patient_utils.fetch_patient_or_404(body.patient_id)
 
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
+    workflow_instance.lang = lang
 
     if body.name is not None:
         workflow_instance.name = body.name

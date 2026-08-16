@@ -8,11 +8,16 @@ from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
 from common.commonUtil import abort_not_found, get_uuid
-from common.form_utils import assign_form_or_template_ids
+from common.form_utils import (
+    _extend_lang_version,
+    assign_form_or_template_ids,
+    resolve_string_text,
+)
 from data import orm_serializer
 from models import (
     FormSubmissionOrmV2,
     FormTemplateOrmV2,
+    LangVersionOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -342,6 +347,192 @@ def lock_workflow_classification_for_update(
     )
 
 
+def get_english_text(translations: dict) -> str | None:
+    """
+    Return the English entry from a {lang: text} translation map (case/
+    whitespace-insensitive on the key), or None if there isn't one.
+    Used to enforce "every workflow classification must have an English
+    name" - see the write-route English-required checks.
+    """
+    for lang, text in translations.items():
+        if lang.strip().lower() == "english":
+            return text
+    return None
+
+
+def check_workflow_classification_name_conflict(
+    english_name: str, exclude_string_id: str | None = None
+) -> bool:
+    """
+    Check if a WorkflowClassification with the same English name exists.
+    Mirrors form_utils.check_name_conflict for workflow classifications.
+
+    :param english_name: English text to check
+    :param exclude_string_id: string_id to ignore (used when editing an existing classification)
+    :return: True if a conflicting classification exists
+    """
+    existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
+
+    for existing_lang in existing_langs:
+        if exclude_string_id and existing_lang.string_id == exclude_string_id:
+            continue
+
+        wc = crud.read(
+            WorkflowClassificationOrm, name_string_id=existing_lang.string_id
+        )
+        if wc:
+            return True
+
+    return False
+
+
+def get_new_lang_versions_for_workflow_template(
+    workflow_template_dict: dict, new_template: bool = True
+) -> list[LangVersionOrmV2]:
+    """
+    Mutates workflow_template_dict in place: converts classification.name
+    and each step's name/description from {lang: text} maps into
+    *_string_id pointers, assigning new string_ids where none exist yet.
+    Mirrors form_utils.get_new_lang_versions_and_questions.
+
+    :param workflow_template_dict: dict with classification.name and each
+        step's name/description as {lang: text} maps (i.e. a
+        WorkflowTemplateMultiLangModel dumped to a dict)
+    :param new_template: False when editing an existing template (allows
+        _extend_lang_version to update rows in place instead of always
+        inserting new ones)
+    :return: new/updated LangVersionOrmV2 rows to persist alongside the template
+    """
+    new_lang_versions: list[LangVersionOrmV2] = []
+
+    classification_dict = workflow_template_dict.get("classification")
+    if classification_dict is not None and classification_dict.get("name") is not None:
+        name_translations = classification_dict.pop("name")
+        if classification_dict.get("name_string_id") is None:
+            classification_dict["name_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                name_translations, classification_dict["name_string_id"], new_template
+            )
+        )
+
+    if workflow_template_dict.get("description") is not None:
+        description_translations = workflow_template_dict.pop("description")
+        if workflow_template_dict.get("description_string_id") is None:
+            workflow_template_dict["description_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                description_translations,
+                workflow_template_dict["description_string_id"],
+                new_template,
+            )
+        )
+
+    for step in workflow_template_dict.get("steps", []):
+        new_lang_versions.extend(
+            get_new_lang_versions_for_workflow_step(step, new_template)
+        )
+
+    return new_lang_versions
+
+
+def get_new_lang_versions_for_workflow_step(
+    step: dict, new_template: bool = True
+) -> list[LangVersionOrmV2]:
+    """
+    Mutates a single workflow step dict in place: converts name/description
+    from {lang: text} maps into *_string_id pointers, assigning new
+    string_ids where none exist yet. Used both by
+    get_new_lang_versions_for_workflow_template (per-step, inside a full
+    template payload) and by the standalone template-step create/edit
+    endpoints in workflow_template_steps.py.
+
+    :return: new/updated LangVersionOrmV2 rows to persist alongside the step
+    """
+    new_lang_versions: list[LangVersionOrmV2] = []
+
+    if step.get("name") is not None:
+        step_name_translations = step.pop("name")
+        if step.get("name_string_id") is None:
+            step["name_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                step_name_translations, step["name_string_id"], new_template
+            )
+        )
+
+    if step.get("description") is not None:
+        step_description_translations = step.pop("description")
+        if step.get("description_string_id") is None:
+            step["description_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                step_description_translations,
+                step["description_string_id"],
+                new_template,
+            )
+        )
+
+    return new_lang_versions
+
+
+def format_workflow_template(template: dict, available_langs: list[str]) -> dict:
+    """
+    Format a marshalled workflow template dict into its multi-language
+    view: every translatable string field becomes a {lang: text} dict.
+    Mirrors form_utils.format_template. Used only by the workflow editor's
+    dedicated translations-view endpoint - existing read endpoints keep
+    resolving to a single language instead (see WorkflowService methods).
+
+    :param template: marshalled WorkflowTemplateOrm dict (raw *_string_id fields)
+    :param available_langs: languages to resolve each field into
+    :return: a new dict shaped for WorkflowTemplateMultiLangModel
+    """
+    if not template:
+        return {}
+
+    formatted = template.copy()
+
+    description_string_id = formatted.get("description_string_id")
+    if description_string_id:
+        formatted["description"] = {
+            lang: resolve_string_text(description_string_id, lang)
+            for lang in available_langs
+        }
+
+    classification = formatted.get("classification")
+    if classification and classification.get("name_string_id"):
+        sid = classification["name_string_id"]
+        classification = classification.copy()
+        classification["name"] = {
+            lang: resolve_string_text(sid, lang) for lang in available_langs
+        }
+        formatted["classification"] = classification
+
+    new_steps = []
+    for step in formatted.get("steps", []):
+        step = step.copy()
+
+        name_string_id = step.get("name_string_id")
+        if name_string_id:
+            step["name"] = {
+                lang: resolve_string_text(name_string_id, lang)
+                for lang in available_langs
+            }
+
+        step_description_string_id = step.get("description_string_id")
+        if step_description_string_id:
+            step["description"] = {
+                lang: resolve_string_text(step_description_string_id, lang)
+                for lang in available_langs
+            }
+
+        new_steps.append(step)
+    formatted["steps"] = new_steps
+
+    return formatted
+
+
 # Helper function to generate an updated workflow template from a patch body
 def generate_updated_workflow_template(
     existing_template: WorkflowTemplateOrm,
@@ -444,12 +635,16 @@ def fetch_workflow_instance_step_or_404(
     return workflow_instance_step
 
 
-def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplateModel:
+def fetch_workflow_template_or_404(
+    workflow_template_id: str, lang: str = "English"
+) -> WorkflowTemplateModel:
     """
     Fetch a workflow template or raise a 404 if not found.
     Intended for use inside Flask endpoint handlers.
     """
-    workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
+    workflow_template = WorkflowService.get_workflow_template(
+        workflow_template_id, lang=lang
+    )
     if workflow_template is None:
         abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
 
@@ -481,7 +676,7 @@ def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     """
     workflow_instance = fetch_workflow_instance_or_404(workflow_instance_id)
     workflow_template = fetch_workflow_template_or_404(
-        workflow_instance.workflow_template_id
+        workflow_instance.workflow_template_id, lang=workflow_instance.lang
     )
 
     return WorkflowView(workflow_template, workflow_instance)
@@ -678,6 +873,10 @@ def check_form_compatibility_for_workflow(
         if step.form_id != old_form.id:
             continue
 
+        step_name = (
+            resolve_string_text(step.name_string_id, "English") or step.name_string_id
+        )
+
         for branch in step.branches:
             if branch.condition is None or not branch.condition.rule:
                 continue
@@ -686,7 +885,7 @@ def check_form_compatibility_for_workflow(
                 variables = extract_variables_from_rule(branch.condition.rule)
             except ValueError:
                 issues.append(
-                    f"Step '{step.name}': branch has a malformed condition rule."
+                    f"Step '{step_name}': branch has a malformed condition rule."
                 )
                 continue
 
@@ -699,7 +898,7 @@ def check_form_compatibility_for_workflow(
 
                 if user_question_id not in new_questions:
                     issues.append(
-                        f"Step '{step.name}': branch condition references '{user_question_id}', "
+                        f"Step '{step_name}': branch condition references '{user_question_id}', "
                         f"which was removed from the updated form."
                     )
                 elif (
@@ -709,7 +908,7 @@ def check_form_compatibility_for_workflow(
                     old_type = old_questions.get(user_question_id, "unknown")
                     new_type = new_questions[user_question_id]
                     issues.append(
-                        f"Step '{step.name}': branch condition references '{user_question_id}', "
+                        f"Step '{step_name}': branch condition references '{user_question_id}', "
                         f"whose type changed from {old_type} to {new_type}."
                     )
 

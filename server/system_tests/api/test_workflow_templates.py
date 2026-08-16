@@ -3,6 +3,7 @@ from humps import decamelize
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
+from common.form_utils import resolve_string_text
 from common.print_utils import pretty_print
 from models import (
     FormClassificationOrmV2,
@@ -135,7 +136,7 @@ def test_workflow_template_upload_with_missing_form_id_returns_not_found(
         payload = {
             "id": template_id,
             "name": "workflow-with-invalid-form-reference",
-            "description": "workflow-with-invalid-form-reference",
+            "description": {"English": "workflow-with-invalid-form-reference"},
             "archived": False,
             "starting_step_id": step_id,
             "date_created": get_current_time(),
@@ -144,13 +145,15 @@ def test_workflow_template_upload_with_missing_form_id_returns_not_found(
             "classification_id": classification_id,
             "classification": {
                 "id": classification_id,
-                "name": "Workflow Classification Missing Form Test",
+                "name": {"English": "Workflow Classification Missing Form Test"},
             },
             "steps": [
                 {
                     "id": step_id,
-                    "name": "template step missing form",
-                    "description": "step references a non-existent form template",
+                    "name": {"English": "template step missing form"},
+                    "description": {
+                        "English": "step references a non-existent form template"
+                    },
                     "expected_completion": get_current_time(),
                     "last_edited": get_current_time(),
                     "form_id": missing_form_id,
@@ -221,7 +224,7 @@ def test_workflow_template_upload_with_v2_form_id_succeeds(
         workflow_payload = {
             "id": workflow_template_id,
             "name": "workflow-v2-form-reference",
-            "description": "workflow-v2-form-reference",
+            "description": {"English": "workflow-v2-form-reference"},
             "archived": False,
             "starting_step_id": step_id,
             "date_created": get_current_time(),
@@ -230,13 +233,15 @@ def test_workflow_template_upload_with_v2_form_id_succeeds(
             "classification_id": workflow_classification_id,
             "classification": {
                 "id": workflow_classification_id,
-                "name": "Workflow Classification V2 Form Test",
+                "name": {"English": "Workflow Classification V2 Form Test"},
             },
             "steps": [
                 {
                     "id": step_id,
-                    "name": "template step v2 form",
-                    "description": "step references an existing v2 form template",
+                    "name": {"English": "template step v2 form"},
+                    "description": {
+                        "English": "step references an existing v2 form template"
+                    },
                     "expected_completion": get_current_time(),
                     "last_edited": get_current_time(),
                     "form_id": form_template_id,
@@ -377,10 +382,10 @@ def test_workflow_template_patch_request(
         database.session.commit()
 
         changes = {
-            "description": "New workflow template description",
+            "description": {"English": "New workflow template description"},
             "classification": {
                 "id": workflow_template1["classification_id"],
-                "name": "Workflow Classification example 1 (renamed)",
+                "name": {"English": "Workflow Classification example 1 (renamed)"},
             },
         }
 
@@ -405,7 +410,9 @@ def test_workflow_template_patch_request(
 
         assert (
             updated_workflow_template is not None
-            and updated_workflow_template.description
+            and resolve_string_text(
+                updated_workflow_template.description_string_id, "English"
+            )
             == "New workflow template description"
             and updated_workflow_template.version == "V2"
         )
@@ -422,7 +429,8 @@ def test_workflow_template_patch_request(
 
         assert updated_classification is not None
         assert (
-            updated_classification.name == "Workflow Classification example 1 (renamed)"
+            resolve_string_text(updated_classification.name_string_id, "English")
+            == "Workflow Classification example 1 (renamed)"
         )
 
         assert response_body["name"] == "Workflow Classification example 1 (renamed)"
@@ -467,10 +475,10 @@ def test_workflow_template_patch_rename_affects_shared_classification(
         database.session.commit()
 
         changes = {
-            "description": "workflow_example3 updated",
+            "description": {"English": "workflow_example3 updated"},
             "classification": {
                 "id": workflow_template1["classification_id"],
-                "name": "Shared Classification Renamed",
+                "name": {"English": "Shared Classification Renamed"},
             },
         }
 
@@ -583,7 +591,7 @@ def test_form_update_auto_bumps_workflow_template_version(
         workflow_payload = {
             "id": workflow_template_id,
             "name": "test_workflow_form_versioning",
-            "description": "workflow for testing form version auto-bump",
+            "description": {"English": "workflow for testing form version auto-bump"},
             "archived": False,
             "starting_step_id": step_id,
             "date_created": get_current_time(),
@@ -592,13 +600,13 @@ def test_form_update_auto_bumps_workflow_template_version(
             "classification_id": workflow_classification_id,
             "classification": {
                 "id": workflow_classification_id,
-                "name": "Workflow Classification for form versioning test",
+                "name": {"English": "Workflow Classification for form versioning test"},
             },
             "steps": [
                 {
                     "id": step_id,
-                    "name": "test step",
-                    "description": "step linked to form V1",
+                    "name": {"English": "test step"},
+                    "description": {"English": "step linked to form V1"},
                     "expected_completion": None,
                     "last_edited": get_current_time(),
                     "form_id": form_v1_id,
@@ -693,7 +701,7 @@ def workflow_template1():
     return {
         "id": template_id,
         "name": "workflow_example1",
-        "description": "workflow_example1",
+        "description": {"English": "workflow_example1"},
         "archived": False,
         "starting_step_id": None,
         "date_created": get_current_time(),
@@ -702,7 +710,7 @@ def workflow_template1():
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example 1",
+            "name": {"English": "Workflow Classification example 1"},
         },
         "steps": [],
     }
@@ -713,7 +721,7 @@ def workflow_template2(form_template):
     return {
         "id": None,
         "name": "workflow_example2",
-        "description": "workflow_example2",
+        "description": {"English": "workflow_example2"},
         "archived": False,
         "starting_step_id": None,
         "date_created": get_current_time(),
@@ -722,13 +730,15 @@ def workflow_template2(form_template):
         "classification_id": None,
         "classification": {
             "id": None,
-            "name": "Workflow Classification example 2",
+            "name": {"English": "Workflow Classification example 2"},
         },
         "steps": [
             {
                 "id": None,
-                "name": "template step example 1",
-                "description": "example template step with all valid fields",
+                "name": {"English": "template step example 1"},
+                "description": {
+                    "English": "example template step with all valid fields"
+                },
                 "expected_completion": get_current_time(),
                 "last_edited": get_current_time(),
                 "form_id": form_template["id"],
@@ -755,7 +765,7 @@ def workflow_template3(form_template, workflow_template1):
     return {
         "id": template_id,
         "name": "workflow_example3",
-        "description": "workflow_example3",
+        "description": {"English": "workflow_example3"},
         "archived": False,
         "starting_step_id": step_id,
         "date_created": get_current_time(),
@@ -764,13 +774,15 @@ def workflow_template3(form_template, workflow_template1):
         "classification_id": workflow_template1["classification_id"],
         "classification": {
             "id": workflow_template1["classification_id"],
-            "name": "Workflow Classification Example 1",
+            "name": {"English": "Workflow Classification Example 1"},
         },
         "steps": [
             {
                 "id": step_id,
-                "name": "template step example 2",
-                "description": "example template step with all valid fields",
+                "name": {"English": "template step example 2"},
+                "description": {
+                    "English": "example template step with all valid fields"
+                },
                 "expected_completion": get_current_time(),
                 "last_edited": get_current_time(),
                 "form_id": form_template["id"],
@@ -790,7 +802,7 @@ def workflow_template4():
     return {
         "id": template_id,
         "name": "workflow_example4",
-        "description": "workflow_example4",
+        "description": {"English": "workflow_example4"},
         "archived": False,
         "starting_step_id": None,
         "date_created": get_current_time(),
@@ -799,7 +811,7 @@ def workflow_template4():
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification for workflow_template4",
+            "name": {"English": "Workflow Classification for workflow_template4"},
         },
         "steps": [],
     }
@@ -812,7 +824,7 @@ def invalid_workflow_template1():
     return {
         "id": template_id,
         "name": "Example invalid workflow template 1",
-        "description": "Example workflow template with invalid dates",
+        "description": {"English": "Example workflow template with invalid dates"},
         "archived": False,
         "starting_step_id": None,
         "date_created": get_current_time(),
@@ -821,7 +833,9 @@ def invalid_workflow_template1():
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification for invalid_workflow_template1",
+            "name": {
+                "English": "Workflow Classification for invalid_workflow_template1"
+            },
         },
         "steps": [],
     }
@@ -834,7 +848,7 @@ def invalid_workflow_template2(form_template):
     return {
         "id": template_id,
         "name": "Example workflow template 1",
-        "description": "Example workflow template with all valid fields",
+        "description": {"English": "Example workflow template with all valid fields"},
         "archived": False,
         "starting_step_id": None,
         "date_created": get_current_time(),
