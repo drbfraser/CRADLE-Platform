@@ -58,9 +58,7 @@ export const MultipleSelectField = ({
                   // Guard against non-array defaults (e.g. createDefaultAnswer uses '').
                   const newValue = checked
                     ? [...selectedValues, mcOption]
-                    : selectedValues.filter(
-                        (val: unknown) => val !== mcOption
-                      );
+                    : selectedValues.filter((val: unknown) => val !== mcOption);
                   formContext.updateAnswersByValue(qid, newValue);
                 }}
               />

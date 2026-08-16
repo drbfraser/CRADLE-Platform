@@ -60,7 +60,7 @@ test.describe('Submit custom form', () => {
         new RegExp(`/forms/view/${testPatient.id}/`)
       );
       await viewPage.expectQuestionDisabled(QUESTION_LABEL);
-      await viewPage.expectTextValue('initial notes');
+      await viewPage.expectTextValue(QUESTION_LABEL, 'initial notes');
 
       await viewPage.clickEditForm();
       await expect(page).toHaveURL(
@@ -77,7 +77,7 @@ test.describe('Submit custom form', () => {
       await patientSummaryPage.expectToHaveUrl();
       await patientSummaryPage.clickViewFormByName(templateName);
       await viewPage.expectQuestionDisabled(QUESTION_LABEL);
-      await viewPage.expectTextValue('updated notes');
+      await viewPage.expectTextValue(QUESTION_LABEL, 'updated notes');
     } finally {
       if (templateId) {
         await api.put(`/api/forms/v2/templates/${templateId}`, {

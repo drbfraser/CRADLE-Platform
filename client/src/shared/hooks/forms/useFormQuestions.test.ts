@@ -29,17 +29,25 @@ describe('useFormQuestions', () => {
   it('initializes answers for every question including field types', async () => {
     const questions = [
       makeQuestion({ questionIndex: 0, questionType: QuestionTypeEnum.STRING }),
-      makeQuestion({ questionIndex: 1, questionType: QuestionTypeEnum.INTEGER }),
+      makeQuestion({
+        questionIndex: 1,
+        questionType: QuestionTypeEnum.INTEGER,
+      }),
       makeQuestion({
         questionIndex: 2,
         questionType: QuestionTypeEnum.MULTIPLE_CHOICE,
         mcOptions: [{ mcId: 0, opt: 'A' }],
       }),
-      makeQuestion({ questionIndex: 3, questionType: QuestionTypeEnum.CATEGORY }),
+      makeQuestion({
+        questionIndex: 3,
+        questionType: QuestionTypeEnum.CATEGORY,
+      }),
     ];
     const handleAnswers = vi.fn();
 
-    const { result } = renderHook(() => useFormQuestions(questions, handleAnswers));
+    const { result } = renderHook(() =>
+      useFormQuestions(questions, handleAnswers)
+    );
 
     await waitFor(() => {
       expect(result.current.answers).toHaveLength(4);
@@ -113,7 +121,10 @@ describe('useFormQuestions', () => {
 
   it('shows a child when integer SMALLER_THAN condition is met', async () => {
     const questions = [
-      makeQuestion({ questionIndex: 0, questionType: QuestionTypeEnum.INTEGER }),
+      makeQuestion({
+        questionIndex: 0,
+        questionType: QuestionTypeEnum.INTEGER,
+      }),
       makeQuestion({
         questionIndex: 1,
         questionType: QuestionTypeEnum.STRING,

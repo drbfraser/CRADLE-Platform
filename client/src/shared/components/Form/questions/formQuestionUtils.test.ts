@@ -22,14 +22,18 @@ describe('resolveLocalizedText', () => {
   });
 
   it('falls back to english when the requested key is missing', () => {
-    expect(resolveLocalizedText({ english: 'Hello', spanish: 'Hola' }, 'german')).toBe(
-      'Hello'
-    );
+    expect(
+      resolveLocalizedText({ english: 'Hello', spanish: 'Hola' }, 'german')
+    ).toBe('Hello');
   });
 
   it('falls back to the first available translation, then the default', () => {
-    expect(resolveLocalizedText({ french: 'Bonjour' }, 'german')).toBe('Bonjour');
-    expect(resolveLocalizedText(undefined, 'english', 'fallback')).toBe('fallback');
+    expect(resolveLocalizedText({ french: 'Bonjour' }, 'german')).toBe(
+      'Bonjour'
+    );
+    expect(resolveLocalizedText(undefined, 'english', 'fallback')).toBe(
+      'fallback'
+    );
     expect(resolveLocalizedText({}, 'english', 'fallback')).toBe('fallback');
   });
 });
@@ -55,13 +59,19 @@ describe('isQuestionFieldDisabled', () => {
   });
 
   it('disables fields in SUBMIT_TEMPLATE and VIS_COND_DISABLED', () => {
-    expect(isQuestionFieldDisabled(FormRenderStateEnum.SUBMIT_TEMPLATE)).toBe(true);
-    expect(isQuestionFieldDisabled(FormRenderStateEnum.VIS_COND_DISABLED)).toBe(true);
+    expect(isQuestionFieldDisabled(FormRenderStateEnum.SUBMIT_TEMPLATE)).toBe(
+      true
+    );
+    expect(isQuestionFieldDisabled(FormRenderStateEnum.VIS_COND_DISABLED)).toBe(
+      true
+    );
   });
 
   it('keeps fields editable in EDIT and FIRST_SUBMIT', () => {
     expect(isQuestionFieldDisabled(FormRenderStateEnum.EDIT)).toBe(false);
-    expect(isQuestionFieldDisabled(FormRenderStateEnum.FIRST_SUBMIT)).toBe(false);
+    expect(isQuestionFieldDisabled(FormRenderStateEnum.FIRST_SUBMIT)).toBe(
+      false
+    );
   });
 });
 

@@ -50,8 +50,10 @@ export class CustomFormPageModel extends PageObjectModel {
     await expect(this.page.getByLabel(label, { exact: false })).toBeDisabled();
   }
 
-  async expectTextValue(value: string) {
-    await expect(this.page.getByDisplayValue(value)).toBeVisible();
+  async expectTextValue(label: string, value: string) {
+    await expect(this.page.getByLabel(label, { exact: false })).toHaveValue(
+      value
+    );
   }
 
   async submitNewForm() {

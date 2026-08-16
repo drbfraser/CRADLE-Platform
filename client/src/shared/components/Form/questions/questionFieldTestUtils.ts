@@ -21,9 +21,7 @@ export const makeFormContext = (
   ...overrides,
 });
 
-export const makeQuestion = (
-  overrides: Partial<TQuestion> = {}
-): TQuestion =>
+export const makeQuestion = (overrides: Partial<TQuestion> = {}): TQuestion =>
   ({
     id: 'q1',
     order: 0,

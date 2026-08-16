@@ -16,8 +16,8 @@ const { mockGetState } = vi.hoisted(() => ({
         healthFacilityName: 'HF',
         role: 'ADMIN',
         smsKey: null,
-        supervises: [],
-        phoneNumbers: [],
+        supervises: [] as number[],
+        phoneNumbers: [] as string[],
       },
     },
   })),
@@ -55,8 +55,8 @@ const CURRENT_USER = {
   healthFacilityName: 'HF',
   role: UserRoleEnum.ADMIN,
   smsKey: null,
-  supervises: [],
-  phoneNumbers: ['+15555550100'],
+  supervises: [] as number[],
+  phoneNumbers: ['+15555550100'] as string[],
 };
 
 describe('forms API', () => {

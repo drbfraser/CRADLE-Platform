@@ -68,9 +68,9 @@ describe('IntegerField', () => {
 
     expect(formContext.setNumberErrors).toHaveBeenCalled();
     expect(formContext.updateAnswersByValue).toHaveBeenCalled();
-    const lastValue = vi.mocked(formContext.updateAnswersByValue).mock.calls.at(
-      -1
-    )?.[1];
+    const lastValue = vi
+      .mocked(formContext.updateAnswersByValue)
+      .mock.calls.at(-1)?.[1];
     expect(lastValue).toBe(500);
 
     formContext.numberErrors = {
@@ -122,7 +122,9 @@ describe('IntegerField', () => {
       target: { value: '10' },
     });
 
-    const updater = vi.mocked(formContext.setNumberErrors).mock.calls.at(-1)?.[0];
+    const updater = vi
+      .mocked(formContext.setNumberErrors)
+      .mock.calls.at(-1)?.[0];
     expect(typeof updater).toBe('function');
     const next = (updater as (prev: object) => object)({});
     expect(next).toEqual({ 0: 'Value must be at least 40.' });

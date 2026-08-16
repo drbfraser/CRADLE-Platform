@@ -75,8 +75,9 @@ describe('StringField', () => {
     });
 
     expect(formContext.setStringMaxLinesError).toHaveBeenCalled();
-    const nextErrors = vi.mocked(formContext.setStringMaxLinesError).mock.calls
-      .at(-1)?.[0] as boolean[];
+    const nextErrors = vi
+      .mocked(formContext.setStringMaxLinesError)
+      .mock.calls.at(-1)?.[0] as boolean[];
     expect(nextErrors[0]).toBe(true);
     expect(setDisableSubmit).toHaveBeenCalledWith(true);
     expect(formContext.updateAnswersByValue).not.toHaveBeenCalled();

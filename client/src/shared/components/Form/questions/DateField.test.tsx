@@ -92,9 +92,9 @@ describe('DateField', () => {
     });
 
     expect(formContext.updateAnswersByValue).toHaveBeenCalled();
-    const timestamp = vi.mocked(formContext.updateAnswersByValue).mock.calls.at(
-      -1
-    )?.[1];
+    const timestamp = vi
+      .mocked(formContext.updateAnswersByValue)
+      .mock.calls.at(-1)?.[1];
     expect(typeof timestamp).toBe('number');
   });
 
