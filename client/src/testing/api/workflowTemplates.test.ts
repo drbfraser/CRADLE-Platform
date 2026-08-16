@@ -159,14 +159,14 @@ describe('workflowTemplates API', () => {
     it('should create a new workflow template', async () => {
       const templateInput = {
         name: 'New Template',
-        description: 'Test template',
+        description: { english: 'Test template' },
         version: 'V1',
         classificationId: 'classification-1',
         steps: [],
         archived: false,
         classification: {
           id: 'classification-1',
-          name: 'Test Classification',
+          name: { english: 'Test Classification' },
         },
       };
       const createdTemplate = {
@@ -615,14 +615,14 @@ describe('workflowTemplates API', () => {
     it('should handle network errors in createTemplate', async () => {
       const templateInput = {
         name: 'Test Template',
-        description: 'Test description',
+        description: { english: 'Test description' },
         version: 'V1',
         classificationId: 'classification-1',
         steps: [],
         archived: false,
         classification: {
           id: 'classification-1',
-          name: 'Test Classification',
+          name: { english: 'Test Classification' },
         },
       };
 
