@@ -11,10 +11,12 @@ import {
   QCondition,
   McOption,
 } from 'src/shared/types/form/formTypes';
+import { resolveLocalizedText } from 'src/shared/components/Form/questions/formQuestionUtils';
 
 export const useFormQuestions = (
   questions: Question[] | TQuestion[],
-  handleAnswers: (a: QAnswer[]) => void
+  handleAnswers: (a: QAnswer[]) => void,
+  lang = 'English'
 ) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   const [stringMaxLinesError, setStringMaxLinesError] = useState<boolean[]>([]);
@@ -58,17 +60,18 @@ export const useFormQuestions = (
   ): Question | TQuestion | undefined =>
     questions.find((question) => getQuestionIndex(question) === questionIndex);
 
+  const languageKey = (lang || 'English').toLowerCase();
+
   const getMcOptionLabel = (
     option: McOption | { translations?: Record<string, string> }
   ) => {
-    if ('opt' in option) {
+    if ('opt' in option && typeof option.opt === 'string') {
       return option.opt;
     }
 
-    return (
-      option.translations?.english ??
-      Object.values(option.translations ?? {})[0] ??
-      ''
+    return resolveLocalizedText(
+      (option as { translations?: Record<string, string> }).translations,
+      languageKey
     );
   };
 
@@ -173,7 +176,7 @@ export const useFormQuestions = (
     const nextAnswers: QAnswer[] = buildAnswersFromQuestions(questions);
     updateQuestionsConditionHidden(questions, nextAnswers);
     setAnswers(nextAnswers);
-  }, [questions]);
+  }, [questions, lang]);
 
   function updateAnswersByValue(index: number, newValue: any) {
     setAnswers((previousAnswers) => {

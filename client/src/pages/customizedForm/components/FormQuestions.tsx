@@ -32,7 +32,7 @@ export const FormQuestions = ({
   multiSelectValidationFailed,
   setDisableSubmit,
 }: IProps) => {
-  const hook = useFormQuestions(questions, handleAnswers);
+  const hook = useFormQuestions(questions, handleAnswers, language);
   const languageKey = (language || 'English').toLowerCase();
 
   const formContext: FormQuestionsContext = {

@@ -183,6 +183,76 @@ describe('useFormQuestions', () => {
     expect(questions[1].shouldHidden).toBe(false);
   });
 
+  it('rebuilds saved MC answers and visibility using the form language', async () => {
+    const questions = [
+      makeQuestion({
+        questionIndex: 0,
+        questionType: QuestionTypeEnum.MULTIPLE_CHOICE,
+        mcOptions: [
+          { translations: { english: 'Yes', french: 'Oui' } } as any,
+          { translations: { english: 'No', french: 'Non' } } as any,
+        ],
+        answers: { mcIdArray: [0] },
+      }),
+      makeQuestion({
+        questionIndex: 1,
+        questionType: QuestionTypeEnum.STRING,
+        visibleCondition: [
+          {
+            questionIndex: 0,
+            relation: QRelationEnum.EQUAL_TO,
+            answers: { mcIdArray: [0] },
+          },
+        ],
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useFormQuestions(questions, vi.fn(), 'French')
+    );
+
+    await waitFor(() => expect(result.current.answers).toHaveLength(2));
+
+    expect(result.current.answers[0].val).toEqual(['Oui']);
+    expect(questions[1].shouldHidden).toBe(false);
+  });
+
+  it('shows a child when a non-English MC selection matches the condition', async () => {
+    const questions = [
+      makeQuestion({
+        questionIndex: 0,
+        questionType: QuestionTypeEnum.MULTIPLE_CHOICE,
+        mcOptions: [
+          { translations: { english: 'Yes', french: 'Oui' } } as any,
+          { translations: { english: 'No', french: 'Non' } } as any,
+        ],
+      }),
+      makeQuestion({
+        questionIndex: 1,
+        questionType: QuestionTypeEnum.STRING,
+        visibleCondition: [
+          {
+            questionIndex: 0,
+            relation: QRelationEnum.EQUAL_TO,
+            answers: { mcIdArray: [0] },
+          },
+        ],
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useFormQuestions(questions, vi.fn(), 'French')
+    );
+
+    await waitFor(() => expect(result.current.answers).toHaveLength(2));
+
+    act(() => {
+      result.current.updateAnswersByValue(0, ['Oui']);
+    });
+
+    expect(questions[1].shouldHidden).toBe(false);
+  });
+
   it('hides a child when MC parent selection does not match', async () => {
     const questions = [
       makeQuestion({
