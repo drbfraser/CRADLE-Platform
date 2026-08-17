@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Literal, NamedTuple, Optional
+from typing import TYPE_CHECKING, Literal, NamedTuple, Optional
 
 import data.db_operations as crud
 from common import commonUtil
@@ -23,8 +23,10 @@ from validation.formsV2_models import (
     FormSubmissionWithAnswers,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
-    MultiLangText,
 )
+
+if TYPE_CHECKING:
+    from validation.shared_models import MultiLangText
 
 FORM_NOT_FOUND_MSG = "Form with ID: ({}) not found."
 
@@ -814,6 +816,8 @@ def get_new_lang_versions_and_questions(
 
 def attach_questions(submission: FormSubmissionOrmV2) -> list[AnswerWithQuestion]:
     """Attach question metadata to each answer in a form submission and return the enriched list."""
+    # Local import to avoid a circular import: orm_serializer.forms imports
+    # filter_template_questions_orm from this module.
     from data import orm_serializer
 
     answers = [

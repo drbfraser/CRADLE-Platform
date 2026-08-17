@@ -234,7 +234,7 @@ def example_workflow_template():
     return {
         "id": template_id,
         "name": "workflow_example1",
-        "description": "workflow_example1",
+        "description": {"English": "workflow_example1"},
         "archived": False,
         "starting_step_id": None,
         "date_created": get_current_time(),
@@ -243,7 +243,7 @@ def example_workflow_template():
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example 1",
+            "name": {"English": "Workflow Classification example 1"},
         },
         "steps": [],
     }
@@ -256,8 +256,8 @@ def valid_workflow_template_step1(example_workflow_template, form_template_with_
     form_template = form_template_with_db
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step1",
-        "description": "valid_workflow_template_step1",
+        "name": {"English": "valid_workflow_template_step1"},
+        "description": {"English": "valid_workflow_template_step1"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
@@ -278,8 +278,8 @@ def valid_workflow_template_step2(
 
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step2",
-        "description": "valid_workflow_template_step2",
+        "name": {"English": "valid_workflow_template_step2"},
+        "description": {"English": "valid_workflow_template_step2"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
@@ -314,8 +314,8 @@ def valid_workflow_template_step3(
 
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step3",
-        "description": "valid_workflow_template_step3",
+        "name": {"English": "valid_workflow_template_step3"},
+        "description": {"English": "valid_workflow_template_step3"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
@@ -345,8 +345,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template_with_
 
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step4",
-        "description": "valid_workflow_template_step4",
+        "name": {"English": "valid_workflow_template_step4"},
+        "description": {"English": "valid_workflow_template_step4"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
@@ -389,8 +389,8 @@ def valid_workflow_template_step5(
     form_template["questions"] = []
     return {
         "id": step_id,
-        "name": "valid_workflow_template_step5_duplicate",
-        "description": "duplicate version of step1",
+        "name": {"English": "valid_workflow_template_step5_duplicate"},
+        "description": {"English": "duplicate version of step1"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
@@ -408,8 +408,8 @@ def invalid_workflow_template_step1(form_template_with_db):
     form_template = form_template_with_db
     return {
         "id": step_id,
-        "name": "invalid_workflow_template_step1",
-        "description": "invalid_workflow_template_step1",
+        "name": {"English": "invalid_workflow_template_step1"},
+        "description": {"English": "invalid_workflow_template_step1"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],
@@ -437,8 +437,8 @@ def invalid_workflow_template_step2(example_workflow_template, form_template_wit
     form_template = form_template_with_db
     return {
         "id": step_id,
-        "name": "invalid_workflow_template_step2",
-        "description": "invalid_workflow_template_step2",
+        "name": {"English": "invalid_workflow_template_step2"},
+        "description": {"English": "invalid_workflow_template_step2"},
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
         "form_id": form_template["id"],

@@ -11,12 +11,21 @@ from service.workflow.datasourcing.data_sourcing import VariableResolution
 from service.workflow.evaluate.rules_engine import RuleStatus
 from validation import CradleBaseModel
 from validation.rule_groups import RuleGroupModel
+from validation.shared_models import MultiLangText
 
 
 class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     collection_id: Optional[str] = None
+
+
+class WorkflowClassificationMultiLangModel(WorkflowClassificationModel):
+    """
+    Changes the name field to a representation of all supported languages instead of a normal string
+    """
+
+    name: MultiLangText
 
 
 class WorkflowCollectionModel(CradleBaseModel, extra="forbid"):
@@ -62,6 +71,13 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     branches: list[WorkflowTemplateStepBranchModel]
 
 
+class WorkflowTemplateStepMultiLangModel(WorkflowTemplateStepModel):
+    """changing template fields to represent general names and descriptions rather than hard strings"""
+
+    name: MultiLangText
+    description: MultiLangText
+
+
 class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
     name: Optional[str] = None
@@ -82,6 +98,16 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
         if self.last_edited is not None and self.last_edited < self.date_created:
             raise ValueError("last_edited cannot be before date_created")
         return self
+
+
+class WorkflowTemplateMultiLangModel(WorkflowTemplateModel):
+    """
+    Description representative of all supported languages instead of a string
+    """
+
+    description: MultiLangText
+    classification: Optional[WorkflowClassificationMultiLangModel] = None
+    steps: list[WorkflowTemplateStepMultiLangModel]
 
 
 class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
@@ -143,6 +169,7 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
+    lang: str = "English"
     status: WorkflowStatusEnum
     workflow_template_id: Optional[str] = None
     start_date: Optional[int] = None
