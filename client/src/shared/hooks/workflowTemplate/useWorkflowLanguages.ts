@@ -84,6 +84,21 @@ export const pruneToLanguages = (
   return result;
 };
 
+export const getPrunedStepTranslations = (
+  translations: TranslationsBag,
+  stepId: string,
+  languages: string[]
+): { name: MultiLangText; description: MultiLangText } => {
+  const stepTranslations = translations.steps[stepId] ?? {
+    name: {},
+    description: {},
+  };
+  return {
+    name: pruneToLanguages(stepTranslations.name, languages),
+    description: pruneToLanguages(stepTranslations.description, languages),
+  };
+};
+
 const resolveWorkflowAtLanguage = (
   multiLang: WorkflowTemplateMultiLang,
   lang: string
@@ -307,6 +322,14 @@ export const useWorkflowLanguages = ({
     },
     [translations, setEditedWorkflow]
   );
+
+  useEffect(() => {
+    if (!selectedLanguage) return;
+    if (languages.some((lang) => bagKey(lang) === bagKey(selectedLanguage)))
+      return;
+    setSelectedLanguage(languages[0] ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [languages, selectedLanguage]);
 
   // Create-flow entry point: sets languages/selectedLanguage directly (no
   // editedWorkflow mutation) so the two effects above seed the bag *from* the

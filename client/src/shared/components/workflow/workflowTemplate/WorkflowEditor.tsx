@@ -6,8 +6,6 @@ import {
   Stack,
   Alert,
   CircularProgress,
-  Autocomplete,
-  TextField,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -18,6 +16,7 @@ import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplat
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 import { WorkflowEditorController } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
 import LanguageModal from 'src/pages/admin/manageFormTemplates/editFormTemplate/LanguageModal';
+import { LanguageAutocomplete } from 'src/shared/components/workflow/workflowTemplate/LanguageAutocomplete';
 
 interface WorkflowEditorProps {
   editor: WorkflowEditorController;
@@ -97,15 +96,11 @@ export const WorkflowEditor = ({
             language={editor.languages}
             setLanguage={editor.setLanguages}
           />
-          <Autocomplete
-            disableClearable
+          <LanguageAutocomplete
             options={editor.languages}
             value={editor.selectedLanguage}
-            onChange={(_, newValue) => editor.setSelectedLanguage(newValue)}
+            onChange={editor.setSelectedLanguage}
             sx={{ minWidth: 220 }}
-            renderInput={(params) => (
-              <TextField {...params} label="View Language" size="small" />
-            )}
           />
         </Box>
       )}

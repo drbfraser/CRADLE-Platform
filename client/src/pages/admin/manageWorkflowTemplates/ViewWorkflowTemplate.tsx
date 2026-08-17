@@ -1,12 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  Paper,
-  Divider,
-  Alert,
-  Autocomplete,
-  TextField,
-  Box,
-} from '@mui/material';
+import { Paper, Divider, Alert, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
@@ -18,10 +11,12 @@ import {
   getTemplateLangs,
 } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowEditor } from 'src/shared/components/workflow/workflowTemplate/WorkflowEditor';
+import { LanguageAutocomplete } from 'src/shared/components/workflow/workflowTemplate/LanguageAutocomplete';
 import { useWorkflowEditor } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
 import {
   hasEnglishText,
   pruneToLanguages,
+  getPrunedStepTranslations,
 } from 'src/shared/hooks/workflowTemplate/useWorkflowLanguages';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -51,18 +46,22 @@ export const ViewWorkflowTemplate = () => {
   });
   const viewLanguages = templateLangsQuery.data ?? [];
 
+  const effectiveViewLanguage =
+    viewLanguage ||
+    (viewLanguages.includes('English') ? 'English' : viewLanguages[0]);
+
   const workflowTemplateQuery = useQuery({
-    queryKey: ['workflowTemplate', viewWorkflow?.id, viewLanguage],
+    queryKey: ['workflowTemplate', viewWorkflow?.id, effectiveViewLanguage],
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
       return getTemplateWithStepsAndClassification(
         viewWorkflow.id,
-        viewLanguage || undefined
+        effectiveViewLanguage
       );
     },
     enabled: !!viewWorkflow?.id,
-    initialData: viewLanguage ? undefined : viewWorkflow,
+    initialData: effectiveViewLanguage ? undefined : viewWorkflow,
   });
 
   // Raw multi-language shape, fetched only when entering edit mode - the
@@ -91,7 +90,12 @@ export const ViewWorkflowTemplate = () => {
         throw new Error('Missing required translations');
       }
 
-      if (!hasEnglishText(translations.classificationName)) {
+      const prunedClassificationName = pruneToLanguages(
+        translations.classificationName,
+        languages
+      );
+
+      if (!hasEnglishText(prunedClassificationName)) {
         workflowEditor.setToastMsg('An English template name is required');
         workflowEditor.setToastOpen(true);
         throw new Error('English name required');
@@ -107,20 +111,18 @@ export const ViewWorkflowTemplate = () => {
         classificationId: workflow.classificationId,
         classification: {
           id: workflow.classification?.id,
-          name: pruneToLanguages(translations.classificationName, languages),
+          name: prunedClassificationName,
         },
         steps: (workflow.steps || []).map((step) => {
-          const stepTranslations = translations.steps[step.id] ?? {
-            name: {},
-            description: {},
-          };
+          const { name, description } = getPrunedStepTranslations(
+            translations,
+            step.id,
+            languages
+          );
           return {
             ...step,
-            name: pruneToLanguages(stepTranslations.name, languages),
-            description: pruneToLanguages(
-              stepTranslations.description,
-              languages
-            ),
+            name,
+            description,
           };
         }),
       };
@@ -185,15 +187,11 @@ export const ViewWorkflowTemplate = () => {
 
         {!isEditMode && viewLanguages.length > 1 && (
           <Box sx={{ mt: 2, mb: 1 }}>
-            <Autocomplete
-              disableClearable
+            <LanguageAutocomplete
               options={viewLanguages}
-              value={viewLanguage || viewLanguages[0]}
-              onChange={(_, newValue) => setViewLanguage(newValue)}
+              value={effectiveViewLanguage}
+              onChange={setViewLanguage}
               sx={{ maxWidth: 260 }}
-              renderInput={(params) => (
-                <TextField {...params} label="View Language" size="small" />
-              )}
             />
           </Box>
         )}

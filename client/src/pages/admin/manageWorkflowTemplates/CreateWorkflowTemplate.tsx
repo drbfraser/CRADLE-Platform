@@ -16,6 +16,7 @@ import { useWorkflowEditor } from 'src/shared/hooks/workflowTemplate/useWorkflow
 import {
   hasEnglishText,
   pruneToLanguages,
+  getPrunedStepTranslations,
 } from 'src/shared/hooks/workflowTemplate/useWorkflowLanguages';
 import { getDefaultLanguage } from 'src/shared/utils/format';
 import { useCreateWorkflowTemplate } from './mutations';
@@ -73,7 +74,12 @@ export const CreateWorkflowTemplate = () => {
         throw new Error('Missing required translations');
       }
 
-      if (!hasEnglishText(translations.classificationName)) {
+      const prunedClassificationName = pruneToLanguages(
+        translations.classificationName,
+        languages
+      );
+
+      if (!hasEnglishText(prunedClassificationName)) {
         workflowEditor.setToastMsg('An English template name is required');
         workflowEditor.setToastOpen(true);
         throw new Error('English name required');
@@ -95,20 +101,18 @@ export const CreateWorkflowTemplate = () => {
         classification_id: classificationId,
         classification: {
           id: classificationId,
-          name: pruneToLanguages(translations.classificationName, languages),
+          name: prunedClassificationName,
         },
         steps: (workflow.steps || []).map((step) => {
-          const stepTranslations = translations.steps[step.id] ?? {
-            name: {},
-            description: {},
-          };
+          const { name, description } = getPrunedStepTranslations(
+            translations,
+            step.id,
+            languages
+          );
           return {
             id: step.id,
-            name: pruneToLanguages(stepTranslations.name, languages),
-            description: pruneToLanguages(
-              stepTranslations.description,
-              languages
-            ),
+            name,
+            description,
             workflow_template_id: step.workflowTemplateId || tempTemplateId,
             branches: (step.branches || []).map((branch) => ({
               id: branch.id,
