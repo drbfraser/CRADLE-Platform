@@ -48,10 +48,10 @@ describe('resolveDescriptionVariables', () => {
     ).toBe('Patient is 34.');
   });
 
-  it('leaves a bracketed placeholder when nothing was resolved for the tag', () => {
+  it('leaves a friendly placeholder when nothing was resolved for the tag', () => {
     expect(
       resolveDescriptionVariables('Patient is {{patient.age}}.', [])
-    ).toBe('Patient is [patient.age].');
+    ).toBe('Patient is (patient age not loaded).');
   });
 
   it('shows a distinct placeholder for not-yet-implemented data sources', () => {
@@ -66,20 +66,22 @@ describe('resolveDescriptionVariables', () => {
         'Referred on {{referrals[latest].date_referred}}.',
         resolutions
       )
-    ).toBe('Referred on [referrals[latest].date_referred — not yet available].');
+    ).toBe(
+      'Referred on (referrals[latest].date_referred not yet available).'
+    );
   });
 
-  it('leaves a bracketed placeholder for NO_DATA and INVALID_VARIABLE', () => {
+  it('leaves a friendly placeholder for NO_DATA and INVALID_VARIABLE', () => {
     const resolutions: DescriptionVariableResolution[] = [
-      { var: 'patient.zone', status: 'NO_DATA' },
+      { var: 'patient.age', status: 'NO_DATA' },
       { var: 'not.a.real.var', status: 'INVALID_VARIABLE' },
     ];
     expect(
       resolveDescriptionVariables(
-        '{{patient.zone}} / {{not.a.real.var}}',
+        '{{patient.age}} / {{not.a.real.var}}',
         resolutions
       )
-    ).toBe('[patient.zone] / [not.a.real.var]');
+    ).toBe('(patient age doesn\'t exist) / (unrecognized variable: not.a.real.var)');
   });
 
   it('does not touch {{startDate...}} tokens', () => {
@@ -110,7 +112,7 @@ describe('resolveDescriptionVariables', () => {
     expect(result).toBe(`Started ${formatted}, ended ${formatted}.`);
   });
 
-  it('leaves a placeholder for an ongoing pregnancy (end_date is null)', () => {
+  it('leaves a friendly placeholder for an ongoing pregnancy (end_date is null)', () => {
     const resolutions: DescriptionVariableResolution[] = [
       { var: 'pregnancies[latest].end_date', value: null, status: 'RESOLVED' },
     ];
@@ -119,7 +121,7 @@ describe('resolveDescriptionVariables', () => {
         'Ended {{pregnancies[latest].end_date}}.',
         resolutions
       )
-    ).toBe('Ended [pregnancies[latest].end_date].');
+    ).toBe("Ended (pregnancy end date doesn't exist).");
   });
 
   it('does not date-format unrelated numeric variables', () => {
@@ -146,5 +148,14 @@ describe('resolveDescriptionVariables', () => {
         resolutions
       )
     ).toBe('Flagged: Yes. Pregnant: No.');
+  });
+
+  it('falls back to the raw tag when there is no friendly label for it', () => {
+    const resolutions: DescriptionVariableResolution[] = [
+      { var: 'patient.zone', status: 'NO_DATA' },
+    ];
+    expect(
+      resolveDescriptionVariables('Zone: {{patient.zone}}.', resolutions)
+    ).toBe("Zone: (patient.zone doesn't exist).");
   });
 });

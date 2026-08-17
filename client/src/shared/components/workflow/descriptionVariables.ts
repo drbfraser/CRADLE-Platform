@@ -18,6 +18,35 @@ const DATE_VALUE_TAGS = new Set([
   'vitals[latest].date_taken',
 ]);
 
+// Human-readable names for the variables curated in DescriptionInsertPicker,
+// used to build clearer unresolved-placeholder messages (e.g.
+// "(pregnancy start date doesn't exist)" instead of a raw tag in brackets).
+// Falls back to the raw tag for anything typed by hand / picked from the
+// full searchable catalogue that isn't in this list.
+const FRIENDLY_LABELS: Record<string, string> = {
+  'patient.age': 'patient age',
+  'patient.allergy': 'patient allergies',
+  'patient.drug_history': 'patient medications',
+  'pregnancies[latest].start_date': 'pregnancy start date',
+  'pregnancies[latest].end_date': 'pregnancy end date',
+  'pregnancies[latest].outcome': 'pregnancy outcome',
+  'vitals[latest].systolic_blood_pressure': 'systolic blood pressure',
+  'vitals[latest].diastolic_blood_pressure': 'diastolic blood pressure',
+  'vitals[latest].heart_rate': 'heart rate',
+  'vitals[latest].date_taken': 'reading date',
+  'vitals[latest].is_flagged_for_follow_up': 'follow-up flag',
+  'vitals.size': 'number of readings',
+  'vitals[latest].urine_test.leukocytes': 'urine leukocytes',
+  'vitals[latest].urine_test.nitrites': 'urine nitrites',
+  'vitals[latest].urine_test.glucose': 'urine glucose',
+  'vitals[latest].urine_test.protein': 'urine protein',
+  'vitals[latest].urine_test.blood': 'urine blood',
+};
+
+function describeTag(tag: string): string {
+  return FRIENDLY_LABELS[tag] ?? tag;
+}
+
 function formatResolvedValue(tag: string, value: string | number | boolean) {
   if (DATE_VALUE_TAGS.has(tag) && typeof value === 'number') {
     return moment.unix(value).format('MMM D, YYYY');
@@ -55,20 +84,21 @@ export function resolveDescriptionVariables(
 
     if (!resolution) {
       // Not fetched yet (e.g. still loading) or unknown.
-      return `[${tag}]`;
+      return `(${describeTag(tag)} not loaded)`;
     }
 
     switch (resolution.status) {
       case 'RESOLVED':
         return resolution.value === null || resolution.value === undefined
-          ? `[${tag}]`
+          ? `(${describeTag(tag)} doesn't exist)`
           : formatResolvedValue(tag, resolution.value);
       case 'NOT_IMPLEMENTED':
-        return `[${tag} — not yet available]`;
-      case 'NO_DATA':
+        return `(${describeTag(tag)} not yet available)`;
       case 'INVALID_VARIABLE':
+        return `(unrecognized variable: ${tag})`;
+      case 'NO_DATA':
       default:
-        return `[${tag}]`;
+        return `(${describeTag(tag)} doesn't exist)`;
     }
   });
 }
