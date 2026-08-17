@@ -6,6 +6,7 @@ import {
 } from 'src/shared/types/form/formTypes';
 import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
+import { resolveLocalizedText } from 'src/shared/components/Form/questions/formQuestionUtils';
 
 export type ApiAnswer = {
   qidx: number;
@@ -51,28 +52,28 @@ const getQuestionByIndex = (
 ): QuestionLike | undefined =>
   questions.find((question) => getQuestionIndex(question) === index);
 
-const getOptionLabel = (option: any): string => {
+/** Resolve an MC option label using the same language rules as FormQuestions. */
+const getOptionLabel = (option: any, languageKey: string): string => {
   if (!option) {
     return '';
   }
 
+  // Legacy submission shape already stores the localized display label.
   if (typeof option.opt === 'string') {
     return option.opt;
   }
 
-  return (
-    option.translations?.english ??
-    Object.values(option.translations ?? {})[0] ??
-    ''
-  );
+  return resolveLocalizedText(option.translations, languageKey);
 };
 
 // This doesn't need to be exported
 export const TransferQAnswerToAPIStandard = (
   answers: QAnswer[],
-  questions: Question[]
+  questions: Question[],
+  lang = 'English'
 ) => {
   const questionList = questions as QuestionLike[];
+  const languageKey = (lang || 'English').toLowerCase();
 
   if (!answers || answers.length <= 0) {
     return [];
@@ -92,7 +93,7 @@ export const TransferQAnswerToAPIStandard = (
       const question = getQuestionByIndex(questionList, answer.questionIndex);
 
       const options = (question?.mcOptions ?? []).map((option) =>
-        getOptionLabel(option)
+        getOptionLabel(option, languageKey)
       );
 
       const apiAnswer = {

@@ -126,6 +126,30 @@ describe('TransferQAnswerToAPIStandard', () => {
     ]);
   });
 
+  it('maps MC labels using the form language, not always English', () => {
+    const questions = [
+      makeQuestion({
+        questionIndex: 0,
+        questionType: QuestionTypeEnum.MULTIPLE_CHOICE,
+        mcOptions: [
+          { translations: { english: 'Yes', french: 'Oui' } } as any,
+          { translations: { english: 'No', french: 'Non' } } as any,
+        ],
+      }),
+    ];
+    const answers = [
+      makeAnswer({
+        questionIndex: 0,
+        questionType: QuestionTypeEnum.MULTIPLE_CHOICE,
+        val: ['Oui'],
+      }),
+    ];
+
+    expect(TransferQAnswerToAPIStandard(answers, questions, 'French')).toEqual([
+      { qidx: 0, answer: { mcIdArray: [0] } },
+    ]);
+  });
+
   it('drops unknown MC labels instead of sending -1 indices', () => {
     const questions = [
       makeQuestion({
