@@ -89,6 +89,7 @@ export function buildInstanceDetails(
     patientName: patient.name,
     patientId: instance.patientId,
     description: instance.description,
+    lang: instance.lang,
     collection: 'PAPAGO', // TODO - To do when collections set up
     version: template.version,
     firstCreatedOn: formatISODateNumber(template.dateCreated),

@@ -23,8 +23,15 @@ export const useWorkflowSave = ({
 }: UseWorkflowSaveOptions) => {
   const handleSave = async () => {
     if (!editedWorkflow || !hasChanges) return;
-    await onSave(editedWorkflow);
-    clearHistory();
+    try {
+      await onSave(editedWorkflow);
+      clearHistory();
+    } catch (error) {
+      // onSave already surfaces the failure to the user (e.g. via the
+      // mutation's own isError state or a toast) - this only stops the
+      // rejection from propagating as an unhandled promise rejection.
+      console.error('Error saving workflow:', error);
+    }
   };
 
   const handleCancel = () => {

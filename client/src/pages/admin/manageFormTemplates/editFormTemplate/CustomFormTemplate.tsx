@@ -11,7 +11,7 @@ import {
   useFormTemplateQueryV2,
   usePreviousFormVersionsQueryV2,
 } from 'src/pages/customizedForm/queries';
-import { getDefaultLanguage } from './utils';
+import { getDefaultLanguage } from 'src/shared/utils/format';
 import { FormTemplateMetadataForm } from './FormTemplateMetadataForm';
 
 export enum FormEditMainComponents {

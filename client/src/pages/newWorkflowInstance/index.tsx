@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 import usePatient from 'src/shared/hooks/patient';
@@ -19,7 +19,10 @@ import {
 } from '@mui/material';
 
 import { createInstance } from 'src/shared/api/modules/workflowInstance';
-import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
+import {
+  getAllWorkflowTemplatesAsync,
+  getTemplateLangs,
+} from 'src/shared/api/modules/workflowTemplates';
 import {
   InstanceInput,
   WorkflowTemplate,
@@ -37,6 +40,7 @@ export const NewWorkflowInstancePage: React.FC = () => {
 
   const [description, setDescription] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [selectedLang, setSelectedLang] = useState<string>('');
 
   const {
     data: templates = [],
@@ -47,6 +51,28 @@ export const NewWorkflowInstancePage: React.FC = () => {
     queryFn: () => getAllWorkflowTemplatesAsync(false),
   });
 
+  const { data: templateLangs = [], isLoading: langsLoading } = useQuery<
+    string[]
+  >({
+    queryKey: ['workflowTemplateLangs', selectedTemplateId],
+    queryFn: () => getTemplateLangs(selectedTemplateId),
+    enabled: !!selectedTemplateId,
+  });
+
+  const requiresLangChoice = templateLangs.length > 1;
+
+  // Reset any stale selection whenever the chosen template changes, and
+  // silently pick the language for single-language templates instead of
+  // relying on the backend's English default (which might not even be one
+  // of the template's languages).
+  useEffect(() => {
+    if (templateLangs.length === 1) {
+      setSelectedLang(templateLangs[0]);
+    } else {
+      setSelectedLang('');
+    }
+  }, [selectedTemplateId, templateLangs]);
+
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!patientId) {
@@ -55,11 +81,15 @@ export const NewWorkflowInstancePage: React.FC = () => {
       if (!selectedTemplateId) {
         throw new Error('Please select a workflow template.');
       }
+      if (requiresLangChoice && !selectedLang) {
+        throw new Error('Please select a language for this workflow.');
+      }
 
       const payload: InstanceInput = {
         workflowTemplateId: selectedTemplateId,
         patientId,
         description,
+        lang: selectedLang || undefined,
         // formResponses: [], // add later if needed
       };
 
@@ -92,7 +122,9 @@ export const NewWorkflowInstancePage: React.FC = () => {
     isSubmitting ||
     templatesLoading ||
     !selectedTemplateId ||
-    templates.length === 0;
+    templates.length === 0 ||
+    langsLoading ||
+    (requiresLangChoice && !selectedLang);
 
   return (
     <Box
@@ -164,6 +196,27 @@ export const NewWorkflowInstancePage: React.FC = () => {
               ))}
             </Select>
           </FormControl>
+
+          {/* Language selection - only shown when the template offers a choice */}
+          {requiresLangChoice && (
+            <FormControl fullWidth required disabled={isSubmitting}>
+              <InputLabel id="workflow-lang-label">Language</InputLabel>
+              <Select
+                labelId="workflow-lang-label"
+                label="Language"
+                value={selectedLang}
+                onChange={(e) => setSelectedLang(e.target.value as string)}>
+                <MenuItem value="">
+                  <em>Select a language</em>
+                </MenuItem>
+                {templateLangs.map((lang) => (
+                  <MenuItem key={lang} value={lang}>
+                    {lang}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
 
           {/* Optional metadata */}
           <TextField

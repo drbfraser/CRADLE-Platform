@@ -26,6 +26,13 @@ interface WorkflowFlowViewProps {
   selectedBranchIndex?: number;
   onStepChange?: (stepId: string, field: string, value: string) => void;
   onCaptureState?: () => void;
+  languages?: string[];
+  selectedLanguage?: string;
+  onTranslatedStepFieldChange?: (
+    stepId: string,
+    field: 'name' | 'description',
+    value: string
+  ) => void;
   onBranchChange?: (
     stepId: string,
     branchIndex: number,
@@ -71,6 +78,9 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   selectedBranchIndex,
   onStepChange,
   onCaptureState,
+  languages,
+  selectedLanguage,
+  onTranslatedStepFieldChange,
   onBranchChange,
   onTargetStepChange,
   onStepSelect,
@@ -222,6 +232,9 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 isEditMode={isEditMode}
                 onStepChange={onStepChange}
                 onCaptureState={onCaptureState}
+                languages={languages}
+                selectedLanguage={selectedLanguage}
+                onTranslatedStepFieldChange={onTranslatedStepFieldChange}
               />
             </Box>
           </Grid>

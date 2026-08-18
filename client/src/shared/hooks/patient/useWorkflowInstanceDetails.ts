@@ -49,7 +49,8 @@ export function useWorkflowInstanceDetails(instanceId: string | undefined) {
       const instance = await getInstanceWithSteps(instanceId);
       const patient = await getPatientInfoAsync(instance.patientId);
       const template = await getTemplateWithStepsAndClassification(
-        instance.workflowTemplateId
+        instance.workflowTemplateId,
+        instance.lang
       );
       setTemplate(template);
 

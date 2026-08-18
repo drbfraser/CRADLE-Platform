@@ -111,6 +111,7 @@ export interface WorkflowInstance {
   id: ID;
   name: string;
   description: string;
+  lang?: string;
   workflowTemplateId: ID;
   workflowTemplateStepId: ID;
   patientId: ID;
@@ -180,6 +181,7 @@ export interface InstanceInput {
   patientId: ID;
   name?: string;
   description?: string;
+  lang?: string;
   formResponses?: FormResponse[];
 }
 
