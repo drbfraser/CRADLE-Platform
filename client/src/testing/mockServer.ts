@@ -16,6 +16,38 @@ const handlers = [
         : FORM_TEMPLATE_TEST_DATA.unArchivedTemplates;
     return HttpResponse.json(formTemplates, { status: 200 });
   }),
+  // V2 list endpoint returns { templates: [...] } (not a bare array).
+  http.get(API_URL + EndpointEnum.FORM_TEMPLATES_V2, ({ request }) => {
+    const url = new URL(request.url);
+    const includeArchived = url.searchParams.get('include_archived');
+
+    const templates =
+      includeArchived === 'true'
+        ? FORM_TEMPLATE_TEST_DATA.archivedTemplates
+        : FORM_TEMPLATE_TEST_DATA.unArchivedTemplates;
+    return HttpResponse.json({ templates }, { status: 200 });
+  }),
+  // Default form submission endpoints — individual tests override as needed.
+  http.post(API_URL + '/forms/v2/submissions', () =>
+    HttpResponse.json({ id: 'submission-default' }, { status: 201 })
+  ),
+  http.get(API_URL + '/forms/v2/submissions/:formId', ({ params }) =>
+    HttpResponse.json(
+      {
+        id: params.formId,
+        formTemplateId: 'template-default',
+        patientId: 'patient-default',
+        dateSubmitted: 0,
+        lastEdited: 0,
+        lang: 'English',
+        answers: [],
+      },
+      { status: 200 }
+    )
+  ),
+  http.patch(API_URL + '/forms/v2/submissions/:formId', ({ params }) =>
+    HttpResponse.json({ id: params.formId }, { status: 200 })
+  ),
 ];
 
 export const mockServer = setupServer(...handlers);

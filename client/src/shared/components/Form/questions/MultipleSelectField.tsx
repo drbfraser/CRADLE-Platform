@@ -45,25 +45,30 @@ export const MultipleSelectField = ({
           ) : null}
         </Typography>
       </FormLabel>
-      {mcOptions?.map((mcOption) => (
-        <FormControlLabel
-          control={
-            <Checkbox
-              value={mcOption}
-              checked={answer.val?.includes(mcOption)}
-              onChange={(_event, checked) => {
-                const newValue = checked
-                  ? [...answer.val, mcOption]
-                  : answer.val.filter((val: unknown) => val !== mcOption);
-                formContext.updateAnswersByValue(qid, newValue);
-              }}
-            />
-          }
-          label={mcOption}
-          key={mcOption}
-          disabled={isQuestionFieldDisabled(renderState)}
-        />
-      ))}
+      {mcOptions?.map((mcOption) => {
+        const selectedValues = Array.isArray(answer.val) ? answer.val : [];
+
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                value={mcOption}
+                checked={selectedValues.includes(mcOption)}
+                onChange={(_event, checked) => {
+                  // Guard against non-array defaults (e.g. createDefaultAnswer uses '').
+                  const newValue = checked
+                    ? [...selectedValues, mcOption]
+                    : selectedValues.filter((val: unknown) => val !== mcOption);
+                  formContext.updateAnswersByValue(qid, newValue);
+                }}
+              />
+            }
+            label={mcOption}
+            key={mcOption}
+            disabled={isQuestionFieldDisabled(renderState)}
+          />
+        );
+      })}
     </Grid>
   );
 };

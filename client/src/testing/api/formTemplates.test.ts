@@ -101,4 +101,99 @@ describe('buildFormTemplatePayload', () => {
       questions: [],
     });
   });
+
+  it('preserves MC option translations', () => {
+    const mcOptions = [
+      { translations: { english: 'Yes', french: 'Oui' } },
+      { translations: { english: 'No', french: 'Non' } },
+    ];
+
+    const payload = buildFormTemplatePayload({
+      id: 'form-1',
+      classification: { id: 'c1', name: { en: 'Test' } },
+      version: 'v1',
+      questions: [
+        {
+          id: 'q-mc',
+          order: 0,
+          questionType: QuestionTypeEnum.MULTIPLE_CHOICE,
+          required: true,
+          mcOptions,
+          visibleCondition: [],
+          questionText: { english: 'Choice' },
+        },
+      ],
+    } as any);
+
+    expect(payload.questions[0].mcOptions).toEqual(mcOptions);
+  });
+
+  it('preserves visibility conditions', () => {
+    const visibleCondition = [
+      {
+        questionIndex: 0,
+        relation: 'EQUAL_TO',
+        answers: { text: 'yes' },
+      },
+    ];
+
+    const payload = buildFormTemplatePayload({
+      id: 'form-1',
+      classification: { id: 'c1', name: { en: 'Test' } },
+      version: 'v1',
+      questions: [
+        {
+          id: 'q-parent',
+          order: 0,
+          questionType: QuestionTypeEnum.STRING,
+          required: false,
+          visibleCondition: [],
+          questionText: { english: 'Parent' },
+        },
+        {
+          id: 'q-child',
+          order: 1,
+          questionType: QuestionTypeEnum.STRING,
+          required: false,
+          visibleCondition,
+          questionText: { english: 'Child' },
+        },
+      ],
+    } as any);
+
+    expect(payload.questions[1].visibleCondition).toEqual(visibleCondition);
+  });
+
+  it('includes CATEGORY questions in the payload', () => {
+    const payload = buildFormTemplatePayload({
+      id: 'form-1',
+      classification: { id: 'c1', name: { en: 'Test' } },
+      version: 'v1',
+      questions: [
+        {
+          id: 'q-cat',
+          order: 0,
+          questionType: QuestionTypeEnum.CATEGORY,
+          required: false,
+          visibleCondition: [],
+          questionText: { english: 'Section A' },
+          mcOptions: [],
+        },
+        {
+          id: 'q-str',
+          order: 1,
+          questionType: QuestionTypeEnum.STRING,
+          required: true,
+          visibleCondition: [],
+          questionText: { english: 'Name' },
+          mcOptions: [],
+        },
+      ],
+    } as any);
+
+    expect(payload.questions.map((q) => q.questionType)).toEqual([
+      QuestionTypeEnum.CATEGORY,
+      QuestionTypeEnum.STRING,
+    ]);
+  });
 });

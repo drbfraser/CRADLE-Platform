@@ -80,7 +80,8 @@ export const CustomizedForm = ({
 
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
       currentAnswers,
-      form.questions as unknown as Question[] // TODO: update this type when form submissions v2 are integrated
+      form.questions as unknown as Question[], // TODO: update this type when form submissions v2 are integrated
+      lang
     );
     const postBody: PostBody = TransferQAnswerToPostBody(
       anss,

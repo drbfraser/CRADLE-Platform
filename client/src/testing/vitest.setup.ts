@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import { afterAll, beforeAll, beforeEach } from 'vitest';
 import { mockServer } from './mockServer';
 
