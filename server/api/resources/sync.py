@@ -18,7 +18,10 @@ from models import (
     ReferralOrm,
 )
 from service import invariant, serialize, view
-from service.workflow.workflow_service import WorkflowService
+from service.workflow.workflow_service import (
+    WorkflowService,
+    _resolve_workflow_template_text,
+)
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
 from validation.patients import PatientWithHistory
@@ -383,12 +386,14 @@ def sync_workflow_templates(query: LastSyncQueryParam):
         or workflow_template.last_edited > last_sync
     ]
 
-    return {
-        "workflow_templates": [
-            orm_serializer.marshal(workflow_template, shallow=False)
-            for workflow_template in new_workflow_templates
-        ],
-    }, 200
+    workflow_template_dicts = [
+        orm_serializer.marshal(workflow_template, shallow=False)
+        for workflow_template in new_workflow_templates
+    ]
+    for workflow_template_dict in workflow_template_dicts:
+        _resolve_workflow_template_text(workflow_template_dict, "English")
+
+    return {"workflow_templates": workflow_template_dicts}, 200
 
 
 class SyncWorkflowInstancesResponse(CradleBaseModel):
