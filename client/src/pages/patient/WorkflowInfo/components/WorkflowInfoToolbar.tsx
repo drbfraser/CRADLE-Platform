@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Ref, RefObject } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, TextField, InputAdornment } from '@mui/material';
 import {
@@ -7,7 +7,13 @@ import {
   useGridApiContext,
 } from '@mui/x-data-grid';
 
-export function WorkflowInfoToolbar() {
+type WorkflowInfoToolbarProps = {
+  panelAnchorRef?: RefObject<HTMLButtonElement | null>;
+};
+
+export function WorkflowInfoToolbar({
+  panelAnchorRef,
+}: WorkflowInfoToolbarProps) {
   const apiRef = useGridApiContext();
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
@@ -49,7 +55,9 @@ export function WorkflowInfoToolbar() {
         gap: 1.25,
       }}>
       <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-        <GridToolbarFilterButton />
+        <GridToolbarFilterButton
+          ref={panelAnchorRef as Ref<HTMLButtonElement>}
+        />
       </Box>
 
       <Box sx={{ height: 24, borderLeft: 1, borderColor: 'divider' }} />

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from common.commonUtil import get_uuid
 from data import orm_serializer
 from models import (
     FormTemplateOrmV2,
@@ -12,6 +13,23 @@ from tests.helpers import (
     make_workflow_template_branch,
     make_workflow_template_step,
 )
+
+
+def _as_string_id_step(**overrides) -> dict:
+    """
+    make_workflow_template_step() produces the resolved, plain-string shape
+    (matching WorkflowTemplateStepModel). WorkflowTemplateStepOrm.load()
+    needs the raw *_string_id pointer columns instead (db.String(50)), so
+    convert name/description into name_string_id/description_string_id for
+    unmarshal tests - the string_id doesn't need to be a real, resolvable
+    id here, this only exercises the unmarshal structural behavior.
+    """
+    payload = make_workflow_template_step(**overrides)
+    payload.pop("name")
+    payload.pop("description")
+    payload["name_string_id"] = get_uuid()
+    payload["description_string_id"] = get_uuid()
+    return payload
 
 
 def test_unmarshal_step_with_form_and_branches():
@@ -41,7 +59,7 @@ def test_unmarshal_step_with_form_and_branches():
         ),
     ]
 
-    payload = make_workflow_template_step(
+    payload = _as_string_id_step(
         id=step_id,
         name="Registration",
         description="Capture intake details and vitals",
@@ -57,8 +75,8 @@ def test_unmarshal_step_with_form_and_branches():
 
     # Scalars
     assert obj.id == "wts-100"
-    assert obj.name == "Registration"
-    assert obj.description == "Capture intake details and vitals"
+    assert obj.name_string_id == payload["name_string_id"]
+    assert obj.description_string_id == payload["description_string_id"]
     assert obj.workflow_template_id == "wt-42"
     assert obj.expected_completion == 3_600
     assert obj.last_edited == 1_700_100_000
@@ -93,7 +111,7 @@ def test_unmarshal_step_without_form_or_branches():
     The test case verifies that the unmarshalled object has the correct fields and that
     form=None and branches=[] are set correctly.
     """
-    payload = make_workflow_template_step(
+    payload = _as_string_id_step(
         id="wts-200",
         name="Review",
         description="Supervisor reviews intake form",
@@ -105,8 +123,8 @@ def test_unmarshal_step_without_form_or_branches():
     obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
     assert obj.id == "wts-200"
-    assert obj.name == "Review"
-    assert obj.description == "Supervisor reviews intake form"
+    assert obj.name_string_id == payload["name_string_id"]
+    assert obj.description_string_id == payload["description_string_id"]
     assert obj.workflow_template_id == "wt-42"
     assert obj.expected_completion == 7_200
     assert obj.last_edited == 1_700_200_000
@@ -123,7 +141,7 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
     Also checks that no nested loads occur (i.e. no WorkflowTemplateStepBranchOrm loads),
     and that the resulting object has form=None and branches=[], and no expected_completion attribute.
     """
-    payload = make_workflow_template_step(
+    payload = _as_string_id_step(
         id="wts-300",
         name="Counseling",
         description="Provide counseling and education",
@@ -137,8 +155,8 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches():
     obj = orm_serializer.unmarshal(WorkflowTemplateStepOrm, payload)
     assert isinstance(obj, WorkflowTemplateStepOrm)
     assert obj.id == "wts-300"
-    assert obj.name == "Counseling"
-    assert obj.description == "Provide counseling and education"
+    assert obj.name_string_id == payload["name_string_id"]
+    assert obj.description_string_id == payload["description_string_id"]
     assert obj.workflow_template_id == "wt-42"
     assert obj.last_edited == 1_700_300_000
 

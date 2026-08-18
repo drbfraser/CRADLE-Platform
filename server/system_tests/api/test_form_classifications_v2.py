@@ -1,194 +1,220 @@
+import copy
+
 import pytest
 from humps import decamelize
 
-import data.db_operations as crud
-from models import FormClassificationOrmV2, FormTemplateOrmV2, LangVersionOrmV2
+from common.commonUtil import get_uuid
+
+
+def test_get_classification_by_id(
+    api_get, form_classification_v2_resources, fc_payload_1
+):
+    created = form_classification_v2_resources.create(fc_payload_1)
+
+    response = api_get(endpoint=f"/api/forms/v2/classifications/{created['id']}")
+    assert response.status_code == 200
+
+    body = decamelize(response.json())
+    assert body["id"] == created["id"]
+    assert body["name"] == fc_payload_1["name"]
+
+
+def test_get_classification_by_id_not_found(api_get):
+    missing_id = get_uuid()
+    response = api_get(endpoint=f"/api/forms/v2/classifications/{missing_id}")
+    assert response.status_code == 404
+    assert (
+        response.json()["description"]
+        == f"No Form Classification with id=({missing_id}) found."
+    )
+
+
+def test_get_classification_templates(
+    api_get,
+    form_v2_resources,
+    template_payload_1,
+    template_payload_2,
+):
+    t1_bundle = form_v2_resources.create_template_from_payload(template_payload_1)
+    t1 = t1_bundle["body"]
+    classification_id = t1["form_classification_id"]
+    classification = t1_bundle["classification"]
+
+    version_two_payload = copy.deepcopy(template_payload_2)
+    version_two_payload["id"] = t1["id"]
+    version_two_payload["classification"]["id"] = classification_id
+    version_two_payload["classification"]["nameStringId"] = (
+        classification.name_string_id
+    )
+
+    t2_bundle = form_v2_resources.create_template_from_payload(version_two_payload)
+    t2 = t2_bundle["body"]
+
+    response = api_get(
+        endpoint=f"/api/forms/v2/classifications/{classification_id}/templates"
+    )
+    assert response.status_code == 200
+
+    templates = response.json()
+    template_ids = {template["id"] for template in templates}
+    versions = {template["version"] for template in templates}
+
+    assert template_ids == {t1["id"], t2["id"]}
+    assert versions == {1, 2}
+    for template in templates:
+        assert template["classification"]["name"]["english"] == "Classification One"
+
+
+def test_duplicate_classification_name(
+    form_classification_v2_resources, fc_payload_1, api_post
+):
+    form_classification_v2_resources.create(fc_payload_1)
+
+    response = api_post(endpoint="/api/forms/v2/classifications", json=fc_payload_1)
+    assert response.status_code == 409
+    assert (
+        response.json()["description"]
+        == "Form Classification with name=(Classification One) already exists."
+    )
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_create_classification_requires_admin(api_post, fc_payload_1, credentials):
+    response = api_post(endpoint="/api/forms/v2/classifications", json=fc_payload_1)
+    assert response.status_code == 401
+    assert (
+        response.json()["message"] == "This user does not have the required privileges"
+    )
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_update_classification_requires_admin(
+    database,
+    api,
+    api_put,
+    fc_payload_1,
+    fc_payload_2,
+    form_classification_v2_resources,
+    credentials,
+):
+    create_resp = api.post(
+        "/api/forms/v2/classifications",
+        fc_payload_1,
+        email="admin@email.com",
+        password="cradle-admin",
+    )
+    database.session.commit()
+    assert create_resp.status_code == 201
+    created = decamelize(create_resp.json())
+    form_classification_v2_resources.state["classification_ids"].append(created["id"])
+    form_classification_v2_resources.state["lang_ids"].append(created["name_string_id"])
+
+    update_payload = {
+        "id": created["id"],
+        "name": fc_payload_2["name"],
+        "name_string_id": created["name_string_id"],
+    }
+
+    response = api_put(
+        endpoint=f"/api/forms/v2/classifications/{created['id']}",
+        json=update_payload,
+    )
+    assert response.status_code == 401
+    assert (
+        response.json()["message"] == "This user does not have the required privileges"
+    )
 
 
 def test_create_form_classification_v2(
-    database,
+    api_get,
+    form_classification_v2_resources,
     fc_payload_1,
     fc_payload_2,
-    api_post,
-    api_get,
 ):
-    created_ids = []
-    created_lang_versions = []
+    response = api_get(endpoint="/api/forms/v2/classifications")
+    existing = len(response.json().get("classifications", []))
 
-    try:
-        # initial count
-        resp = api_get(endpoint="/api/forms/v2/classifications")
-        existing = len(resp.json().get("classifications", []))
+    form_classification_v2_resources.create(fc_payload_1)
+    form_classification_v2_resources.create(fc_payload_2)
 
-        # create first
-        resp = api_post(endpoint="/api/forms/v2/classifications", json=fc_payload_1)
-        database.session.commit()
-        assert resp.status_code == 201
-        created_ids.append(resp.json()["id"])
-        created_lang_versions.append(resp.json()["nameStringId"])
-
-        # create second
-        resp = api_post(endpoint="/api/forms/v2/classifications", json=fc_payload_2)
-        database.session.commit()
-        assert resp.status_code == 201
-        created_ids.append(resp.json()["id"])
-        created_lang_versions.append(resp.json()["nameStringId"])
-
-        # final count
-        resp = api_get(endpoint="/api/forms/v2/classifications")
-        body = decamelize(resp.json())
-        assert resp.status_code == 200
-        assert len(body["classifications"]) == existing + 2
-
-    finally:
-        for cid in created_ids:
-            crud.delete_all(FormClassificationOrmV2, id=cid)
-        for lvid in created_lang_versions:
-            crud.delete_all(LangVersionOrmV2, string_id=lvid)
+    response = api_get(endpoint="/api/forms/v2/classifications")
+    body = decamelize(response.json())
+    assert response.status_code == 200
+    assert len(body["classifications"]) == existing + 2
 
 
 def test_update_form_classification_v2(
-    database,
-    fc_payload_1,
-    fc_payload_2,
-    api_post,
     api_get,
     api_put,
+    form_classification_v2_resources,
+    fc_payload_1,
+    fc_payload_2,
 ):
-    created_id = None
-    created_lang_version = None
+    created = form_classification_v2_resources.create(fc_payload_1)
 
-    try:
-        # create initial
-        resp = api_post(
-            endpoint="/api/forms/v2/classifications",
-            json=fc_payload_1,
-        )
-        database.session.commit()
-        assert resp.status_code == 201
-        created_id = resp.json()["id"]
-        created_lang_version = resp.json()["nameStringId"]
+    update_payload = {
+        "id": created["id"],
+        "name": fc_payload_2["name"],
+        "name_string_id": created["name_string_id"],
+    }
 
-        # update
-        update_payload = {
-            "id": created_id,
-            "name": fc_payload_2["name"],
-            "name_string_id": created_lang_version,
-        }
+    response = api_put(
+        endpoint=f"/api/forms/v2/classifications/{created['id']}",
+        json=update_payload,
+    )
+    assert response.status_code == 200
 
-        resp = api_put(
-            endpoint=f"/api/forms/v2/classifications/{created_id}",
-            json=update_payload,
-        )
-        database.session.commit()
-        assert resp.status_code == 200
-
-        # verify
-        resp = api_get(endpoint=f"/api/forms/v2/classifications/{created_id}")
-        assert resp.status_code == 200
-        assert resp.json()["name"] == fc_payload_2["name"]
-
-    finally:
-        if created_id:
-            crud.delete_all(FormClassificationOrmV2, id=created_id)
-        if created_lang_version:
-            crud.delete_all(LangVersionOrmV2, string_id=created_lang_version)
+    response = api_get(endpoint=f"/api/forms/v2/classifications/{created['id']}")
+    assert response.status_code == 200
+    assert response.json()["name"] == fc_payload_2["name"]
 
 
 def test_form_classification_summary_v2(
-    database,
+    api_get,
+    form_v2_resources,
     template_payload_1,
     template_payload_2,
     template_payload_3,
-    api_post,
-    api_get,
 ):
-    created_template_ids = []
-    created_classification_ids = []
-    created_lang_versions = []
+    response = api_get("/api/forms/v2/classifications/summary")
+    existing = len(response.json() or [])
 
-    try:
-        resp = api_get("/api/forms/v2/classifications/summary")
-        existing = len(resp.json() or [])
+    t1_bundle = form_v2_resources.create_template_from_payload(template_payload_1)
+    t1 = t1_bundle["body"]
+    classification = t1_bundle["classification"]
 
-        # create template -> backend auto-creates classification + lang versions
-        r1 = api_post("/api/forms/v2/templates/body", json=template_payload_1)
-        assert r1.status_code == 201
-        t1 = r1.json()
+    version_two_payload = copy.deepcopy(template_payload_2)
+    version_two_payload["id"] = t1["id"]
+    version_two_payload["classification"]["id"] = t1["form_classification_id"]
+    version_two_payload["classification"]["nameStringId"] = (
+        classification.name_string_id
+    )
 
-        database.session.flush()
-        database.session.commit()
+    t2_bundle = form_v2_resources.create_template_from_payload(version_two_payload)
+    t2 = t2_bundle["body"]
 
-        created_template_ids.append(t1["id"])
-        created_classification_ids.append(t1["formClassificationId"])
-        classification = crud.read(
-            FormClassificationOrmV2, id=t1["formClassificationId"]
-        )
-        created_lang_versions.append(classification.name_string_id)
+    t3_bundle = form_v2_resources.create_template_from_payload(template_payload_3)
+    t3 = t3_bundle["body"]
 
-        # create template 2 (same classification) -> new version
-        # backend archives previous template and creates v2
-        template_payload_2["id"] = t1[
-            "id"
-        ]  # simulate editing existing template (upgrade version)
-        template_payload_2["classification"]["id"] = t1["formClassificationId"]
-        template_payload_2["classification"]["nameStringId"] = (
-            classification.name_string_id
-        )
+    summary = api_get("/api/forms/v2/classifications/summary")
+    assert summary.status_code == 200
 
-        r2 = api_post("/api/forms/v2/templates/body", json=template_payload_2)
-        assert r2.status_code == 201
-        t2 = r2.json()
+    body = summary.json()
+    assert len(body) == existing + 2
 
-        created_template_ids.append(t2["id"])
+    classification_one = next(
+        entry
+        for entry in body
+        if entry["classification"]["name"]["english"] == "Classification One"
+    )
+    assert classification_one["id"] == t2["id"]
 
-        # create template 3 (different classification)
-        r3 = api_post("/api/forms/v2/templates/body", json=template_payload_3)
-        assert r3.status_code == 201
-        t3 = r3.json()
-
-        database.session.flush()
-        database.session.commit()
-
-        created_template_ids.append(t3["id"])
-        created_classification_ids.append(t3["formClassificationId"])
-        classification = crud.read(
-            FormClassificationOrmV2, id=t3["formClassificationId"]
-        )
-        created_lang_versions.append(classification.name_string_id)
-
-        # summary validation
-        summary = api_get("/api/forms/v2/classifications/summary")
-        assert summary.status_code == 200
-
-        body = summary.json()
-        assert len(body) == existing + 2
-
-        # Classification One should have latest -> t2
-        c1 = next(
-            x
-            for x in body
-            if x["classification"]["name"]["english"] == "Classification One"
-        )
-        assert c1["id"] == t2["id"]
-
-        # Classification Two should have its only template -> t3
-        c2 = next(
-            x
-            for x in body
-            if x["classification"]["name"]["english"] == "Classification Two"
-        )
-        assert c2["id"] == t3["id"]
-
-    finally:
-        for tid in created_template_ids:
-            crud.delete_all(FormTemplateOrmV2, id=tid)
-
-        for cid in created_classification_ids:
-            crud.delete_all(FormClassificationOrmV2, id=cid)
-
-        for lvid in created_lang_versions:
-            crud.delete_all(LangVersionOrmV2, string_id=lvid)
+    classification_two = next(
+        entry
+        for entry in body
+        if entry["classification"]["name"]["english"] == "Classification Two"
+    )
+    assert classification_two["id"] == t3["id"]
 
 
 @pytest.fixture

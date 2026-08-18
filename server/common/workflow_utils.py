@@ -1,17 +1,23 @@
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 from flask import abort
+from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
-from api.resources.form_templates_v2 import handle_form_template_upload
 from common.commonUtil import abort_not_found, get_uuid
-from common.form_utils import assign_form_or_template_ids
+from common.form_utils import (
+    _extend_lang_version,
+    assign_form_or_template_ids,
+    resolve_string_text,
+)
 from data import orm_serializer
 from models import (
     FormSubmissionOrmV2,
     FormTemplateOrmV2,
+    LangVersionOrmV2,
     RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
@@ -20,6 +26,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
 )
+from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
 from service.workflow.workflow_service import WorkflowService, WorkflowView
 from validation.formsV2_models import FormTemplateUploadRequest
 
@@ -214,6 +221,8 @@ def validate_workflow_template_step(
 
     try:
         if workflow_template_step.get("form") is not None:
+            from api.resources.form_templates_v2 import handle_form_template_upload
+
             form_template = FormTemplateUploadRequest(**workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown
@@ -277,6 +286,251 @@ def _update_step_references(steps: list[dict], id_map: dict[str, str]) -> list[d
         updated_steps.append(updated_step)
 
     return updated_steps
+
+
+workflow_template_version_regex = re.compile(r"^v(?P<number>\d+)$", re.IGNORECASE)
+_FORMS_VAR_PATTERN = re.compile(r"^forms\[[^\]]*\]\.(.+)$")
+
+
+def parse_workflow_template_version(version: str | None) -> int | None:
+    """Return numeric part for versions in the form V<number>, else None."""
+    if version is None:
+        return None
+
+    normalized_version = version.strip()
+    version_match = workflow_template_version_regex.match(normalized_version)
+    if version_match is None:
+        return None
+
+    return int(version_match.group("number"))
+
+
+def get_next_workflow_template_version(
+    workflow_classification_id: str | None,
+) -> str:
+    """
+    Compute the next template version for a classification.
+
+    - New classification starts at V1.
+    - Existing classification increments the max known V<number>.
+    """
+    if workflow_classification_id is None:
+        return "V1"
+
+    existing_templates = (
+        crud.db_session.query(WorkflowTemplateOrm)
+        .filter(WorkflowTemplateOrm.classification_id == workflow_classification_id)
+        .all()
+    )
+
+    max_version_number = 0
+    for existing_template in existing_templates:
+        parsed_version = parse_workflow_template_version(existing_template.version)
+        if parsed_version is not None:
+            max_version_number = max(max_version_number, parsed_version)
+
+    return f"V{max_version_number + 1}"
+
+
+def lock_workflow_classification_for_update(
+    workflow_classification_id: str | None,
+) -> WorkflowClassificationOrm | None:
+    """Acquire a row lock for classification-scoped version sequencing."""
+    if workflow_classification_id is None:
+        return None
+
+    return (
+        crud.db_session.query(WorkflowClassificationOrm)
+        .filter(WorkflowClassificationOrm.id == workflow_classification_id)
+        .with_for_update()
+        .one_or_none()
+    )
+
+
+def get_english_text(translations: dict) -> str | None:
+    """
+    Return the English entry from a {lang: text} translation map (case/
+    whitespace-insensitive on the key), or None if there isn't one.
+    Used to enforce "every workflow classification must have an English
+    name" - see the write-route English-required checks.
+    """
+    for lang, text in translations.items():
+        if lang.strip().lower() == "english":
+            return text
+    return None
+
+
+def check_workflow_classification_name_conflict(
+    english_name: str, exclude_string_id: str | None = None
+) -> bool:
+    """
+    Check if a WorkflowClassification with the same English name exists.
+    Mirrors form_utils.check_name_conflict for workflow classifications.
+
+    :param english_name: English text to check
+    :param exclude_string_id: string_id to ignore (used when editing an existing classification)
+    :return: True if a conflicting classification exists
+    """
+    existing_langs = crud.read_all(LangVersionOrmV2, lang="English", text=english_name)
+
+    for existing_lang in existing_langs:
+        if exclude_string_id and existing_lang.string_id == exclude_string_id:
+            continue
+
+        wc = crud.read(
+            WorkflowClassificationOrm, name_string_id=existing_lang.string_id
+        )
+        if wc:
+            return True
+
+    return False
+
+
+def get_new_lang_versions_for_workflow_template(
+    workflow_template_dict: dict, new_template: bool = True
+) -> list[LangVersionOrmV2]:
+    """
+    Mutates workflow_template_dict in place: converts classification.name
+    and each step's name/description from {lang: text} maps into
+    *_string_id pointers, assigning new string_ids where none exist yet.
+    Mirrors form_utils.get_new_lang_versions_and_questions.
+
+    :param workflow_template_dict: dict with classification.name and each
+        step's name/description as {lang: text} maps (i.e. a
+        WorkflowTemplateMultiLangModel dumped to a dict)
+    :param new_template: False when editing an existing template (allows
+        _extend_lang_version to update rows in place instead of always
+        inserting new ones)
+    :return: new/updated LangVersionOrmV2 rows to persist alongside the template
+    """
+    new_lang_versions: list[LangVersionOrmV2] = []
+
+    classification_dict = workflow_template_dict.get("classification")
+    if classification_dict is not None and classification_dict.get("name") is not None:
+        name_translations = classification_dict.pop("name")
+        if classification_dict.get("name_string_id") is None:
+            classification_dict["name_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                name_translations, classification_dict["name_string_id"], new_template
+            )
+        )
+
+    if workflow_template_dict.get("description") is not None:
+        description_translations = workflow_template_dict.pop("description")
+        if workflow_template_dict.get("description_string_id") is None:
+            workflow_template_dict["description_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                description_translations,
+                workflow_template_dict["description_string_id"],
+                new_template,
+            )
+        )
+
+    for step in workflow_template_dict.get("steps", []):
+        new_lang_versions.extend(
+            get_new_lang_versions_for_workflow_step(step, new_template)
+        )
+
+    return new_lang_versions
+
+
+def get_new_lang_versions_for_workflow_step(
+    step: dict, new_template: bool = True
+) -> list[LangVersionOrmV2]:
+    """
+    Mutates a single workflow step dict in place: converts name/description
+    from {lang: text} maps into *_string_id pointers, assigning new
+    string_ids where none exist yet. Used both by
+    get_new_lang_versions_for_workflow_template (per-step, inside a full
+    template payload) and by the standalone template-step create/edit
+    endpoints in workflow_template_steps.py.
+
+    :return: new/updated LangVersionOrmV2 rows to persist alongside the step
+    """
+    new_lang_versions: list[LangVersionOrmV2] = []
+
+    if step.get("name") is not None:
+        step_name_translations = step.pop("name")
+        if step.get("name_string_id") is None:
+            step["name_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                step_name_translations, step["name_string_id"], new_template
+            )
+        )
+
+    if step.get("description") is not None:
+        step_description_translations = step.pop("description")
+        if step.get("description_string_id") is None:
+            step["description_string_id"] = get_uuid()
+        new_lang_versions.extend(
+            _extend_lang_version(
+                step_description_translations,
+                step["description_string_id"],
+                new_template,
+            )
+        )
+
+    return new_lang_versions
+
+
+def format_workflow_template(template: dict, available_langs: list[str]) -> dict:
+    """
+    Format a marshalled workflow template dict into its multi-language
+    view: every translatable string field becomes a {lang: text} dict.
+    Mirrors form_utils.format_template. Used only by the workflow editor's
+    dedicated translations-view endpoint - existing read endpoints keep
+    resolving to a single language instead (see WorkflowService methods).
+
+    :param template: marshalled WorkflowTemplateOrm dict (raw *_string_id fields)
+    :param available_langs: languages to resolve each field into
+    :return: a new dict shaped for WorkflowTemplateMultiLangModel
+    """
+    if not template:
+        return {}
+
+    formatted = template.copy()
+
+    description_string_id = formatted.get("description_string_id")
+    if description_string_id:
+        formatted["description"] = {
+            lang: resolve_string_text(description_string_id, lang)
+            for lang in available_langs
+        }
+
+    classification = formatted.get("classification")
+    if classification and classification.get("name_string_id"):
+        sid = classification["name_string_id"]
+        classification = classification.copy()
+        classification["name"] = {
+            lang: resolve_string_text(sid, lang) for lang in available_langs
+        }
+        formatted["classification"] = classification
+
+    new_steps = []
+    for step in formatted.get("steps", []):
+        step = step.copy()
+
+        name_string_id = step.get("name_string_id")
+        if name_string_id:
+            step["name"] = {
+                lang: resolve_string_text(name_string_id, lang)
+                for lang in available_langs
+            }
+
+        step_description_string_id = step.get("description_string_id")
+        if step_description_string_id:
+            step["description"] = {
+                lang: resolve_string_text(step_description_string_id, lang)
+                for lang in available_langs
+            }
+
+        new_steps.append(step)
+    formatted["steps"] = new_steps
+
+    return formatted
 
 
 # Helper function to generate an updated workflow template from a patch body
@@ -381,12 +635,16 @@ def fetch_workflow_instance_step_or_404(
     return workflow_instance_step
 
 
-def fetch_workflow_template_or_404(workflow_template_id: str) -> WorkflowTemplateModel:
+def fetch_workflow_template_or_404(
+    workflow_template_id: str, lang: str = "English"
+) -> WorkflowTemplateModel:
     """
     Fetch a workflow template or raise a 404 if not found.
     Intended for use inside Flask endpoint handlers.
     """
-    workflow_template = WorkflowService.get_workflow_template(workflow_template_id)
+    workflow_template = WorkflowService.get_workflow_template(
+        workflow_template_id, lang=lang
+    )
     if workflow_template is None:
         abort_not_found(WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(workflow_template_id))
 
@@ -418,7 +676,7 @@ def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     """
     workflow_instance = fetch_workflow_instance_or_404(workflow_instance_id)
     workflow_template = fetch_workflow_template_or_404(
-        workflow_instance.workflow_template_id
+        workflow_instance.workflow_template_id, lang=workflow_instance.lang
     )
 
     return WorkflowView(workflow_template, workflow_instance)
@@ -437,3 +695,221 @@ def find_workflow_instance_step_or_404(
             WORKFLOW_INSTANCE_STEP_NOT_FOUND_MSG.format(workflow_instance_step_id),
         )
     return step
+
+
+# function to update the workflows after form changes
+def update_workflow_version_with_new_form(old_form_id: str, new_form_id: str):
+    """
+    This function is called everytime a form is updated. It finds all the templates and their steps that link
+    to the older form and replaces it with the new version, generating a new workflow template version in the process.
+
+    If branching conditions reference questions that no longer exist (or changed type) in the new form,
+    the workflow's has_branching_issues flag is set and the version bump is skipped until the issues
+    are resolved. A second pass also re-checks any workflows that previously had branching issues
+    to see if the new form resolves them.
+    """
+    old_form = crud.read(FormTemplateOrmV2, id=old_form_id)
+    new_form = crud.read(FormTemplateOrmV2, id=new_form_id)
+    if old_form is None or new_form is None:
+        return None
+
+    # find all existing, non-archived workflows with steps that link to old_form_id
+    steps_to_update = (
+        crud.db_session.query(WorkflowTemplateStepOrm)
+        .join(WorkflowTemplateOrm)
+        .filter(WorkflowTemplateStepOrm.form_id == old_form_id)
+        .filter(WorkflowTemplateOrm.archived == False)
+        .all()
+    )
+    target_workflows_ids = {step.workflow_template_id for step in steps_to_update}
+
+    # go through the each workflow and update relevant steps
+    for workflow_template_id in target_workflows_ids:
+        workflow_orm = crud.read(
+            WorkflowTemplateOrm, id=workflow_template_id, archived=False
+        )
+        if not workflow_orm:
+            continue
+
+        compatible, _ = check_form_compatibility_for_workflow(
+            workflow_orm, old_form, new_form
+        )
+        if not compatible:
+            workflow_orm.has_branching_issues = True
+            crud.db_session.commit()
+            continue
+
+        template_dict = orm_serializer.marshal(workflow_orm)
+        for workflow_step in template_dict["steps"]:
+            # update_step if linked to older workflow
+            current_id = workflow_step.get("form_id")
+            if current_id == old_form_id:
+                workflow_step["form_id"] = new_form_id
+            workflow_step.pop("form", None)
+        # update workflow version and push new details
+
+        # get classification id and lock
+        classification_id = workflow_orm.classification_id
+        lock_workflow_classification_for_update(classification_id)
+
+        # create new patch_body and update version
+        patch_body = {}
+        patch_body["version"] = get_next_workflow_template_version(classification_id)
+        patch_body["steps"] = template_dict["steps"]
+        patch_body["starting_step_id"] = workflow_orm.starting_step_id
+
+        updated_workflow_template = generate_updated_workflow_template(
+            workflow_orm, patch_body, auto_assign_id=True
+        )
+        updated_workflow_template.has_branching_issues = False
+        workflow_orm.archived = True
+
+        try:
+            crud.create(model=updated_workflow_template, refresh=True)
+        except IntegrityError:
+            crud.db_session.rollback()
+            return abort(
+                code=409,
+                description=f"Error updating workflow with id {classification_id}.",
+            )
+
+    # find workflows that previously had branching issues related to this form's classification and check whether the new form resolves them.
+    stale_issue_workflows = (
+        crud.db_session.query(WorkflowTemplateOrm)
+        .join(WorkflowTemplateStepOrm)
+        .join(
+            FormTemplateOrmV2,
+            WorkflowTemplateStepOrm.form_id == FormTemplateOrmV2.id,
+        )
+        .filter(WorkflowTemplateOrm.has_branching_issues == True)
+        .filter(WorkflowTemplateOrm.archived == False)
+        .filter(
+            FormTemplateOrmV2.form_classification_id == new_form.form_classification_id
+        )
+        .filter(WorkflowTemplateOrm.id.notin_(target_workflows_ids))
+        .distinct()
+        .all()
+    )
+
+    for stale_workflow in stale_issue_workflows:
+        # find the step pointing to a form of the same classification as new_form
+        current_step_form = None
+        for step in stale_workflow.steps:
+            if (
+                step.form is not None
+                and step.form.form_classification_id == new_form.form_classification_id
+            ):
+                current_step_form = step.form
+                break
+        if current_step_form is None:
+            continue
+
+        compatible, _ = check_form_compatibility_for_workflow(
+            stale_workflow, current_step_form, new_form
+        )
+        if not compatible:
+            continue
+
+        template_dict = orm_serializer.marshal(stale_workflow)
+        for workflow_step in template_dict["steps"]:
+            step_form_id = workflow_step.get("form_id")
+            if step_form_id:
+                step_form = crud.read(FormTemplateOrmV2, id=step_form_id)
+                if (
+                    step_form is not None
+                    and step_form.form_classification_id
+                    == new_form.form_classification_id
+                ):
+                    workflow_step["form_id"] = new_form_id
+            workflow_step.pop("form", None)
+
+        classification_id = stale_workflow.classification_id
+        lock_workflow_classification_for_update(classification_id)
+
+        patch_body = {}
+        patch_body["version"] = get_next_workflow_template_version(classification_id)
+        patch_body["steps"] = template_dict["steps"]
+        patch_body["starting_step_id"] = stale_workflow.starting_step_id
+
+        updated_workflow_template = generate_updated_workflow_template(
+            stale_workflow, patch_body, auto_assign_id=True
+        )
+        updated_workflow_template.has_branching_issues = False
+        stale_workflow.archived = True
+
+        try:
+            crud.create(model=updated_workflow_template, refresh=True)
+        except IntegrityError:
+            crud.db_session.rollback()
+
+
+def check_form_compatibility_for_workflow(
+    workflow_orm: WorkflowTemplateOrm,
+    old_form: FormTemplateOrmV2,
+    new_form: FormTemplateOrmV2,
+) -> tuple[bool, list[str]]:
+    """
+    Check whether the new form version would break any branch conditions in a workflow template.
+
+    Scans every branch condition rule for `forms[*].{user_question_id}` variable references,
+    then verifies each referenced question still exists in the new form with the same question_type.
+
+    Returns (True, []) if fully compatible, or (False, [issue descriptions]) if not.
+    """
+    issues: list[str] = []
+
+    old_questions = {
+        q.user_question_id: q.question_type
+        for q in old_form.questions
+        if q.user_question_id is not None
+    }
+    new_questions = {
+        q.user_question_id: q.question_type
+        for q in new_form.questions
+        if q.user_question_id is not None
+    }
+
+    for step in workflow_orm.steps:
+        if step.form_id != old_form.id:
+            continue
+
+        step_name = (
+            resolve_string_text(step.name_string_id, "English") or step.name_string_id
+        )
+
+        for branch in step.branches:
+            if branch.condition is None or not branch.condition.rule:
+                continue
+
+            try:
+                variables = extract_variables_from_rule(branch.condition.rule)
+            except ValueError:
+                issues.append(
+                    f"Step '{step_name}': branch has a malformed condition rule."
+                )
+                continue
+
+            for var in variables:
+                match = _FORMS_VAR_PATTERN.match(var)
+                if match is None:
+                    continue
+
+                user_question_id = match.group(1)
+
+                if user_question_id not in new_questions:
+                    issues.append(
+                        f"Step '{step_name}': branch condition references '{user_question_id}', "
+                        f"which was removed from the updated form."
+                    )
+                elif (
+                    old_questions.get(user_question_id)
+                    != new_questions[user_question_id]
+                ):
+                    old_type = old_questions.get(user_question_id, "unknown")
+                    new_type = new_questions[user_question_id]
+                    issues.append(
+                        f"Step '{step_name}': branch condition references '{user_question_id}', "
+                        f"whose type changed from {old_type} to {new_type}."
+                    )
+
+    return len(issues) == 0, issues

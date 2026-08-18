@@ -1,9 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
-import ScienceIcon from '@mui/icons-material/Science';
 import { formatISODateNumber } from 'src/shared/utils';
 import { Toast } from 'src/shared/components/toast';
 import { Box, Typography, Button, Paper, Chip } from '@mui/material';
@@ -18,7 +23,6 @@ import { getInstancesByPatient } from 'src/shared/api';
 import { WorkflowInfoRow } from 'src/shared/types/workflow/workflowUiTypes';
 import { buildWorkflowInstanceRowList } from './utils';
 import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
-import RuleEngineDemoDialog from './components/RuleEngineDemoDialog';
 import { WorkflowInfoToolbar } from './components/WorkflowInfoToolbar';
 
 type ToastState = {
@@ -32,7 +36,28 @@ export const WorkflowInfo: React.FC = () => {
   const [workflowInfo, setWorkflowInfo] = useState<WorkflowInfoRow[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const openDemoDialog = useRef<() => void>();
+  const panelAnchorRef = useRef<HTMLButtonElement | null>(null);
+
+  const ToolbarSlot = useCallback(
+    () => <WorkflowInfoToolbar panelAnchorRef={panelAnchorRef} />,
+    []
+  );
+
+  const panelSlotProps = useMemo(
+    () => ({
+      panel: {
+        anchorEl: () => panelAnchorRef.current as HTMLElement,
+        placement: 'bottom-start' as const,
+        popperOptions: {
+          modifiers: [
+            { name: 'flip', enabled: false },
+            { name: 'offset', options: { offset: [0, 4] } },
+          ],
+        },
+      },
+    }),
+    []
+  );
 
   useEffect(() => {
     async function fetchWorkflowInfo() {
@@ -156,16 +181,6 @@ export const WorkflowInfo: React.FC = () => {
             onClick={() => navigate(`/workflow-instance/new/${patientId}`)}>
             Start New Workflow
           </Button>
-          {/* Rule Engine Button */}
-          <Button
-            variant="contained"
-            size="small"
-            color="secondary"
-            sx={{ textTransform: 'none', height: 36 }}
-            startIcon={<ScienceIcon />}
-            onClick={() => openDemoDialog.current?.()}>
-            Test Rule Engine
-          </Button>
         </Box>
       </Box>
 
@@ -210,17 +225,10 @@ export const WorkflowInfo: React.FC = () => {
           }}
           pageSizeOptions={[5, 10, 25]}
           disableRowSelectionOnClick
-          slots={{ toolbar: WorkflowInfoToolbar }}
-          slotProps={{
-            toolbar: {
-              showQuickFilter: true,
-              quickFilterProps: { debounceMs: 400 },
-            },
-          }}
+          slots={{ toolbar: ToolbarSlot }}
+          slotProps={panelSlotProps}
         />
       </Box>
-
-      <RuleEngineDemoDialog patientId={patientId} openDialog={openDemoDialog} />
     </Paper>
   );
 };
