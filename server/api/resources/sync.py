@@ -379,13 +379,9 @@ def sync_workflow_templates(query: LastSyncQueryParam):
     """Sync Workflow Templates"""
     last_sync = query.since
 
-    workflow_templates = crud.read_workflow_templates(is_archived=False)
-    new_workflow_templates = [
-        workflow_template
-        for workflow_template in workflow_templates
-        if workflow_template.last_edited is None
-        or workflow_template.last_edited > last_sync
-    ]
+    new_workflow_templates = crud.read_workflow_templates(
+        is_archived=False, last_edited=last_sync
+    )
 
     workflow_template_dicts = [
         orm_serializer.marshal(workflow_template, shallow=False)
@@ -436,10 +432,10 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
     visible_patient_ids = {patient.id for patient in visible_patients}
     new_workflow_instances = [
         workflow_instance
-        for workflow_instance in WorkflowService.get_workflow_instances()
+        for workflow_instance in WorkflowService.get_workflow_instances(
+            last_edited=last_sync
+        )
         if workflow_instance.patient_id in visible_patient_ids
-        and workflow_instance.last_edited is not None
-        and workflow_instance.last_edited > last_sync
     ]
 
     return {
