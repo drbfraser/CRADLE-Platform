@@ -8,6 +8,7 @@ from pydantic import Field, RootModel
 
 import data.db_operations as crud
 from common import user_utils
+from common.patient_utils import PATIENT_NOT_FOUND_MSG
 from data import orm_serializer
 from models import (
     MedicalRecordOrm,
@@ -411,6 +412,13 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
     for mobile_workflow_instance in mobile_workflow_instances:
         patient_id = mobile_workflow_instance.patient_id
         if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
+            errors.append(
+                {
+                    "workflow_instance_id": mobile_workflow_instance.id,
+                    "errors": PATIENT_NOT_FOUND_MSG.format(patient_id),
+                }
+            )
+            status_code = 207
             continue
         try:
             WorkflowService.upsert_workflow_instance(mobile_workflow_instance)
