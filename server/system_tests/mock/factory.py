@@ -334,7 +334,7 @@ class WorkflowTemplateFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super().__init__(
             db,
-            description="Test workflow template",
+            description_string_id="Test workflow template",
             version="1",
             archived=False,
         )
@@ -350,8 +350,8 @@ class WorkflowTemplateStepFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super().__init__(
             db,
-            name="Test step",
-            description="Test step description",
+            name_string_id="Test step",
+            description_string_id="Test step description",
         )
 
     def create(self, **kwargs) -> Any:

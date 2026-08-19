@@ -12,7 +12,7 @@ def _template(
 ):
     classification = workflow_classification_factory.create(
         id=f"{id}-classification",
-        name=f"{id} classification",
+        name_string_id=f"{id} classification",
     )
     template = workflow_template_factory.create(
         id=id,
@@ -165,7 +165,7 @@ def test_read_workflow_templates_filters(
 ):
     classification = workflow_classification_factory.create(
         id="workflow-template-filter-classification",
-        name="Workflow Template Filter",
+        name_string_id="Workflow Template Filter",
     )
     template = workflow_template_factory.create(
         id="workflow-template-filter",
@@ -232,12 +232,12 @@ def test_read_workflows_in_collection(
     )
     matching = workflow_classification_factory.create(
         id="collection-classification",
-        name="Collection classification",
+        name_string_id="Collection classification",
         collection_id=collection.id,
     )
     workflow_classification_factory.create(
         id="other-collection-classification",
-        name="Other classification",
+        name_string_id="Other classification",
     )
 
     classifications = crud.read_workflows_in_collection(collection.id)
