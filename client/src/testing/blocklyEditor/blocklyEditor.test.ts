@@ -336,7 +336,9 @@ describe('Blockly workspace rules', () => {
       expect(roots).toHaveLength(1);
       const root = roots[0]!;
       expect(root.type).toBe('string_comparison');
-      expect(root.getInputTargetBlock('LEFT')).toBeNull();
+      const left = root.getInputTargetBlock('LEFT');
+      expect(left?.type).toBe('app_variable_missing');
+      expect(left?.getFieldValue('VAR_NAME')).toBe('forms[latest].missing_q');
       const right = root.getInputTargetBlock('RIGHT');
       expect(right?.type).toBe('string_value');
       expect(right?.getFieldValue('TEXT')).toBe('Yes');
@@ -356,7 +358,9 @@ describe('Blockly workspace rules', () => {
       expect(roots).toHaveLength(1);
       const root = roots[0]!;
       expect(root.type).toBe('number_comparison');
-      expect(root.getInputTargetBlock('LEFT')).toBeNull();
+      const left = root.getInputTargetBlock('LEFT');
+      expect(left?.type).toBe('app_variable_missing');
+      expect(left?.getFieldValue('VAR_NAME')).toBe('forms[latest].patient_age');
       expect(root.getFieldValue('OP')).toBe('>=');
       const right = root.getInputTargetBlock('RIGHT');
       expect(right?.type).toBe('number_value');
