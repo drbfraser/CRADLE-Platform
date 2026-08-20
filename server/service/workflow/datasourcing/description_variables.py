@@ -106,10 +106,6 @@ def resolve_description_variables(
 
     results: dict[str, ResolvedVariable] = {}
 
-    # Group by namespace kind first so each of the three resolvers below is
-    # called once for *all* requested variables of that kind, instead of once
-    # per tag -- avoids the DB-query fan-out a step description referencing
-    # several variables (or a page rendering several steps) would otherwise cause.
     wf_paths: dict[str, VariablePath] = {}
     collection_paths: dict[str, VariablePath] = {}
     object_paths: dict[str, VariablePath] = {}
@@ -139,9 +135,6 @@ def resolve_description_variables(
         else:
             object_paths.setdefault(canonical, vp)
 
-    # use_missing_sentinel=True so a genuinely-unresolvable variable (MISSING)
-    # can be told apart from a real field whose value is explicitly null
-    # (None) -- without this both collapse to None and NO_DATA never fires.
     resolved: dict[str, Any] = {}
     if wf_paths:
         resolved.update(

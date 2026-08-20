@@ -14,8 +14,8 @@ type StepDescriptionProps = {
    * Instance/step IDs, used to resolve rule-engine variable tokens like
    * `{{patient.age}}` against current data. Omit when there's no live
    * instance to resolve against (e.g. previewing a template) -- those
-   * tokens are left as bracketed placeholders, same as an unresolved
-   * `{{startDate}}`.
+   * tokens render as an unresolved placeholder message instead, e.g.
+   * `(patient age not loaded)`.
    */
   instanceId?: ID;
   stepId?: ID;

@@ -229,10 +229,10 @@ class ResolveWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
 
 
 # --- Description-variable resolution (markdown `{{...}}` tokens) ---
-# SKELETON: request/response shape for resolving the variables referenced by a
-# step description, reusing the rule engine's variable catalogue. See
+# Request/response shape for resolving the variables referenced by a step
+# description, reusing the rule engine's variable catalogue. See
 # service/workflow/datasourcing/description_variables.py for the resolver this
-# is meant to sit in front of.
+# sits in front of.
 
 
 class GetDescriptionVariablesRequest(CradleBaseModel, extra="forbid"):
@@ -242,8 +242,9 @@ class GetDescriptionVariablesRequest(CradleBaseModel, extra="forbid"):
     the bare variable name, e.g. ``patient.age`` or ``pregnancies[latest].start_date``).
 
     TODO: decide whether extraction should instead happen server-side from the
-    raw description text, to avoid keeping two token parsers in sync (see the
-    TODO on extract_variable_tags in description_variables.py).
+    raw description text, to avoid keeping two token parsers in sync (client's
+    extractVariableTags in descriptionVariables.ts vs. this route's regex-free
+    contract).
     """
 
     variable_tags: list[str]

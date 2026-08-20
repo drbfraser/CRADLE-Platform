@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AnswerTypeEnum,
   QuestionTypeEnum,
@@ -167,45 +167,38 @@ export const useFormQuestions = (
   ): QAnswer[] =>
     nextQuestions.map((question) => getAnswerFromQuestion(question));
 
-  const answersRef = useRef<QAnswer[]>([]);
-
   useEffect(() => {
     if (!questions || questions.length === 0) {
-      answersRef.current = [];
       setAnswers([]);
-      handleAnswers([]);
       return;
     }
 
     const nextAnswers: QAnswer[] = buildAnswersFromQuestions(questions);
     updateQuestionsConditionHidden(questions, nextAnswers);
-    answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
-    handleAnswers(nextAnswers);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, lang]);
 
   function updateAnswersByValue(index: number, newValue: any) {
-    const previousAnswers = answersRef.current;
-    const nextAnswers = [
-      ...(previousAnswers.length > 0
-        ? previousAnswers
-        : buildAnswersFromQuestions(questions)),
-    ];
-    nextAnswers.forEach((answer) => {
-      if (answer.questionIndex === index) {
-        answer.val = newValue;
-      }
-    });
+    setAnswers((previousAnswers) => {
+      const nextAnswers = [
+        ...(previousAnswers.length > 0
+          ? previousAnswers
+          : buildAnswersFromQuestions(questions)),
+      ];
+      nextAnswers.forEach((answer) => {
+        if (answer.questionIndex === index) {
+          answer.val = newValue;
+        }
+      });
 
-    updateQuestionsConditionHidden(questions, nextAnswers);
-    answersRef.current = nextAnswers;
-    setAnswers(nextAnswers);
-    // Propagated synchronously (not via a useEffect on `answers`) so that a
-    // submit triggered immediately after this call always sees the latest
-    // value instead of racing the next render/effect cycle.
-    handleAnswers(nextAnswers);
+      updateQuestionsConditionHidden(questions, nextAnswers);
+      return nextAnswers;
+    });
   }
+
+  useEffect(() => {
+    handleAnswers(answers);
+  }, [answers, handleAnswers]);
 
   const updateQuestionsConditionHidden = (
     questions: (Question | TQuestion)[],
