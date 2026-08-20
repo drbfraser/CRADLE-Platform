@@ -126,4 +126,5 @@ the previously mentioned admin user is added along with a few additional users:
 | Ananya Singh        | asa522@sfu.ca        |
 | Lucy Zhou           | lza168@sfu.ca        |
 | Zoe Wong            | zsw@sfu.ca           |
+| Jasleen Kaur        | jka296@sfu.ca        |
 
