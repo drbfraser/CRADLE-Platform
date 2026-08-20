@@ -323,7 +323,7 @@ describe('Blockly workspace rules', () => {
   });
 
   describe('loading rules with missing variables', () => {
-    it('leaves the variable slot empty when the form question is not available', () => {
+    it('leaves a missing-variable placeholder when the form question is not available', () => {
       loadJsonLogicToWorkspace(
         workspace,
         JSON.stringify({
