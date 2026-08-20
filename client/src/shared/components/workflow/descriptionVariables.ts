@@ -1,14 +1,12 @@
 import moment from 'moment';
 import { DescriptionVariableResolution } from 'src/shared/api/modules/workflowInstance';
 
-// Matches any `{{...}}` token that ISN'T the startDate anchor -- that one is
-// handled separately by descriptionTemplate.ts, which supports the `+3d`
-// offset grammar. This covers rule-engine variable tags instead, e.g.
-// `{{patient.age}}`, `{{pregnancies[latest].start_date}}`.
+// Matches any `{{...}}` token that ISN'T the startDate anchor, that one is
+// handled separately by descriptionTemplate.ts.
 const VARIABLE_TOKEN_PATTERN = /\{\{\s*(?!startDate\b)([^{}]+?)\s*\}\}/gi;
 
 // Tags whose resolved value is a Unix-epoch-seconds timestamp that should
-// render as a calendar date, not a raw number. The rule engine's variable
+// render as a calendar date. The rule engine's variable
 // type registry marks these as INTEGER (correct for rule comparisons like
 // `>=`), so display formatting has to be handled here rather than inferred
 // from that type.
@@ -18,7 +16,7 @@ const DATE_VALUE_TAGS = new Set([
   'vitals[latest].date_taken',
 ]);
 
-// Human-readable names for the variables curated in DescriptionInsertPicker,
+// Readable names for the variables curated in DescriptionInsertPicker,
 // used to build clearer unresolved-placeholder messages (e.g.
 // "(pregnancy start date doesn't exist)" instead of a raw tag in brackets).
 // Falls back to the raw tag for anything typed by hand / picked from the
@@ -68,9 +66,7 @@ export function extractVariableTags(description: string): string[] {
 
 /**
  * Substitute resolved rule-engine variables into a description. Values are
- * resolved live (current data) each time this is called -- see
- * server/service/workflow/datasourcing/description_variables.py's module
- * docstring for why "floating" is the only behavior implemented so far.
+ * resolved live (current data) each time this is called.
  */
 export function resolveDescriptionVariables(
   description: string,
