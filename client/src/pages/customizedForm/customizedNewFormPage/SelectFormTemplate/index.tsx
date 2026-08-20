@@ -16,7 +16,7 @@ import { getFormTemplateLangAsyncV2 } from 'src/shared/api';
 import { useFormTemplatesQueryV2 } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
+import { getLanguageName } from 'src/shared/utils/format';
 import { CustomizedFormField, validationSchema } from './state';
 import { useFormTemplateLangsQueriesV2 } from '../../queries';
 

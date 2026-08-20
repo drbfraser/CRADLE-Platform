@@ -9,14 +9,19 @@ from common.api_utils import (
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
+from common.form_utils import resolve_string_text
 from common.workflow_utils import (
     check_branch_conditions,
+    get_new_lang_versions_for_workflow_step,
     validate_workflow_template_step,
 )
 from data import orm_serializer
 from models import WorkflowTemplateStepOrm
 from validation.workflow_api_models import WorkflowTemplateStepUploadModel
-from validation.workflow_models import WorkflowTemplateStepModel
+from validation.workflow_models import (
+    WorkflowTemplateStepModel,
+    WorkflowTemplateStepMultiLangModel,
+)
 
 workflow_template_step_not_found_msg = "Workflow template step with ID: ({}) not found."
 
@@ -30,6 +35,30 @@ api_workflow_template_steps = APIBlueprint(
 )
 
 
+def _resolve_step_dict(d: dict, lang: str) -> dict:
+    """
+    Mutate a marshalled step dict in place, resolving name_string_id/
+    description_string_id into the plain name/description text
+    WorkflowTemplateStepModel expects (extra="forbid"), falling back to
+    English if the requested language has no translation.
+    """
+    name_string_id = d.pop("name_string_id", None)
+    if name_string_id is not None:
+        d["name"] = resolve_string_text(name_string_id, lang) or resolve_string_text(
+            name_string_id, "English"
+        )
+
+    description_string_id = d.pop("description_string_id", None)
+    if description_string_id is not None:
+        d["description"] = (
+            resolve_string_text(description_string_id, lang)
+            or resolve_string_text(description_string_id, "English")
+            or ""
+        )
+
+    return d
+
+
 # /api/workflow/template/steps [POST]
 @api_workflow_template_steps.post("", responses={201: WorkflowTemplateStepModel})
 def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
@@ -38,23 +67,37 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 
     validate_workflow_template_step(template_step)
 
+    new_lang_versions = get_new_lang_versions_for_workflow_step(
+        template_step, new_template=True
+    )
+
     template_step_orm = orm_serializer.unmarshal(WorkflowTemplateStepOrm, template_step)
+
+    for lang_version in new_lang_versions:
+        crud.db_session.add(lang_version)
 
     crud.create(template_step_orm, refresh=True)
 
-    return orm_serializer.marshal(template_step_orm, shallow=True), 201
+    response_data = orm_serializer.marshal(template_step_orm, shallow=True)
+    _resolve_step_dict(response_data, "English")
+
+    return response_data, 201
 
 
 # /api/workflow/template/steps [GET]
 @api_workflow_template_steps.get("", responses={200: WorkflowTemplateStepListResponse})
 def get_workflow_template_steps():
     """Get All Workflow Template Steps"""
-    template_steps = crud.read_template_steps()
-    template_steps = [
-        orm_serializer.marshal(template_step) for template_step in template_steps
-    ]
+    lang = request.args.get("lang", default="English")
 
-    return {"items": template_steps}, 200
+    template_steps = crud.read_template_steps()
+    response_data = []
+    for template_step in template_steps:
+        d = orm_serializer.marshal(template_step)
+        _resolve_step_dict(d, lang)
+        response_data.append(d)
+
+    return {"items": response_data}, 200
 
 
 # /api/workflow/template/steps/<string:workflow_template_step_id>?with_form=<bool>&with_branches=<bool> [GET]
@@ -67,6 +110,7 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     with_form = convert_query_parameter_to_bool(with_form)
     with_branches = request.args.get("with_branches", default=False)
     with_branches = convert_query_parameter_to_bool(with_branches)
+    lang = request.args.get("lang", default="English")
 
     workflow_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
@@ -81,6 +125,7 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
         )
 
     workflow_step = orm_serializer.marshal(workflow_step, shallow=False)
+    _resolve_step_dict(workflow_step, lang)
 
     if not with_branches:
         del workflow_step["branches"]
@@ -96,7 +141,7 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     "/<string:workflow_template_step_id>", responses={200: WorkflowTemplateStepModel}
 )
 def update_workflow_template_step(
-    path: WorkflowTemplateStepIdPath, body: WorkflowTemplateStepModel
+    path: WorkflowTemplateStepIdPath, body: WorkflowTemplateStepMultiLangModel
 ):
     """Update Workflow Template Step"""
     template_step = crud.read(
@@ -118,17 +163,31 @@ def update_workflow_template_step(
         workflow_template_step_changes
     )  # If new branches are being added to the step
 
+    workflow_template_step_changes["name_string_id"] = template_step.name_string_id
+    workflow_template_step_changes["description_string_id"] = (
+        template_step.description_string_id
+    )
+
+    new_lang_versions = get_new_lang_versions_for_workflow_step(
+        workflow_template_step_changes, new_template=False
+    )
+
     crud.update(
         WorkflowTemplateStepOrm,
         changes=workflow_template_step_changes,
         id=path.workflow_template_step_id,
     )
 
+    for lang_version in new_lang_versions:
+        crud.db_session.add(lang_version)
+    crud.db_session.commit()
+
     updated_template_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
 
     updated_template_step = orm_serializer.marshal(updated_template_step, shallow=True)
+    _resolve_step_dict(updated_template_step, "English")
 
     return updated_template_step, 200
 

@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 from humps import decamelize
 
@@ -292,6 +294,240 @@ def form_submission_v2(patient_id, vht_user_id):
     return _make
 
 
+def _bundle_from_template_response(database, response, payload=None):
+    assert response.status_code == 201
+
+    database.session.flush()
+    database.session.commit()
+
+    body = decamelize(response.json())
+    classification = crud.read(
+        FormClassificationOrmV2, id=body["form_classification_id"]
+    )
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+
+    return {
+        "body": body,
+        "payload": payload,
+        "classification": classification,
+        "template": template,
+        "lang_ids": _collect_form_v2_lang_version_ids(classification, template),
+    }
+
+
+def _collect_form_v2_lang_version_ids(classification, template):
+    lang_ids = [classification.name_string_id]
+    for question in template.questions:
+        lang_ids.append(question.question_string_id)
+    return lang_ids
+
+
+def _cleanup_form_v2_resources(
+    *,
+    template_ids=None,
+    classification_ids=None,
+    lang_ids=None,
+    submission_ids=None,
+):
+    for submission_id in submission_ids or []:
+        crud.delete_all(FormAnswerOrmV2, form_submission_id=submission_id)
+        crud.delete_all(FormSubmissionOrmV2, id=submission_id)
+
+    for template_id in template_ids or []:
+        crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
+        crud.delete_all(FormTemplateOrmV2, id=template_id)
+
+    for classification_id in classification_ids or []:
+        crud.delete_all(FormClassificationOrmV2, id=classification_id)
+
+    for string_id in lang_ids or []:
+        crud.delete_all(LangVersionOrmV2, string_id=string_id)
+
+
+def _create_form_template_v2(
+    database,
+    api_post,
+    form_template_v2_payload,
+    **payload_kwargs,
+):
+    payload = form_template_v2_payload(**payload_kwargs)
+    response = api_post(endpoint="/api/forms/v2/templates/body", json=payload)
+    assert response.status_code == 201
+
+    database.session.flush()
+    database.session.commit()
+
+    body = decamelize(response.json())
+    classification = crud.read(
+        FormClassificationOrmV2, id=body["form_classification_id"]
+    )
+    template = crud.read(FormTemplateOrmV2, id=body["id"])
+
+    return {
+        "body": body,
+        "payload": payload,
+        "classification": classification,
+        "template": template,
+        "lang_ids": _collect_form_v2_lang_version_ids(classification, template),
+    }
+
+
+def _track_form_template_v2(state, template_bundle):
+    body = template_bundle["body"]
+    state["template_ids"].append(body["id"])
+    if body["form_classification_id"] not in state["classification_ids"]:
+        state["classification_ids"].append(body["form_classification_id"])
+    for lang_id in template_bundle["lang_ids"]:
+        if lang_id not in state["lang_ids"]:
+            state["lang_ids"].append(lang_id)
+
+
+def _create_form_submission_v2_record(
+    database,
+    api_post,
+    form_submission_v2,
+    template_bundle,
+    *,
+    extra_answers=None,
+    submission_id=None,
+    patient_id=None,
+    template_question_id=None,
+):
+    template = template_bundle["template"]
+    question_id = template_question_id or next(
+        question.id for question in template.questions if question.order == 1
+    )
+    submission_payload = form_submission_v2(
+        template_id=template_bundle["body"]["id"],
+        template_question_id=question_id,
+        extra_answers=extra_answers,
+    )
+    if submission_id is not None:
+        submission_payload["id"] = submission_id
+    if patient_id is not None:
+        submission_payload["patient_id"] = patient_id
+
+    response = api_post(endpoint="/api/forms/v2/submissions", json=submission_payload)
+    assert response.status_code == 201
+
+    database.session.flush()
+    database.session.commit()
+
+    return decamelize(response.json())
+
+
+@pytest.fixture
+def form_v2_resources(database, api_post, form_template_v2_payload, form_submission_v2):
+    """
+    Factory fixture for form v2 templates and submissions with guaranteed teardown.
+
+    Usage:
+        bundle = form_v2_resources.create_template(extra_questions=[...])
+        submission = form_v2_resources.create_submission(bundle)
+    """
+    state = {
+        "template_ids": [],
+        "classification_ids": [],
+        "lang_ids": [],
+        "submission_ids": [],
+    }
+
+    def create_template(**payload_kwargs):
+        template_bundle = _create_form_template_v2(
+            database,
+            api_post,
+            form_template_v2_payload,
+            **payload_kwargs,
+        )
+        _track_form_template_v2(state, template_bundle)
+        return template_bundle
+
+    def create_template_from_payload(payload):
+        response = api_post(endpoint="/api/forms/v2/templates/body", json=payload)
+        template_bundle = _bundle_from_template_response(database, response, payload)
+        _track_form_template_v2(state, template_bundle)
+        return template_bundle
+
+    def create_template_version(template_bundle, *, version, **payload_kwargs):
+        v1 = template_bundle
+        overrides = {
+            "id": v1["body"]["id"],
+            "version": version,
+            "classification": {
+                "id": v1["body"]["form_classification_id"],
+                "name": v1["payload"]["classification"]["name"],
+            },
+        }
+        if "overrides" in payload_kwargs:
+            overrides.update(payload_kwargs.pop("overrides"))
+        return create_template(overrides=overrides, **payload_kwargs)
+
+    def create_submission(
+        template_bundle,
+        *,
+        extra_answers=None,
+        submission_id=None,
+        patient_id=None,
+        template_question_id=None,
+    ):
+        submission = _create_form_submission_v2_record(
+            database,
+            api_post,
+            form_submission_v2,
+            template_bundle,
+            extra_answers=extra_answers,
+            submission_id=submission_id,
+            patient_id=patient_id,
+            template_question_id=template_question_id,
+        )
+        state["submission_ids"].append(submission["id"])
+        return submission
+
+    def track_submission(submission_id):
+        state["submission_ids"].append(submission_id)
+
+    yield SimpleNamespace(
+        create_template=create_template,
+        create_template_from_payload=create_template_from_payload,
+        create_template_version=create_template_version,
+        create_submission=create_submission,
+        track_submission=track_submission,
+        state=state,
+    )
+
+    _cleanup_form_v2_resources(
+        template_ids=state["template_ids"],
+        classification_ids=state["classification_ids"],
+        lang_ids=state["lang_ids"],
+        submission_ids=state["submission_ids"],
+    )
+
+
+@pytest.fixture
+def form_classification_v2_resources(database, api_post):
+    """Factory fixture for form v2 classifications with guaranteed teardown."""
+    state = {
+        "classification_ids": [],
+        "lang_ids": [],
+    }
+
+    def create(payload):
+        response = api_post(endpoint="/api/forms/v2/classifications", json=payload)
+        assert response.status_code == 201
+        database.session.commit()
+        body = decamelize(response.json())
+        state["classification_ids"].append(body["id"])
+        state["lang_ids"].append(body["name_string_id"])
+        return body
+
+    yield SimpleNamespace(create=create, state=state)
+
+    _cleanup_form_v2_resources(
+        classification_ids=state["classification_ids"],
+        lang_ids=state["lang_ids"],
+    )
+
+
 # TODO: Same as fixture in tests/service/workflow/conftest.py. May want to put unit tests
 #       and system tests under a common "tests" folder so fixtures like this can be shared
 #       inside a common conftest.py file instead of duplicated.
@@ -372,62 +608,41 @@ def sequential_workflow_view_with_db(sequential_workflow_view, patient_id):
 
 
 @pytest.fixture
-def form_with_db(api_post, form_template_v2_payload, form_submission_v2):
-    # Setup
-    template_payload = form_template_v2_payload()
-    response = api_post(endpoint="/api/forms/v2/templates/body", json=template_payload)
-    assert response.status_code == 201
-    body = decamelize(response.json())
-    template_id = body["id"]
-    classification_id = body["form_classification_id"]
-    classification = crud.read(FormClassificationOrmV2, id=classification_id)
-    template = crud.read(FormTemplateOrmV2, id=body["id"])
-    lang_ids = []
-    lang_ids.append(classification.name_string_id)
-    for ques in template.questions:
-        lang_ids.append(ques.question_string_id)
-
-    submission_payload = form_submission_v2(
-        template_id=body["id"], template_question_id=template.questions[1].id
+def form_with_db(database, api_post, form_template_v2_payload, form_submission_v2):
+    template_bundle = _create_form_template_v2(
+        database, api_post, form_template_v2_payload
     )
-    response = api_post(endpoint="/api/forms/v2/submissions", json=submission_payload)
-    assert response.status_code == 201
-    submission = decamelize(response.json())
+    body = template_bundle["body"]
+
+    submission = _create_form_submission_v2_record(
+        database,
+        api_post,
+        form_submission_v2,
+        template_bundle,
+    )
     submission_id = submission["id"]
 
     yield submission
 
-    # Teardown
-    crud.delete_all(FormAnswerOrmV2, form_submission_id=submission_id)
-    crud.delete_all(FormSubmissionOrmV2, id=submission_id)
-    crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
-    crud.delete_all(FormTemplateOrmV2, id=template_id)
-    crud.delete_all(FormClassificationOrmV2, id=classification_id)
-    for lvid in lang_ids or []:
-        crud.delete_all(LangVersionOrmV2, string_id=lvid)
+    _cleanup_form_v2_resources(
+        template_ids=[body["id"]],
+        classification_ids=[body["form_classification_id"]],
+        lang_ids=template_bundle["lang_ids"],
+        submission_ids=[submission_id],
+    )
 
 
 @pytest.fixture
-def form_template_with_db(api_post, form_template_v2_payload):
-    # Setup
-    template_payload = form_template_v2_payload()
-    response = api_post(endpoint="/api/forms/v2/templates/body", json=template_payload)
-    assert response.status_code == 201
-    body = decamelize(response.json())
-    template_id = body["id"]
-    classification_id = body["form_classification_id"]
-    classification = crud.read(FormClassificationOrmV2, id=classification_id)
-    template = crud.read(FormTemplateOrmV2, id=body["id"])
-    lang_ids = []
-    lang_ids.append(classification.name_string_id)
-    for ques in template.questions:
-        lang_ids.append(ques.question_string_id)
+def form_template_with_db(database, api_post, form_template_v2_payload):
+    template_bundle = _create_form_template_v2(
+        database, api_post, form_template_v2_payload
+    )
+    body = template_bundle["body"]
 
     yield body
 
-    # Teardown
-    crud.delete_all(FormQuestionTemplateOrmV2, form_template_id=template_id)
-    crud.delete_all(FormTemplateOrmV2, id=template_id)
-    crud.delete_all(FormClassificationOrmV2, id=classification_id)
-    for lvid in lang_ids or []:
-        crud.delete_all(LangVersionOrmV2, string_id=lvid)
+    _cleanup_form_v2_resources(
+        template_ids=[body["id"]],
+        classification_ids=[body["form_classification_id"]],
+        lang_ids=template_bundle["lang_ids"],
+    )

@@ -13,6 +13,7 @@ import { PatientsPageModel } from './page-object-models/patients-page-model';
 import { AdminPatientsPageModel } from './page-object-models/admin-patients-page-model';
 import { FormTemplatesPageModel } from './page-object-models/form-templates-page-model';
 import { FormTemplateBuilderPageModel } from './page-object-models/form-template-builder-page-model';
+import { CustomFormPageModel } from './page-object-models/custom-form-page-model';
 
 /** All test patients should be given the same name, so that they can be identified
  * later for deletion.
@@ -35,6 +36,7 @@ export type CradleFixtures = {
   adminPatientsPage: AdminPatientsPageModel;
   formTemplatesPage: FormTemplatesPageModel;
   formTemplateBuilderPage: FormTemplateBuilderPageModel;
+  customFormPage: CustomFormPageModel;
 };
 
 /**
@@ -112,5 +114,8 @@ export const test = baseTest.extend<CradleFixtures>({
   },
   formTemplateBuilderPage: async ({ page }, _use) => {
     await _use(new FormTemplateBuilderPageModel(page));
+  },
+  customFormPage: async ({ page, testPatient }, _use) => {
+    await _use(CustomFormPageModel.forNew(page, testPatient.id));
   },
 });

@@ -11,10 +11,12 @@ import {
   QCondition,
   McOption,
 } from 'src/shared/types/form/formTypes';
+import { resolveLocalizedText } from 'src/shared/components/Form/questions/formQuestionUtils';
 
 export const useFormQuestions = (
   questions: Question[] | TQuestion[],
-  handleAnswers: (a: QAnswer[]) => void
+  handleAnswers: (a: QAnswer[]) => void,
+  lang = 'English'
 ) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   const [stringMaxLinesError, setStringMaxLinesError] = useState<boolean[]>([]);
@@ -58,17 +60,18 @@ export const useFormQuestions = (
   ): Question | TQuestion | undefined =>
     questions.find((question) => getQuestionIndex(question) === questionIndex);
 
+  const languageKey = (lang || 'English').toLowerCase();
+
   const getMcOptionLabel = (
     option: McOption | { translations?: Record<string, string> }
   ) => {
-    if ('opt' in option) {
+    if ('opt' in option && typeof option.opt === 'string') {
       return option.opt;
     }
 
-    return (
-      option.translations?.english ??
-      Object.values(option.translations ?? {})[0] ??
-      ''
+    return resolveLocalizedText(
+      (option as { translations?: Record<string, string> }).translations,
+      languageKey
     );
   };
 
@@ -173,7 +176,7 @@ export const useFormQuestions = (
     const nextAnswers: QAnswer[] = buildAnswersFromQuestions(questions);
     updateQuestionsConditionHidden(questions, nextAnswers);
     setAnswers(nextAnswers);
-  }, [questions]);
+  }, [questions, lang]);
 
   function updateAnswersByValue(index: number, newValue: any) {
     setAnswers((previousAnswers) => {
@@ -229,10 +232,18 @@ export const useFormQuestions = (
 
           let isConditionMet = true;
           switch (parentQuestion.questionType) {
-            // TODO: This does not work. The multiple choice and multiple select questions do not save properly in the QCondition object type
+            // The multiple choice and multiple select questions save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
-            case QuestionTypeEnum.MULTIPLE_SELECT:
+            case QuestionTypeEnum.MULTIPLE_SELECT: {
+              const requiredLabels = getValuesFromIDs(
+                parentQuestion,
+                condition.answers.mcIdArray
+              );
+              isConditionMet = requiredLabels.some((label) =>
+                (parentAnswer.val as string[]).includes(label)
+              );
               break;
+            }
             case QuestionTypeEnum.STRING:
               switch (condition.relation) {
                 case QRelationEnum.EQUAL_TO:

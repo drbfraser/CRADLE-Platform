@@ -113,7 +113,6 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
         d["classification"] = __marshal_workflow_classification(
             wc=wt.classification, if_include_templates=False
         )
-        d["name"] = wt.classification.name
 
     if not shallow:
         d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]

@@ -5,6 +5,7 @@ import { useWorkflowEditorState } from 'src/shared/hooks/workflowTemplate/useWor
 import { useWorkflowStepMutations } from 'src/shared/hooks/workflowTemplate/useWorkflowStepMutations';
 import { useWorkflowBranchMutations } from 'src/shared/hooks/workflowTemplate/useWorkflowBranchMutations';
 import { useWorkflowSave } from 'src/shared/hooks/workflowTemplate/useWorkflowSave';
+import { useWorkflowLanguages } from 'src/shared/hooks/workflowTemplate/useWorkflowLanguages';
 
 export interface UseWorkflowEditorOptions {
   initialWorkflow: WorkflowTemplate | null;
@@ -59,6 +60,42 @@ export const useWorkflowEditor = ({
       initHistory(workflow);
     },
     [initializeEditorState, initHistory]
+  );
+
+  const workflowLanguages = useWorkflowLanguages({
+    editedWorkflow,
+    setEditedWorkflow,
+    handleFieldChange,
+    handleStepChange,
+  });
+
+  const {
+    languages,
+    setLanguages,
+    selectedLanguage,
+    setSelectedLanguage,
+    translations,
+    handleTranslatedFieldChange,
+    handleTranslatedStepFieldChange,
+    initializeEditorLanguages,
+    initializeCreateLanguages,
+    missingRequiredTranslations,
+    missingOptionalTranslations,
+    uncheckedLanguagesWithText,
+  } = workflowLanguages;
+
+  const initializeEditorWithLanguages = useCallback(
+    (
+      multiLang: Parameters<typeof initializeEditorLanguages>[0],
+      availableLanguages: string[]
+    ) => {
+      const resolvedWorkflow = initializeEditorLanguages(
+        multiLang,
+        availableLanguages
+      );
+      initializeEditor(resolvedWorkflow);
+    },
+    [initializeEditorLanguages, initializeEditor]
   );
 
   const showToast = useCallback(
@@ -130,6 +167,18 @@ export const useWorkflowEditor = ({
     handleSave,
     handleCancel,
     initializeEditor,
+    languages,
+    setLanguages,
+    selectedLanguage,
+    setSelectedLanguage,
+    translations,
+    handleTranslatedFieldChange,
+    handleTranslatedStepFieldChange,
+    initializeEditorWithLanguages,
+    initializeCreateLanguages,
+    missingRequiredTranslations,
+    missingOptionalTranslations,
+    uncheckedLanguagesWithText,
     onCaptureState: captureCurrentState,
     canUndo,
     canRedo,
@@ -137,3 +186,5 @@ export const useWorkflowEditor = ({
     redo,
   };
 };
+
+export type WorkflowEditorController = ReturnType<typeof useWorkflowEditor>;

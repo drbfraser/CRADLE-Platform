@@ -97,6 +97,7 @@ __all__ = [
     # workflow_management
     "read_workflow_classifications",
     "read_workflow_templates",
+    "read_workflow_template_language_versions",
     "read_workflow_instances",
     "read_workflow_instance",
     "read_workflow_instance_data_for_instance",
@@ -197,6 +198,10 @@ _EXPORTS: dict[str, tuple[str, str | None]] = {
         "read_workflow_classifications",
     ),
     "read_workflow_templates": ("workflow_management", "read_workflow_templates"),
+    "read_workflow_template_language_versions": (
+        "workflow_management",
+        "read_workflow_template_language_versions",
+    ),
     "read_workflow_instances": ("workflow_management", "read_workflow_instances"),
     "read_workflow_instance": ("workflow_management", "read_workflow_instance"),
     "read_workflow_instance_data_for_instance": (

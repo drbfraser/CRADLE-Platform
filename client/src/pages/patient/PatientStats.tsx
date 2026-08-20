@@ -25,10 +25,14 @@ import {
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
-import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
-import { PatientStatistics } from 'src/shared/types/patientTypes';
-import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
+import { StatsOptionEnum } from 'src/shared/enums';
+import { statsUnitLabels } from 'src/shared/constants';
 import { getPatientStatisticsAsync } from 'src/shared/api';
+import {
+  chartOptions,
+  getTrafficLightChartData,
+  getVitalsChartData,
+} from './patientStatsChartData';
 
 Chart.register(
   CategoryScale,
@@ -89,24 +93,16 @@ export const PatientStats = ({ patientId }: IProps) => {
         }}>
         <ToggleButton
           value={CHART_OPTION.VITALS}
-          onClick={() => {
-            setChartSelected(CHART_OPTION.VITALS);
-          }}
-          sx={{
-            width: '100%',
-          }}>
+          onClick={() => setChartSelected(CHART_OPTION.VITALS)}
+          sx={{ width: '100%' }}>
           {currentStatsUnit === StatsOptionEnum.THIS_YEAR
             ? 'Show Vitals This Year'
             : 'Show Vitals Last 12 Months'}
         </ToggleButton>
         <ToggleButton
           value={CHART_OPTION.TRAFFIC_LIGHTS}
-          onClick={() => {
-            setChartSelected(CHART_OPTION.TRAFFIC_LIGHTS);
-          }}
-          sx={{
-            width: '100%',
-          }}>
+          onClick={() => setChartSelected(CHART_OPTION.TRAFFIC_LIGHTS)}
+          sx={{ width: '100%' }}>
           Show Traffic Lights
         </ToggleButton>
       </ToggleButtonGroup>
@@ -122,18 +118,12 @@ export const PatientStats = ({ patientId }: IProps) => {
         <>
           {chartSelected === CHART_OPTION.VITALS && (
             <>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: '700',
-                }}>
+              <Typography variant="h6" sx={{ fontWeight: '700' }}>
                 Average Vitals
               </Typography>
 
               <Select
-                sx={{
-                  minWidth: '160px',
-                }}
+                sx={{ minWidth: '160px' }}
                 value={currentStatsUnit}
                 onChange={(event) => {
                   setCurrentStatsUnit(event.target.value as StatsOptionEnum);
@@ -145,14 +135,10 @@ export const PatientStats = ({ patientId }: IProps) => {
                 ))}
               </Select>
 
-              <Box
-                sx={{
-                  height: GRAPH_HEIGHT,
-                  marginTop: '16px',
-                }}>
+              <Box sx={{ height: GRAPH_HEIGHT, marginTop: '16px' }}>
                 <Line
-                  data={getVitalsData(patientStats, currentStatsUnit)}
-                  options={options}
+                  data={getVitalsChartData(patientStats, currentStatsUnit)}
+                  options={chartOptions}
                 />
               </Box>
             </>
@@ -160,13 +146,10 @@ export const PatientStats = ({ patientId }: IProps) => {
           {chartSelected === CHART_OPTION.TRAFFIC_LIGHTS && (
             <>
               <Typography>Traffic Lights From All Readings:</Typography>
-              <Box
-                sx={{
-                  height: GRAPH_HEIGHT,
-                }}>
+              <Box sx={{ height: GRAPH_HEIGHT }}>
                 <Bar
-                  data={getTrafficLightData(patientStats)}
-                  options={options}
+                  data={getTrafficLightChartData(patientStats)}
+                  options={chartOptions}
                 />
               </Box>
             </>
@@ -176,112 +159,3 @@ export const PatientStats = ({ patientId }: IProps) => {
     </Paper>
   );
 };
-
-const getVitalsData = (
-  stats: PatientStatistics,
-  currentStatsUnit: StatsOptionEnum
-) => {
-  const MONTHS_IN_YEAR = 12;
-  const monthLabelForLastTwelveMonths = [
-    ...monthsLabels.slice(stats.currentMonth, 12),
-    ...monthsLabels.slice(0, stats.currentMonth),
-  ];
-
-  const average = (monthlyArray: number[]) => {
-    if (monthlyArray.length === 0) {
-      return undefined;
-    }
-
-    return (
-      monthlyArray.reduce((total, value) => total + value, 0) /
-      monthlyArray.length
-    );
-  };
-
-  const datasets = [
-    {
-      label: 'Systolic',
-      color: '75,192,192',
-      data:
-        currentStatsUnit === StatsOptionEnum.THIS_YEAR
-          ? stats.bpSystolicReadingsMonthly
-          : stats.bpSystolicReadingsLastTwelveMonths,
-    },
-    {
-      label: 'Diastolic',
-      color: '148,0,211',
-      data:
-        currentStatsUnit === StatsOptionEnum.THIS_YEAR
-          ? stats.bpDiastolicReadingsMonthly
-          : stats.bpDiastolicReadingsLastTwelveMonths,
-    },
-    {
-      label: 'Heart Rate',
-      color: '255,127,80',
-      data:
-        currentStatsUnit === StatsOptionEnum.THIS_YEAR
-          ? stats.heartRateReadingsMonthly
-          : stats.heartRateReadingsLastTwelveMonths,
-    },
-  ];
-
-  return {
-    labels:
-      currentStatsUnit === StatsOptionEnum.THIS_YEAR
-        ? monthsLabels
-        : monthLabelForLastTwelveMonths,
-    datasets: datasets.map((d) => ({
-      label: d.label,
-      fill: true,
-      lineTension: 0.1,
-      backgroundColor: `rgba(${d.color},0.4)`,
-      borderColor: `rgba(${d.color},1)`,
-      pointRadius: 5,
-      data: d.data
-        ? Array(MONTHS_IN_YEAR)
-            .fill(null)
-            .map((_, i) => average(d.data?.[i] ?? []))
-        : [],
-    })),
-  };
-};
-
-const getTrafficLightData = (stats: PatientStatistics) => ({
-  labels: Object.values(TrafficLightEnum)
-    .filter((value) => value !== TrafficLightEnum.NONE)
-    .map((value) => value.replace('_', ' ')),
-  datasets: [
-    {
-      backgroundColor: [
-        trafficLightColors[TrafficLightEnum.GREEN],
-        trafficLightColors[TrafficLightEnum.YELLOW_UP],
-        trafficLightColors[TrafficLightEnum.YELLOW_DOWN],
-        trafficLightColors[TrafficLightEnum.RED_UP],
-        trafficLightColors[TrafficLightEnum.RED_DOWN],
-      ],
-      data: Object.values(stats.trafficLightCountsFromDay1),
-    },
-  ],
-});
-
-const options = {
-  maintainAspectRatio: false,
-  legend: {
-    display: false,
-  },
-};
-
-const monthsLabels = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];

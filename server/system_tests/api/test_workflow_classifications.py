@@ -2,15 +2,17 @@ from humps import decamelize
 
 import data.db_operations as crud
 from common.commonUtil import get_uuid
+from common.form_utils import resolve_string_text
 from common.print_utils import pretty_print
 from models import WorkflowClassificationOrm
 
 
 def test_create_workflow_classification_success(database, api_post):
     """Test successful creation of a workflow classification"""
+    expected_name = "Test Classification"
     classification_data = {
         "id": get_uuid(),
-        "name": "Test Classification",
+        "name": {"English": expected_name},
     }
 
     try:
@@ -23,7 +25,7 @@ def test_create_workflow_classification_success(database, api_post):
         pretty_print(response_body)
 
         assert response.status_code == 201
-        assert response_body["name"] == classification_data["name"]
+        assert response_body["name"] == expected_name
         assert response_body["id"] == classification_data["id"]
 
         # Verify it was actually created in the database
@@ -31,7 +33,10 @@ def test_create_workflow_classification_success(database, api_post):
             WorkflowClassificationOrm, id=classification_data["id"]
         )
         assert created_classification is not None
-        assert created_classification.name == classification_data["name"]
+        assert (
+            resolve_string_text(created_classification.name_string_id, "English")
+            == expected_name
+        )
 
     finally:
         crud.delete_workflow_classification(
@@ -40,13 +45,14 @@ def test_create_workflow_classification_success(database, api_post):
 
 
 def test_patch_workflow_classification(database, api_get, api_post, api_patch):
+    expected_name = "Test Classification"
     classification_data = {
         "id": get_uuid(),
-        "name": "Test Classification",
+        "name": {"English": expected_name},
     }
 
     patch_data = {
-        "name": "updated_classification_name",
+        "name": {"English": "updated_classification_name"},
     }
 
     try:
@@ -59,7 +65,7 @@ def test_patch_workflow_classification(database, api_get, api_post, api_patch):
         pretty_print(response_body)
 
         assert response.status_code == 201
-        assert response_body["name"] == classification_data["name"]
+        assert response_body["name"] == expected_name
         assert response_body["id"] == classification_data["id"]
 
         # Verify it was actually created in the database
@@ -67,7 +73,10 @@ def test_patch_workflow_classification(database, api_get, api_post, api_patch):
             WorkflowClassificationOrm, id=classification_data["id"]
         )
         assert created_classification is not None
-        assert created_classification.name == classification_data["name"]
+        assert (
+            resolve_string_text(created_classification.name_string_id, "English")
+            == expected_name
+        )
 
         response = api_patch(
             endpoint=f"/api/workflow/classifications/{classification_data['id']}",
@@ -100,17 +109,17 @@ def test_get_workflow_classifications_with_data(database, api_get, api_post):
     # Create test classifications
     classification1_data = {
         "id": get_uuid(),
-        "name": "Test Classification 1",
+        "name": {"English": "Test Classification 1"},
     }
 
     classification2_data = {
         "id": get_uuid(),
-        "name": "Test Classification 2",
+        "name": {"English": "Test Classification 2"},
     }
 
     classification3_data = {
         "id": get_uuid(),
-        "name": "Test Classification 3",
+        "name": {"English": "Test Classification 3"},
     }
 
     try:
@@ -137,9 +146,9 @@ def test_get_workflow_classifications_with_data(database, api_get, api_post):
         assert classification2_data["id"] in classification_ids
         assert classification3_data["id"] in classification_ids
 
-        assert classification1_data["name"] in classification_names
-        assert classification2_data["name"] in classification_names
-        assert classification3_data["name"] in classification_names
+        assert classification1_data["name"]["English"] in classification_names
+        assert classification2_data["name"]["English"] in classification_names
+        assert classification3_data["name"]["English"] in classification_names
 
     finally:
         # Clean up
@@ -155,9 +164,10 @@ def test_get_workflow_classifications_with_data(database, api_get, api_post):
 
 def test_get_single_workflow_classification_success(database, api_get, api_post):
     """Test getting a single workflow classification that exists"""
+    expected_name = "Test Single Classification"
     classification_data = {
         "id": get_uuid(),
-        "name": "Test Single Classification",
+        "name": {"English": expected_name},
     }
 
     try:
@@ -178,7 +188,7 @@ def test_get_single_workflow_classification_success(database, api_get, api_post)
 
         assert response.status_code == 200
         assert response_body["id"] == classification_data["id"]
-        assert response_body["name"] == classification_data["name"]
+        assert response_body["name"] == expected_name
 
     finally:
         crud.delete_workflow_classification(

@@ -6,18 +6,17 @@ test.beforeEach(async ({ formTemplatesPage }) => {
   await formTemplatesPage.clickNewFormTemplateButton();
 });
 
-test.skip('should allow an admin to create a new form template', async ({
+test('should allow an admin to create a new form template', async ({
   formTemplatesPage,
   formTemplateBuilderPage,
   browserName,
-}, testInfo) => {
-  const formTemplateTitle = `Test Form Template ${browserName}`;
-  const version = 'v1.0';
+}) => {
+  const formTemplateTitle = `Test Form Template ${browserName} ${Date.now()}`;
+  const version = String(Date.now() % 100000);
   const categoryName = 'Dietary';
 
   await formTemplateBuilderPage.fillFormMetadata(formTemplateTitle, version);
 
-  // add a category
   await formTemplateBuilderPage.addCategoryButton.click();
   await formTemplateBuilderPage.englishCategoryNameInput.fill(categoryName);
   await formTemplateBuilderPage.saveCategoryButton.click();
@@ -43,10 +42,8 @@ test.skip('should allow an admin to create a new form template', async ({
 
   await formTemplateBuilderPage.submitForm();
 
-  // verify form is listed
   await formTemplatesPage.expectFormTemplateToBeListed(formTemplateTitle);
 
-  // archive form and ensure it's gone
   await formTemplatesPage.archiveFormTemplateByName(formTemplateTitle);
   await expect(
     formTemplatesPage.getFormTemplateRowByName(formTemplateTitle)

@@ -1,104 +1,157 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  IconButton,
-  Paper,
-  Skeleton,
-  Tooltip,
-  Typography,
-  Divider,
-  Button,
-  Stack,
-} from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteForever from '@mui/icons-material/DeleteForever';
-import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import { Paper, Divider, Alert, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  WorkflowTemplateStepWithFormAndIndex,
-  WorkflowTemplate,
-} from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplateMultiLang } from 'src/shared/types/workflow/workflowMultiLangTypes';
 import { WorkflowViewMode } from 'src/shared/types/workflow/workflowEnums';
-import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
-import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
-import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
-import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
+import {
+  getTemplateWithStepsAndClassification,
+  getTemplateTranslations,
+  getTemplateLangs,
+} from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowEditor } from 'src/shared/components/workflow/workflowTemplate/WorkflowEditor';
+import { LanguageAutocomplete } from 'src/shared/components/workflow/workflowTemplate/LanguageAutocomplete';
 import { useWorkflowEditor } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
+import {
+  hasEnglishText,
+  pruneToLanguages,
+  getPrunedStepTranslations,
+} from 'src/shared/hooks/workflowTemplate/useWorkflowLanguages';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
+import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import { WorkflowTemplatePageHeader, dash } from './WorkflowTemplatePageHeader';
+import { WorkflowTemplateViewContent } from './WorkflowTemplateViewContent';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const viewWorkflow = location.state?.viewWorkflow;
 
-  // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
-
-  // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
     WorkflowViewMode.FLOW
   );
-
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
+  const [viewLanguage, setViewLanguage] = useState<string>('');
 
-  // Fetch the workflow template data to ensure it's always up-to-date
+  const templateLangsQuery = useQuery({
+    queryKey: ['workflowTemplateLangs', viewWorkflow?.id],
+    queryFn: () => getTemplateLangs(viewWorkflow.id),
+    enabled: !!viewWorkflow?.id,
+  });
+  const viewLanguages = templateLangsQuery.data ?? [];
+
+  const effectiveViewLanguage =
+    viewLanguage ||
+    (viewLanguages.includes('English') ? 'English' : viewLanguages[0]);
+
   const workflowTemplateQuery = useQuery({
-    queryKey: ['workflowTemplate', viewWorkflow?.id],
+    queryKey: ['workflowTemplate', viewWorkflow?.id, effectiveViewLanguage],
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
-      const result = await getTemplateWithStepsAndClassification(
-        viewWorkflow.id
+      return getTemplateWithStepsAndClassification(
+        viewWorkflow.id,
+        effectiveViewLanguage
       );
-      return result;
     },
     enabled: !!viewWorkflow?.id,
-    initialData: viewWorkflow,
+    initialData: effectiveViewLanguage ? undefined : viewWorkflow,
+  });
+
+  // Raw multi-language shape, fetched only when entering edit mode - the
+  // resolved single-language workflowTemplateQuery above would silently drop
+  // every non-English translation if it were used to seed the editor instead.
+  const translationsQuery = useQuery({
+    queryKey: ['workflowTemplateTranslations', viewWorkflow?.id],
+    queryFn: (): Promise<WorkflowTemplateMultiLang> =>
+      getTemplateTranslations(viewWorkflow.id),
+    enabled: !!viewWorkflow?.id && isEditMode,
   });
 
   const editWorkflowTemplateMutation = useEditWorkflowTemplate();
 
-  // Workflow editor hook
   const workflowEditor = useWorkflowEditor({
     initialWorkflow: workflowTemplateQuery.data || null,
     enabled: isEditMode,
     onSave: async (workflow) => {
-      await editWorkflowTemplateMutation.mutateAsync({
-        template: workflow,
-      });
+      const { languages, translations } = workflowEditor;
 
-      // Redirect to workflow templates page after successful save
+      if (workflowEditor.missingRequiredTranslations().length > 0) {
+        workflowEditor.setToastMsg(
+          'Please fill in the required fields for every selected language'
+        );
+        workflowEditor.setToastOpen(true);
+        throw new Error('Missing required translations');
+      }
+
+      const prunedClassificationName = pruneToLanguages(
+        translations.classificationName,
+        languages
+      );
+
+      if (!hasEnglishText(prunedClassificationName)) {
+        workflowEditor.setToastMsg('An English template name is required');
+        workflowEditor.setToastOpen(true);
+        throw new Error('English name required');
+      }
+
+      const payload = {
+        description: pruneToLanguages(
+          translations.templateDescription,
+          languages
+        ),
+        archived: workflow.archived,
+        startingStepId: workflow.startingStepId,
+        classificationId: workflow.classificationId,
+        classification: {
+          id: workflow.classification?.id,
+          name: prunedClassificationName,
+        },
+        steps: (workflow.steps || []).map((step) => {
+          const { name, description } = getPrunedStepTranslations(
+            translations,
+            step.id,
+            languages
+          );
+          return {
+            ...step,
+            name,
+            description,
+          };
+        }),
+      };
+
+      await editWorkflowTemplateMutation.mutateAsync({
+        templateId: workflow.id,
+        payload,
+      });
       navigate('/admin/workflow-templates');
     },
     onCancel: () => setIsEditMode(false),
   });
 
-  // Initialize editor when entering edit mode
   useEffect(() => {
     if (
       isEditMode &&
-      workflowTemplateQuery.data &&
+      translationsQuery.data &&
       !workflowEditor.editedWorkflow
     ) {
-      workflowEditor.initializeEditor({ ...workflowTemplateQuery.data });
+      const availableLanguages = Object.keys(
+        translationsQuery.data.classification?.name ?? {}
+      );
+      workflowEditor.initializeEditorWithLanguages(
+        translationsQuery.data,
+        availableLanguages
+      );
     }
-  }, [isEditMode, workflowTemplateQuery.data]);
-
-  const isLoading = workflowTemplateQuery.isPending;
-
-  const dash = (v?: string) => (v && String(v).trim() ? v : '—');
-
-  const handleEdit = () => {
-    setIsEditMode(true);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, translationsQuery.data]);
 
   const currentWorkflow = isEditMode
     ? workflowEditor.editedWorkflow
@@ -109,167 +162,69 @@ export const ViewWorkflowTemplate = () => {
   return (
     <>
       {(workflowTemplateQuery.isError ||
-        editWorkflowTemplateMutation.isError) && <APIErrorToast />}
+        translationsQuery.isError ||
+        templateLangsQuery.isError ||
+        editWorkflowTemplateMutation.isError) && (
+        <APIErrorToast
+          errorMessage={
+            editWorkflowTemplateMutation.isError
+              ? editWorkflowTemplateMutation.error.message
+              : undefined
+          }
+        />
+      )}
 
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Go back" placement="top">
-              <IconButton
-                onClick={() => navigate(`/admin/workflow-templates`)}
-                size="medium">
-                <ChevronLeftIcon color="inherit" fontSize="large" />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h4" component="h2" sx={{ ml: 0.5 }}>
-              Workflow Classification: {dash(classificationName)}
-            </Typography>
+        <WorkflowTemplatePageHeader
+          title={`Workflow Classification: ${dash(classificationName)}`}
+          onBack={() => navigate('/admin/workflow-templates')}
+          workflow={workflowTemplateQuery.data}
+          isEditMode={isEditMode}
+          onEdit={() => setIsEditMode(true)}
+          onArchive={() => setIsArchivePopupOpen(true)}
+          onUnarchive={() => setIsUnarchivePopupOpen(true)}
+        />
+
+        {!isEditMode && viewLanguages.length > 1 && (
+          <Box sx={{ mt: 2, mb: 1 }}>
+            <LanguageAutocomplete
+              options={viewLanguages}
+              value={effectiveViewLanguage}
+              onChange={setViewLanguage}
+              sx={{ maxWidth: 260 }}
+            />
           </Box>
-
-          {!isEditMode && (
-            <Stack direction="row" spacing={1}>
-              <Button
-                variant="contained"
-                startIcon={<EditIcon />}
-                onClick={handleEdit}
-                disabled={workflowTemplateQuery.data?.archived}>
-                Edit
-              </Button>
-
-              {!workflowTemplateQuery.data?.archived ? (
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<DeleteForever />}
-                  onClick={() => setIsArchivePopupOpen(true)}>
-                  Archive Workflow
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  startIcon={<UnarchiveIcon />}
-                  onClick={() => setIsUnarchivePopupOpen(true)}>
-                  Unarchive Workflow
-                </Button>
-              )}
-            </Stack>
-          )}
-        </Box>
+        )}
 
         <Divider sx={{ my: 3 }} />
 
+        {workflowTemplateQuery.data?.hasBranchingIssues &&
+          (!isEditMode || !workflowEditor.hasChanges) && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              <strong>Branching issue detected.</strong> A form used by this
+              workflow was updated in a way that breaks one or more branch
+              conditions. Open the affected step(s) and fix or remove the broken
+              conditions, then save to re-evaluate.
+            </Alert>
+          )}
+
         {isEditMode ? (
           <WorkflowEditor
-            workflow={workflowEditor.editedWorkflow}
+            editor={workflowEditor}
             allowClassificationEdit={true}
-            hasChanges={workflowEditor.hasChanges}
-            selectedStepId={workflowEditor.selectedStepId}
-            selectedBranchIndex={workflowEditor.selectedBranchIndex}
-            setSelectedBranchIndex={workflowEditor.setSelectedBranchIndex}
-            onTargetStepChange={workflowEditor.onTargetStepChange}
-            onStepSelect={workflowEditor.setSelectedStepId}
-            onFieldChange={workflowEditor.handleFieldChange}
-            onStepChange={workflowEditor.handleStepChange}
-            onCaptureState={workflowEditor.onCaptureState}
-            onInsertNodeBetween={workflowEditor.handleInsertNodeBetween}
-            onBranchChange={workflowEditor.handleBranchChange}
-            onInsertNode={workflowEditor.handleInsertNode}
-            onAddBranch={workflowEditor.handleAddBranch}
-            onConnectionCreate={workflowEditor.handleConnectionCreate}
-            onDeleteNode={workflowEditor.handleDeleteNode}
-            onAddRule={workflowEditor.handleAddRule}
-            onSave={workflowEditor.handleSave}
-            onCancel={workflowEditor.handleCancel}
-            canUndo={workflowEditor.canUndo}
-            canRedo={workflowEditor.canRedo}
-            onUndo={workflowEditor.undo}
-            onRedo={workflowEditor.redo}
             isSaving={editWorkflowTemplateMutation.isPending}
+            hasBranchingIssues={
+              !!workflowTemplateQuery.data?.hasBranchingIssues
+            }
           />
         ) : (
-          <>
-            <Typography variant="h6" sx={{ mb: 2, ml: 1 }}>
-              Workflow Template Basic Info
-            </Typography>
-
-            <WorkflowMetadata
-              classificationName={classificationName}
-              description={currentWorkflow?.description}
-              version={currentWorkflow?.version}
-              lastEdited={currentWorkflow?.lastEdited}
-              archived={currentWorkflow?.archived}
-              dateCreated={currentWorkflow?.dateCreated}
-              isEditMode={false}
-              isClassificationEditable={false}
-            />
-
-            <Divider sx={{ my: 3 }} />
-
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                mb: 2,
-              }}>
-              <Typography variant="h6" component="h2" sx={{ ml: 1 }}>
-                {`Workflow Template Steps${
-                  typeof workflowTemplateQuery.data?.steps?.length === 'number'
-                    ? ` (${workflowTemplateQuery.data.steps.length})`
-                    : ''
-                }`}
-              </Typography>
-
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant={
-                    viewMode === WorkflowViewMode.FLOW
-                      ? 'contained'
-                      : 'outlined'
-                  }
-                  size="small"
-                  onClick={() => setViewMode(WorkflowViewMode.FLOW)}>
-                  Flow View
-                </Button>
-                <Button
-                  variant={
-                    viewMode === WorkflowViewMode.LIST
-                      ? 'contained'
-                      : 'outlined'
-                  }
-                  size="small"
-                  onClick={() => setViewMode(WorkflowViewMode.LIST)}>
-                  List View
-                </Button>
-              </Stack>
-            </Box>
-
-            {isLoading ? (
-              <Skeleton variant="rectangular" height={400} />
-            ) : viewMode === WorkflowViewMode.FLOW ? (
-              <WorkflowFlowView
-                steps={
-                  currentWorkflow?.steps as WorkflowTemplateStepWithFormAndIndex[]
-                }
-                firstStepId={currentWorkflow?.startingStepId || ''}
-                isInstance={false}
-                isEditMode={false}
-              />
-            ) : (
-              <WorkflowSteps
-                steps={
-                  currentWorkflow?.steps as WorkflowTemplateStepWithFormAndIndex[]
-                }
-                firstStep={currentWorkflow?.startingStepId}
-                isInstance={false}
-              />
-            )}
-          </>
+          <WorkflowTemplateViewContent
+            workflow={currentWorkflow}
+            isLoading={workflowTemplateQuery.isPending}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            classificationName={classificationName}
+          />
         )}
       </Paper>
 

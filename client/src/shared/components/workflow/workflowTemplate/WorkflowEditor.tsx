@@ -9,96 +9,46 @@ import {
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import {
-  WorkflowTemplate,
-  WorkflowTemplateStepWithFormAndIndex,
-} from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { WorkflowViewMode } from 'src/shared/types/workflow/workflowEnums';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
+import { WorkflowEditorController } from 'src/shared/hooks/workflowTemplate/useWorkflowEditor';
+import LanguageModal from 'src/pages/admin/manageFormTemplates/editFormTemplate/LanguageModal';
+import { LanguageAutocomplete } from 'src/shared/components/workflow/workflowTemplate/LanguageAutocomplete';
 
 interface WorkflowEditorProps {
-  workflow: WorkflowTemplate | null;
+  editor: WorkflowEditorController;
   allowClassificationEdit?: boolean;
-  hasChanges: boolean;
-  selectedStepId?: string;
-  selectedBranchIndex?: number;
-  onStepSelect: (stepId: string) => void;
-  onFieldChange: (field: keyof WorkflowTemplate, value: unknown) => void;
-  onStepChange: (stepId: string, field: string, value: string) => void;
-  onCaptureState?: () => void;
-  onBranchChange: (
-    stepId: string,
-    branchIndex: number,
-    conditionRule: string,
-    conditionName?: string
-  ) => void;
-  onTargetStepChange?: (
-    stepId: string,
-    branchIndex: number,
-    targetStepId: string
-  ) => void;
-  setSelectedBranchIndex?: (index: number | undefined) => void;
-  onInsertNode: (stepId: string) => void;
-  onAddBranch: (stepId: string) => void;
-  onConnectionCreate: (sourceStepId: string, targetStepId: string) => void;
-  onDeleteNode: (stepId: string) => void;
-  onAddRule?: (
-    branchId: string,
-    sourceStepId: string,
-    targetStepId: string
-  ) => void;
-  onInsertNodeBetween?: (
-    sourceStepId: string,
-    targetStepId: string,
-    branchId?: string
-  ) => void;
-  onSave: () => void;
-  onCancel: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
   isSaving?: boolean;
   saveDisabled?: boolean;
+  hasBranchingIssues?: boolean;
   showViewToggle?: boolean;
   viewMode?: WorkflowViewMode;
   onViewModeChange?: (mode: WorkflowViewMode) => void;
 }
 
 export const WorkflowEditor = ({
-  workflow,
+  editor,
   allowClassificationEdit = false,
-  hasChanges,
-  selectedStepId,
-  selectedBranchIndex,
-  onStepSelect,
-  setSelectedBranchIndex,
-  onFieldChange,
-  onStepChange,
-  onBranchChange,
-  onCaptureState,
-  onTargetStepChange,
-  onInsertNode,
-  onAddBranch,
-  onInsertNodeBetween,
-  onConnectionCreate,
-  onDeleteNode,
-  onAddRule,
-  onSave,
-  onCancel,
-  canUndo,
-  canRedo,
-  onUndo,
-  onRedo,
   isSaving = false,
   saveDisabled = false,
+  hasBranchingIssues = false,
   showViewToggle = false,
   viewMode = WorkflowViewMode.FLOW,
   onViewModeChange,
 }: WorkflowEditorProps) => {
+  const workflow = editor.editedWorkflow;
   if (!workflow) return null;
+
+  const isMultiLang = editor.languages.length > 0;
+  const missingRequired = isMultiLang
+    ? editor.missingRequiredTranslations()
+    : [];
+  const uncheckedWithText = isMultiLang
+    ? editor.uncheckedLanguagesWithText()
+    : [];
 
   return (
     <>
@@ -114,25 +64,52 @@ export const WorkflowEditor = ({
           <Button
             variant="outlined"
             startIcon={<CancelIcon />}
-            onClick={onCancel}
+            onClick={editor.handleCancel}
             disabled={isSaving}>
             Discard
           </Button>
           <Button
             variant="contained"
             startIcon={isSaving ? <CircularProgress size={20} /> : <SaveIcon />}
-            onClick={onSave}
+            onClick={editor.handleSave}
             disabled={
-              !hasChanges || isSaving || saveDisabled || !workflow.name?.trim()
+              !editor.hasChanges ||
+              isSaving ||
+              saveDisabled ||
+              missingRequired.length > 0 ||
+              !workflow.name?.trim()
             }>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </Stack>
       </Box>
 
-      {hasChanges && (
+      {editor.hasChanges && (
         <Alert severity="info" sx={{ mb: 2 }}>
           You have unsaved changes. Don&apos;t forget to save your work!
+        </Alert>
+      )}
+
+      {isMultiLang && (
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 2 }}>
+          <LanguageModal
+            language={editor.languages}
+            setLanguage={editor.setLanguages}
+          />
+          <LanguageAutocomplete
+            options={editor.languages}
+            value={editor.selectedLanguage}
+            onChange={editor.setSelectedLanguage}
+            sx={{ minWidth: 220 }}
+          />
+        </Box>
+      )}
+
+      {uncheckedWithText.length > 0 && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {uncheckedWithText.join(', ')}{' '}
+          {uncheckedWithText.length > 1 ? 'have' : 'has'} unsaved text that
+          won&apos;t be included unless re-enabled.
         </Alert>
       )}
 
@@ -151,7 +128,10 @@ export const WorkflowEditor = ({
         dateCreated={workflow.dateCreated}
         isEditMode={true}
         isClassificationEditable={allowClassificationEdit}
-        onFieldChange={onFieldChange}
+        onFieldChange={editor.handleFieldChange}
+        languages={editor.languages}
+        selectedLanguage={editor.selectedLanguage}
+        onTranslatedFieldChange={editor.handleTranslatedFieldChange}
       />
 
       <Divider sx={{ my: 3 }} />
@@ -201,27 +181,30 @@ export const WorkflowEditor = ({
           firstStepId={workflow.startingStepId || ''}
           isInstance={false}
           isEditMode={true}
-          selectedStepId={selectedStepId}
-          selectedBranchIndex={selectedBranchIndex}
-          onStepSelect={onStepSelect}
+          selectedStepId={editor.selectedStepId}
+          selectedBranchIndex={editor.selectedBranchIndex}
+          onStepSelect={editor.setSelectedStepId}
           setSelectedStepId={
-            onStepSelect as (stepId: string | undefined) => void
+            editor.setSelectedStepId as (stepId: string | undefined) => void
           }
-          setSelectedBranchIndex={setSelectedBranchIndex}
-          onStepChange={onStepChange}
-          onCaptureState={onCaptureState}
-          onBranchChange={onBranchChange}
-          onTargetStepChange={onTargetStepChange}
-          onInsertNode={onInsertNode}
-          onAddBranch={onAddBranch}
-          onConnectionCreate={onConnectionCreate}
-          onInsertNodeBetween={onInsertNodeBetween}
-          onDeleteNode={onDeleteNode}
-          onAddRule={onAddRule}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUndo={onUndo}
-          onRedo={onRedo}
+          setSelectedBranchIndex={editor.setSelectedBranchIndex}
+          onStepChange={editor.handleStepChange}
+          onCaptureState={editor.onCaptureState}
+          languages={editor.languages}
+          selectedLanguage={editor.selectedLanguage}
+          onTranslatedStepFieldChange={editor.handleTranslatedStepFieldChange}
+          onBranchChange={editor.handleBranchChange}
+          onTargetStepChange={editor.onTargetStepChange}
+          onInsertNode={editor.handleInsertNode}
+          onAddBranch={editor.handleAddBranch}
+          onConnectionCreate={editor.handleConnectionCreate}
+          onInsertNodeBetween={editor.handleInsertNodeBetween}
+          onDeleteNode={editor.handleDeleteNode}
+          onAddRule={editor.handleAddRule}
+          canUndo={editor.canUndo}
+          canRedo={editor.canRedo}
+          onUndo={editor.undo}
+          onRedo={editor.redo}
         />
       ) : (
         <WorkflowSteps

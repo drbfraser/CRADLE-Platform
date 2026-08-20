@@ -1,4 +1,4 @@
-import { test, expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
 export class FormTemplateBuilderPageModel extends PageObjectModel {
@@ -90,6 +90,7 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
   async submitForm() {
     await this.submitButton.click();
     await this.confirmSubmitButton.click();
+    await this.page.waitForURL('**/admin/form-templates');
   }
 
   private async fillFieldDetails(fieldText: string, questionId: string) {
@@ -99,12 +100,12 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
   }
 
   private async fillOptions(options: string[]) {
-    for (const option of options) {
+    for (const [index, option] of options.entries()) {
       await this.page
         .getByRole('button', { name: 'Add Option', exact: true })
         .click();
       await this.page
-        .getByRole('textbox', { name: 'English Option' })
+        .getByRole('textbox', { name: `English Option ${index + 1}` })
         .fill(option);
     }
   }

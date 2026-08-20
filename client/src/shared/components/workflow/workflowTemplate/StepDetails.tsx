@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -23,6 +23,13 @@ interface StepDetailsProps {
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
   onCaptureState?: () => void;
+  languages?: string[];
+  selectedLanguage?: string;
+  onTranslatedStepFieldChange?: (
+    stepId: string,
+    field: 'name' | 'description',
+    value: string
+  ) => void;
 }
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
@@ -31,11 +38,57 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   isEditMode = false,
   onStepChange,
   onCaptureState,
+  languages = [],
+  selectedLanguage,
+  onTranslatedStepFieldChange,
 }) => {
+  const isMultiLang = languages.length > 0;
+
+  const handleNameChange = (value: string) => {
+    if (!selectedStep) return;
+    if (isMultiLang) {
+      onTranslatedStepFieldChange?.(selectedStep.id, 'name', value);
+    } else {
+      onStepChange?.(selectedStep.id, 'name', value);
+    }
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    if (!selectedStep) return;
+    if (isMultiLang) {
+      onTranslatedStepFieldChange?.(selectedStep.id, 'description', value);
+    } else {
+      onStepChange?.(selectedStep.id, 'description', value);
+    }
+  };
   const formTemplatesQuery = useQuery({
     queryKey: ['workflowStepFormTemplatesV2', false],
     queryFn: async () => (await getAllFormTemplatesAsyncV2(false)).templates,
   });
+
+  useEffect(() => {
+    if (
+      !selectedStep ||
+      !isEditMode ||
+      !formTemplatesQuery.data ||
+      !selectedStep.formId
+    )
+      return;
+
+    const classificationId = selectedStep.form?.classification?.id;
+    if (!classificationId) return;
+
+    if (!selectedStep.form?.archived) return;
+
+    const latestForm = formTemplatesQuery.data.find((f: FormTemplateList) => {
+      if (f.archived) return false;
+      const fClassId = f.form_classification_id ?? f.formClassificationId;
+      return fClassId === classificationId;
+    });
+    if (latestForm) {
+      onStepChange?.(selectedStep.id, 'formId', latestForm.id);
+    }
+  }, [isEditMode, selectedStep?.id, formTemplatesQuery.data]);
 
   const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -45,7 +98,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     const currentValue = selectedStep.description || '';
 
     if (!textarea) {
-      onStepChange?.(selectedStep.id, 'description', `${currentValue}${token}`);
+      handleDescriptionChange(`${currentValue}${token}`);
       onCaptureState?.();
       return;
     }
@@ -55,7 +108,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     const newValue =
       currentValue.slice(0, start) + token + currentValue.slice(end);
 
-    onStepChange?.(selectedStep.id, 'description', newValue);
+    handleDescriptionChange(newValue);
     onCaptureState?.();
 
     requestAnimationFrame(() => {
@@ -82,12 +135,34 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
     (form: FormTemplateList) => form.id === selectedStep.formId
   );
 
-  const selectedFormName =
+  const isFormArchived =
+    selectedFormOption?.archived ?? selectedStep.form?.archived ?? false;
+
+  const resolvedFormName =
     selectedFormOption?.name ||
     (typeof selectedStep.form?.classification?.name === 'string'
       ? selectedStep.form.classification.name
       : undefined) ||
     (selectedStep.formId ? `Form ID: ${selectedStep.formId}` : undefined);
+
+  const selectedFormName = resolvedFormName
+    ? isFormArchived
+      ? `${resolvedFormName} [OLD]`
+      : resolvedFormName
+    : undefined;
+
+  // In edit mode, when the step's form is archived, resolve the latest non-archived form for the same classification so the dropdown defaults to it.
+  const latestNonArchivedForm = isFormArchived
+    ? ((formTemplatesQuery.data ?? []).find((f: FormTemplateList) => {
+        if (f.archived) return false;
+        const fClassId = f.form_classification_id ?? f.formClassificationId;
+        return fClassId === selectedStep.form?.classification?.id;
+      }) ?? null)
+    : null;
+
+  const autocompleteValue = isEditMode
+    ? (latestNonArchivedForm ?? selectedFormOption ?? null)
+    : (selectedFormOption ?? null);
 
   return (
     <Paper sx={{ p: 3, height: '100%', overflow: 'auto' }}>
@@ -101,7 +176,13 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
         <Stack spacing={1}>
           <Box>
             <Typography variant="body2" color="text.secondary">
-              Step Name
+              Step Name{selectedLanguage ? ` (${selectedLanguage})` : ''}
+              {isMultiLang && (
+                <Typography component="span" color="error">
+                  {' '}
+                  *
+                </Typography>
+              )}
             </Typography>
             {isEditMode ? (
               <TextField
@@ -109,9 +190,13 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 variant="outlined"
                 size="small"
                 value={selectedStep.name}
-                onChange={(e) =>
-                  onStepChange?.(selectedStep.id, 'name', e.target.value)
+                error={isMultiLang && !selectedStep.name?.trim()}
+                helperText={
+                  isMultiLang && !selectedStep.name?.trim()
+                    ? `Required for ${selectedLanguage}`
+                    : undefined
                 }
+                onChange={(e) => handleNameChange(e.target.value)}
                 onBlur={() => onCaptureState?.()}
                 sx={{ mt: 0.5 }}
               />
@@ -125,7 +210,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           <Box>
             <Stack direction="row" alignItems="center" spacing={0.5}>
               <Typography variant="body2" color="text.secondary">
-                Description
+                Description{selectedLanguage ? ` (${selectedLanguage})` : ''}
               </Typography>
               {isEditMode && (
                 <>
@@ -144,12 +229,14 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 maxRows={20}
                 inputRef={descriptionInputRef}
                 value={selectedStep.description || ''}
-                onChange={(e) =>
-                  onStepChange?.(selectedStep.id, 'description', e.target.value)
-                }
+                onChange={(e) => handleDescriptionChange(e.target.value)}
                 onBlur={() => onCaptureState?.()}
                 placeholder={`# Heading\n\nSupports **bold**, _italic_, and [links](https://example.com).\n\n- Bullet item\n- Another item\n\n1. First step\n2. Second step\n\nRecommend patient come back in 3 days ({{startDate+3d}}).`}
-                helperText="Markdown supported"
+                helperText={
+                  isMultiLang && !selectedStep.description?.trim()
+                    ? `No description added for ${selectedLanguage} yet`
+                    : 'Markdown supported'
+                }
                 sx={{ mt: 0.5 }}
               />
             ) : (
@@ -169,11 +256,14 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
             {isEditMode ? (
               <Autocomplete
                 fullWidth
-                options={formTemplatesQuery.data || []}
+                options={(formTemplatesQuery.data ?? []).filter(
+                  (f: FormTemplateList) => !f.archived
+                )}
                 getOptionLabel={(option) => option.name}
-                value={selectedFormOption || null}
+                value={autocompleteValue}
                 onChange={(_, newValue) => {
                   onStepChange?.(selectedStep.id, 'formId', newValue?.id || '');
+                  onCaptureState?.();
                 }}
                 loading={formTemplatesQuery.isLoading}
                 renderInput={(params) => (
@@ -185,7 +275,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                     sx={{ mt: 0.5 }}
                   />
                 )}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                isOptionEqualToValue={(option, value) =>
+                  value != null && option.id === value.id
+                }
               />
             ) : (
               <Typography variant="body1" sx={{ mt: 0.5 }}>
