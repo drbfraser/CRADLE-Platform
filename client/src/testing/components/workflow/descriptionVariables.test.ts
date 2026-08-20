@@ -49,9 +49,9 @@ describe('resolveDescriptionVariables', () => {
   });
 
   it('leaves a friendly placeholder when nothing was resolved for the tag', () => {
-    expect(
-      resolveDescriptionVariables('Patient is {{patient.age}}.', [])
-    ).toBe('Patient is (patient age not loaded).');
+    expect(resolveDescriptionVariables('Patient is {{patient.age}}.', [])).toBe(
+      'Patient is (patient age not loaded).'
+    );
   });
 
   it('shows a distinct placeholder for not-yet-implemented data sources', () => {
@@ -66,9 +66,7 @@ describe('resolveDescriptionVariables', () => {
         'Referred on {{referrals[latest].date_referred}}.',
         resolutions
       )
-    ).toBe(
-      'Referred on (referrals[latest].date_referred not yet available).'
-    );
+    ).toBe('Referred on (referrals[latest].date_referred not yet available).');
   });
 
   it('leaves a friendly placeholder for NO_DATA and INVALID_VARIABLE', () => {
@@ -81,13 +79,15 @@ describe('resolveDescriptionVariables', () => {
         '{{patient.age}} / {{not.a.real.var}}',
         resolutions
       )
-    ).toBe('(patient age doesn\'t exist) / (unrecognized variable: not.a.real.var)');
+    ).toBe(
+      "(patient age doesn't exist) / (unrecognized variable: not.a.real.var)"
+    );
   });
 
   it('does not touch {{startDate...}} tokens', () => {
-    expect(
-      resolveDescriptionVariables('Started {{startDate+3d}}.', [])
-    ).toBe('Started {{startDate+3d}}.');
+    expect(resolveDescriptionVariables('Started {{startDate+3d}}.', [])).toBe(
+      'Started {{startDate+3d}}.'
+    );
   });
 
   it('formats pregnancy start/end dates as calendar dates, not raw epoch numbers', () => {

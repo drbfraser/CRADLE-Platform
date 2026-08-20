@@ -26,9 +26,7 @@ def test_resolves_object_namespace_variable():
         }
     }
     with patch.object(description_variables, "get_catalogue", return_value=catalogue):
-        result = resolve_description_variables(
-            {"patient_id": "p1"}, ["patient.name"]
-        )
+        result = resolve_description_variables({"patient_id": "p1"}, ["patient.name"])
 
     assert result["patient.name"].status == VariableOutcomeStatus.RESOLVED
     assert result["patient.name"].value == "Test Patient"
@@ -208,8 +206,7 @@ def test_pinned_pregnancy_not_found_resolves_to_no_data():
         )
 
     assert (
-        result["pregnancies[latest].start_date"].status
-        == VariableOutcomeStatus.NO_DATA
+        result["pregnancies[latest].start_date"].status == VariableOutcomeStatus.NO_DATA
     )
 
 

@@ -171,7 +171,9 @@ def resolve_description_variables(
     for tag, canonical in tag_to_canonical.items():
         value = resolved.get(canonical, MISSING)
         if value is MISSING:
-            results[tag] = ResolvedVariable(var=tag, status=VariableOutcomeStatus.NO_DATA)
+            results[tag] = ResolvedVariable(
+                var=tag, status=VariableOutcomeStatus.NO_DATA
+            )
         else:
             results[tag] = ResolvedVariable(
                 var=tag, value=value, status=VariableOutcomeStatus.RESOLVED

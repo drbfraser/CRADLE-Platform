@@ -1,17 +1,18 @@
 """
 Add pregnancy_id to workflow_instance
 
-Revision ID: 33_4b4c2f599782
-Revises: 32_613305db5978
+Revision ID: 35_4b4c2f599782
+Revises: 34_workflow_lang_support
 Create Date: 2026-08-07 05:20:33.886014
 
 """
+
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "33_4b4c2f599782"
-down_revision = "32_613305db5978"
+revision = "35_4b4c2f599782"
+down_revision = "34_workflow_lang_support"
 branch_labels = None
 depends_on = None
 

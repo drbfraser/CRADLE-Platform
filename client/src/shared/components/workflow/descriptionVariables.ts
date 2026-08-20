@@ -78,27 +78,30 @@ export function resolveDescriptionVariables(
 ): string {
   const byTag = new Map(resolutions.map((r) => [r.var, r]));
 
-  return description.replace(VARIABLE_TOKEN_PATTERN, (_match, rawTag: string) => {
-    const tag = rawTag.trim();
-    const resolution = byTag.get(tag);
+  return description.replace(
+    VARIABLE_TOKEN_PATTERN,
+    (_match, rawTag: string) => {
+      const tag = rawTag.trim();
+      const resolution = byTag.get(tag);
 
-    if (!resolution) {
-      // Not fetched yet (e.g. still loading) or unknown.
-      return `(${describeTag(tag)} not loaded)`;
-    }
+      if (!resolution) {
+        // Not fetched yet (e.g. still loading) or unknown.
+        return `(${describeTag(tag)} not loaded)`;
+      }
 
-    switch (resolution.status) {
-      case 'RESOLVED':
-        return resolution.value === null || resolution.value === undefined
-          ? `(${describeTag(tag)} doesn't exist)`
-          : formatResolvedValue(tag, resolution.value);
-      case 'NOT_IMPLEMENTED':
-        return `(${describeTag(tag)} not yet available)`;
-      case 'INVALID_VARIABLE':
-        return `(unrecognized variable: ${tag})`;
-      case 'NO_DATA':
-      default:
-        return `(${describeTag(tag)} doesn't exist)`;
+      switch (resolution.status) {
+        case 'RESOLVED':
+          return resolution.value === null || resolution.value === undefined
+            ? `(${describeTag(tag)} doesn't exist)`
+            : formatResolvedValue(tag, resolution.value);
+        case 'NOT_IMPLEMENTED':
+          return `(${describeTag(tag)} not yet available)`;
+        case 'INVALID_VARIABLE':
+          return `(unrecognized variable: ${tag})`;
+        case 'NO_DATA':
+        default:
+          return `(${describeTag(tag)} doesn't exist)`;
+      }
     }
-  });
+  );
 }

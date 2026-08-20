@@ -105,7 +105,9 @@ describe('StepDescription', () => {
     });
 
     it('separates blank-line paragraphs into distinct <p> elements', () => {
-      const { container } = renderDescription('First paragraph.\n\nSecond paragraph.');
+      const { container } = renderDescription(
+        'First paragraph.\n\nSecond paragraph.'
+      );
       const paragraphs = container.querySelectorAll('p');
       expect(paragraphs).toHaveLength(2);
       expect(paragraphs[0]).toHaveTextContent('First paragraph.');
@@ -167,7 +169,9 @@ describe('StepDescription', () => {
     });
 
     it('renders an image with src and alt', () => {
-      const { container } = renderDescription('![a chart](https://example.com/chart.png)');
+      const { container } = renderDescription(
+        '![a chart](https://example.com/chart.png)'
+      );
       const img = container.querySelector('img');
       expect(img).not.toBeNull();
       expect(img).toHaveAttribute('src', 'https://example.com/chart.png');
@@ -244,9 +248,13 @@ describe('StepDescription', () => {
     });
 
     it('does not autolink a bare URL', () => {
-      const { container } = renderDescription('Visit https://example.com for info.');
+      const { container } = renderDescription(
+        'Visit https://example.com for info.'
+      );
       expect(container.querySelector('a')).toBeNull();
-      expect(container).toHaveTextContent('Visit https://example.com for info.');
+      expect(container).toHaveTextContent(
+        'Visit https://example.com for info.'
+      );
     });
 
     it('drops raw inline HTML tags without rendering them as elements', () => {
@@ -315,9 +323,7 @@ describe('StepDescription', () => {
     });
 
     it('treats an unclosed code fence as extending to the end of the description', () => {
-      const { container } = renderDescription(
-        '```\nunclosed fence\nmore text'
-      );
+      const { container } = renderDescription('```\nunclosed fence\nmore text');
       const code = container.querySelector('pre code');
       expect(code).not.toBeNull();
       expect(code).toHaveTextContent('unclosed fence more text');
@@ -361,9 +367,7 @@ describe('StepDescription', () => {
 
   describe('interaction with the {{startDate...}} and variable token resolvers', () => {
     it('resolves an unresolved {{startDate}} token to a bracketed placeholder, not markdown syntax', () => {
-      const { container } = renderDescription(
-        'Follow up on {{startDate+3d}}.'
-      );
+      const { container } = renderDescription('Follow up on {{startDate+3d}}.');
       expect(container).toHaveTextContent('Follow up on [start date +3d].');
     });
 
@@ -376,7 +380,10 @@ describe('StepDescription', () => {
         />,
         { wrapper: ProviderWrapper }
       );
-      const expected = moment.unix(startDate).add(3, 'days').format('MMM D, YYYY');
+      const expected = moment
+        .unix(startDate)
+        .add(3, 'days')
+        .format('MMM D, YYYY');
       const strong = container.querySelector('strong');
       expect(strong).toHaveTextContent(expected);
     });

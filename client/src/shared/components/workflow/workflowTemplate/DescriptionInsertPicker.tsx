@@ -65,13 +65,25 @@ const PREGNANCY_ENTRIES: { label: string; tag: string }[] = [
 // "Relative date") rather than flattened into the top-level list, since
 // there are enough of them to be their own category.
 const READING_ENTRIES: { label: string; tag: string }[] = [
-  { label: 'Systolic blood pressure', tag: 'vitals[latest].systolic_blood_pressure' },
-  { label: 'Diastolic blood pressure', tag: 'vitals[latest].diastolic_blood_pressure' },
+  {
+    label: 'Systolic blood pressure',
+    tag: 'vitals[latest].systolic_blood_pressure',
+  },
+  {
+    label: 'Diastolic blood pressure',
+    tag: 'vitals[latest].diastolic_blood_pressure',
+  },
   { label: 'Heart rate', tag: 'vitals[latest].heart_rate' },
   { label: 'Date taken', tag: 'vitals[latest].date_taken' },
-  { label: 'Flagged for follow-up', tag: 'vitals[latest].is_flagged_for_follow_up' },
+  {
+    label: 'Flagged for follow-up',
+    tag: 'vitals[latest].is_flagged_for_follow_up',
+  },
   { label: 'Number of readings on file', tag: 'vitals.size' },
-  { label: 'Urine test: leukocytes', tag: 'vitals[latest].urine_test.leukocytes' },
+  {
+    label: 'Urine test: leukocytes',
+    tag: 'vitals[latest].urine_test.leukocytes',
+  },
   { label: 'Urine test: nitrites', tag: 'vitals[latest].urine_test.nitrites' },
   { label: 'Urine test: glucose', tag: 'vitals[latest].urine_test.glucose' },
   { label: 'Urine test: protein', tag: 'vitals[latest].urine_test.protein' },
@@ -251,7 +263,11 @@ export default function DescriptionInsertPicker({
           </Box>
         ) : view === 'date' ? (
           <Box sx={{ p: 2, width: 280 }}>
-            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={0.5}
+              sx={{ mb: 1 }}>
               <IconButton
                 size="small"
                 aria-label="Back"
