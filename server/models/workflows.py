@@ -342,7 +342,10 @@ class WorkflowInstanceDataOrm(db.Model):
     field_tag = db.Column(db.String(200), nullable=False, index=True)
     field_value = db.Column(db.Text, nullable=True)  # JSON-encoded value
     field_type = db.Column(
-        db.Enum(WorkflowInstanceDataFieldTypeEnum),
+        db.Enum(
+            WorkflowInstanceDataFieldTypeEnum,
+            values_callable=lambda enum_class: [member.value for member in enum_class],
+        ),
         nullable=False,
     )
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
