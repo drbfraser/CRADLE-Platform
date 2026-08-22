@@ -126,4 +126,9 @@ the previously mentioned admin user is added along with a few additional users:
 | Ananya Singh        | asa522@sfu.ca        |
 | Lucy Zhou           | lza168@sfu.ca        |
 | Zoe Wong            | zsw@sfu.ca           |
-
+| Jasleen Kaur        | jka296@sfu.ca        |
+| Jayden Brown        | jab45@sfu.ca         |
+| Kabir Singh Sidhu   | kss31@sfu.ca         |
+| Amir Khamesy        | aka283@sfu.ca        |
+| Violet Yovendi      | ivy2@sfu.ca          |
+| Puja Shah           | pks37@sfu.ca         |
