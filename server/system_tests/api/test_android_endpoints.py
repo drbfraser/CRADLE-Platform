@@ -12,6 +12,7 @@ from models import (
     PregnancyOrm,
     PregnancySchema,
     ReadingOrm,
+    WorkflowInstanceOrm,
 )
 
 
@@ -545,3 +546,109 @@ def test_get_patient_form(
     # this v1 form is no longer created in data seeding -> refactor when mobile endpoints are updated
     # response = api_get(endpoint="/api/mobile/forms/49300028162/dt9")
     # assert response.status_code == 200
+
+
+def test_sync_workflow_instances_keeps_mobile_ids(
+    create_patient,
+    patient_id,
+    database,
+    api_post,
+):
+    last_sync = int(time.time()) - 1
+    workflow_instance_id = "e0f1a2b3-c4d5-4e6f-8a9b-0c1d2e3f4a5b"
+    workflow_instance_step_id = "b5a4f3e2-d1c0-4b9a-8877-66554433221100"
+
+    create_patient()
+
+    mobile_workflow_instance = {
+        "id": workflow_instance_id,
+        "name": "Offline Workflow",
+        "description": "",
+        "status": "Active",
+        "patient_id": patient_id,
+        "current_step_id": workflow_instance_step_id,
+        "start_date": last_sync,
+        "last_edited": last_sync,
+        "steps": [
+            {
+                "id": workflow_instance_step_id,
+                "workflow_instance_id": workflow_instance_id,
+                "name": "First Step",
+                "description": "",
+                "status": "Active",
+                "start_date": last_sync,
+            }
+        ],
+    }
+
+    try:
+        response = api_post(
+            endpoint=f"/api/sync/workflow_instances?since={last_sync}",
+            json=[mobile_workflow_instance],
+        )
+        database.session.commit()
+
+        assert response.status_code == 200
+
+        response_body = decamelize(response.json())
+        assert response_body["errors"] == []
+
+        synced_workflow_instance = None
+        for workflow_instance in response_body["workflow_instances"]:
+            if workflow_instance["id"] == workflow_instance_id:
+                synced_workflow_instance = workflow_instance
+                break
+
+        assert synced_workflow_instance is not None
+        assert synced_workflow_instance["patient_id"] == patient_id
+        assert synced_workflow_instance["name"] == mobile_workflow_instance["name"]
+        assert len(synced_workflow_instance["steps"]) == 1
+        assert synced_workflow_instance["steps"][0]["id"] == workflow_instance_step_id
+
+        assert crud.read(WorkflowInstanceOrm, id=workflow_instance_id) is not None
+    finally:
+        crud.delete_by(WorkflowInstanceOrm, id=workflow_instance_id)
+        crud.delete_all(PatientAssociationsOrm, patient_id=patient_id)
+
+
+def test_sync_workflow_instances_unknown_patient_is_reported(
+    database,
+    api_post,
+):
+    last_sync = int(time.time()) - 1
+    workflow_instance_id = "aa11bb22-cc33-4d44-8e55-ff6677889900"
+
+    mobile_workflow_instance = {
+        "id": workflow_instance_id,
+        "name": "Orphan Workflow",
+        "description": "",
+        "status": "Active",
+        "patient_id": "00000000000",
+        "last_edited": last_sync,
+        "steps": [],
+    }
+
+    response = api_post(
+        endpoint=f"/api/sync/workflow_instances?since={last_sync}",
+        json=[mobile_workflow_instance],
+    )
+    database.session.commit()
+
+    assert response.status_code == 207
+
+    response_body = decamelize(response.json())
+    assert len(response_body["errors"]) == 1
+    assert response_body["errors"][0]["workflow_instance_id"] == workflow_instance_id
+
+    assert crud.read(WorkflowInstanceOrm, id=workflow_instance_id) is None
+
+
+def test_sync_workflow_templates_filters_by_last_sync(api_post):
+    response = api_post(endpoint="/api/sync/workflow_templates?since=1")
+    assert response.status_code == 200
+    assert len(decamelize(response.json())["workflow_templates"]) > 0
+
+    future_sync = int(time.time()) + 10000
+    response = api_post(endpoint=f"/api/sync/workflow_templates?since={future_sync}")
+    assert response.status_code == 200
+    assert decamelize(response.json())["workflow_templates"] == []
