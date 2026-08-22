@@ -54,10 +54,10 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
     workflow_instance.lang = lang
-    # Pin to whatever pregnancy is active right now, if any, so
+    # Pin to whatever pregnancy is "latest" right now (even a past one), so
     # `{{pregnancies[latest]...}}`-style description tokens stay tied to
     # *this* pregnancy even if the patient later starts a new one.
-    workflow_instance.pregnancy_id = workflow_utils.find_active_pregnancy_id(
+    workflow_instance.pregnancy_id = workflow_utils.find_pregnancy_id_to_pin(
         body.patient_id
     )
 
@@ -300,12 +300,20 @@ def get_description_variables(
     context = {
         "patient_id": workflow_view.instance.patient_id,
         "workflow_instance_id": path.workflow_instance_id,
+        # Always pin, even to "" for "no pregnancy", so
+        # `{{pregnancies[latest]...}}` never falls back to whatever the
+        # patient's true-latest pregnancy happens to be right now.
+        # pregnancy_id is None both when the instance was created with no
+        # pregnancy on file yet (see find_pregnancy_id_to_pin) and when the
+        # pinned pregnancy has since been deleted (the FK's ON DELETE SET
+        # NULL clears it). Either way the description should show
+        # "doesn't exist" instead of switching to a different pregnancy.
+        "pregnancy_id": (
+            str(workflow_view.instance.pregnancy_id)
+            if workflow_view.instance.pregnancy_id is not None
+            else ""
+        ),
     }
-    if workflow_view.instance.pregnancy_id is not None:
-        # Pinned at instance-creation time (see find_active_pregnancy_id) so
-        # `{{pregnancies[latest]...}}` keeps referring to *this* pregnancy
-        # even if the patient has since started a new one.
-        context["pregnancy_id"] = str(workflow_view.instance.pregnancy_id)
 
     resolved = resolve_description_variables(context, body.variable_tags)
 

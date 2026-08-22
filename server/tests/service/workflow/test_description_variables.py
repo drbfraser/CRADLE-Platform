@@ -210,6 +210,33 @@ def test_pinned_pregnancy_not_found_resolves_to_no_data():
     )
 
 
+def test_pinned_to_no_pregnancy_does_not_fall_back_to_true_latest():
+    """
+    An instance pinned to "no pregnancy" (pregnancy_id="") must resolve
+    pregnancies[latest] to no data instead of switching to the patient's
+    current true-latest pregnancy. This covers both cases that produce this
+    state: the patient had no pregnancy on file at creation time, or the
+    pregnancy it was pinned to has since been deleted.
+    """
+    catalogue = {
+        "pregnancies": {
+            "query": lambda _patient_id: [
+                {"id": 2, "start_date": 200},  # a pregnancy added after pinning
+            ],
+            "collection": True,
+        }
+    }
+    with patch.object(description_variables, "get_catalogue", return_value=catalogue):
+        result = resolve_description_variables(
+            {"patient_id": "p1", "pregnancy_id": ""},
+            ["pregnancies[latest].start_date"],
+        )
+
+    assert (
+        result["pregnancies[latest].start_date"].status == VariableOutcomeStatus.NO_DATA
+    )
+
+
 def test_duplicate_and_equivalent_tags_resolve_once():
     call_count = {"n": 0}
 

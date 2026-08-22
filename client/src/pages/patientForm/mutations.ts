@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { API_URL, axiosFetch } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { PregnancySubmitValues } from './components/pregnancyInfo/utils';
@@ -20,12 +20,16 @@ export const useUpdatePatientMutation = (patientId: string) => {
     EndpointEnum.PATIENTS +
     `/${patientId}` +
     EndpointEnum.PATIENT_INFO;
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: PatientData) => {
       return axiosFetch.put(endpoint, {
         ...data,
       });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
     },
   });
 };
@@ -44,24 +48,36 @@ export const useAddPatientInfoMutation = () => {
 };
 
 export const useUpdatePregnancyMutation = (pregnancyId: string) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: PregnancySubmitValues) => {
       return axiosFetch.put(createPregnancyURL(pregnancyId), {
         ...data,
       });
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
+    },
   });
 };
 
 export const useDeletePregnancyMutation = (pregnancyId: string) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: () => {
       return axiosFetch.delete(createPregnancyURL(pregnancyId));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
     },
   });
 };
 
 export const useAddPregnancyMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: PregnancySubmitValues) => {
       const endpoint =
@@ -82,6 +98,9 @@ export const useAddPregnancyMutation = () => {
           }
           throw new Error(errorMessage);
         });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
     },
   });
 };

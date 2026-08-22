@@ -683,22 +683,22 @@ def fetch_workflow_view_or_404(workflow_instance_id: str) -> WorkflowView:
     return WorkflowView(workflow_template, workflow_instance)
 
 
-def find_active_pregnancy_id(patient_id: str) -> int | None:
+def find_pregnancy_id_to_pin(patient_id: str) -> int | None:
     """
-    Return the ID of the patient's currently-ongoing pregnancy (no end_date),
-    or None if they don't have one.
+    Return the ID of the patient's most recently started pregnancy, active or
+    already ended, or None if they have no pregnancy on file. This is the
+    same pregnancy `pregnancies[latest]` would currently resolve to.
 
     Used to pin a workflow instance to a specific pregnancy at creation time,
-    so `{{pregnancies[latest]...}}`-style description tokens keep referring to
-    *that* pregnancy even if the patient later starts a new one.
+    so `{{pregnancies[latest]...}}`-style description tokens keep referring
+    to that pregnancy, even a past one, instead of switching once the
+    patient starts a new pregnancy later. Uses the same sort order as the
+    unpinned fallback in data_catalogue.__query_pregnancies_collection.
     """
     pregnancies = crud.read_all(PregnancyOrm, patient_id=patient_id) or []
-    active = [p for p in pregnancies if p.end_date is None]
-    if not active:
+    if not pregnancies:
         return None
-    # Defensive: patients should have at most one ongoing pregnancy at a time,
-    # but if data is in a bad state, pick the most recently started.
-    return max(active, key=lambda p: p.start_date or 0).id
+    return max(pregnancies, key=lambda p: p.start_date or 0).id
 
 
 def find_workflow_instance_step_or_404(

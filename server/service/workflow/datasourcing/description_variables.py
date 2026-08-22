@@ -68,8 +68,14 @@ def _catalogue_with_pinned_pregnancy(
     prefers a ``pregnancy_id`` in context over ``patient_id`` (see
     ``data_sourcing._resolve_object``), so it's pinned automatically without
     needing this override.
+
+    ``pregnancy_id`` may be falsy (empty string), meaning "pinned to no
+    pregnancy". This happens when the instance was created before the
+    patient had any pregnancy on file, or when the pinned pregnancy has
+    since been deleted. Either way this resolves to no data instead of
+    falling back to the patient's current true-latest pregnancy.
     """
-    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id) if pregnancy_id else None
     pinned_items = [orm_serializer.marshal(pregnancy)] if pregnancy else []
 
     return {
@@ -100,9 +106,15 @@ def resolve_description_variables(
         against the exact tokens found in the description text.
     """
     catalogue = get_catalogue()
-    pinned_pregnancy_id = context.get("pregnancy_id")
-    if pinned_pregnancy_id:
-        catalogue = _catalogue_with_pinned_pregnancy(catalogue, pinned_pregnancy_id)
+    if "pregnancy_id" in context:
+        # Present, even as "", means the caller pinned this resolution to a
+        # specific pregnancy. See _catalogue_with_pinned_pregnancy for what a
+        # falsy value means. Absent means the caller has no pregnancy
+        # pinning concept at all, so the unpinned true-latest fallback below
+        # applies.
+        catalogue = _catalogue_with_pinned_pregnancy(
+            catalogue, context["pregnancy_id"]
+        )
 
     results: dict[str, ResolvedVariable] = {}
 
