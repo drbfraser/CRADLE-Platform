@@ -112,9 +112,7 @@ def resolve_description_variables(
         # falsy value means. Absent means the caller has no pregnancy
         # pinning concept at all, so the unpinned true-latest fallback below
         # applies.
-        catalogue = _catalogue_with_pinned_pregnancy(
-            catalogue, context["pregnancy_id"]
-        )
+        catalogue = _catalogue_with_pinned_pregnancy(catalogue, context["pregnancy_id"])
 
     results: dict[str, ResolvedVariable] = {}
 
