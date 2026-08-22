@@ -159,6 +159,7 @@ def read_workflow_instances(
     patient_id: Optional[str] = None,
     status: Optional[WorkflowStatusEnum] = None,
     workflow_template_id: Optional[str] = None,
+    last_edited: Optional[int] = None,
 ) -> list[WorkflowInstanceOrm]:
     """
     Queries the database for all workflow instances that have either been assigned by a specific user or all instances in total
@@ -167,6 +168,8 @@ def read_workflow_instances(
     :param patient_id: ID of the patient which the workflows were assigned to
     :param status: Query for workflows based on status
     :param workflow_template_id: ID of workflow template the instances are based on
+    :param last_edited: Timestamp to filter workflow instances by last-edited time greater
+    than the timestamp; by default this filter is not applied
     :return: A list of workflow instances
     """
     query = db_session.query(WorkflowInstanceOrm)
@@ -184,18 +187,24 @@ def read_workflow_instances(
             WorkflowInstanceOrm.workflow_template_id == workflow_template_id
         )
 
+    if last_edited is not None:
+        query = query.filter(WorkflowInstanceOrm.last_edited > last_edited)
+
     return query.all()
 
 
 def read_workflow_templates(
     workflow_classification_id: Optional[str] = None,
     is_archived: Optional[bool] = False,
+    last_edited: Optional[int] = None,
 ) -> list[WorkflowTemplateOrm]:
     """
     Queries the database for all workflow templates that either belong to a classification or in total
 
     :param workflow_classification_id: The ID of a workflow classification
     :param is_archived: Query for archived workflows
+    :param last_edited: Timestamp to filter workflow templates by last-edited time greater
+    than the timestamp; by default this filter is not applied
     :return: A list of workflow templates
     """
     query = db_session.query(WorkflowTemplateOrm)
@@ -207,6 +216,9 @@ def read_workflow_templates(
 
     if is_archived is not None:
         query = query.filter(WorkflowTemplateOrm.archived == is_archived)
+
+    if last_edited is not None:
+        query = query.filter(WorkflowTemplateOrm.last_edited > last_edited)
 
     return query.all()
 

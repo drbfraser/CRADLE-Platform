@@ -303,12 +303,13 @@ class WorkflowService:
         patient_id: Optional[str] = None,
         status: Optional[WorkflowStatusEnum] = None,
         workflow_template_id: Optional[str] = None,
+        last_edited: Optional[int] = None,
     ) -> list[WorkflowInstanceModel]:
         """
         Fetch workflow instances with optional filters.
         """
         workflow_instance_orms = crud.read_workflow_instances(
-            user_id, patient_id, status, workflow_template_id
+            user_id, patient_id, status, workflow_template_id, last_edited
         )
 
         workflow_instance_dicts = [
