@@ -131,3 +131,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Kabir Singh Sidhu   | kss31@sfu.ca         |
 | Amir Khamesy        | aka283@sfu.ca        |
 | Violet Yovendi      | ivy2@sfu.ca          |
+| Puja Shah           | pks37@sfu.ca         |
