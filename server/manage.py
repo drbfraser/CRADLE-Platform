@@ -41,6 +41,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    WorkflowVariableCatalogueOrm,
     db,
 )
 from seed_users import (
@@ -50,6 +51,9 @@ from seed_users import (
     facilities_list,
     seed_minimal_users,
     seed_test_users,
+)
+from service.workflow.datasourcing.builtin_variable_catalogue import (
+    WORKFLOW_VARIABLE_CATALOGUE,
 )
 
 # cli = FlaskGroup(app)
@@ -65,6 +69,7 @@ def reset_db_cli():
 def reset_db():
     db.drop_all()
     db.create_all()
+    seed_required_data()
     db.session.commit()
 
 
@@ -113,6 +118,41 @@ def seed_minimal(ctx):
     reset_db()
     seed_minimal_users()
     print("Finished seeding minimal data set")
+
+
+def seed_required_data() -> None:
+    seed_workflow_variable_catalogue()
+
+
+def seed_workflow_variable_catalogue() -> None:
+    tags = [definition["tag"] for definition in WORKFLOW_VARIABLE_CATALOGUE]
+
+    existing = {
+        row.tag: row
+        for row in WorkflowVariableCatalogueOrm.query.filter(
+            WorkflowVariableCatalogueOrm.tag.in_(tags)
+        ).all()
+    }
+
+    update_fields = (
+        "description",
+        "variable_type",
+        "namespace",
+        "collection_name",
+        "field_path",
+        "is_computed",
+        "is_dynamic",
+    )
+
+    for definition in WORKFLOW_VARIABLE_CATALOGUE:
+        row = existing.get(definition["tag"])
+
+        if row is None:
+            db.session.add(WorkflowVariableCatalogueOrm(**definition))
+            continue
+
+        for field in update_fields:
+            setattr(row, field, definition[field])
 
 
 def seed_test_data():

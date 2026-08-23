@@ -117,7 +117,6 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
   return {
     kind: 'categoryToolbox',
     contents: [
-      ...variableCategories,
       numberCompareCategory,
       dateCompareCategory,
       textCompareCategory,
@@ -132,6 +131,12 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
           { kind: 'block', type: 'boolean_value' },
           { kind: 'block', type: 'date_value' },
         ],
+      },
+      {
+        kind: 'category',
+        name: 'Variables',
+        colour: '265',
+        contents: [...variableCategories],
       },
     ],
   };

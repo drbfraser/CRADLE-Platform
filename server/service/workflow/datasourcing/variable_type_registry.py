@@ -7,6 +7,9 @@ Used during rule evaluation to coerce values to stable JsonLogic-friendly types.
 from __future__ import annotations
 
 from enums import WorkflowVariableTypeEnum
+from service.workflow.datasourcing.builtin_variable_catalogue import (
+    WORKFLOW_VARIABLE_CATALOGUE,
+)
 from service.workflow.datasourcing.data_sourcing import (
     WORKFLOW_VARIABLE_NAMESPACE,
     VariablePath,
@@ -14,41 +17,9 @@ from service.workflow.datasourcing.data_sourcing import (
 
 T = WorkflowVariableTypeEnum
 
-# Matches migration 28 (basic patient) + 29 (system context) + 30 (collection/workflow).
-# Keep in sync with Alembic seeds when adding variables.
 BUILTIN_VARIABLE_TYPE_MAP: dict[str, WorkflowVariableTypeEnum] = {
-    # --- migration 28 ---
-    "patient.id": T.STRING,
-    "patient.name": T.STRING,
-    "patient.sex": T.STRING,
-    "patient.date_of_birth": T.DATE,
-    "patient.is_exact_date_of_birth": T.BOOLEAN,
-    "patient.age": T.INTEGER,
-    "patient.is_pregnant": T.BOOLEAN,
-    "patient.household_number": T.STRING,
-    "patient.zone": T.STRING,
-    "patient.village_number": T.STRING,
-    "patient.is_archived": T.BOOLEAN,
-    # --- migration 29 (local-date-time is string after migration 30) ---
-    "local-date": T.DATE,
-    "local-time": T.STRING,
-    "local-date-time": T.STRING,
-    "current-user.id": T.INTEGER,
-    "current-user.name": T.STRING,
-    "current-user.username": T.STRING,
-    "current-user.email": T.STRING,
-    "current-user.health_facility_name": T.STRING,
-    "current-user.role": T.STRING,
-    # --- migration 30 (also covered by path inference) ---
-    "vitals.size": T.INTEGER,
-    "vitals[latest].systolic_blood_pressure": T.INTEGER,
-    "vitals[latest].diastolic_blood_pressure": T.INTEGER,
-    "vitals[latest].heart_rate": T.INTEGER,
-    "vitals[latest].date_taken": T.INTEGER,
-    "pregnancies[latest].start_date": T.INTEGER,
-    "all_wf[latest].status": T.STRING,
-    "wf.info.status": T.STRING,
-    "wf.info.start_date": T.INTEGER,
+    definition["tag"]: definition["variable_type"]
+    for definition in WORKFLOW_VARIABLE_CATALOGUE
 }
 
 COLLECTION_NAMESPACES = frozenset(
@@ -190,7 +161,7 @@ def get_expected_type_for_variable(tag: str) -> WorkflowVariableTypeEnum | None:
     """
     Return the expected type for a variable tag, or None if coercion should be skipped.
 
-    Order: built-in catalogue map (from seeds), then path inference.
+    Order: shared built-in catalogue map, then path inference.
     """
     direct = BUILTIN_VARIABLE_TYPE_MAP.get(tag)
     if direct is not None:

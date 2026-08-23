@@ -304,7 +304,10 @@ class WorkflowVariableCatalogueOrm(db.Model):
     tag = db.Column(db.String(200), unique=True, nullable=False, index=True)
     description = db.Column(db.Text, nullable=True)
     variable_type = db.Column(
-        db.Enum(WorkflowVariableTypeEnum),
+        db.Enum(
+            WorkflowVariableTypeEnum,
+            values_callable=lambda enum_class: [member.value for member in enum_class],
+        ),
         nullable=False,
     )
     namespace = db.Column(db.String(100), nullable=True, index=True)
@@ -339,7 +342,10 @@ class WorkflowInstanceDataOrm(db.Model):
     field_tag = db.Column(db.String(200), nullable=False, index=True)
     field_value = db.Column(db.Text, nullable=True)  # JSON-encoded value
     field_type = db.Column(
-        db.Enum(WorkflowInstanceDataFieldTypeEnum),
+        db.Enum(
+            WorkflowInstanceDataFieldTypeEnum,
+            values_callable=lambda enum_class: [member.value for member in enum_class],
+        ),
         nullable=False,
     )
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
