@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   FormControl,
   InputLabel,
@@ -67,8 +67,12 @@ export const PregnancyHistory = () => {
     queryFn: () => getPatientPregnanciesAsync(patientId!),
     enabled: !!patientId,
   });
+  const queryClient = useQueryClient();
   const { mutate: deletePregnancy } = useMutation({
     mutationFn: deletePregnancyAsync,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
+    },
   });
 
   const ActionButtons = useCallback(

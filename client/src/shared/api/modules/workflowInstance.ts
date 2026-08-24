@@ -322,3 +322,26 @@ export const createStepInstance = async (
   );
   return response.data;
 };
+
+export type DescriptionVariableResolution = {
+  var: string;
+  value?: string | number | boolean | null;
+  status: 'RESOLVED' | 'NO_DATA' | 'NOT_IMPLEMENTED' | 'INVALID_VARIABLE';
+};
+
+// POST /workflow/instances/{instanceId}/steps/{stepId}/description-variables
+export const getStepDescriptionVariables = async (
+  instanceId: ID,
+  stepId: ID,
+  variableTags: string[]
+): Promise<DescriptionVariableResolution[]> => {
+  if (variableTags.length === 0) {
+    return [];
+  }
+  const response = await axiosFetch.post<{
+    resolutions: DescriptionVariableResolution[];
+  }>(`${instanceStepByIdPath(instanceId, stepId)}/description-variables`, {
+    variableTags,
+  });
+  return response.data.resolutions;
+};

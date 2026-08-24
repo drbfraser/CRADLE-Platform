@@ -63,7 +63,10 @@ export default function DescriptionFormattingHelp() {
 
           <Divider sx={{ mb: 1.5 }} />
 
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mb: 1, display: 'block' }}>
             Use the calendar icon next to this one to insert a date relative to
             when the step starts. You can also type it directly, e.g.{' '}
             <Typography
@@ -73,6 +76,24 @@ export default function DescriptionFormattingHelp() {
               {'{{startDate+3d}}'}
             </Typography>{' '}
             for 3 days after the step starts.
+          </Typography>
+
+          <Typography variant="caption" color="text.secondary">
+            You can also insert live patient/workflow data, e.g.{' '}
+            <Typography
+              component="code"
+              variant="caption"
+              sx={{ fontFamily: 'monospace' }}>
+              {'{{patient.age}}'}
+            </Typography>{' '}
+            or{' '}
+            <Typography
+              component="code"
+              variant="caption"
+              sx={{ fontFamily: 'monospace' }}>
+              {'{{pregnancies[latest].start_date}}'}
+            </Typography>
+            . These always show the current value, not a fixed snapshot.
           </Typography>
         </Box>
       </Popover>

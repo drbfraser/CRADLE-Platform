@@ -7,9 +7,11 @@ import { InstanceStep } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatWorkflowStepStatusText } from '../utils';
 import StepHistoryActions from './StepHistoryActions';
 import StepDescription from 'src/shared/components/workflow/StepDescription';
+import { ID } from 'src/shared/constants';
 
 type WorkflowStepHistoryItemProps = {
   step: InstanceStep;
+  instanceId: ID;
   isExpanded: boolean;
   expandAll: boolean;
   onToggleExpand: () => void;
@@ -18,6 +20,7 @@ type WorkflowStepHistoryItemProps = {
 
 export default function WorkflowStepHistoryItem({
   step,
+  instanceId,
   isExpanded,
   expandAll,
   onToggleExpand,
@@ -86,6 +89,8 @@ export default function WorkflowStepHistoryItem({
             <StepDescription
               description={step.description}
               startDate={step.startDateEpoch}
+              instanceId={instanceId}
+              stepId={step.id}
             />
           </Box>
 

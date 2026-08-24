@@ -226,3 +226,35 @@ class WorkflowVariableResolutionApiModel(CradleBaseModel, extra="forbid"):
 class ResolveWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
     evaluation_status: str
     variable_resolutions: list[WorkflowVariableResolutionApiModel]
+
+
+# --- Description-variable resolution (markdown `{{...}}` tokens) ---
+# Request/response shape for resolving the variables referenced by a step
+# description, reusing the rule engine's variable catalogue. See
+# service/workflow/datasourcing/description_variables.py for the resolver this
+# sits in front of.
+
+
+class GetDescriptionVariablesRequest(CradleBaseModel, extra="forbid"):
+    """
+    Which variable tags a step description referenced, extracted client-side
+    from its ``{{...}}`` tokens (offsets like ``+3d`` already stripped -- only
+    the bare variable name, e.g. ``patient.age`` or ``pregnancies[latest].start_date``).
+
+    TODO: decide whether extraction should instead happen server-side from the
+    raw description text, to avoid keeping two token parsers in sync (client's
+    extractVariableTags in descriptionVariables.ts vs. this route's regex-free
+    contract).
+    """
+
+    variable_tags: list[str]
+
+
+class DescriptionVariableResolutionModel(CradleBaseModel, extra="forbid"):
+    var: str
+    value: Optional[Any] = None
+    status: str  # VariableOutcomeStatus value, e.g. "RESOLVED" | "NOT_IMPLEMENTED"
+
+
+class GetDescriptionVariablesResponse(CradleBaseModel, extra="forbid"):
+    resolutions: list[DescriptionVariableResolutionModel]

@@ -225,6 +225,17 @@ class WorkflowInstanceOrm(db.Model):
     patient_id = db.Column(
         db.String(50), db.ForeignKey("patient.id", ondelete="CASCADE"), nullable=False
     )
+    # Pins this instance to the pregnancy that was active when it was
+    # created, so `{{pregnancies[latest]...}}`-style variables in step
+    # descriptions stay tied to *this* pregnancy even if the patient later
+    # starts a new one. Null for instances not tied to a specific pregnancy
+    # (created while the patient wasn't pregnant, or for non-pregnancy
+    # workflows) -- those fall back to "whatever's currently latest".
+    pregnancy_id = db.Column(
+        db.Integer,
+        db.ForeignKey("pregnancy.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     # RELATIONSHIPS
     patient = db.relationship(
@@ -233,6 +244,10 @@ class WorkflowInstanceOrm(db.Model):
     )
     workflow_template = db.relationship(
         "WorkflowTemplateOrm",
+        backref=db.backref("workflow_instances", lazy=True),
+    )
+    pregnancy = db.relationship(
+        "PregnancyOrm",
         backref=db.backref("workflow_instances", lazy=True),
     )
 

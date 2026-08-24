@@ -177,6 +177,11 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     last_edited: Optional[int] = None
     completion_date: Optional[int] = None
     patient_id: Optional[str] = None
+    # Pins this instance to whatever pregnancy was "latest" when it was
+    # created, even a past one (None if the patient had no pregnancy on file
+    # yet, or for non-pregnancy workflows).
+    # See common.workflow_utils.find_pregnancy_id_to_pin.
+    pregnancy_id: Optional[int] = None
     steps: list[WorkflowInstanceStepModel]
 
     @model_validator(mode="after")

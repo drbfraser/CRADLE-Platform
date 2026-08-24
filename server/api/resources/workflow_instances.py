@@ -4,8 +4,12 @@ from flask_openapi3.models.tag import Tag
 
 from common import patient_utils, user_utils, workflow_utils
 from common.api_utils import (
+    WorkflowInstanceAndStepIdPath,
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
+)
+from service.workflow.datasourcing.description_variables import (
+    resolve_description_variables,
 )
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService, WorkflowView
@@ -13,7 +17,10 @@ from validation.workflow_api_models import (
     AdvanceWorkflowRequest,
     ApplyActionRequest,
     CreateWorkflowInstanceRequest,
+    DescriptionVariableResolutionModel,
     GetAvailableActionsResponse,
+    GetDescriptionVariablesRequest,
+    GetDescriptionVariablesResponse,
     GetWorkflowInstanceDataResponse,
     GetWorkflowInstancesResponse,
     OverrideCurrentStepRequest,
@@ -47,6 +54,12 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
     workflow_instance.patient_id = body.patient_id
     workflow_instance.lang = lang
+    # Pin to whatever pregnancy is "latest" right now (even a past one), so
+    # `{{pregnancies[latest]...}}`-style description tokens stay tied to
+    # *this* pregnancy even if the patient later starts a new one.
+    workflow_instance.pregnancy_id = workflow_utils.find_pregnancy_id_to_pin(
+        body.patient_id
+    )
 
     if body.name is not None:
         workflow_instance.name = body.name
@@ -250,3 +263,66 @@ def set_workflow_instance_data(
     rows = WorkflowService.get_workflow_instance_data_rows(path.workflow_instance_id)
     items = [WorkflowInstanceDataRowModel(**r) for r in rows]
     return GetWorkflowInstanceDataResponse(items=items).model_dump(), 200
+
+
+# /api/workflow/instances/<id>/steps/<step_id>/description-variables [POST]
+# Resolves the `{{...}}` variable tags a step description references, reusing
+# the rule engine's variable catalogue (see description_variables.py). This
+# resolves current ("floating") values only -- see description_variables.py's
+# module docstring for why freezing values is a separate feature.
+#
+# TODO: remaining items before this is production-ready:
+# - Authorization: add whatever this project's equivalent of
+#   @patient_association_required is for workflow-instance routes -- right now
+#   nothing stops a caller who merely knows a workflow_instance_id from pulling
+#   patient data through this route.
+# - Pass a reference timestamp (the step's start_date) into resolution so
+#   age/"latest"-style values freeze relative to when the step started, not
+#   wall-clock "now" -- see the staleness discussion. Requires extending
+#   resolve_description_variables()'s context contract first.
+# - Decide response caching: this can be called once per rendered step; a
+#   step-history page rendering several steps at once will fire several of
+#   these unless the frontend batches by patient instead of by step.
+@api_workflow_instances.post(
+    "/<string:workflow_instance_id>/steps/<string:workflow_instance_step_id>/description-variables",
+    responses={200: GetDescriptionVariablesResponse},
+)
+def get_description_variables(
+    path: WorkflowInstanceAndStepIdPath, body: GetDescriptionVariablesRequest
+):
+    """Resolve the variable tags referenced by a step description's `{{...}}` tokens."""
+    workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    # TODO: use the step (e.g. its start_date) once "as of" resolution exists.
+    workflow_utils.find_workflow_instance_step_or_404(
+        workflow_view.instance, path.workflow_instance_step_id
+    )
+
+    context = {
+        "patient_id": workflow_view.instance.patient_id,
+        "workflow_instance_id": path.workflow_instance_id,
+        # Always pin, even to "" for "no pregnancy", so
+        # `{{pregnancies[latest]...}}` never falls back to whatever the
+        # patient's true-latest pregnancy happens to be right now.
+        # pregnancy_id is None both when the instance was created with no
+        # pregnancy on file yet (see find_pregnancy_id_to_pin) and when the
+        # pinned pregnancy has since been deleted (the FK's ON DELETE SET
+        # NULL clears it). Either way the description should show
+        # "doesn't exist" instead of switching to a different pregnancy.
+        "pregnancy_id": (
+            str(workflow_view.instance.pregnancy_id)
+            if workflow_view.instance.pregnancy_id is not None
+            else ""
+        ),
+    }
+
+    resolved = resolve_description_variables(context, body.variable_tags)
+
+    response = GetDescriptionVariablesResponse(
+        resolutions=[
+            DescriptionVariableResolutionModel(
+                var=r.var, value=r.value, status=r.status.value
+            )
+            for r in resolved.values()
+        ]
+    )
+    return response.model_dump(), 200
