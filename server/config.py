@@ -44,8 +44,6 @@ class Config:
         f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"
     )
 
-    print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
-
     LOGGING: ClassVar = {
         "version": 1,
         "disable_existing_loggers": False,
