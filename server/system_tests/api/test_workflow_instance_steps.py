@@ -319,6 +319,18 @@ def test_archive_workflow_instance_step_form(
     assert form_orm.archived == True
 
 
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_admin_only_archive_form_rejects_vht(api_patch, credentials):
+    response = api_patch(
+        endpoint="/api/workflow/instance/steps/missing-step/archive_form"
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {
+        "message": "This user does not have the required privileges"
+    }
+
+
 @pytest.fixture
 def patient_id(create_patient, patient_info):
     """Create a patient and return its ID"""
