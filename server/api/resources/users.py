@@ -39,6 +39,15 @@ api_users = APIBlueprint(
 )
 
 
+def _require_admin_or_self(target_user_id: int) -> None:
+    current_user = user_utils.get_current_user_from_jwt()
+    if (
+        current_user["role"] != RoleEnum.ADMIN.value
+        and current_user["id"] != target_user_id
+    ):
+        abort(403, description=_insufficent_permissions_for_sms_key_message)
+
+
 # /api/user/all [GET]
 @api_users.get("/all", responses={200: UserList})
 @roles_required([RoleEnum.ADMIN])
@@ -142,6 +151,7 @@ def edit_user(path: UserIdPath, body: UserModel):
 @api_users.get("/<int:user_id>", responses={200: UserModel})
 def get_user(path: UserIdPath):
     """Get User"""
+    _require_admin_or_self(path.user_id)
     try:
         user_dict = user_utils.get_user_data_from_id(path.user_id)
     except ValueError as err:
@@ -187,6 +197,7 @@ class PhoneNumberList(CradleBaseModel):
 @api_users.get("/<int:user_id>/phone")
 def get_users_phone_numbers(path: UserIdPath):
     """Get User's Phone Numbers"""
+    _require_admin_or_self(path.user_id)
     if not user_utils.does_user_exist(path.user_id):
         return abort(404, description=_no_user_found_message)
 
@@ -216,14 +227,7 @@ def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
 @api_users.get("/<int:user_id>/smskey", responses={200: SmsKeyModel})
 def get_users_sms_key(path: UserIdPath):
     """Get User's SMS Key"""
-    current_user = user_utils.get_current_user_from_jwt()
-    if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
-        return (
-            {
-                "description": _insufficent_permissions_for_sms_key_message,
-            },
-            403,
-        )
+    _require_admin_or_self(path.user_id)
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
@@ -235,14 +239,7 @@ def get_users_sms_key(path: UserIdPath):
 @api_users.put("/<int:user_id>/smskey", responses={200: SmsKeyModel})
 def update_users_sms_key(path: UserIdPath):
     """Update User's SMS Key"""
-    current_user = user_utils.get_current_user_from_jwt()
-    if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
-        return (
-            {
-                "description": _insufficent_permissions_for_sms_key_message,
-            },
-            403,
-        )
+    _require_admin_or_self(path.user_id)
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
@@ -256,14 +253,7 @@ def update_users_sms_key(path: UserIdPath):
 @api_users.post("/<int:user_id>/smskey", responses={201: SmsKeyModel})
 def create_new_sms_key(path: UserIdPath):
     """Create New SMS Key"""
-    current_user = user_utils.get_current_user_from_jwt()
-    if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
-        return (
-            {
-                "description": _insufficent_permissions_for_sms_key_message,
-            },
-            403,
-        )
+    _require_admin_or_self(path.user_id)
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:

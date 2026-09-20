@@ -8,9 +8,30 @@ import requests
 from humps import decamelize
 
 import data.db_operations as crud
+from authentication import sms_auth
 from common import user_utils
 from common.print_utils import pretty_print
-from models import SmsSecretKeyOrm, UserOrm
+from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+
+SMS_KEY_RESPONSE_FIELDS = {"expiry_date", "key", "message", "stale_date"}
+USER_RESPONSE_FIELDS = {
+    "email",
+    "health_facility_name",
+    "id",
+    "name",
+    "phone_numbers",
+    "role",
+    "sms_key",
+    "username",
+}
+TARGET_USER_FIELDS = {
+    "email",
+    "id",
+    "key",
+    "phone_numbers",
+    "sms_key",
+    "username",
+}
 
 
 def generate_random_email(domain="example.com", length=10):
@@ -33,6 +54,31 @@ def get_example_phone_number():
     )
     print(phone_number)
     return phone_number
+
+
+def assert_user_profile_response(response):
+    response_body = decamelize(response.json())
+    assert set(response_body) == USER_RESPONSE_FIELDS
+    assert set(response_body["sms_key"]) == SMS_KEY_RESPONSE_FIELDS
+
+
+@pytest.fixture
+def sms_authenticated_users(database, user_factory):
+    users = []
+    for sequence, user_id in enumerate((1001, 1002), start=1):
+        phone_number = f"+1604555010{sequence}"
+        user = user_factory.create(
+            id=user_id,
+            username=f"authorization_test_user_{sequence}",
+            email=f"authorization_test_user_{sequence}@email.com",
+            role="VHT",
+        )
+        user.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
+        user.sms_secret_keys.append(user_utils.create_new_sms_secret_key_orm())
+        database.session.commit()
+        access_token = sms_auth.create_sms_access_token(user.id)
+        users.append((user, {"Authorization": f"Bearer {access_token}"}))
+    return users
 
 
 def test_register_user(auth_header):
@@ -105,6 +151,28 @@ def test_get_current_user(auth_header):
     response_body = decamelize(response.json())
     pretty_print(response_body)
     assert response.status_code == 200
+
+
+def test_admin_can_read_another_users_profile(api_get):
+    target_user = user_utils.get_user_dict_from_username("vht")
+
+    response = api_get(endpoint=f"/api/user/{target_user['id']}")
+
+    assert response.status_code == 200
+    assert_user_profile_response(response)
+
+
+@pytest.mark.parametrize("route_suffix", ["", "/phone"])
+def test_user_cannot_access_another_users_data(sms_authenticated_users, route_suffix):
+    _, auth_header = sms_authenticated_users[0]
+    target_user, _ = sms_authenticated_users[1]
+    url = f"http://localhost:5000/api/user/{target_user.id}{route_suffix}"
+
+    response = requests.get(url, headers=auth_header)
+    response_body = decamelize(response.json())
+
+    assert response.status_code == 403
+    assert TARGET_USER_FIELDS.isdisjoint(response_body)
 
 
 def test_sms_secret_key_for_sms_relay(auth_header, admin_user_id):
