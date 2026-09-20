@@ -429,10 +429,10 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
 # TODO: This endpoint is kinda redundant now because of the PATCH request
-@roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
+@roles_required([RoleEnum.ADMIN])
 def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
     """Update Workflow Template"""
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
@@ -467,10 +467,10 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
-@roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
+@roles_required([RoleEnum.ADMIN])
 def update_workflow_template_patch(
     path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
 ):

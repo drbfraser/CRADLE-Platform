@@ -139,8 +139,8 @@ def update_workflow_instance_step(
 
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>/archive_form [PATCH]
-@roles_required([RoleEnum.ADMIN])
 @api_workflow_instance_steps.patch("/<string:workflow_instance_step_id>/archive_form")
+@roles_required([RoleEnum.ADMIN])
 def archive_form(path: WorkflowInstanceStepIdPath):
     """Archive submitted form associated with workflow instance step"""
     step = workflow_utils.fetch_workflow_instance_step_or_404(
