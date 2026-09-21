@@ -76,7 +76,9 @@ export const RuleEditorHelpDialog: React.FC<RuleEditorHelpDialogProps> = ({
       {SECTIONS.map((section, index) => (
         <React.Fragment key={section.title}>
           {index > 0 && <Divider sx={{ my: 1.5 }} />}
-          <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 700, color: 'text.primary' }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ mb: 0.5, fontWeight: 700, color: 'text.primary' }}>
             {section.title}
           </Typography>
           <List dense disablePadding>
