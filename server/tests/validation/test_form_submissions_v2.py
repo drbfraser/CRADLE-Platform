@@ -385,6 +385,12 @@ create_request_empty_answers = {
     "answers": [],
 }
 
+create_request_without_user_id = {
+    "form_template_id": VALID_TEMPLATE_ID,
+    "patient_id": VALID_PATIENT_ID,
+    "answers": [{"question_id": "q1", "answer": {"number": 75}}],
+}
+
 
 @pytest.mark.parametrize(
     "json, expectation",
@@ -393,6 +399,7 @@ create_request_empty_answers = {
         (valid_create_request, None),
         (valid_create_request_with_id, None),
         (create_request_empty_answers, None),  # Empty answers is valid
+        (create_request_without_user_id, None),  # endpoint derives user_id from JWT
         # Missing required fields
         (create_request_missing_template_id, ValidationError),
         (create_request_missing_answers, ValidationError),
