@@ -75,6 +75,15 @@ describe('Blockly workspace rules', () => {
       );
     });
 
+    it('does not treat the legacy comparison block as a valid condition root', () => {
+      const legacyComparison = {
+        type: 'comparison',
+        getFieldValue: vi.fn(),
+      } as unknown as Blockly.Block;
+
+      expect(isConditionRootBlock(legacyComparison)).toBe(false);
+    });
+
     it('flags orphan variable blocks as incomplete conditions', () => {
       placeRootBlock(workspace, 'app_variable_forms_String', {
         VAR_NAME: 'forms[latest].q1',
