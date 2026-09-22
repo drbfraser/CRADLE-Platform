@@ -1,0 +1,119 @@
+import pytest
+
+from common.user_utils import UserDict
+from enums import RoleEnum
+from service import assoc
+from service.patient_authorization import can_access_patient
+
+
+@pytest.fixture
+def patient_access_scenario(
+    database,
+    facility_factory,
+    patient_factory,
+    user_factory,
+):
+    facility = facility_factory.create(name="AUTH-F1")
+    other_facility = facility_factory.create(name="AUTH-F2")
+
+    users = {
+        "admin": user_factory.create(
+            email="auth-admin@example.com",
+            role=RoleEnum.ADMIN.value,
+            health_facility_name=facility.name,
+        ),
+        "hcw": user_factory.create(
+            email="auth-hcw@example.com",
+            role=RoleEnum.HCW.value,
+            health_facility_name=facility.name,
+        ),
+        "cho": user_factory.create(
+            email="auth-cho@example.com",
+            role=RoleEnum.CHO.value,
+            health_facility_name=facility.name,
+        ),
+        "supervised_vht": user_factory.create(
+            email="auth-supervised-vht@example.com",
+            role=RoleEnum.VHT.value,
+            health_facility_name=facility.name,
+        ),
+        "vht": user_factory.create(
+            email="auth-vht@example.com",
+            role=RoleEnum.VHT.value,
+            health_facility_name=other_facility.name,
+        ),
+        "unrelated_vht": user_factory.create(
+            email="auth-unrelated-vht@example.com",
+            role=RoleEnum.VHT.value,
+            health_facility_name=other_facility.name,
+        ),
+        "unknown": user_factory.create(
+            email="auth-unknown@example.com",
+            role="UNKNOWN",
+            health_facility_name=other_facility.name,
+        ),
+    }
+
+    patients = {
+        "facility": patient_factory.create(id="AUTH-P1"),
+        "cho_direct": patient_factory.create(id="AUTH-P2"),
+        "supervised": patient_factory.create(id="AUTH-P3"),
+        "vht_direct": patient_factory.create(id="AUTH-P4"),
+        "unrelated": patient_factory.create(id="AUTH-P5"),
+        "unknown_direct": patient_factory.create(id="AUTH-P6"),
+    }
+
+    assoc.associate(patients["facility"], facility=facility)
+    assoc.associate(patients["cho_direct"], user=users["cho"])
+    assoc.associate(patients["supervised"], user=users["supervised_vht"])
+    assoc.associate(patients["vht_direct"], user=users["vht"])
+    assoc.associate(patients["unrelated"], user=users["unrelated_vht"])
+    assoc.associate(patients["unknown_direct"], user=users["unknown"])
+
+    users["cho"].vht_list.append(users["supervised_vht"])
+    database.session.commit()
+
+    yield {
+        "users": {name: _user_dict(user) for name, user in users.items()},
+        "patients": {name: patient.id for name, patient in patients.items()},
+    }
+
+    users["cho"].vht_list = []
+    database.session.commit()
+
+
+def _user_dict(user) -> UserDict:
+    return {
+        "id": user.id,
+        "name": user.name,
+        "username": user.username,
+        "email": user.email,
+        "health_facility_name": user.health_facility_name,
+        "role": user.role,
+    }
+
+
+@pytest.mark.parametrize(
+    ("user_name", "patient_name", "expected"),
+    [
+        ("admin", "unrelated", True),
+        ("hcw", "facility", True),
+        ("hcw", "unrelated", False),
+        ("cho", "cho_direct", True),
+        ("cho", "supervised", True),
+        ("cho", "unrelated", False),
+        ("vht", "vht_direct", True),
+        ("vht", "unrelated", False),
+        ("unknown", "unknown_direct", False),
+    ],
+)
+def test_can_access_patient(
+    patient_access_scenario,
+    user_name,
+    patient_name,
+    expected,
+):
+    user = patient_access_scenario["users"][user_name]
+    patient_id = patient_access_scenario["patients"][patient_name]
+
+    assert can_access_patient(user, patient_id) is expected
