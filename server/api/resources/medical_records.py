@@ -5,7 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.decorator import patient_association_required
+from api.authorization import require_patient_access
 from api.resources.patients import api_patients
 from common.api_utils import (
     PatientIdPath,
@@ -44,7 +44,6 @@ class GetMedicalRecordsResponse(CradleBaseModel):
 
 
 # /api/patients/<string:patient_id>/medical_records [GET]
-@patient_association_required()
 @api_patients.get(
     "/<string:patient_id>/medical_records",
     tags=[medical_records_tag],
@@ -52,6 +51,7 @@ class GetMedicalRecordsResponse(CradleBaseModel):
 )
 def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
     """Get Patient's Medical Records"""
+    require_patient_access(path.patient_id)
     params = query.model_dump()
     medical = view.medical_record_view(path.patient_id, False, **params)
     drug = view.medical_record_view(path.patient_id, True, **params)
@@ -63,7 +63,6 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 
 
 # /api/patients/<string:patient_id>/medical_records [POST]
-@patient_association_required()
 @api_patients.post(
     "/<string:patient_id>/medical_records",
     tags=[medical_records_tag],
@@ -71,6 +70,7 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 )
 def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
     """Create Medical Record"""
+    require_patient_access(path.patient_id)
     if body.id is not None:
         if crud.read(MedicalRecordOrm, id=body.id) is not None:
             return abort(
@@ -91,7 +91,6 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
 
 
 # /api/patients/<string:patient_id>/drug_history [PUT]
-@patient_association_required()
 @api_patients.put(
     "/<string:patient_id>/drug_history",
     tags=[medical_records_tag],
@@ -99,6 +98,7 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
 )
 def update_patient_drug_history(path: PatientIdPath, body: DrugHistory):
     """Update Patient Drug History"""
+    require_patient_access(path.patient_id)
     drug_history = body.model_dump()
     drug_history = _process_medical_history(drug_history)
     drug_history["patient_id"] = path.patient_id

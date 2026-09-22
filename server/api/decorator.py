@@ -1,12 +1,6 @@
-import logging
 from functools import wraps
 
-import data.db_operations as crud
 from common import user_utils
-from enums import RoleEnum
-from models import PatientAssociationsOrm
-
-LOGGER = logging.getLogger(__name__)
 
 
 def roles_required(accepted_roles):
@@ -29,37 +23,6 @@ def roles_required(accepted_roles):
             return {
                 "message": "This user does not have the required privileges",
             }, 401
-
-        return decorator
-
-    return wrapper
-
-
-def patient_association_required():
-    """Restrict VHT users to only access patients they are associated with, returning 403 otherwise."""
-
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(patient_id, *args, **kwargs):
-            current_user = user_utils.get_current_user_from_jwt()
-            user_role = current_user["role"]
-            if user_role == RoleEnum.VHT.value:  # Changed the condition here
-                user_id = current_user["id"]
-                if not crud.read(
-                    PatientAssociationsOrm,
-                    patientId=patient_id,
-                    userId=user_id,
-                ):
-                    LOGGER.info(
-                        "User accessed patient's record",
-                        extra={
-                            "user_id": user_id,
-                            "patient_id": patient_id,
-                        },
-                    )
-                    return {"message": "Not authorized to access this patient."}, 403
-
-            return fn(patient_id, *args, **kwargs)
 
         return decorator
 

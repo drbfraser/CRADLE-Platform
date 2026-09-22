@@ -5,7 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.decorator import patient_association_required
+from api.authorization import require_patient_access
 from api.resources.patients import api_patients
 from common.api_utils import PatientIdPath, PregnancyIdPath, SearchFilterQueryParams
 from data import orm_serializer
@@ -18,20 +18,20 @@ from validation.pregnancies import (
 
 
 # /api/patients/<string:patient_id>/pregnancies [GET]
-@patient_association_required()
 @api_patients.get("/<string:patient_id>/pregnancies", responses={200: PregnancyList})
 def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams):
     """Get Patient's Pregnancies"""
+    require_patient_access(path.patient_id)
     params = query.model_dump()
     pregnancies = view.pregnancy_view(path.patient_id, **params)
     return [orm_serializer.marshal(p) for p in pregnancies]
 
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
-@patient_association_required()
 @api_patients.post("/<string:patient_id>/pregnancies", responses={200: PregnancyModel})
 def create_new_pregnancy(path: PatientIdPath, body: PregnancyModel):
     """Create New Pregnancy"""
+    require_patient_access(path.patient_id)
     if body.id is not None:
         pregnancy_id = body.id
         if crud.read(PregnancyOrm, id=pregnancy_id):
