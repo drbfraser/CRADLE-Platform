@@ -55,11 +55,13 @@ function buildVariableCategories(variables: WorkflowVariable[]) {
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
   const variableCategories = buildVariableCategories(variables);
 
-  const checkConditionCategory = {
+  const compareAndLogicCategory = {
     kind: 'category',
-    name: 'Check a Condition',
-    colour: '210',
+    name: 'Comparisons and Logic',
+    colour: '120',
     contents: [
+      { kind: 'block', type: 'logic_op' },
+      { kind: 'block', type: 'logic_negate' },
       { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Number },
       { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Date },
       { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Boolean },
@@ -68,21 +70,10 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
     ],
   };
 
-  const combineConditionCategory = {
-    kind: 'category',
-    name: 'Combine Conditions',
-    colour: '120',
-    contents: [
-      { kind: 'block', type: 'logic_op' },
-      { kind: 'block', type: 'logic_negate' },
-    ],
-  };
-
   return {
     kind: 'categoryToolbox',
     contents: [
-      checkConditionCategory,
-      combineConditionCategory,
+      compareAndLogicCategory,
       {
         kind: 'category',
         name: 'Values',

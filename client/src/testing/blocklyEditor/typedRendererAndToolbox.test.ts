@@ -51,7 +51,7 @@ describe('buildToolboxConfig', () => {
     expect(formString?.contents?.[0]?.type).toBe('app_variable_forms_String');
   });
 
-  it('puts every comparison block, across types, inside one Check a Condition category', () => {
+  it('puts every comparison and logic block inside one Comparisons and Logic category', () => {
     const config = buildToolboxConfig(TEST_VARIABLES);
     const categories = config.contents as Array<{
       name: string;
@@ -59,66 +59,52 @@ describe('buildToolboxConfig', () => {
       contents: Array<{ name?: string; type?: string }>;
     }>;
 
-    const checkCondition = categories.find(
-      (c) => c.name === 'Check a Condition'
+    const comparisonsAndLogic = categories.find(
+      (c) => c.name === 'Comparisons and Logic'
     );
 
-    expect(checkCondition).toBeTruthy();
+    expect(comparisonsAndLogic).toBeTruthy();
 
-    const blockTypes = checkCondition?.contents.map((c) => c.type);
+    const blockTypes = comparisonsAndLogic?.contents.map((c) => c.type);
+    expect(blockTypes).toContain('logic_op');
+    expect(blockTypes).toContain('logic_negate');
     expect(blockTypes).toContain('number_comparison');
     expect(blockTypes).toContain('date_comparison');
     expect(blockTypes).toContain('string_comparison');
     expect(blockTypes).toContain('boolean_comparison');
     expect(blockTypes).toContain('string_op');
 
-    // Old type-based categories shouldn't reappear (would duplicate blocks now in Check a Condition).
+    // Old type-based and split task-based categories shouldn't reappear
+    // (would duplicate blocks now unified under Comparisons and Logic).
     expect(categories.some((c) => c.name === 'Number Compare')).toBe(false);
     expect(categories.some((c) => c.name === 'Date Compare')).toBe(false);
     expect(categories.some((c) => c.name === 'Text Compare')).toBe(false);
-    expect(checkCondition?.contents.every((c) => !c.name)).toBe(true);
-  });
-
-  it('puts AND/OR/NOT in a separate Combine Conditions category', () => {
-    const config = buildToolboxConfig(TEST_VARIABLES);
-    const categories = config.contents as Array<{
-      name: string;
-      contents: Array<{ name?: string; type?: string }>;
-    }>;
-
-    const combineConditions = categories.find(
-      (c) => c.name === 'Combine Conditions'
-    );
-
-    expect(combineConditions).toBeTruthy();
-    const blockTypes = combineConditions?.contents.map((c) => c.type);
-    expect(blockTypes).toContain('logic_op');
-    expect(blockTypes).toContain('logic_negate');
-
-    // Logic Compare/True-False shouldn't reappear; those blocks moved to Check a Condition / Combine Conditions.
     expect(categories.some((c) => c.name === 'Logic Compare')).toBe(false);
     expect(categories.some((c) => c.name === 'True/False')).toBe(false);
-
-    expect(blockTypes).not.toContain('number_comparison');
-    expect(blockTypes).not.toContain('string_comparison');
+    expect(categories.some((c) => c.name === 'Check a Condition')).toBe(false);
+    expect(categories.some((c) => c.name === 'Combine Conditions')).toBe(false);
+    expect(comparisonsAndLogic?.contents.every((c) => !c.name)).toBe(true);
   });
 
-  it('always shows Check a Condition and Combine Conditions even with no variables', () => {
+  it('always shows Comparisons and Logic even with no variables', () => {
     const config = buildToolboxConfig([]);
     const categories = config.contents as Array<{
       name: string;
       contents?: Array<{ name?: string; type?: string }>;
     }>;
 
-    expect(categories.some((c) => c.name === 'Check a Condition')).toBe(true);
-    expect(categories.some((c) => c.name === 'Combine Conditions')).toBe(true);
+    expect(categories.some((c) => c.name === 'Comparisons and Logic')).toBe(
+      true
+    );
     expect(categories.some((c) => c.name === 'Values')).toBe(true);
     expect(categories.some((c) => c.name === 'Patient')).toBe(false);
 
-    const checkCondition = categories.find(
-      (c) => c.name === 'Check a Condition'
+    const comparisonsAndLogic = categories.find(
+      (c) => c.name === 'Comparisons and Logic'
     );
-    const blockTypes = checkCondition?.contents?.map((c) => c.type);
+    const blockTypes = comparisonsAndLogic?.contents?.map((c) => c.type);
+    expect(blockTypes).toContain('logic_op');
+    expect(blockTypes).toContain('logic_negate');
     expect(blockTypes).toContain('number_comparison');
     expect(blockTypes).toContain('date_comparison');
     expect(blockTypes).toContain('string_comparison');

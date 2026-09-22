@@ -28,23 +28,15 @@ const SECTIONS = [
     ],
   },
   {
-    title: 'Check a Condition',
+    title: 'Comparisons and Logic',
     body: [
-      'Ask a yes/no question about a value — pick the block for what you want to know.',
-      'Compare numbers: is equal to, is greater than, etc. (e.g. age is greater than 18).',
-      'Compare dates: is before, is after, etc. (e.g. date of birth is before a given day).',
-      'Check yes/no fields: is equal to (e.g. is pregnant).',
-      'Check text: is equal to,contains, starts with, ends with, or length (e.g. name length is greater than 5).',
-      'Blocks are colour-coded and shaped by type, so you can spot the right one at a glance.',
-    ],
-  },
-  {
-    title: 'Combine Conditions',
-    body: [
-      'Use once you already have two or more condition expressions (blocks) from Check a Condition.',
-      'AND / OR — combine conditions (e.g. age > 18 AND is pregnant).',
+      'AND / OR — combine conditions blocks (e.g. age > 18 AND is pregnant).',
       'NOT — flip a condition\u2019s result.',
-      'Drag an AND/OR block and plug your condition blocks into both sides to link them.',
+      'Compare numbers blocks: is equal to, is greater than, etc. (e.g. age is greater than 18).',
+      'Compare dates blocks: is before, is after, etc. (e.g. date of birth is before a given day).',
+      'Check yes/no blocks: is equal to (e.g. is pregnant).',
+      'Check text blocks: is equal to, contains, starts with, ends with, or length (e.g. name length is greater than 5).',
+      'Blocks are colour-coded and shaped by type, so you can spot the right one at a glance.',
     ],
   },
   {
