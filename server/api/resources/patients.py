@@ -7,7 +7,8 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.decorator import patient_association_required, roles_required
+from api.authorization import require_patient_access
+from api.decorator import roles_required
 from common import form_utils, user_utils
 from common.api_utils import (
     PageLimitFilterQueryParams,
@@ -120,7 +121,6 @@ def create_patient(body: NestedPatient):
 
 
 # /api/patients/<string:patient_id> [GET]
-@patient_association_required()
 @api_patients.get("/<string:patient_id>", responses={200: NestedPatient})
 def get_patient(path: PatientIdPath):
     """
@@ -128,6 +128,7 @@ def get_patient(path: PatientIdPath):
     Gets Patient by their ID.
     Returns Patient info with nested Readings, Referrals, and Assessments.
     """
+    require_patient_access(path.patient_id)
     patient = crud.read_patients(path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -140,10 +141,10 @@ def get_patient(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/info [GET]
-@patient_association_required()
 @api_patients.get("/<string:patient_id>/info", responses={200: PatientModel})
 def get_patient_info(path: PatientIdPath):
     """Get Patient Info"""
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -186,10 +187,10 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
 
 
 # /api/patients/<string:patient_id>/stats [GET]
-@patient_association_required()
 @api_patients.get("/<string:patient_id>/stats", responses={200: PatientStats})
 def get_patient_stats(path: PatientIdPath):
     """Get Patient Stats"""
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -336,12 +337,12 @@ class PatientPregnancySummary(CradleBaseModel):
 
 
 # /api/patients/<string:patient_id>/pregnancy_summary [GET]
-@patient_association_required()
 @api_patients.get(
     "/<string:patient_id>/pregnancy_summary", responses={200: PatientPregnancySummary}
 )
 def get_patient_pregnancy_summary(path: PatientIdPath):
     """Get Patient Summary"""
+    require_patient_access(path.patient_id)
     pregnancies = crud.read_medical_records(
         PregnancyOrm, path.patient_id, direction="DESC"
     )
@@ -356,12 +357,12 @@ class MedicalHistory(CradleBaseModel):
 
 
 # /api/patients/<string:patient_id>/medical_history [GET]
-@patient_association_required()
 @api_patients.get(
     "/<string:patient_id>/medical_history", responses={200: MedicalHistory}
 )
 def get_patient_medical_history(path: PatientIdPath):
     """Get Patient Medical History"""
+    require_patient_access(path.patient_id)
     medical = crud.read_patient_current_medical_record(path.patient_id, False)
     drug = crud.read_patient_current_medical_record(path.patient_id, True)
     return orm_serializer.marshal_patient_medical_history(medical=medical, drug=drug)
@@ -378,10 +379,10 @@ class PatientTimeline(RootModel):
 
 
 # /api/patients/<string:patient_id>/timeline [GET]
-@patient_association_required()
 @api_patients.get("/<string:patient_id>/timeline", responses={200: PatientTimeline})
 def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams):
     """Get Patient Timeline"""
+    require_patient_access(path.patient_id)
     params = query.model_dump()
     records = crud.read_patient_timeline(path.patient_id, **params)
     return [serialize.serialize_patient_timeline(r) for r in records]

@@ -450,6 +450,38 @@ def test_workflow_template_patch_request(
             )
 
 
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_admin_only_replace_workflow_template_rejects_vht(api_put, credentials):
+    response = api_put(
+        endpoint="/api/workflow/templates/missing-template",
+        json={
+            "id": "replacement-template",
+            "description": "replacement template",
+            "archived": False,
+            "version": "V1",
+            "steps": [],
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {
+        "message": "This user does not have the required privileges"
+    }
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_admin_only_patch_workflow_template_rejects_vht(api_patch, credentials):
+    response = api_patch(
+        endpoint="/api/workflow/templates/missing-template",
+        json={},
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {
+        "message": "This user does not have the required privileges"
+    }
+
+
 def test_workflow_template_patch_rename_affects_shared_classification(
     database,
     workflow_template1,
