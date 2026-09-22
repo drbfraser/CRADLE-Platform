@@ -8,13 +8,11 @@ from service.patient_authorization import can_access_patient
 
 @pytest.fixture
 def patient_access_scenario(
-    database,
     facility_factory,
     patient_factory,
     user_factory,
 ):
     facility = facility_factory.create(name="AUTH-F1")
-    other_facility = facility_factory.create(name="AUTH-F2")
 
     users = {
         "admin": user_factory.create(
@@ -32,54 +30,37 @@ def patient_access_scenario(
             role=RoleEnum.CHO.value,
             health_facility_name=facility.name,
         ),
-        "supervised_vht": user_factory.create(
-            email="auth-supervised-vht@example.com",
-            role=RoleEnum.VHT.value,
-            health_facility_name=facility.name,
-        ),
         "vht": user_factory.create(
             email="auth-vht@example.com",
             role=RoleEnum.VHT.value,
-            health_facility_name=other_facility.name,
+            health_facility_name=facility.name,
         ),
         "unrelated_vht": user_factory.create(
             email="auth-unrelated-vht@example.com",
             role=RoleEnum.VHT.value,
-            health_facility_name=other_facility.name,
+            health_facility_name=facility.name,
         ),
         "unknown": user_factory.create(
             email="auth-unknown@example.com",
             role="UNKNOWN",
-            health_facility_name=other_facility.name,
+            health_facility_name=facility.name,
         ),
     }
 
     patients = {
-        "facility": patient_factory.create(id="AUTH-P1"),
-        "cho_direct": patient_factory.create(id="AUTH-P2"),
-        "supervised": patient_factory.create(id="AUTH-P3"),
-        "vht_direct": patient_factory.create(id="AUTH-P4"),
-        "unrelated": patient_factory.create(id="AUTH-P5"),
-        "unknown_direct": patient_factory.create(id="AUTH-P6"),
+        "vht_direct": patient_factory.create(id="AUTH-P1"),
+        "unrelated": patient_factory.create(id="AUTH-P2"),
+        "unknown_direct": patient_factory.create(id="AUTH-P3"),
     }
 
-    assoc.associate(patients["facility"], facility=facility)
-    assoc.associate(patients["cho_direct"], user=users["cho"])
-    assoc.associate(patients["supervised"], user=users["supervised_vht"])
     assoc.associate(patients["vht_direct"], user=users["vht"])
     assoc.associate(patients["unrelated"], user=users["unrelated_vht"])
     assoc.associate(patients["unknown_direct"], user=users["unknown"])
 
-    users["cho"].vht_list.append(users["supervised_vht"])
-    database.session.commit()
-
-    yield {
+    return {
         "users": {name: _user_dict(user) for name, user in users.items()},
         "patients": {name: patient.id for name, patient in patients.items()},
     }
-
-    users["cho"].vht_list = []
-    database.session.commit()
 
 
 def _user_dict(user) -> UserDict:
@@ -97,11 +78,8 @@ def _user_dict(user) -> UserDict:
     ("user_name", "patient_name", "expected"),
     [
         ("admin", "unrelated", True),
-        ("hcw", "facility", True),
-        ("hcw", "unrelated", False),
-        ("cho", "cho_direct", True),
-        ("cho", "supervised", True),
-        ("cho", "unrelated", False),
+        ("hcw", "unrelated", True),
+        ("cho", "unrelated", True),
         ("vht", "vht_direct", True),
         ("vht", "unrelated", False),
         ("unknown", "unknown_direct", False),

@@ -13,6 +13,20 @@ def test_associated_vht_can_access_patient(api_get):
     assert response.status_code == 200
 
 
+@pytest.mark.parametrize(
+    "credentials",
+    [
+        ("hcw@email.com", "cradle-hcw"),
+        ("cho@email.com", "cradle-cho"),
+    ],
+    ids=["hcw", "cho"],
+)
+def test_hcw_and_cho_can_access_unassociated_patient(api_get):
+    response = api_get(endpoint="/api/patients/49300028161/info")
+
+    assert response.status_code == 200
+
+
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
 @pytest.mark.parametrize(
     "endpoint",
