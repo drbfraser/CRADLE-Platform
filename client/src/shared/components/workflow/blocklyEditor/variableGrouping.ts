@@ -9,7 +9,8 @@ const SOURCE_LABELS: Record<string, string> = {
   referrals: 'Referrals',
   assessments: 'Assessments',
   reading: 'Readings',
-  wf: 'Workflow',
+  wf: 'Current Workflow',
+  all_wf: 'All Workflows',
   global: 'Global',
   catalogue: 'Catalogue',
 };
@@ -24,6 +25,7 @@ const SOURCE_ORDER = [
   'assessments',
   'reading',
   'wf',
+  'all_wf',
   'global',
   'catalogue',
 ];
