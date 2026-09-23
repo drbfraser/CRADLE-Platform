@@ -1,26 +1,8 @@
-"""
-Functions for retrieving various subsets of database models.
-
-Different user roles have different requirements on what subset of patients they should
-be able to see. The functions in this module compute these subsets for specific users.
-
-The main function is ``patient_view_for_user`` which switches on the role of the given
-user to provide an appropriate list of patients. It delegates the work of computing the
-actual lists to other functions to ease testing.
-
-The role-specific views are defined as follows:
-
-* ADMIN: can see all patients in the database
-* HCW: can see all patients associated with their health facility
-* CHO: can see all patients created by them as well as all patients created by VHTs
-  they manage.
-* VHT: can see all patients created by them
-"""
+"""Retrieve patient-related collections through role-aware database queries."""
 
 from typing import Any, Callable, Optional
 
 import data.db_operations as crud
-from enums import RoleEnum
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,
@@ -155,17 +137,8 @@ def admin_patient_view(user: dict, **kwargs) -> list[Any]:
     :param **kwargs: Optional query criteria
     :return: A list of patients each with the fields id, name, is_archived
     """
-    return __get_view(user, crud.read_admin_patient, **kwargs)
+    return crud.read_admin_patient(**kwargs)
 
 
 def __get_view(user: dict, func: Callable, **kwargs) -> list[Any]:
-    """Dispatch a query function with the appropriate user_id filter based on the user's role."""
-    role = user["role"]
-    user_id = int(user["id"])
-    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
-        return func(**kwargs)
-    if role == RoleEnum.CHO.value:
-        return func(user_id=user_id, is_cho=True, **kwargs)
-    if role == RoleEnum.VHT.value:
-        return func(user_id=user_id, **kwargs)
-    raise ValueError("User has an invalid role.")
+    return func(user=user, **kwargs)

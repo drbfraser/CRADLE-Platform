@@ -44,6 +44,16 @@ def test_unassociated_vht_cannot_access_direct_patient_routes(api_get, endpoint)
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_vht_patient_list_matches_direct_access(api_get):
+    response = api_get(endpoint="/api/patients?search=4930002816")
+
+    assert response.status_code == 200
+    patient_ids = {patient["id"] for patient in response.json()}
+    assert "49300028162" in patient_ids
+    assert "49300028161" not in patient_ids
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
 def test_unassociated_vht_cannot_create_pregnancy(api_post):
     try:
         response = api_post(
