@@ -21,22 +21,22 @@ const SECTIONS = [
   {
     title: 'Getting started',
     body: [
-      'Drag blocks from Check a Condition into the workspace — you can drop several at once.',
-      'Connect them with AND/OR/NOT from Combine Conditions to build one combined condition.',
-      'Connect variables or values to every empty slot before saving or copying.',
+      'Drag conditions blocks (numbers, dates, true/false, text) from Comparisons and Logic into the workspace — you can drop several at once.',
+      'Drag AND/OR/NOT blocks to combine conditions blocks to build one combined condition.',
+      'Drag variables or values to every empty slot before saving or copying.',
+      'Blocks are color-coded and shaped by type, so you can spot the right one at a glance.',
       'Give the condition a name so it appears on the flow diagram.',
     ],
   },
   {
     title: 'Comparisons and Logic',
     body: [
-      'AND / OR — combine conditions blocks (e.g. age > 18 AND is pregnant).',
+      'AND / OR — combine multiple conditions (e.g. age > 18 AND is pregnant).',
       'NOT — flip a condition\u2019s result.',
       'Compare numbers blocks: is equal to, is greater than, etc. (e.g. age is greater than 18).',
       'Compare dates blocks: is before, is after, etc. (e.g. date of birth is before a given day).',
-      'Check yes/no blocks: is equal to (e.g. is pregnant).',
+      'Check true/false blocks: is equal to (e.g. is pregnant).',
       'Check text blocks: is equal to, contains, starts with, ends with, or length (e.g. name length is greater than 5).',
-      'Blocks are colour-coded and shaped by type, so you can spot the right one at a glance.',
     ],
   },
   {
