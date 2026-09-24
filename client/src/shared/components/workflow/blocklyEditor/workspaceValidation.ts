@@ -34,13 +34,14 @@ export function isValidDateString(value: string): boolean {
 }
 
 function hasInvalidDateLiteral(workspace: Blockly.WorkspaceSvg): boolean {
-  return workspace.getAllBlocks(false).some(
-    (block) =>
-      block.type === 'date_value' &&
-      !block.isShadow() &&
-      //!/^\d{4}-\d{2}-\d{2}$/.test(block.getFieldValue('DATE') ?? '')
-      !isValidDateString(block.getFieldValue('DATE') ?? '')
-  );
+  return workspace
+    .getAllBlocks(false)
+    .some(
+      (block) =>
+        block.type === 'date_value' &&
+        !block.isShadow() &&
+        !isValidDateString(block.getFieldValue('DATE') ?? '')
+    );
 }
 
 function validateSingleRoot(
