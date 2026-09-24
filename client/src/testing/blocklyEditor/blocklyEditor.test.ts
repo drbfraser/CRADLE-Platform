@@ -204,6 +204,31 @@ describe('Blockly workspace rules', () => {
       );
     });
 
+    // Test invalid CALENDAR dates (NOT FORMAT)
+    it('flags invalid dates (e.g. 2026-26-26)', () => {
+      const comparison = placeRootBlock(workspace, 'date_comparison', {
+        OP: '<',
+      });
+      const variable = workspace.newBlock('app_variable_patient_Date');
+      variable.setFieldValue('patient.dob', 'VAR_NAME');
+      variable.initSvg();
+      variable.render();
+
+      const dateValue = workspace.newBlock('date_value');
+      dateValue.setFieldValue('2026-26-26', 'DATE');
+      dateValue.initSvg();
+      dateValue.render();
+
+      connectBlockToInput(comparison, 'LEFT', variable);
+      connectBlockToInput(comparison, 'RIGHT', dateValue);
+
+      const result = evaluateWorkspace(workspace);
+
+      expect(result.error).toBe(
+        'Date value must be in YYYY-MM-DD format (e.g. 2024-01-15).'
+      );
+    });
+
     it('combines two comparisons with AND into one valid condition', () => {
       const ageCompare = placeRootBlock(workspace, 'number_comparison', {
         OP: '>',
