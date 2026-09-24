@@ -24,9 +24,9 @@ from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 
+from common.user_utils import UserDict
 from data.db_operations import M, db_session
 from data.db_operations.helper_utils import (
-    __filter_by_patient_association,
     __filter_by_patient_search,
     __get_slice_indexes,
     __order_by_column,
@@ -42,18 +42,17 @@ from models import (
     UrineTestOrm,
     get_schema_for_model,
 )
+from service.patient_authorization import scope_query_to_accessible_patients
 
 
 def read_patient_list(
-    user_id: Optional[int] = None,
-    is_cho: bool = False,
+    user: UserDict,
     **kwargs,
 ) -> list[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
-    :param user_id: ID of user to filter patients wrt patient associations; None to get
-    patients associated with all users
+    :param user: Authenticated user whose patient visibility applies
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
     :return: A list of patients
@@ -81,7 +80,7 @@ def read_patient_list(
         )
     )
 
-    query = __filter_by_patient_association(query, PatientOrm, user_id, is_cho)
+    query = scope_query_to_accessible_patients(query, PatientOrm.id, user)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [PatientOrm, ReadingOrm], **kwargs)
 
@@ -93,15 +92,11 @@ def read_patient_list(
 
 
 def read_admin_patient(
-    user_id: Optional[int] = None,
-    is_cho: bool = False,
     **kwargs,
 ) -> list[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
-    :param user_id: ID of user to filter patients wrt patient associations; None to get
-        patients associated with all users
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
     :return: A list of patients
@@ -355,8 +350,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> list[Any]:
 
 def read_patients(
     patient_id: Optional[str] = None,
-    user_id: Optional[int] = None,
-    is_cho: bool = False,
+    user: Optional[UserDict] = None,
     last_edited: Optional[int] = None,
 ) -> Union[Any, list[Any]]:
     """
@@ -365,8 +359,7 @@ def read_patients(
 
     :param patient_id: ID of patient to filter patients; by default this filter is not
     applied
-    :param user_id: ID of user to filter patients wrt patient associations; by default
-    this filter is not applied
+    :param user: Authenticated user for collection queries
     :param last_edited: Timestamp to filter patients by last-edited time greater than the
     timestamp; by default this filter is not applied
 
@@ -454,7 +447,10 @@ def read_patients(
         )
     )
 
-    query = __filter_by_patient_association(query, PatientOrm, user_id, is_cho)
+    if user is not None:
+        query = scope_query_to_accessible_patients(query, PatientOrm.id, user)
+    elif patient_id is None:
+        raise ValueError("A user is required for a patient collection query.")
 
     if last_edited:
         # Aliased class for getting patients with recently closed pregnancy and no new pregnancy
@@ -483,8 +479,7 @@ def read_patients(
 
 def read_readings(
     patient_id: Optional[str] = None,
-    user_id: Optional[int] = None,
-    is_cho: bool = False,
+    user: Optional[UserDict] = None,
     last_edited: Optional[int] = None,
 ) -> list[tuple[ReadingOrm, UrineTestOrm]]:
     """
@@ -493,8 +488,7 @@ def read_readings(
 
     :param patient_id: ID of patient to filter readings; by default this filter is not
     applied
-    :param user_id: ID of user to filter patients wrt patient associations; by default
-    this filter is not applied
+    :param user: Authenticated user for collection queries
     :param last_edited: Timestamp to filter readings by last-edited time greater than the
     timestamp; by default this filter is not applied
 
@@ -505,7 +499,10 @@ def read_readings(
         ReadingOrm.urine_tests,
     )
 
-    query = __filter_by_patient_association(query, ReadingOrm, user_id, is_cho)
+    if user is not None:
+        query = scope_query_to_accessible_patients(query, ReadingOrm.patient_id, user)
+    elif patient_id is None:
+        raise ValueError("A user is required for a reading collection query.")
 
     if last_edited:
         query = query.filter(ReadingOrm.last_edited > last_edited)

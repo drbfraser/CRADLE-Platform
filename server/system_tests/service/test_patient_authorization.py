@@ -2,7 +2,7 @@ import pytest
 
 from common.user_utils import UserDict
 from enums import RoleEnum
-from service import assoc
+from service import assoc, view
 from service.patient_authorization import can_access_patient
 
 
@@ -54,6 +54,7 @@ def patient_access_scenario(
     }
 
     assoc.associate(patients["vht_direct"], user=users["vht"])
+    assoc.associate(patients["vht_direct"], facility=facility, user=users["vht"])
     assoc.associate(patients["unrelated"], user=users["unrelated_vht"])
     assoc.associate(patients["unknown_direct"], user=users["unknown"])
 
@@ -95,3 +96,52 @@ def test_can_access_patient(
     patient_id = patient_access_scenario["patients"][patient_name]
 
     assert can_access_patient(user, patient_id) is expected
+
+
+@pytest.mark.parametrize(
+    ("user_name", "expected_patient_names"),
+    [
+        ("admin", ["vht_direct", "unrelated", "unknown_direct"]),
+        ("hcw", ["vht_direct", "unrelated", "unknown_direct"]),
+        ("cho", ["vht_direct", "unrelated", "unknown_direct"]),
+        ("vht", ["vht_direct"]),
+        ("unknown", []),
+    ],
+)
+def test_patient_list_matches_access_policy(
+    patient_access_scenario,
+    user_name,
+    expected_patient_names,
+):
+    users = patient_access_scenario["users"]
+    patients = patient_access_scenario["patients"]
+
+    rows = view.patient_list_view(
+        users[user_name], search="AUTH-P", order_by="id", direction="ASC"
+    )
+
+    assert [row.id for row in rows] == sorted(
+        patients[name] for name in expected_patient_names
+    )
+
+
+def test_vht_reading_collection_excludes_unassociated_patients(
+    patient_access_scenario,
+    reading_factory,
+):
+    patients = patient_access_scenario["patients"]
+    users = patient_access_scenario["users"]
+    associated_reading = reading_factory.create(
+        id="AUTH-R1", patient_id=patients["vht_direct"], user_id=users["vht"]["id"]
+    )
+    reading_factory.create(
+        id="AUTH-R2",
+        patient_id=patients["unrelated"],
+        user_id=users["unrelated_vht"]["id"],
+    )
+
+    rows = view.reading_view(users["vht"])
+
+    assert [reading.id for reading, _ in rows if reading.id.startswith("AUTH-R")] == [
+        associated_reading.id
+    ]

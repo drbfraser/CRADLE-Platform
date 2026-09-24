@@ -23,9 +23,9 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import and_
 from sqlalchemy.sql.functions import coalesce
 
+from common.user_utils import UserDict
 from data.db_operations import db_session
 from data.db_operations.helper_utils import (
-    __filter_by_patient_association,
     __filter_by_patient_search,
     __get_slice_indexes,
     __order_by_column,
@@ -38,18 +38,17 @@ from models import (
     ReadingOrm,
     ReferralOrm,
 )
+from service.patient_authorization import scope_query_to_accessible_patients
 
 
 def read_referral_list(
-    user_id: Optional[int] = None,
-    is_cho: bool = False,
+    user: UserDict,
     **kwargs,
 ) -> list[Any]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
-    :param user_id: ID of user to filter patients wrt patient associations; None to get
-    referrals associated with all users
+    :param user: Authenticated user whose patient visibility applies
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
     health_facilities, referrers, date_range, is_assessed, is_pregnant, vital_signs
 
@@ -90,7 +89,7 @@ def read_referral_list(
         )
     )
 
-    query = __filter_by_patient_association(query, PatientOrm, user_id, is_cho)
+    query = scope_query_to_accessible_patients(query, PatientOrm.id, user)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [ReferralOrm, PatientOrm, ReadingOrm], **kwargs)
 
@@ -160,8 +159,7 @@ def read_referral_list(
 def read_referrals_or_assessments(
     model: Union[ReferralOrm, AssessmentOrm],
     patient_id: Optional[str] = None,
-    user_id: Optional[int] = None,
-    is_cho: bool = False,
+    user: Optional[UserDict] = None,
     last_edited: Optional[int] = None,
 ) -> Union[list[ReferralOrm], list[AssessmentOrm]]:
     """
@@ -169,8 +167,7 @@ def read_referrals_or_assessments(
 
     :param patient_id: ID of patient to filter referrals or assessments; by default this
     filter is not applied
-    :param user_id: ID of user to filter patients wrt patient associations; by default
-    this filter is not applied
+    :param user: Authenticated user for collection queries
     :param last_edited: Timestamp to filter referrals or assessments by last-edited time
     greater than the timestamp; by default this filter is not applied
 
@@ -181,7 +178,10 @@ def read_referrals_or_assessments(
     )
     query = db_session.query(model)
 
-    query = __filter_by_patient_association(query, model, user_id, is_cho)
+    if user is not None:
+        query = scope_query_to_accessible_patients(query, model.patient_id, user)
+    elif patient_id is None:
+        raise ValueError("A user is required for a clinical collection query.")
 
     if last_edited:
         query = query.filter(model_last_edited > last_edited)
