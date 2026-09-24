@@ -293,8 +293,24 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
 
   return (
     <>
-      <DialogTitle sx={{ pb: 1 }}>
+      <DialogTitle
+        sx={{ pb: 1, gap: 1, display: 'flex', alignItems: 'center' }}>
         {isEditMode ? 'Edit Branch Condition' : 'View Branch Condition'}
+        {isEditMode && (
+          <IconButton
+            size="small"
+            aria-label="Rule editor help"
+            onClick={() => setHelpOpen(true)}
+            sx={{
+              flexShrink: 0,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+              '&:hover': { bgcolor: 'action.hover' },
+            }}>
+            <HelpOutlineOutlinedIcon fontSize="small" />
+          </IconButton>
+        )}
       </DialogTitle>
       <DialogContent
         dividers
@@ -305,33 +321,11 @@ export const BranchDetails: React.FC<BranchDetailsProps> = ({
           minHeight: 0,
           p: 2,
         }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 1,
-            mb: 1,
-          }}>
+        <Box sx={{ mb: 1 }}>
           <Typography variant="body2" color="text.secondary">
             From: <strong>{selectedStep.name}</strong> → To:{' '}
             <strong>{targetStep?.name || 'Unknown Step'}</strong>
           </Typography>
-          {isEditMode && (
-            <IconButton
-              size="small"
-              aria-label="Rule editor help"
-              onClick={() => setHelpOpen(true)}
-              sx={{
-                flexShrink: 0,
-                bgcolor: 'background.paper',
-                border: '1px solid',
-                borderColor: 'divider',
-                '&:hover': { bgcolor: 'action.hover' },
-              }}>
-              <HelpOutlineOutlinedIcon fontSize="small" />
-            </IconButton>
-          )}
         </Box>
 
         <BranchConditionEditor

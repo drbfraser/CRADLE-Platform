@@ -51,97 +51,64 @@ describe('buildToolboxConfig', () => {
     expect(formString?.contents?.[0]?.type).toBe('app_variable_forms_String');
   });
 
-  it('creates per-type comparison categories with matching colours', () => {
+  it('puts every comparison and logic block inside one Comparisons and Logic category', () => {
     const config = buildToolboxConfig(TEST_VARIABLES);
     const categories = config.contents as Array<{
       name: string;
       colour: string;
-      contents: Array<{ name?: string; type?: string; contents?: unknown[] }>;
+      contents: Array<{ name?: string; type?: string }>;
     }>;
 
-    const numberCompare = categories.find((c) => c.name === 'Number Compare');
-    const dateCompare = categories.find((c) => c.name === 'Date Compare');
-    const textCompare = categories.find((c) => c.name === 'Text Compare');
-
-    expect(numberCompare?.colour).toBe('30');
-    expect(numberCompare?.contents[0]?.type).toBe('number_comparison');
-    expect(dateCompare?.contents[0]?.type).toBe('date_comparison');
-
-    const comparison = textCompare?.contents.find(
-      (c) => c.name === 'Comparison'
+    const comparisonsAndLogic = categories.find(
+      (c) => c.name === 'Comparisons and Logic'
     );
-    const operations = textCompare?.contents.find(
-      (c) => c.name === 'Operations'
-    );
-    expect(comparison?.contents?.[0]).toMatchObject({
-      type: 'string_comparison',
-    });
-    expect(operations?.contents?.[0]).toMatchObject({ type: 'string_op' });
-  });
 
-  it('nests comparison and operations under Text Compare without top-level blocks', () => {
-    const config = buildToolboxConfig(TEST_VARIABLES);
-    const categories = config.contents as Array<{
-      name: string;
-      contents: Array<{ name: string; type?: string }>;
-    }>;
+    expect(comparisonsAndLogic).toBeTruthy();
 
-    const textCompare = categories.find((c) => c.name === 'Text Compare');
-    expect(textCompare).toBeTruthy();
-    expect(textCompare?.contents.some((c) => c.name === 'Comparison')).toBe(
-      true
-    );
-    expect(textCompare?.contents.some((c) => c.name === 'Operations')).toBe(
-      true
-    );
-    expect(textCompare?.contents.every((c) => !c.type)).toBe(true);
-    expect(categories.some((c) => c.name === 'Operations')).toBe(false);
-  });
+    const blockTypes = comparisonsAndLogic?.contents.map((c) => c.type);
+    expect(blockTypes).toContain('logic_op');
+    expect(blockTypes).toContain('logic_negate');
+    expect(blockTypes).toContain('number_comparison');
+    expect(blockTypes).toContain('date_comparison');
+    expect(blockTypes).toContain('string_comparison');
+    expect(blockTypes).toContain('boolean_comparison');
+    expect(blockTypes).toContain('string_op');
 
-  it('nests true/false and logic blocks under Logic Compare without top-level blocks', () => {
-    const config = buildToolboxConfig(TEST_VARIABLES);
-    const categories = config.contents as Array<{
-      name: string;
-      contents: Array<{
-        name?: string;
-        type?: string;
-        contents?: Array<{ type: string }>;
-      }>;
-    }>;
-
-    const logicCompare = categories.find((c) => c.name === 'Logic Compare');
-    expect(logicCompare?.contents.some((c) => c.name === 'True/False')).toBe(
-      true
-    );
-    const logicSub = logicCompare?.contents.find((c) => c.name === 'Logic');
-    expect(logicSub?.contents?.some((c) => c.type === 'logic_op')).toBe(true);
-    expect(logicSub?.contents?.some((c) => c.type === 'logic_negate')).toBe(
-      true
-    );
-    expect(logicCompare?.contents.every((c) => !c.type)).toBe(true);
+    // Old type-based and split task-based categories shouldn't reappear
+    // (would duplicate blocks now unified under Comparisons and Logic).
+    expect(categories.some((c) => c.name === 'Number Compare')).toBe(false);
+    expect(categories.some((c) => c.name === 'Date Compare')).toBe(false);
+    expect(categories.some((c) => c.name === 'Text Compare')).toBe(false);
+    expect(categories.some((c) => c.name === 'Logic Compare')).toBe(false);
     expect(categories.some((c) => c.name === 'True/False')).toBe(false);
+    expect(categories.some((c) => c.name === 'Check a Condition')).toBe(false);
+    expect(categories.some((c) => c.name === 'Combine Conditions')).toBe(false);
+    expect(comparisonsAndLogic?.contents.every((c) => !c.name)).toBe(true);
   });
 
-  it('always shows comparison blocks even with no variables', () => {
+  it('always shows Comparisons and Logic even with no variables', () => {
     const config = buildToolboxConfig([]);
     const categories = config.contents as Array<{
       name: string;
-      contents?: Array<{ name: string }>;
+      contents?: Array<{ name?: string; type?: string }>;
     }>;
 
-    expect(categories.some((c) => c.name === 'Number Compare')).toBe(true);
-    expect(categories.some((c) => c.name === 'Date Compare')).toBe(true);
-    expect(categories.some((c) => c.name === 'Text Compare')).toBe(true);
-    expect(categories.some((c) => c.name === 'Logic Compare')).toBe(true);
+    expect(categories.some((c) => c.name === 'Comparisons and Logic')).toBe(
+      true
+    );
     expect(categories.some((c) => c.name === 'Values')).toBe(true);
     expect(categories.some((c) => c.name === 'Patient')).toBe(false);
 
-    const textCompare = categories.find((c) => c.name === 'Text Compare');
-    expect(textCompare?.contents?.some((c) => c.name === 'Comparison')).toBe(
-      true
+    const comparisonsAndLogic = categories.find(
+      (c) => c.name === 'Comparisons and Logic'
     );
-    expect(textCompare?.contents?.some((c) => c.name === 'Operations')).toBe(
-      true
-    );
+    const blockTypes = comparisonsAndLogic?.contents?.map((c) => c.type);
+    expect(blockTypes).toContain('logic_op');
+    expect(blockTypes).toContain('logic_negate');
+    expect(blockTypes).toContain('number_comparison');
+    expect(blockTypes).toContain('date_comparison');
+    expect(blockTypes).toContain('string_comparison');
+    expect(blockTypes).toContain('boolean_comparison');
+    expect(blockTypes).toContain('string_op');
   });
 });

@@ -212,53 +212,6 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
     },
   };
 
-  // Legacy block kept for loading saved rules created before per-type comparisons.
-  Blockly.Blocks['comparison'] = {
-    init: function (this: Blockly.Block) {
-      this.appendValueInput('LEFT').setCheck(['Number', 'String', 'Date']);
-      this.appendDummyInput().appendField(
-        new Blockly.FieldDropdown(NUMBER_COMPARISON_OPS),
-        'OP'
-      );
-      this.appendValueInput('RIGHT').setCheck(['Number', 'String', 'Date']);
-      this.setInputsInline(true);
-      this.setOutput(true, 'Boolean');
-      this.setColour(210);
-    },
-    onchange: function (this: Blockly.Block) {
-      const op = this.getFieldValue('OP');
-      const supportsBoolean = op === '==' || op === '!=';
-      const baseTypes = supportsBoolean
-        ? ['Number', 'String', 'Date', 'Boolean']
-        : ['Number', 'String', 'Date'];
-
-      const leftConn = this.getInput('LEFT')?.connection;
-      const rightConn = this.getInput('RIGHT')?.connection;
-
-      if (!supportsBoolean) {
-        if (
-          leftConn?.targetBlock()?.outputConnection?.getCheck()?.[0] ===
-          'Boolean'
-        )
-          leftConn.disconnect();
-        if (
-          rightConn?.targetBlock()?.outputConnection?.getCheck()?.[0] ===
-          'Boolean'
-        )
-          rightConn.disconnect();
-      }
-
-      const leftType =
-        leftConn?.targetBlock()?.outputConnection?.getCheck()?.[0] ?? null;
-      const rightType =
-        rightConn?.targetBlock()?.outputConnection?.getCheck()?.[0] ?? null;
-      const connectedType = leftType ?? rightType ?? null;
-      const check = connectedType ? [connectedType] : baseTypes;
-      leftConn?.setCheck(check);
-      rightConn?.setCheck(check);
-    },
-  };
-
   Blockly.Blocks['string_op'] = {
     init: function (this: Blockly.Block) {
       this.appendDummyInput('TYPE_LABEL').appendField('text');

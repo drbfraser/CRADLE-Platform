@@ -55,72 +55,25 @@ function buildVariableCategories(variables: WorkflowVariable[]) {
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
   const variableCategories = buildVariableCategories(variables);
 
-  // Compare blocks are always available so authors can build conditions with
-  // literal Values even when a step has no variables yet.
-  const numberCompareCategory = {
+  const compareAndLogicCategory = {
     kind: 'category',
-    name: 'Number Compare',
-    colour: String(TYPE_COLOURS.Number),
-    contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Number }],
-  };
-
-  const dateCompareCategory = {
-    kind: 'category',
-    name: 'Date Compare',
-    colour: String(TYPE_COLOURS.Date),
-    contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Date }],
-  };
-
-  const textCompareCategory = {
-    kind: 'category',
-    name: 'Text Compare',
-    colour: String(TYPE_COLOURS.String),
-    contents: [
-      {
-        kind: 'category',
-        name: 'Comparison',
-        colour: String(TYPE_COLOURS.String),
-        contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.String }],
-      },
-      {
-        kind: 'category',
-        name: 'Operations',
-        colour: String(TYPE_COLOURS.String),
-        contents: [{ kind: 'block', type: 'string_op' }],
-      },
-    ],
-  };
-
-  const logicCompareCategory = {
-    kind: 'category',
-    name: 'Logic Compare',
+    name: 'Comparisons and Logic',
     colour: '120',
     contents: [
-      {
-        kind: 'category',
-        name: 'True/False',
-        colour: String(TYPE_COLOURS.Boolean),
-        contents: [{ kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Boolean }],
-      },
-      {
-        kind: 'category',
-        name: 'Logic',
-        colour: '120',
-        contents: [
-          { kind: 'block', type: 'logic_op' },
-          { kind: 'block', type: 'logic_negate' },
-        ],
-      },
+      { kind: 'block', type: 'logic_op' },
+      { kind: 'block', type: 'logic_negate' },
+      { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Number },
+      { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Date },
+      { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.Boolean },
+      { kind: 'block', type: COMPARISON_BLOCK_BY_TYPE.String },
+      { kind: 'block', type: 'string_op' },
     ],
   };
 
   return {
     kind: 'categoryToolbox',
     contents: [
-      numberCompareCategory,
-      dateCompareCategory,
-      textCompareCategory,
-      logicCompareCategory,
+      compareAndLogicCategory,
       {
         kind: 'category',
         name: 'Values',

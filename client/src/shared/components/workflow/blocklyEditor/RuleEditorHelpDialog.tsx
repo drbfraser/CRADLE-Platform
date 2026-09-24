@@ -21,42 +21,28 @@ const SECTIONS = [
   {
     title: 'Getting started',
     body: [
-      'Drag compare blocks into the workspace — you can drop several at once.',
-      'Connect them with AND/OR from Logic Compare to build one combined condition.',
-      'Connect variables or values to every empty slot before saving or copying.',
+      'Drag conditions blocks (numbers, dates, true/false, text) from Comparisons and Logic into the workspace — you can drop several at once.',
+      'Drag AND/OR/NOT blocks to combine conditions blocks to build one combined condition.',
+      'Drag variables or values to every empty slot before saving or copying.',
+      'Blocks are color-coded and shaped by type, so you can spot the right one at a glance.',
       'Give the condition a name so it appears on the flow diagram.',
     ],
   },
   {
-    title: 'Number Compare',
+    title: 'Comparisons and Logic',
     body: [
-      'Use for ages, counts, or any numeric rule (e.g. patient age > 18).',
-      'Drag a Number variable into the left slot, then pick an operator and enter a number on the right.',
+      'AND / OR — combine multiple conditions (e.g. age > 18 AND is pregnant).',
+      'NOT — flip a condition\u2019s result.',
+      'Compare numbers blocks: is equal to, is greater than, etc. (e.g. age is greater than 18).',
+      'Compare dates blocks: is before, is after, etc. (e.g. date of birth is before a given day).',
+      'Check true/false blocks: is equal to (e.g. is pregnant).',
+      'Check text blocks: is equal to, contains, starts with, ends with, or length (e.g. name length is greater than 5).',
     ],
   },
   {
-    title: 'Text Compare',
+    title: 'Values',
     body: [
-      'Open Text Compare in the toolbox, then pick a sub-category:',
-      'Comparison — equals, contains, starts with, etc. for text answers or fields.',
-      'Operations — contains, starts with, ends with, or length (e.g. name length > 5).',
-      'Use Form Questions variables for answers from this step’s form.',
-    ],
-  },
-  {
-    title: 'Date Compare',
-    body: [
-      'Compare dates such as date of birth before or after a given day.',
-      'Use a Date variable on the left and a date value on the right.',
-    ],
-  },
-  {
-    title: 'Logic Compare',
-    body: [
-      'Open Logic Compare in the toolbox, then pick a sub-category:',
-      'True/False — test yes/no or boolean fields (e.g. is pregnant).',
-      'Logic — AND / OR to combine conditions, or NOT to flip a result.',
-      'Drag an AND/OR block and plug compare blocks into both sides to link them.',
+      'Type a literal number, text, date, or true/false when you do not need a variable.',
     ],
   },
   {
@@ -64,7 +50,6 @@ const SECTIONS = [
     body: [
       'Patient — profile fields from the patient record (age, sex, DOB, etc.) when available.',
       'Form Questions — questions from the form on the step you are branching from.',
-      'Values — type a literal number, text, date, or true/false when you do not need a variable.',
     ],
   },
 ];
@@ -83,7 +68,9 @@ export const RuleEditorHelpDialog: React.FC<RuleEditorHelpDialogProps> = ({
       {SECTIONS.map((section, index) => (
         <React.Fragment key={section.title}>
           {index > 0 && <Divider sx={{ my: 1.5 }} />}
-          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ mb: 0.5, fontWeight: 700, color: 'text.primary' }}>
             {section.title}
           </Typography>
           <List dense disablePadding>
