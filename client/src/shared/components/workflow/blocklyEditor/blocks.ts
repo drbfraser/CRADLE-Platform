@@ -7,6 +7,7 @@ import {
   sortedSourceKeys,
   variableBlockType,
 } from './variableGrouping';
+import { isValidDateString } from './workspaceValidation';
 
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
@@ -307,9 +308,13 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
       this.setColour(TYPE_COLOURS['Date']);
     },
     onchange: function (this: Blockly.Block) {
+      this.setColour(TYPE_COLOURS['Date']); //Defaults the block outline to blue
       const value = this.getFieldValue('DATE');
-      const valid = /^\d{4}-\d{2}-\d{2}$/.test(value);
-      this.setColour(valid ? TYPE_COLOURS['Date'] : 0);
+      const valid = isValidDateString(value);
+      //const valid = /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+      this.setWarningText(valid ? null : 'Date must be in YYYY-MM-DD format'); // Adds the warning logo
+      //this.setColour(valid ? TYPE_COLOURS['Date'] : 0); // -> if valid, set color to blue, else 0 but this happens after user inputs date
     },
   };
 }
