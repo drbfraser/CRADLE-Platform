@@ -14,7 +14,7 @@ const INCOMPLETE_ERROR =
 const DATE_FORMAT_ERROR =
   'Date value must be in YYYY-MM-DD format (e.g. 2024-01-15).';
 
-// This function verifies that the date exists (eg. 2026-26-26 is invalid).
+// This function verifies that the calendar date exists (eg. 2026-26-26 is invalid).
 // It has the 'export' tag so this function can be used in blocks.ts
 export function isValidDateString(value: string): boolean {
   const match = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.exec(value);
@@ -31,6 +31,10 @@ export function isValidDateString(value: string): boolean {
     date.getMonth() === m - 1 &&
     date.getDate() === d
   );
+}
+// This checks that the date FORMAT is valid
+export function isValidDateFormat(value: string): boolean {
+  return /^(\d{4})-(\d{2})-(\d{2})$/.test(value);
 }
 
 function hasInvalidDateLiteral(workspace: Blockly.WorkspaceSvg): boolean {
