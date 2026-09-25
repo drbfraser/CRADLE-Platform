@@ -324,7 +324,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
       let warning = null;
 
       if (!formatValid) {
-        warning = 'Date must be in YYYY-MM-DD format';
+        warning = 'Date must be in YYYY-MM-DD format (e.g. 2024-01-15)';
       } else if (!calendarValid) {
         warning = 'Date must be a valid calendar date (e.g. 2024-01-15)';
       }
