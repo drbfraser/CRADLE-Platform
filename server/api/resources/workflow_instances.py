@@ -272,10 +272,9 @@ def set_workflow_instance_data(
 # module docstring for why freezing values is a separate feature.
 #
 # TODO: remaining items before this is production-ready:
-# - Authorization: add whatever this project's equivalent of
-#   @patient_association_required is for workflow-instance routes -- right now
-#   nothing stops a caller who merely knows a workflow_instance_id from pulling
-#   patient data through this route.
+# - Authorization: call require_patient_access() with the workflow instance's
+#   patient_id -- right now nothing stops a caller who merely knows a
+#   workflow_instance_id from pulling patient data through this route.
 # - Pass a reference timestamp (the step's start_date) into resolution so
 #   age/"latest"-style values freeze relative to when the step started, not
 #   wall-clock "now" -- see the staleness discussion. Requires extending

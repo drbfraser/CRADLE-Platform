@@ -3,7 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from common.api_utils import (
     FormClassificationIdPath,
 )
@@ -36,9 +36,9 @@ def get_all_form_classifications():
 
 # /api/forms/classifications [POST]
 @api_form_classifications.post("")
-@roles_required([RoleEnum.ADMIN])
 def create_form_classification(body: FormClassificationOptionalId):
     """Create Form Classification"""
+    require_role(RoleEnum.ADMIN)
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id) is not None:
             print(orm_serializer.marshal(crud.read(FormClassificationOrm, id=body.id)))

@@ -3,7 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from common import form_utils
 from common.api_utils import (
     FormClassificationIdPath,
@@ -46,9 +46,9 @@ def get_all_form_classifications():
 
 # /api/forms/v2/classifications [POST]
 @api_form_classifications_v2.post("", responses={201: FormClassification})
-@roles_required([RoleEnum.ADMIN])
 def create_form_classification(body: FormClassification):
     """Create Form Classification"""
+    require_role(RoleEnum.ADMIN)
     name_map = {lang.lower(): text for lang, text in body.name.root.items()}
     english_name = name_map.get("english")
     if not english_name:
@@ -99,11 +99,11 @@ def get_form_classification(path: FormClassificationIdPath):
 @api_form_classifications_v2.put(
     "/<string:form_classification_id>", responses={200: FormClassification}
 )
-@roles_required([RoleEnum.ADMIN])
 def edit_form_classification_name(
     path: FormClassificationIdPath, body: FormClassification
 ):
     """Edit Form Classification Name"""
+    require_role(RoleEnum.ADMIN)
     if body.id != path.form_classification_id:
         abort(400, "Cannot change id.")
 

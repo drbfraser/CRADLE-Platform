@@ -252,7 +252,6 @@ You can now develop on both the frontend and backend **with hot-reloading**, and
 server/
 ├── api/                        # REST API logic
 │   ├── resources/              # Resource-level API endpoint handlers
-│   ├── decorator.py            # Role-based access control (@roles_required)
 │   └── __init__.py             # Partial route duplication (legacy usage)
 
 ├── authentication/             # Authentication services

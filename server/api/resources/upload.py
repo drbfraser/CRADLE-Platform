@@ -4,7 +4,7 @@ from flask import abort, current_app, send_from_directory
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from api.decorator import roles_required
+from api.authorization import require_role
 from enums import RoleEnum
 from validation.file_upload import FileUploadForm
 
@@ -20,9 +20,9 @@ api_upload = APIBlueprint(
 
 # /api/upload/admin [GET]
 @api_upload.get("/admin")
-@roles_required([RoleEnum.ADMIN])
 def get_sms_relay_apk():
     """Get SMS Relay APK"""
+    require_role(RoleEnum.ADMIN)
     return send_from_directory(
         current_app.config["UPLOAD_FOLDER"],
         "cradle_sms_relay.apk",
@@ -31,9 +31,9 @@ def get_sms_relay_apk():
 
 # /api/upload/admin [POST]
 @api_upload.post("/admin")
-@roles_required([RoleEnum.ADMIN])
 def upload_apk_file(form: FileUploadForm):
     """Upload APK File"""
+    require_role(RoleEnum.ADMIN)
     file = form.file
     if not _is_allowed_file(file.filename):
         return abort(422, description="File not allowed")

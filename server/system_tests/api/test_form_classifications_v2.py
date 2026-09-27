@@ -81,10 +81,7 @@ def test_duplicate_classification_name(
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
 def test_create_classification_requires_admin(api_post, fc_payload_1, credentials):
     response = api_post(endpoint="/api/forms/v2/classifications", json=fc_payload_1)
-    assert response.status_code == 401
-    assert (
-        response.json()["message"] == "This user does not have the required privileges"
-    )
+    assert response.status_code == 403
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
@@ -119,10 +116,7 @@ def test_update_classification_requires_admin(
         endpoint=f"/api/forms/v2/classifications/{created['id']}",
         json=update_payload,
     )
-    assert response.status_code == 401
-    assert (
-        response.json()["message"] == "This user does not have the required privileges"
-    )
+    assert response.status_code == 403
 
 
 def test_create_form_classification_v2(

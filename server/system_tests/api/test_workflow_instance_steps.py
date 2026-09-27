@@ -30,9 +30,9 @@ def api_get_all_workflow_instance_steps(
         json=request.model_dump(),
     )
 
-    assert (
-        response.status_code == 200
-    ), f"Failed to get workflow instance steps: {response.text}"
+    assert response.status_code == 200, (
+        f"Failed to get workflow instance steps: {response.text}"
+    )
 
     response_json = decamelize(response.json())
     pretty_print(response_json)
@@ -53,9 +53,9 @@ def api_get_workflow_instance_step(
 
     response = api_get(endpoint=endpoint)
 
-    assert (
-        response.status_code == 200
-    ), f"Failed to get workflow instance step: {response.text}"
+    assert response.status_code == 200, (
+        f"Failed to get workflow instance step: {response.text}"
+    )
 
     response_json = decamelize(response.json())
     pretty_print(response_json)
@@ -325,10 +325,7 @@ def test_admin_only_archive_form_rejects_vht(api_patch, credentials):
         endpoint="/api/workflow/instance/steps/missing-step/archive_form"
     )
 
-    assert response.status_code == 401
-    assert response.json() == {
-        "message": "This user does not have the required privileges"
-    }
+    assert response.status_code == 403
 
 
 @pytest.fixture

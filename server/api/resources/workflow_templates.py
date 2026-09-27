@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from api.resources.workflow_template_steps import (
     WorkflowTemplateStepListResponse,
     _resolve_step_dict,
@@ -261,12 +261,12 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
 # /api/workflow/templates/body [POST] - JSON body (like form templates)
 @api_workflow_templates.post("/body", responses={201: WorkflowTemplateModel})
-@roles_required([RoleEnum.ADMIN])
 def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
     """
     Upload Workflow Template VIA Request Body
     Accepts Workflow Template through the request body, rather than as a file.
     """
+    require_role(RoleEnum.ADMIN)
     workflow_template_dict = body.model_dump()
 
     result = handle_workflow_template_upload(workflow_template_dict)
@@ -368,12 +368,12 @@ def get_workflow_template_languages(path: WorkflowTemplateIdPath):
     "/<string:workflow_template_id>/translations",
     responses={200: WorkflowTemplateMultiLangModel},
 )
-@roles_required([RoleEnum.ADMIN])
 def get_workflow_template_translations(path: WorkflowTemplateIdPath):
     """
     Get the raw multi-language shape of a workflow template (every
     translatable field as a {lang: text} map), for the admin editor only.
     """
+    require_role(RoleEnum.ADMIN)
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
@@ -432,9 +432,9 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-@roles_required([RoleEnum.ADMIN])
 def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
     """Update Workflow Template"""
+    require_role(RoleEnum.ADMIN)
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
@@ -470,7 +470,6 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-@roles_required([RoleEnum.ADMIN])
 def update_workflow_template_patch(
     path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
 ):
@@ -479,6 +478,7 @@ def update_workflow_template_patch(
     Because workflow templates are large objects, this endpoint allows only the necessary attributes to be sent
     from the frontend to the backend, instead of the entire object itself
     """
+    require_role(RoleEnum.ADMIN)
     body_dict = body.model_dump(exclude_unset=True)
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)

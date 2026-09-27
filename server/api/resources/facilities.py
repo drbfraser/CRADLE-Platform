@@ -5,7 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from common.api_utils import FacilityNamePath
 from data import orm_serializer
 from enums import RoleEnum
@@ -48,9 +48,9 @@ def get_all_facility_names():
 
 # /api/facilities [POST]
 @api_facilities.post("", responses={201: HealthFacilityModel})
-@roles_required([RoleEnum.ADMIN])
 def create_facility(body: HealthFacilityModel):
     """Create Health Facility"""
+    require_role(RoleEnum.ADMIN)
     new_facility = body.model_dump()
     # Create a DB Model instance for the new facility and load into DB
     facility = orm_serializer.unmarshal(HealthFacilityOrm, new_facility)
