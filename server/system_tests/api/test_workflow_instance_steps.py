@@ -30,9 +30,9 @@ def api_get_all_workflow_instance_steps(
         json=request.model_dump(),
     )
 
-    assert response.status_code == 200, (
-        f"Failed to get workflow instance steps: {response.text}"
-    )
+    assert (
+        response.status_code == 200
+    ), f"Failed to get workflow instance steps: {response.text}"
 
     response_json = decamelize(response.json())
     pretty_print(response_json)
@@ -53,9 +53,9 @@ def api_get_workflow_instance_step(
 
     response = api_get(endpoint=endpoint)
 
-    assert response.status_code == 200, (
-        f"Failed to get workflow instance step: {response.text}"
-    )
+    assert (
+        response.status_code == 200
+    ), f"Failed to get workflow instance step: {response.text}"
 
     response_json = decamelize(response.json())
     pretty_print(response_json)
