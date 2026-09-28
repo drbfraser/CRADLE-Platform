@@ -6,7 +6,7 @@ describe('formatMissingVariablesWarning', () => {
     const msg = formatMissingVariablesWarning(['forms[latest].dob_question']);
     expect(msg).toContain('form question "dob_question"');
     expect(msg).toContain('not on this step');
-    expect(msg).toContain('left empty');
+    expect(msg).toContain('Replace or delete');
   });
 
   it('mentions other missing variables', () => {
