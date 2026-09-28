@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { Link } from 'react-router-dom';
@@ -19,6 +19,12 @@ export const PatientsPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const debounceSetSearch = useMemo(() => debounce(setSearch, 500), []);
+
+  useEffect(() => {
+    return () => {
+      debounceSetSearch.cancel();
+    };
+  }, [debounceSetSearch]);
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', search],
