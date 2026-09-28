@@ -30,12 +30,12 @@ describe('Testing the primary Button - New Patient', () => {
 
 describe('Testing the text field - Search', () => {
   test('Rendering and working of the text field search', async () => {
-    const { getByTestId } = render(
+    const { getByLabelText } = render(
       <ProviderWrapper>
         <PatientsPage />
       </ProviderWrapper>
     );
-    const searchTextfield = getByTestId('search-input');
+    const searchTextfield = getByLabelText('Search');
     await userEvent.type(searchTextfield, 'sample search');
     expect(searchTextfield).toHaveValue('sample search');
   });
