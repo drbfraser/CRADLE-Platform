@@ -16,30 +16,27 @@ describe('Testing the rendering of the Page', () => {
 
 describe('Testing the primary Button - New Patient', () => {
   test('Rendering and working of the primary Button - New Patient', async () => {
-    try {
-      const { getByText } = render(<PatientsPage />, {
-        wrapper: ProviderWrapper,
-      });
-      const user = userEvent.setup();
+    const { getByText } = render(<PatientsPage />, {
+      wrapper: ProviderWrapper,
+    });
+    const user = userEvent.setup();
 
-      const newPatientButton = getByText('New Patient');
-      expect(newPatientButton.textContent).toBe('New Patient');
+    const newPatientButton = getByText('New Patient');
+    expect(newPatientButton.textContent).toBe('New Patient');
 
-      await user.click(newPatientButton);
-    } catch (e) {
-      console.error(e);
-    }
+    await user.click(newPatientButton);
   });
 });
 
 describe('Testing the text field - Search', () => {
-  test('Rendering and working of the text field search', () => {
+  test('Rendering and working of the text field search', async () => {
     const { getByTestId } = render(
       <ProviderWrapper>
         <PatientsPage />
       </ProviderWrapper>
     );
     const searchTextfield = getByTestId('search-input');
-    userEvent.type(searchTextfield, 'sample search');
+    await userEvent.type(searchTextfield, 'sample search');
+    expect(searchTextfield).toHaveValue('sample search');
   });
 });
