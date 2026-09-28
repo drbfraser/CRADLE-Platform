@@ -2,7 +2,7 @@ from flask import request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from api.decorator import roles_required
+from api.authorization import require_role
 from common import form_utils, user_utils, workflow_utils
 from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
 from enums import RoleEnum, WorkflowStepStatusEnum
@@ -140,9 +140,9 @@ def update_workflow_instance_step(
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>/archive_form [PATCH]
 @api_workflow_instance_steps.patch("/<string:workflow_instance_step_id>/archive_form")
-@roles_required([RoleEnum.ADMIN])
 def archive_form(path: WorkflowInstanceStepIdPath):
     """Archive submitted form associated with workflow instance step"""
+    require_role(RoleEnum.ADMIN)
     step = workflow_utils.fetch_workflow_instance_step_or_404(
         path.workflow_instance_step_id
     )

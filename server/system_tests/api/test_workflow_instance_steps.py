@@ -325,10 +325,7 @@ def test_admin_only_archive_form_rejects_vht(api_patch, credentials):
         endpoint="/api/workflow/instance/steps/missing-step/archive_form"
     )
 
-    assert response.status_code == 401
-    assert response.json() == {
-        "message": "This user does not have the required privileges"
-    }
+    assert response.status_code == 403
 
 
 @pytest.fixture

@@ -7,8 +7,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import require_patient_access
-from api.decorator import roles_required
+from api.authorization import require_patient_access, require_role
 from common import form_utils, user_utils
 from common.api_utils import (
     PageLimitFilterQueryParams,
@@ -495,13 +494,13 @@ class GetAllPatientsAdminQuery(SearchFilterQueryParams):
 
 # /api/patients/admin
 @api_patients.get("/admin", responses={200: AdminPatientList})
-@roles_required([RoleEnum.ADMIN])
 def get_all_patients_admin(query: GetAllPatientsAdminQuery):
     """
     Get All Patients (Admin)
     Gets ALL patients, including archived, regardless of association with
     current user. For admin use.
     """
+    require_role(RoleEnum.ADMIN)
     current_user = user_utils.get_current_user_from_jwt()
     current_user = cast("dict[Any, Any]", current_user)
     params = query.model_dump()
@@ -515,9 +514,9 @@ class ArchivePatientQuery(CradleBaseModel):
 
 # /api/patients/<string:patient_id>/archive
 @api_patients.put("/<string:patient_id>/archive")
-@roles_required([RoleEnum.ADMIN])
 def archive_patient(path: PatientIdPath, query: ArchivePatientQuery):
     """Archive / Unarchive Patient"""
+    require_role(RoleEnum.ADMIN)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -528,9 +527,9 @@ def archive_patient(path: PatientIdPath, query: ArchivePatientQuery):
 
 # /api/patients/<string:patient_id>
 @api_patients.delete("/<string:patient_id>")
-@roles_required([RoleEnum.ADMIN])
 def delete_patient(path: PatientIdPath):
     """Delete Patient"""
+    require_role(RoleEnum.ADMIN)
     patient = crud.read(PatientOrm, id=path.patient_id)
     crud.delete(patient)
     return Response(status=200)

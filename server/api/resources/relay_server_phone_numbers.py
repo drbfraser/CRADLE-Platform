@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from data import orm_serializer
 from enums import RoleEnum
 from models import RelayServerPhoneNumberOrm
@@ -43,9 +43,9 @@ def get_all_relay_phone_numbers():
 
 # /api/relay/server/phone [POST]
 @api_relay_phone_numbers.post("", responses={201: RelayServerPhoneNumberModel})
-@roles_required([RoleEnum.ADMIN])
 def add_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Add SMS Relay Server Phone Number"""
+    require_role(RoleEnum.ADMIN)
     server_details = orm_serializer.unmarshal(
         RelayServerPhoneNumberOrm, body.model_dump()
     )
@@ -61,9 +61,9 @@ def add_relay_phone_number(body: RelayServerPhoneNumberModel):
 
 # /api/relay/server/phone [PUT]
 @api_relay_phone_numbers.put("", responses={200: RelayServerPhoneNumberModel})
-@roles_required([RoleEnum.ADMIN])
 def update_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Update SMS Relay Server Phone Number"""
+    require_role(RoleEnum.ADMIN)
     crud.update(RelayServerPhoneNumberOrm, body.model_dump(), id=body.id)
     relay_server_phone_number_orm = crud.read(RelayServerPhoneNumberOrm, id=body.id)
     return orm_serializer.marshal(relay_server_phone_number_orm, shallow=True), 200
@@ -71,9 +71,9 @@ def update_relay_phone_number(body: RelayServerPhoneNumberModel):
 
 # /api/relay/server/phone [DELETE]
 @api_relay_phone_numbers.delete("")
-@roles_required([RoleEnum.ADMIN])
 def delete_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Delete SMS Relay Server Phone Number"""
+    require_role(RoleEnum.ADMIN)
     relay_phone_number = crud.read(RelayServerPhoneNumberOrm, id=body.id)
     if relay_phone_number is None:
         return abort(404, "No Relay Server Phone Number found.")

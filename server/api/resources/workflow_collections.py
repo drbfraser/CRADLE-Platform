@@ -3,7 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from common.api_utils import WorkflowCollectionIdPath, convert_query_parameter_to_bool
 from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import orm_serializer
@@ -95,9 +95,9 @@ def check_if_workflow_collection_exists(collection_id: str) -> None:
 
 # /api/workflow/collections [POST]
 @api_workflow_collections.post("", responses={201: WorkflowCollectionModel})
-@roles_required([RoleEnum.ADMIN])
 def create_workflow_collection(body: WorkflowCollectionUploadModel):
     """Create a new workflow collection"""
+    require_role(RoleEnum.ADMIN)
     workflow_collection_dict = body.model_dump()
 
     assign_workflow_template_or_instance_ids(

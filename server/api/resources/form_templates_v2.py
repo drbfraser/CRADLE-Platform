@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import ValidationError
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_role
 from common import form_utils
 from common.workflow_utils import update_workflow_version_with_new_form
 from data import orm_serializer
@@ -293,12 +293,12 @@ def handle_form_template_upload(
 
 # /api/forms/v2/templates/body [POST]
 @api_form_templates_v2.post("/body", responses={201: FormTemplateV2Response})
-@roles_required([RoleEnum.ADMIN])
 def upload_form_template_body(body: FormTemplateUploadRequest):
     """
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
     """
+    require_role(RoleEnum.ADMIN)
     try:
         return (
             FormTemplateV2Response(**(handle_form_template_upload(body))).model_dump(),
@@ -311,13 +311,13 @@ def upload_form_template_body(body: FormTemplateUploadRequest):
 
 # /api/forms/v2/templates [POST]
 @api_form_templates_v2.post("", responses={201: FormTemplateV2Response})
-@roles_required([RoleEnum.ADMIN])
 def upload_form_template_file(form: FileUploadForm):
     """
     Upload Form Template VIA a JSON File
     Accepts Form Template as a file.
     Supports `.json` file format only.
     """
+    require_role(RoleEnum.ADMIN)
     file_contents = {}
     file = form.file
     file_str = str(file.stream.read(), "utf-8")

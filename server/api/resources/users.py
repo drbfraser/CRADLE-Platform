@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
 import data.db_operations as crud
-from api.decorator import roles_required
+from api.authorization import require_admin_or_self, require_role
 from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
 from data import orm_serializer
@@ -25,9 +25,6 @@ LOGGER = logging.getLogger(__name__)
 
 # Error messages
 _no_user_found_message = "There is no user with this id."
-_insufficent_permissions_for_sms_key_message = (
-    "Permission denied, you can only get your own sms-key or use the admin account"
-)
 
 # /api/user
 api_users = APIBlueprint(
@@ -39,20 +36,11 @@ api_users = APIBlueprint(
 )
 
 
-def _require_admin_or_self(target_user_id: int) -> None:
-    current_user = user_utils.get_current_user_from_jwt()
-    if (
-        current_user["role"] != RoleEnum.ADMIN.value
-        and current_user["id"] != target_user_id
-    ):
-        abort(403, description=_insufficent_permissions_for_sms_key_message)
-
-
 # /api/user/all [GET]
 @api_users.get("/all", responses={200: UserList})
-@roles_required([RoleEnum.ADMIN])
 def get_all_users():
     """Get All Users"""
+    require_role(RoleEnum.ADMIN)
     user_list = user_utils.get_all_users_data()
     return user_list, 200
 
@@ -70,9 +58,9 @@ class VhtList(RootModel):
 
 # /api/user/vhts [GET]
 @api_users.get("/vhts", responses={200: VhtList})
-@roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
 def get_vhts():
     """Get VHT List"""
+    require_role(RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW)
     vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
     vht_dictionary_list = []
     for vht in vht_model_list:
@@ -91,9 +79,9 @@ def get_vhts():
 
 # /api/user/<int:user_id>/change_pass [POST]
 @api_users.post("/<int:user_id>/change_pass")
-@roles_required([RoleEnum.ADMIN])
 def change_password_admin(path: UserIdPath):
     """Change Password (Admin)"""
+    require_role(RoleEnum.ADMIN)
     # TODO: Reimplement this with the new authentication system.
     return abort(500, description="This endpoint has not yet been implemented.")
 
@@ -108,9 +96,9 @@ def change_password_current_user():
 
 # /api/user/register [POST]
 @api_users.post("/register", responses={201: UserModel})
-@roles_required([RoleEnum.ADMIN])
 def register_user(body: RegisterUserRequestBody):
     """Register New User"""
+    require_role(RoleEnum.ADMIN)
     try:
         user_utils.create_user(**body.model_dump())
     except ValueError as e:
@@ -134,9 +122,9 @@ def get_current_user():
 
 # /api/user/<int:user_id> [PUT]
 @api_users.put("/<int:user_id>", responses={200: UserModel})
-@roles_required([RoleEnum.ADMIN])
 def edit_user(path: UserIdPath, body: UserModel):
     """Edit User"""
+    require_role(RoleEnum.ADMIN)
     try:
         user_utils.update_user(path.user_id, body.model_dump())
     except ValueError as e:
@@ -151,7 +139,7 @@ def edit_user(path: UserIdPath, body: UserModel):
 @api_users.get("/<int:user_id>", responses={200: UserModel})
 def get_user(path: UserIdPath):
     """Get User"""
-    _require_admin_or_self(path.user_id)
+    require_admin_or_self(path.user_id)
     try:
         user_dict = user_utils.get_user_data_from_id(path.user_id)
     except ValueError as err:
@@ -163,9 +151,9 @@ def get_user(path: UserIdPath):
 
 # /api/user/<int:user_id> [DELETE]
 @api_users.delete("/<int:user_id>")
-@roles_required([RoleEnum.ADMIN])
 def delete_user(path: UserIdPath):
     """Delete User"""
+    require_role(RoleEnum.ADMIN)
     # Ensure that id is valid
     user = crud.read(UserOrm, id=path.user_id)
     if user is None:
@@ -197,7 +185,7 @@ class PhoneNumberList(CradleBaseModel):
 @api_users.get("/<int:user_id>/phone")
 def get_users_phone_numbers(path: UserIdPath):
     """Get User's Phone Numbers"""
-    _require_admin_or_self(path.user_id)
+    require_admin_or_self(path.user_id)
     if not user_utils.does_user_exist(path.user_id):
         return abort(404, description=_no_user_found_message)
 
@@ -207,9 +195,9 @@ def get_users_phone_numbers(path: UserIdPath):
 
 # /api/user/<int:user_id>/phone [PUT]
 @api_users.put("/<int:user_id>/phone")
-@roles_required([RoleEnum.ADMIN])
 def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
     """Update User's Phone Numbers"""
+    require_role(RoleEnum.ADMIN)
     if not user_utils.does_user_exist(path.user_id):
         return abort(404, description=_no_user_found_message)
 
@@ -227,7 +215,7 @@ def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
 @api_users.get("/<int:user_id>/smskey", responses={200: SmsKeyModel})
 def get_users_sms_key(path: UserIdPath):
     """Get User's SMS Key"""
-    _require_admin_or_self(path.user_id)
+    require_admin_or_self(path.user_id)
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
@@ -239,7 +227,7 @@ def get_users_sms_key(path: UserIdPath):
 @api_users.put("/<int:user_id>/smskey", responses={200: SmsKeyModel})
 def update_users_sms_key(path: UserIdPath):
     """Update User's SMS Key"""
-    _require_admin_or_self(path.user_id)
+    require_admin_or_self(path.user_id)
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
@@ -253,7 +241,7 @@ def update_users_sms_key(path: UserIdPath):
 @api_users.post("/<int:user_id>/smskey", responses={201: SmsKeyModel})
 def create_new_sms_key(path: UserIdPath):
     """Create New SMS Key"""
-    _require_admin_or_self(path.user_id)
+    require_admin_or_self(path.user_id)
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:

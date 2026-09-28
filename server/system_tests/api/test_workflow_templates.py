@@ -463,10 +463,7 @@ def test_admin_only_replace_workflow_template_rejects_vht(api_put, credentials):
         },
     )
 
-    assert response.status_code == 401
-    assert response.json() == {
-        "message": "This user does not have the required privileges"
-    }
+    assert response.status_code == 403
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
@@ -476,10 +473,7 @@ def test_admin_only_patch_workflow_template_rejects_vht(api_patch, credentials):
         json={},
     )
 
-    assert response.status_code == 401
-    assert response.json() == {
-        "message": "This user does not have the required privileges"
-    }
+    assert response.status_code == 403
 
 
 def test_workflow_template_patch_rename_affects_shared_classification(
