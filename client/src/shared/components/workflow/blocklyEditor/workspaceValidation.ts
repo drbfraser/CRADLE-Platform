@@ -13,9 +13,10 @@ const INCOMPLETE_ERROR =
   'The condition is incomplete. All inputs must be connected before saving.';
 const DATE_FORMAT_ERROR =
   'Date value must be in YYYY-MM-DD format (e.g. 2024-01-15).';
+const CALENDAR_ERROR =
+  'Date value must be a valid calendar date (e.g. 2024-01-15).';
 
-// This function verifies that the date exists (eg. 2026-26-26 is invalid).
-// It has the 'export' tag so this function can be used in blocks.ts
+// This function verifies that the CALENDAR DATE exists (eg. 2026-26-26 is invalid).
 export function isValidDateString(value: string): boolean {
   const match = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.exec(value);
   if (!match) return false;
@@ -32,16 +33,31 @@ export function isValidDateString(value: string): boolean {
     date.getDate() === d
   );
 }
+// This checks that the date FORMAT is valid
+export function isValidDateFormat(value: string): boolean {
+  return /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(value);
+}
 
-function hasInvalidDateLiteral(workspace: Blockly.WorkspaceSvg): boolean {
-  return workspace
-    .getAllBlocks(false)
-    .some(
-      (block) =>
-        block.type === 'date_value' &&
-        !block.isShadow() &&
-        !isValidDateString(block.getFieldValue('DATE') ?? '')
-    );
+function hasInvalidDateLiteral(workspace: Blockly.WorkspaceSvg): {
+  formatInvalid: boolean;
+  calendarInvalid: boolean;
+} {
+  let formatInvalid = false;
+  let calendarInvalid = false;
+
+  workspace.getAllBlocks(false).forEach((block) => {
+    if (block.type === 'date_value' && !block.isShadow()) {
+      const value = block.getFieldValue('DATE') ?? '';
+
+      if (!isValidDateFormat(value)) {
+        formatInvalid = true;
+      } else if (!isValidDateString(value)) {
+        calendarInvalid = true;
+      }
+    }
+  });
+
+  return { formatInvalid, calendarInvalid };
 }
 
 function validateSingleRoot(
@@ -58,8 +74,12 @@ function validateSingleRoot(
     return { jsonLogic: null, error: INCOMPLETE_ERROR };
   }
 
-  if (hasInvalidDateLiteral(workspace)) {
+  const { formatInvalid, calendarInvalid } = hasInvalidDateLiteral(workspace);
+  if (formatInvalid) {
     return { jsonLogic: null, error: DATE_FORMAT_ERROR };
+  }
+  if (calendarInvalid) {
+    return { jsonLogic: null, error: CALENDAR_ERROR };
   }
 
   return { jsonLogic, error: null };

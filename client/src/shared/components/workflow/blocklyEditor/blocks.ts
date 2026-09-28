@@ -8,7 +8,7 @@ import {
   variableBlockType,
 } from './variableGrouping';
 import { isValidDateString } from './workspaceValidation';
-
+import { isValidDateFormat } from './workspaceValidation';
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
 ): string | null {
@@ -266,18 +266,20 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   Blockly.Blocks['number_value'] = {
     init: function (this: Blockly.Block) {
-      this.appendDummyInput().appendField(new Blockly.FieldNumber(0), 'NUM');
+      this.appendDummyInput()
+        .appendField('Number:')
+        .appendField(new Blockly.FieldNumber(0), 'NUM');
       this.setOutput(true, 'Number');
       this.setColour(TYPE_COLOURS['Number']);
+      this.setTooltip('Enter a numeric value');
     },
   };
 
   Blockly.Blocks['string_value'] = {
     init: function (this: Blockly.Block) {
-      this.appendDummyInput().appendField(
-        new Blockly.FieldTextInput('text'),
-        'TEXT'
-      );
+      this.appendDummyInput()
+        .appendField('Text:')
+        .appendField(new Blockly.FieldTextInput('Type text here'), 'TEXT');
       this.setOutput(true, 'String');
       this.setColour(TYPE_COLOURS['String']);
     },
@@ -285,13 +287,15 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   Blockly.Blocks['boolean_value'] = {
     init: function (this: Blockly.Block) {
-      this.appendDummyInput().appendField(
-        new Blockly.FieldDropdown([
-          ['true', 'TRUE'],
-          ['false', 'FALSE'],
-        ]),
-        'BOOL'
-      );
+      this.appendDummyInput()
+        .appendField('True/False:')
+        .appendField(
+          new Blockly.FieldDropdown([
+            ['true', 'TRUE'],
+            ['false', 'FALSE'],
+          ]),
+          'BOOL'
+        );
       this.setOutput(true, 'Boolean');
       this.setColour(TYPE_COLOURS['Boolean']);
     },
@@ -299,22 +303,33 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   Blockly.Blocks['date_value'] = {
     init: function (this: Blockly.Block) {
-      this.appendDummyInput().appendField(
-        new Blockly.FieldTextInput('YYYY-MM-DD'),
-        'DATE'
-      );
+      this.appendDummyInput()
+        .appendField('Date:')
+        .appendField(new Blockly.FieldTextInput('YYYY-MM-DD'), 'DATE');
       this.setOutput(true, 'Date');
       this.setOutputShape(DATE_OUTPUT_SHAPE);
       this.setColour(TYPE_COLOURS['Date']);
     },
+    // When user changes the date:
     onchange: function (this: Blockly.Block) {
-      this.setColour(TYPE_COLOURS['Date']); //Defaults the block outline to blue
       const value = this.getFieldValue('DATE');
-      const valid = isValidDateString(value);
-      //const valid = /^\d{4}-\d{2}-\d{2}$/.test(value);
 
-      this.setWarningText(valid ? null : 'Date must be in YYYY-MM-DD format'); // Adds the warning logo
-      //this.setColour(valid ? TYPE_COLOURS['Date'] : 0); // -> if valid, set color to blue, else 0 but this happens after user inputs date
+      if (value === 'YYYY-MM-DD') {
+        this.setWarningText(null);
+        return;
+      }
+      const formatValid = isValidDateFormat(value);
+      const calendarValid = isValidDateString(value);
+
+      let warning = null;
+
+      if (!formatValid) {
+        warning = 'Date must be in YYYY-MM-DD format (e.g. 2024-01-15)';
+      } else if (!calendarValid) {
+        warning = 'Date must be a valid calendar date (e.g. 2024-01-15)';
+      }
+
+      this.setWarningText(warning);
     },
   };
 }
