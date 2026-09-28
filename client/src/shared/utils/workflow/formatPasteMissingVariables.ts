@@ -28,8 +28,8 @@ export function formatMissingVariablesWarning(
     const list = formMissing.map(describeMissingTag).join(', ');
     parts.push(
       `This condition used ${list} from another step, but that question is not on this step's form. ` +
-        `The comparison and value were pasted; the form-question slot was left empty. ` +
-        `Choose a matching question (or remove that part) before saving.`
+        `A red "⚠ Removed" placeholder was inserted so the condition could be pasted. ` +
+        `Replace or delete the placeholder before saving.`
     );
   }
 
