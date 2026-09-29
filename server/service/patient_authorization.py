@@ -13,6 +13,15 @@ UNRESTRICTED_PATIENT_ROLES = {
     RoleEnum.HCW.value,
     RoleEnum.CHO.value,
 }
+EXISTING_PATIENT_ASSIGNMENT_ROLES = {
+    RoleEnum.ADMIN.value,
+    RoleEnum.HCW.value,
+    RoleEnum.CHO.value,
+}
+
+
+def can_assign_existing_patient(user: UserDict) -> bool:
+    return user.get("role") in EXISTING_PATIENT_ASSIGNMENT_ROLES
 
 
 def can_access_patient(user: UserDict, patient_id: str) -> bool:

@@ -19,6 +19,10 @@ from models import (
     ReferralOrm,
 )
 from service import invariant, serialize, view
+from service.patient_authorization import (
+    can_access_patient,
+    can_assign_existing_patient,
+)
 from service.workflow.workflow_service import (
     WorkflowService,
     _resolve_workflow_template_text,
@@ -121,6 +125,8 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
                     mobile_patient_dict, shallow=False
                 )
             else:
+                if not can_access_patient(current_user, patient_id):
+                    raise ValidationError("Not authorized to sync this patient.")
                 if (
                     mobile_patient_dict.get("last_edited") is not None
                     and mobile_patient_dict["last_edited"] > last_sync
@@ -205,17 +211,16 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
                         raise ValidationError(err)
                     pregnancy_to_create = model
 
-            association = {
-                "patient_id": patient_id,
-                "health_facility_name": current_user.get("health_facility_name"),
-                "user_id": current_user["id"],
-            }
-            # Why is a PatientAssociation being assigned to a variable called
-            # assessment_to_create
-            if crud.read(PatientAssociationsOrm, **association) is None:
-                assessment_to_create = orm_serializer.unmarshal(
-                    PatientAssociationsOrm, association
-                )
+            if server_patient is None or can_assign_existing_patient(current_user):
+                association = {
+                    "patient_id": patient_id,
+                    "health_facility_name": current_user.get("health_facility_name"),
+                    "user_id": current_user["id"],
+                }
+                if crud.read(PatientAssociationsOrm, **association) is None:
+                    assessment_to_create = orm_serializer.unmarshal(
+                        PatientAssociationsOrm, association
+                    )
 
             # Queue models as validation completes without exceptions
             # Why is it being done like this? This seems needlessly convoluted.
