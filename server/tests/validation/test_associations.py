@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from validation.associations import PatientAssociationModel
 
-PATIENT_ID = 20
+PATIENT_ID = "P20"
 USER_ID = 1
 
 association_with_valid_fields_should_return_none = {
@@ -27,8 +27,8 @@ association_missing_required_field_patient_id_should_throw_exception = {
     "user_id": USER_ID,
 }
 
-association_field_patiendID_has_wrong_type_should_throw_exception = {
-    "patient_id": "not integer",
+association_field_patient_id_has_wrong_type_should_throw_exception = {
+    "patient_id": 20,
     "health_facility_name": "H0000",
     "user_id": USER_ID,
 }
@@ -60,7 +60,7 @@ association_field_user_id_has_wrong_type_should_throw_exception = {
             ValidationError,
         ),
         (
-            association_field_patiendID_has_wrong_type_should_throw_exception,
+            association_field_patient_id_has_wrong_type_should_throw_exception,
             ValidationError,
         ),
         (
