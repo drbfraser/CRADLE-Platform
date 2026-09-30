@@ -38,8 +38,7 @@ def create_new_assessment(body: AssessmentPostBody):
     """Create New Assessment"""
     if body.id is not None and crud.read(AssessmentOrm, id=body.id):
         return abort(409, description=f"Assessment with ID: {body.id} already exists.")
-    if body.healthcare_worker_id is None:
-        body.healthcare_worker_id = get_current_user_from_jwt()["id"]
+    body.healthcare_worker_id = get_current_user_from_jwt()["id"]
     assessment = orm_serializer.unmarshal(AssessmentOrm, body.model_dump())
     crud.create(assessment, refresh=True)
     return orm_serializer.marshal(assessment), 201

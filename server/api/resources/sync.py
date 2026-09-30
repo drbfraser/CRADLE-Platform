@@ -275,6 +275,7 @@ class SyncReadingsResponse(CradleBaseModel):
 @api_sync.post("/readings", responses={200: SyncReadingsResponse})
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     """Sync Readings"""
+    current_user = user_utils.get_current_user_from_jwt()
     patients_on_server_cache = set()
     mobile_readings = body.root
     for mobile_reading in mobile_readings:
@@ -294,6 +295,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
                 id=mobile_reading_dict.get("id"),
             )
         else:
+            mobile_reading_dict["user_id"] = current_user["id"]
             try:
                 ReadingModel(**mobile_reading_dict)
             except ValidationError as e:
@@ -303,7 +305,6 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
             crud.create(reading, refresh=True)
 
     # Read all readings that have been created or updated since last sync
-    current_user = user_utils.get_current_user_from_jwt()
     last_sync = query.since
     new_readings = view.reading_view(cast("dict[Any, Any]", current_user), last_sync)
 
@@ -320,6 +321,7 @@ class SyncReferralsResponse(CradleBaseModel):
 @api_sync.post("/referrals", responses={200: SyncReferralsResponse})
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     """Sync Referrals"""
+    current_user = user_utils.get_current_user_from_jwt()
     patients_on_server_cache = set()
     mobile_referrals = body.root
     for mobile_referral in mobile_referrals:
@@ -335,13 +337,13 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
         if crud.read(ReferralOrm, id=mobile_referral_dict.get("id")):
             # currently, for referrals that exist in server already we will skip them
             continue
+        mobile_referral_dict["user_id"] = current_user["id"]
         ReferralModel(**mobile_referral_dict)
 
         referral = orm_serializer.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)
 
     # Read all referrals that have been created or updated since last sync
-    current_user = user_utils.get_current_user_from_jwt()
     last_sync = query.since
     new_referrals = view.referral_view(cast("dict[Any, Any]", current_user), last_sync)
 

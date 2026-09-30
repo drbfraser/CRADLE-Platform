@@ -79,8 +79,7 @@ def create_new_referral(body: ReferralModel):
         name=body.health_facility_name,
     )
 
-    if body.user_id is None:
-        body.user_id = user_utils.get_current_user_from_jwt()["id"]
+    body.user_id = user_utils.get_current_user_from_jwt()["id"]
 
     patient = crud.read(PatientOrm, id=body.patient_id)
     if patient is None:
