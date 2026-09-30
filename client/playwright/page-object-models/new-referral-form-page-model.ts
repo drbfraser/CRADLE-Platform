@@ -1,6 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
-import { FacilityName } from '../constants';
+import type { FacilityName } from '../constants';
 
 export class NewReferralFormPageModel extends PageObjectModel {
   private readonly referToDropdown: Locator;

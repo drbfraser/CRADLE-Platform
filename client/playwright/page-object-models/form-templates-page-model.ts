@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
 export class FormTemplatesPageModel extends PageObjectModel {
