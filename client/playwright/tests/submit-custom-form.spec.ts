@@ -31,11 +31,7 @@ test.describe('Submit custom form', () => {
     browserName,
     page,
   }) => {
-    page.on('console', (msg) => {
-      if (msg.text().startsWith('['))
-        console.log(`[${browserName}]`, msg.text());
-    });
-    const templateName = `E2E Custom Form ${browserName} ${crypto.randomUUID()}`;
+    const templateName = `E2E Custom Form ${browserName} ${test.info().workerIndex}-${Date.now()}}`;
     const createResponse = await api.post('/api/forms/v2/templates/body', {
       data: makeTemplatePayload(templateName),
     });
