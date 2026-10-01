@@ -31,7 +31,11 @@ test.describe('Submit custom form', () => {
     browserName,
     page,
   }) => {
-    const templateName = `E2E Custom Form ${browserName} ${Date.now()}`;
+    page.on('console', (msg) => {
+      if (msg.text().startsWith('['))
+        console.log(`[${browserName}]`, msg.text());
+    });
+    const templateName = `E2E Custom Form ${browserName} ${crypto.randomUUID()}`;
     const createResponse = await api.post('/api/forms/v2/templates/body', {
       data: makeTemplatePayload(templateName),
     });
@@ -72,7 +76,22 @@ test.describe('Submit custom form', () => {
         `/forms/edit/${testPatient.id}/`
       );
       await editPage.fillTextQuestion(QUESTION_LABEL, 'updated notes');
+      await expect(
+        page.getByLabel(QUESTION_LABEL, { exact: false })
+      ).toHaveValue('updated notes');
+
+      const patchPromise = page.waitForResponse(
+        (res) =>
+          res.url().includes('/forms/v2/submissions/') &&
+          res.request().method() === 'PATCH'
+      );
       await editPage.saveEditedForm();
+
+      const patchRes = await patchPromise;
+      expect(patchRes.ok()).toBeTruthy();
+      expect(patchRes.request().postDataJSON().answers[0].answer.text).toBe(
+        'updated notes'
+      );
 
       await patientSummaryPage.expectToHaveUrl();
       await patientSummaryPage.clickViewFormByName(templateName);
