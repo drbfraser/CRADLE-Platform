@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AnswerTypeEnum,
   QuestionTypeEnum,
@@ -167,11 +167,32 @@ export const useFormQuestions = (
   ): QAnswer[] =>
     nextQuestions.map((question) => getAnswerFromQuestion(question));
 
+  const dirtyRef = useRef(false);
+  const initKeyRef = useRef('');
+
   useEffect(() => {
     if (!questions || questions.length === 0) {
+      dirtyRef.current = false;
+      initKeyRef.current = '';
       setAnswers([]);
       return;
     }
+
+    const key = `${lang}|${(questions as any[])
+      .map((q) => q.id ?? getQuestionIndex(q))
+      .join(',')}`;
+
+    if (dirtyRef.current && key === initKeyRef.current) {
+      setAnswers((prev) => {
+        const next = [...prev];
+        updateQuestionsConditionHidden(questions, next);
+        return next;
+      });
+      return;
+    }
+
+    initKeyRef.current = key;
+    dirtyRef.current = false;
 
     const nextAnswers: QAnswer[] = buildAnswersFromQuestions(questions);
     updateQuestionsConditionHidden(questions, nextAnswers);
@@ -179,6 +200,7 @@ export const useFormQuestions = (
   }, [questions, lang]);
 
   function updateAnswersByValue(index: number, newValue: any) {
+    dirtyRef.current = true;
     setAnswers((previousAnswers) => {
       const nextAnswers = [
         ...(previousAnswers.length > 0
