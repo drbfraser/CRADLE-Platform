@@ -12,7 +12,6 @@ from models import (
     FormSubmissionOrmV2,
     FormTemplateOrmV2,
     PatientOrm,
-    UserOrm,
 )
 from validation.formsV2_models import (
     CreateFormSubmissionRequest,
@@ -71,15 +70,8 @@ def submit_form(body: CreateFormSubmissionRequest):
                     422, description=f"Missing answer for required question: {q.id}"
                 )
 
-    # Verify that the user exists
-    if submission.user_id is not None:
-        user = crud.read(UserOrm, id=submission.user_id)
-        if user is None:
-            return abort(404, description="User does not exist.")
-    else:
-        current_user = user_utils.get_current_user_from_jwt()
-        user_id = int(current_user["id"])
-        submission.user_id = user_id
+    current_user = user_utils.get_current_user_from_jwt()
+    submission.user_id = int(current_user["id"])
 
     validation = form_utils.validate_form_answers(
         submission.answers, submission.form_template_id

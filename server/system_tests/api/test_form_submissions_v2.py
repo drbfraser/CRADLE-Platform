@@ -6,7 +6,7 @@ import data.db_operations as crud
 from common import commonUtil
 from common.commonUtil import get_uuid
 from enums import QuestionTypeEnum
-from models import FormSubmissionOrmV2
+from models import FormSubmissionOrmV2, UserOrm
 
 
 def _question_by_order(template, order):
@@ -286,6 +286,33 @@ def test_create_form_submission_v2(
     assert submission_obj.answers[0].form_submission_id == submission["id"]
     actual = json.loads(submission_obj.answers[0].answer)
     assert actual["number"] == 90
+
+
+def test_create_form_submission_v2_records_caller_as_submitter(
+    create_patient,
+    database,
+    api_post,
+    form_submission_v2,
+    form_v2_resources,
+    vht_user_id,
+):
+    create_patient()
+    bundle = form_v2_resources.create_template()
+    submission_payload = form_submission_v2(
+        template_id=bundle["body"]["id"],
+        template_question_id=_question_by_order(bundle["template"], 1).id,
+    )
+    submission_payload["user_id"] = vht_user_id
+
+    response = api_post("/api/forms/v2/submissions", json=submission_payload)
+    assert response.status_code == 201
+    submission_id = response.json()["id"]
+    form_v2_resources.track_submission(submission_id)
+
+    database.session.commit()
+    caller = crud.read(UserOrm, email="admin@email.com")
+    submission_obj = crud.read(FormSubmissionOrmV2, id=submission_id)
+    assert submission_obj.user_id == caller.id
 
 
 def test_get_form_submission_v2(create_patient, api_get, form_v2_resources):

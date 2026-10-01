@@ -11,7 +11,7 @@ from common.api_utils import (
 )
 from common.commonUtil import get_current_time
 from data import orm_serializer
-from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
+from models import FormOrm, FormTemplateOrm, PatientOrm
 from validation.forms import FormModel, UpdateFormRequestBody
 
 # /api/forms/responses
@@ -46,14 +46,8 @@ def submit_form(body: FormModel):
                 400, description="Form classification does not match Template."
             )
 
-    if body.last_edited_by is not None:
-        user = crud.read(UserOrm, id=body.last_edited_by)
-        if user is None:
-            return abort(404, description="User does not exist.")
-    else:
-        current_user = user_utils.get_current_user_from_jwt()
-        user_id = int(current_user["id"])
-        body.last_edited_by = user_id
+    current_user = user_utils.get_current_user_from_jwt()
+    body.last_edited_by = int(current_user["id"])
 
     new_form_dict = body.model_dump()
 

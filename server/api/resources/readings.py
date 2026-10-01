@@ -32,6 +32,8 @@ def create_new_reading(body: ReadingModel):
     current_user = user_utils.get_current_user_from_jwt()
     user_id = current_user["id"]
     body.user_id = user_id
+    if body.referral is not None:
+        body.referral.user_id = user_id
 
     new_reading_dict = body.model_dump()
     if body.referral is not None:

@@ -89,6 +89,12 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 @api_patients.post("", responses={201: PatientModel})
 def create_patient(body: NestedPatient):
     """Create New Patient"""
+    current_user = user_utils.get_current_user_from_jwt()
+    for reading in body.readings:
+        reading.user_id = current_user["id"]
+    for referral in body.referrals:
+        referral.user_id = current_user["id"]
+
     new_patient = body.model_dump()
     assign_patient_id(new_patient)
     patient = orm_serializer.unmarshal(PatientOrm, new_patient)
@@ -104,7 +110,6 @@ def create_patient(body: NestedPatient):
     crud.create(patient, refresh=True)
 
     # Associate the patient with the user who created them
-    current_user = user_utils.get_current_user_from_jwt()
     current_user_orm = crud.read(UserOrm, id=current_user["id"])
     assoc.associate_by_user_role(patient, current_user_orm)
 
