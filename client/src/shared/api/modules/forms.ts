@@ -2,8 +2,6 @@ import { axiosFetch } from '../core/http';
 import { CForm, McOption, Question } from '../../types/form/formTypes';
 import { EndpointEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { ApiAnswerForEdit, PostBody } from 'src/pages/customizedForm/handlers';
-import { getCurrentUser } from '../core/auth';
-import { reduxStore } from 'src/redux/store';
 
 type TranslationMap = Record<string, string>;
 
@@ -198,16 +196,6 @@ const toV2AnswerValue = (
   return { number: answer.number, comment: answer.comment };
 };
 
-const getCurrentUserId = async (): Promise<number> => {
-  const userIdFromStore = reduxStore.getState().user.current?.id;
-  if (userIdFromStore !== undefined) {
-    return userIdFromStore;
-  }
-
-  const currentUser = await getCurrentUser();
-  return currentUser.id;
-};
-
 export const saveFormResponseAsync = async (
   postBody: PostBody,
   formId?: string
@@ -252,12 +240,9 @@ export const saveFormResponseAsync = async (
     throw new Error('Missing patient id for form submission.');
   }
 
-  const userId = await getCurrentUserId();
-
   const payload = {
     formTemplateId,
     patientId,
-    userId,
     lang: form.lang || 'English',
     answers: form.questions
       .filter(
