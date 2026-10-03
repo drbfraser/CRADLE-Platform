@@ -97,6 +97,7 @@ export const ReferralsPage = () => {
             },
           }}>
           <ReferralsSearchBar
+            isPromptShown={isPromptShown}
             onSearchChange={setSearch}
             onOpenFilter={() => setIsFilterDialogOpen(true)}
             onClearFilter={() => {

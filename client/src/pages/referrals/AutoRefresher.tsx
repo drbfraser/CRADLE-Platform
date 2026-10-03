@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Box, CircularProgress, SxProps, Typography } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  SxProps,
+  useMediaQuery,
+  Typography,
+} from '@mui/material';
 
 import { getHealthFacilityAsync } from 'src/shared/api';
 import { PrimaryButton } from 'src/shared/components/Button';
@@ -19,6 +25,8 @@ export const AutoRefresher = ({
 }: IProps) => {
   const [progress, setProgress] = useState<number>(0);
   const [isAutoRefreshOn, setIsAutoRefreshOn] = useState<boolean>(true);
+
+  const isMobile = useMediaQuery('(max-width:720px)');
 
   const currentUser = useCurrentUser();
   const healthFacilityName = currentUser?.healthFacilityName ?? '';
@@ -80,21 +88,27 @@ export const AutoRefresher = ({
   ]);
 
   return (
-    <Box>
-      <Typography
-        sx={{
-          verticalAlign: 'middle',
-        }}
-        color="textSecondary"
-        variant="overline">
-        Auto-Refresh
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 0.5,
+      }}>
+      <Typography color="textSecondary" variant="overline">
+        {isMobile ? 'Refresh' : 'Auto-Refresh'}
       </Typography>
 
       {isAutoRefreshOn ? (
         <PrimaryButton
           sx={ENABLE_BUTTON_SX}
           onClick={() => setIsRefreshDialogOpen(true)}>
-          Enabled
+          {isMobile
+            ? isAutoRefreshOn
+              ? 'ON'
+              : 'OFF'
+            : isAutoRefreshOn
+              ? 'ENABLED'
+              : 'DISABLED'}
         </PrimaryButton>
       ) : (
         <PrimaryButton
@@ -113,8 +127,11 @@ export const AutoRefresher = ({
 };
 
 const ENABLE_BUTTON_SX: SxProps = {
-  verticalAlign: 'middle',
-  margin: 'auto 6px auto 6px',
+  // verticalAlign: 'middle',
+  // margin: 'auto 6px',
+  height: '20px',
+  fontSize: '0.8rem',
+  px: 1,
 };
 const CIRCULAR_PROGRESS_SX: SxProps = {
   maxWidth: '1.6em',
