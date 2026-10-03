@@ -122,7 +122,13 @@ export const ReferralsPage = () => {
           />
         </Box>
 
-        <Box sx={{ clear: 'right' }}>
+        <Box
+          sx={{
+            clear: 'right',
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
           <DataTable
             disableVirtualization
             disablePagination

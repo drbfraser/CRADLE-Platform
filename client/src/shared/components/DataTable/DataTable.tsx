@@ -124,6 +124,9 @@ export const DataTable = ({
       sx={{
         maxWidth: '100%',
         overflow: 'hidden',
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
       }}>
       <DataGrid
         apiRef={apiRef}

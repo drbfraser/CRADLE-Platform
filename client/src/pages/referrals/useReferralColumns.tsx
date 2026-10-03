@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Box } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { GridColDef } from '@mui/x-data-grid';
@@ -7,15 +7,17 @@ import moment from 'moment';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 
-export const useReferralColumns = () =>
-  useMemo<GridColDef[]>(
-    () => [
+export const useReferralColumns = () => {
+  const isMobile = useMediaQuery('(max-width:600px)');
+
+  return useMemo<GridColDef[]>(() => {
+    const columns: GridColDef[] = [
       { field: 'patientName', headerName: 'Name', flex: 1 },
       { field: 'patientId', headerName: 'Patient ID', flex: 1 },
       { field: 'villageNumber', headerName: 'Village Number', flex: 1 },
       {
         field: 'vitalSign',
-        headerName: 'Vital Sign when referral',
+        headerName: isMobile ? 'Vital Sign' : 'Vital Sign when referral',
         flex: 1,
         sortable: false,
         renderCell: ({ value }) => <TrafficLight status={value} />,
@@ -48,9 +50,14 @@ export const useReferralColumns = () =>
           </Box>
         ),
       },
-    ],
-    []
-  );
+    ];
+
+    if (isMobile) {
+      return [columns[0], columns[3], columns[5]];
+    }
+    return columns;
+  }, [isMobile]);
+};
 
 export const formatReferralRows = (referrals: Array<Record<string, unknown>>) =>
   referrals.map((r) => ({

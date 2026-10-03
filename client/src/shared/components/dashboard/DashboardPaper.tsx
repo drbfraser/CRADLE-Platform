@@ -11,6 +11,9 @@ export const DashboardPaper = ({ children, sx }: DashboardPaperProps) => {
       id={'dashboard-container'}
       sx={{
         backgroundColor: '#fff',
+        minHeight: '100vh', // main component fits the screen.
+        display: 'flex',
+        flexDirection: 'column',
         ...sx,
       }}>
       {children}
