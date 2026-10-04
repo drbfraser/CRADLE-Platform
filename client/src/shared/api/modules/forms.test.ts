@@ -122,7 +122,6 @@ describe('forms API', () => {
       expect(captured).toEqual({
         formTemplateId: 'template-1',
         patientId: 'patient-1',
-        userId: 42,
         lang: 'English',
         answers: [
           {

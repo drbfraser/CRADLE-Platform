@@ -10,7 +10,6 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { AssessmentField, AssessmentState } from './state';
 import useSaveAssessment from './mutations';
-import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 interface IProps {
   initialState: AssessmentState;
@@ -25,7 +24,6 @@ export const AssessmentForm = ({
   assessmentId,
   referralId,
 }: IProps) => {
-  const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const saveAssessment = useSaveAssessment();
@@ -54,7 +52,6 @@ export const AssessmentForm = ({
       [AssessmentField.followUp]: values[AssessmentField.followUp],
       [AssessmentField.followUpInstructions]:
         values[AssessmentField.followUpInstructions],
-      [AssessmentField.healthcareWorkerId]: currentUser?.id,
     };
 
     saveAssessment.mutate(
