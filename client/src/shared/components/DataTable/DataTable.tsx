@@ -1,4 +1,4 @@
-import { Box, SxProps } from '@mui/material';
+import { useMediaQuery, Box, SxProps } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
@@ -118,6 +118,7 @@ export const DataTable = ({
 
   const isServerPaginated = typeof rowCount === 'number';
   const effectiveRowCount = isServerPaginated ? rowCount : (rows?.length ?? 0);
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   return (
     <Box
@@ -147,6 +148,15 @@ export const DataTable = ({
         pageSizeOptions={disablePagination ? [pageSize] : [10, 25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize } },
+          columns: {
+            columnVisibilityModel: isMobile
+              ? {
+                  patientId: false,
+                  villageNumber: false,
+                  referralDate: false,
+                }
+              : {},
+          },
         }}
         slots={{
           toolbar: ToolbarSlot,

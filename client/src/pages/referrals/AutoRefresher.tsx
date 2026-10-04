@@ -102,13 +102,7 @@ export const AutoRefresher = ({
         <PrimaryButton
           sx={ENABLE_BUTTON_SX}
           onClick={() => setIsRefreshDialogOpen(true)}>
-          {isMobile
-            ? isAutoRefreshOn
-              ? 'ON'
-              : 'OFF'
-            : isAutoRefreshOn
-              ? 'ENABLED'
-              : 'DISABLED'}
+          {isMobile ? 'ON' : 'ENABLED'}
         </PrimaryButton>
       ) : (
         <PrimaryButton
@@ -127,8 +121,6 @@ export const AutoRefresher = ({
 };
 
 const ENABLE_BUTTON_SX: SxProps = {
-  // verticalAlign: 'middle',
-  // margin: 'auto 6px',
   height: '20px',
   fontSize: '0.8rem',
   px: 1,

@@ -52,9 +52,6 @@ export const useReferralColumns = () => {
       },
     ];
 
-    if (isMobile) {
-      return [columns[0], columns[3], columns[5]];
-    }
     return columns;
   }, [isMobile]);
 };

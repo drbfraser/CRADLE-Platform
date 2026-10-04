@@ -1,6 +1,6 @@
 import { Box, TextField, Typography, useMediaQuery } from '@mui/material';
 import debounce from 'lodash/debounce';
-import { PrimaryButton } from 'src/shared/components/Button';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { IconButton, Tooltip } from '@mui/material';
 
@@ -65,7 +65,7 @@ export const ReferralsSearchBar = ({
               md: '50px',
             },
             width: {
-              xs: '90px',
+              xs: '75px',
               sm: '180px',
               md: '220px',
             },
@@ -95,33 +95,46 @@ export const ReferralsSearchBar = ({
               xs: 1,
               sm: 1,
             },
-            '@media (max-width: 720px)': {
-              fontSize: 'medium',
-            },
           }}
           onClick={onOpenFilter}>
           {isMobile ? 'Filter' : 'Filter Search'}
         </PrimaryButton>
 
         {isPromptShown && (
-          <Tooltip
-            title={
-              <>
-                Health facility filter is active.
-                <br />
-                Edit the filter to view all referrals.
-              </>
-            }>
-            <IconButton size="small">
-              <InfoOutlinedIcon
-                fontSize="small"
-                sx={{
-                  color: 'error.main',
-                  ml: '-0.50rem',
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+          <>
+            <Tooltip
+              title={
+                <>
+                  Health facility filter is active.
+                  <br />
+                  Click Clear to remove the filter.
+                </>
+              }>
+              <IconButton size="small">
+                <InfoOutlinedIcon
+                  fontSize="small"
+                  sx={{
+                    color: 'error.main',
+                    ml: '-0.70rem',
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+
+            <CancelButton
+              onClick={onClearFilter}
+              sx={{
+                height: {
+                  xs: '30px',
+                  sm: '40px',
+                  md: '50px',
+                },
+                fontSize: 'medium',
+                ml: '-1.3rem',
+              }}>
+              {isMobile ? 'Clear' : 'Clear Filter'}
+            </CancelButton>
+          </>
         )}
       </Box>
     </Box>
