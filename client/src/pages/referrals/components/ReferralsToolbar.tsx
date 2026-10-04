@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { Dispatch, SetStateAction } from 'react';
 import { ReferralFilter } from 'src/shared/types/referralTypes';
 import { FilterDialog } from '../FilterDialog';
@@ -39,9 +39,16 @@ export const ReferralsToolbar = ({
   <Box
     sx={{
       display: 'flex',
-      flexDirection: 'row',
+      flexDirection: {
+        xs: 'column',
+        md: 'row',
+      },
       justifyContent: 'space-between',
-      alignItems: 'center',
+      alignItems: {
+        xs: 'flex-start',
+        md: 'center',
+      },
+      gap: 1,
     }}>
     <RefreshDialog
       onClose={onRefreshDialogClose}
@@ -64,21 +71,5 @@ export const ReferralsToolbar = ({
       refreshTimer={refreshTimer}
       setIsRefreshDialogOpen={setIsRefreshDialogOpen}
     />
-
-    {isPromptShown && (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.25rem',
-        }}>
-        <Typography color="textSecondary" variant="caption">
-          Currently filtered to your health facility.
-        </Typography>
-        <Typography color="textSecondary" variant="caption">
-          Click Clear Filter to see all.
-        </Typography>
-      </Box>
-    )}
   </Box>
 );
