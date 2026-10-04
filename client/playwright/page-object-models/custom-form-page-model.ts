@@ -33,7 +33,9 @@ export class CustomFormPageModel extends PageObjectModel {
   async selectTemplate(templateName: string) {
     await this.formCombobox.click();
     await this.formCombobox.fill(templateName);
-    await this.page.getByRole('option', { name: templateName }).click();
+    const matches = this.page.getByRole('option', { name: templateName });
+    await expect(matches).toHaveCount(1);
+    await matches.click();
   }
 
   async fetchForm() {

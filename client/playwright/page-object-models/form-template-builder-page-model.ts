@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
 export class FormTemplateBuilderPageModel extends PageObjectModel {

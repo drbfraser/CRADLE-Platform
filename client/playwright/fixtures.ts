@@ -1,5 +1,5 @@
 import {
-  APIRequestContext,
+  type APIRequestContext,
   test as baseTest,
   request as apiRequest,
   expect,

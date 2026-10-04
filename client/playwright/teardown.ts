@@ -1,4 +1,4 @@
-import { test as teardown, TEST_PATIENT_NAME, TestPatient } from './fixtures';
+import { test as teardown, TEST_PATIENT_NAME, type TestPatient } from './fixtures';
 
 /** This will run after all other tests have finished. */
 teardown.describe('Cleanup', () => {
@@ -12,7 +12,7 @@ teardown.describe('Cleanup', () => {
         limit: 10000,
       },
     });
-    const testPatients = (<TestPatient[]>await response.json()).filter(
+    const testPatients = ((await response.json()) as TestPatient[]).filter(
       ({ name }) => name.includes(TEST_PATIENT_NAME)
     );
     testPatients.forEach(async ({ id }) => {
