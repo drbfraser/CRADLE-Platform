@@ -18,7 +18,7 @@ These functions encapsulate patient-centric database access, keeping query
 logic organized and reusable across the application.
 """
 
-from typing import Any, NamedTuple, Optional, Union
+from typing import Any, Callable, NamedTuple, Optional, Union
 
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
@@ -47,6 +47,8 @@ from service.patient_authorization import scope_query_to_accessible_patients
 
 def read_patient_list(
     user: UserDict,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
     **kwargs,
 ) -> list[Any]:
     """
@@ -80,7 +82,7 @@ def read_patient_list(
         )
     )
 
-    query = scope_query_to_accessible_patients(query, PatientOrm.id, user)
+    query = scope_query(query, PatientOrm.id, user)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [PatientOrm, ReadingOrm], **kwargs)
 
@@ -352,6 +354,8 @@ def read_patients(
     patient_id: Optional[str] = None,
     user: Optional[UserDict] = None,
     last_edited: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
 ) -> Union[Any, list[Any]]:
     """
     Queries the database for patient(s) each with the latest pregnancy, medical and drug
@@ -448,7 +452,7 @@ def read_patients(
     )
 
     if user is not None:
-        query = scope_query_to_accessible_patients(query, PatientOrm.id, user)
+        query = scope_query(query, PatientOrm.id, user)
     elif patient_id is None:
         raise ValueError("A user is required for a patient collection query.")
 
@@ -481,6 +485,8 @@ def read_readings(
     patient_id: Optional[str] = None,
     user: Optional[UserDict] = None,
     last_edited: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
 ) -> list[tuple[ReadingOrm, UrineTestOrm]]:
     """
     Queries the database for readings each with corresponding referral, assessment, and
@@ -500,7 +506,7 @@ def read_readings(
     )
 
     if user is not None:
-        query = scope_query_to_accessible_patients(query, ReadingOrm.patient_id, user)
+        query = scope_query(query, ReadingOrm.patient_id, user)
     elif patient_id is None:
         raise ValueError("A user is required for a reading collection query.")
 

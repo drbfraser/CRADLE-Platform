@@ -16,7 +16,7 @@ operations (previously bundled in `crud.py`) to improve modularity and maintaina
 """
 
 import operator
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
@@ -43,6 +43,8 @@ from service.patient_authorization import scope_query_to_accessible_patients
 
 def read_referral_list(
     user: UserDict,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
     **kwargs,
 ) -> list[Any]:
     """
@@ -89,7 +91,7 @@ def read_referral_list(
         )
     )
 
-    query = scope_query_to_accessible_patients(query, PatientOrm.id, user)
+    query = scope_query(query, PatientOrm.id, user)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [ReferralOrm, PatientOrm, ReadingOrm], **kwargs)
 
@@ -161,6 +163,8 @@ def read_referrals_or_assessments(
     patient_id: Optional[str] = None,
     user: Optional[UserDict] = None,
     last_edited: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
 ) -> Union[list[ReferralOrm], list[AssessmentOrm]]:
     """
     Queries the database for referrals or assessments
@@ -179,7 +183,7 @@ def read_referrals_or_assessments(
     query = db_session.query(model)
 
     if user is not None:
-        query = scope_query_to_accessible_patients(query, model.patient_id, user)
+        query = scope_query(query, model.patient_id, user)
     elif patient_id is None:
         raise ValueError("A user is required for a clinical collection query.")
 

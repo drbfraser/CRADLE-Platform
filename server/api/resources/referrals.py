@@ -6,6 +6,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import scope_patient_query
 from common import user_utils
 from common.api_utils import (
     ReferralIdPath,
@@ -55,7 +56,9 @@ def get_referrals_list(query: GetReferralsListQueryParams):
         query.health_facilities.append(current_user["health_facility_name"])
 
     user = cast("dict[Any, Any]", current_user)
-    referrals = view.referral_list_view(user, **query.model_dump())
+    referrals = view.referral_list_view(
+        user, scope_query=scope_patient_query, **query.model_dump()
+    )
 
     return serialize.serialize_referral_list(referrals)
 

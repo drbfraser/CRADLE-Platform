@@ -7,7 +7,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import require_patient_access, require_role
+from api.authorization import require_patient_access, require_role, scope_patient_query
 from common import form_utils, user_utils
 from common.api_utils import (
     PageLimitFilterQueryParams,
@@ -81,7 +81,9 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
     current_user = user_utils.get_current_user_from_jwt()
     current_user = cast("dict[Any, Any]", current_user)
     params = query.model_dump(by_alias=True)
-    patients = view.patient_list_view(current_user, **params)
+    patients = view.patient_list_view(
+        current_user, scope_query=scope_patient_query, **params
+    )
     return serialize.serialize_patient_list(patients)
 
 

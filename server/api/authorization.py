@@ -1,8 +1,13 @@
 from flask import abort, g
+from sqlalchemy.orm import Query
 
 from common import user_utils
 from enums import RoleEnum
-from service.patient_authorization import can_access_patient
+from service.patient_authorization import (
+    can_access_patient,
+    can_assign_existing_patient,
+    scope_query_to_accessible_patients,
+)
 
 
 def mark_authorization_checked() -> None:
@@ -33,3 +38,19 @@ def require_patient_access(patient_id: str) -> None:
     if not can_access_patient(current_user, patient_id):
         abort(403, description="Not authorized to access this patient.")
     mark_authorization_checked()
+
+
+def require_existing_patient_assignment() -> dict:
+    current_user = user_utils.get_current_user_from_jwt()
+    if not can_assign_existing_patient(current_user):
+        abort(403, description="Not authorized to assign an existing patient.")
+    mark_authorization_checked()
+    return current_user
+
+
+def scope_patient_query(
+    query: Query, patient_id_column, user: user_utils.UserDict
+) -> Query:
+    query = scope_query_to_accessible_patients(query, patient_id_column, user)
+    mark_authorization_checked()
+    return query

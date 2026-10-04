@@ -1,3 +1,4 @@
+import logging
 from types import SimpleNamespace
 from unittest.mock import MagicMock, Mock
 
@@ -25,7 +26,7 @@ from validation.patients import PatientWithHistory
     ],
 )
 def test_existing_patient_association_requires_approved_role(
-    monkeypatch, role, expected_status
+    monkeypatch, caplog, role, expected_status
 ):
     patient = SimpleNamespace(id="P1")
     facility = SimpleNamespace(name="F1")
@@ -51,9 +52,10 @@ def test_existing_patient_association_requires_approved_role(
     monkeypatch.setattr(assoc, "has_association", Mock(return_value=False))
     monkeypatch.setattr(assoc, "associate", associate)
 
-    response = Client(app, app.response_class).post(
-        "/api/patient_associations", json={"patientId": patient.id}
-    )
+    with caplog.at_level(logging.WARNING, logger="api.authorization_check"):
+        response = Client(app, app.response_class).post(
+            "/api/patient_associations", json={"patientId": patient.id}
+        )
 
     assert response.status_code == expected_status
     if role is RoleEnum.VHT:
@@ -61,6 +63,9 @@ def test_existing_patient_association_requires_approved_role(
         associate.assert_not_called()
     else:
         associate.assert_called_once_with(patient, facility, user)
+    assert not [
+        record for record in caplog.records if record.name == "api.authorization_check"
+    ]
 
 
 def test_admin_can_assign_existing_patient_to_another_user(monkeypatch):

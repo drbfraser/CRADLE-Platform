@@ -11,6 +11,7 @@ from models import (
     ReferralOrm,
     UrineTestOrm,
 )
+from service.patient_authorization import scope_query_to_accessible_patients
 
 
 def patient_list_view(user: dict, **kwargs) -> list[Any]:
@@ -76,19 +77,28 @@ def medical_record_view(
     )
 
 
-def patient_view(user: dict, last_sync: Optional[int] = None) -> list[Any]:
+def patient_view(
+    user: dict,
+    last_sync: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
+) -> list[Any]:
     """
     Returns a list of patients each with the latest pregnancy, medical and drug records.
 
     :param user: JWT identity
     :return: A list of patients
     """
-    return __get_view(user, crud.read_patients, last_edited=last_sync)
+    return __get_view(
+        user, crud.read_patients, last_edited=last_sync, scope_query=scope_query
+    )
 
 
 def reading_view(
     user: dict,
     last_sync: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
 ) -> list[tuple[ReadingOrm, UrineTestOrm]]:
     """
     Returns a list of readings each with corresponding urine test.
@@ -96,10 +106,17 @@ def reading_view(
     :param user: JWT identity
     :return: A list of tuples of reading, urine test
     """
-    return __get_view(user, crud.read_readings, last_edited=last_sync)
+    return __get_view(
+        user, crud.read_readings, last_edited=last_sync, scope_query=scope_query
+    )
 
 
-def referral_view(user: dict, last_sync: Optional[int] = None) -> list[ReferralOrm]:
+def referral_view(
+    user: dict,
+    last_sync: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
+) -> list[ReferralOrm]:
     """
     Returns a list of referrals of readings associated with user.
 
@@ -111,10 +128,16 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> list[ReferralO
         crud.read_referrals_or_assessments,
         model=ReferralOrm,
         last_edited=last_sync,
+        scope_query=scope_query,
     )
 
 
-def assessment_view(user: dict, last_sync: Optional[int] = None) -> list[AssessmentOrm]:
+def assessment_view(
+    user: dict,
+    last_sync: Optional[int] = None,
+    *,
+    scope_query: Callable = scope_query_to_accessible_patients,
+) -> list[AssessmentOrm]:
     """
     Returns a list of assessments of readings associated with user.
 
@@ -126,6 +149,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> list[Assessm
         crud.read_referrals_or_assessments,
         model=AssessmentOrm,
         last_edited=last_sync,
+        scope_query=scope_query,
     )
 
 

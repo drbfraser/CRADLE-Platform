@@ -1,5 +1,11 @@
-import pytest
+import logging
 
+import pytest
+from werkzeug.test import Client
+
+import authentication
+from app import app
+from common import user_utils
 from common.user_utils import UserDict
 from enums import RoleEnum
 from service import assoc, view
@@ -123,6 +129,24 @@ def test_patient_list_matches_access_policy(
     assert [row.id for row in rows] == sorted(
         patients[name] for name in expected_patient_names
     )
+
+
+def test_scoped_patient_response_does_not_report_missing_authorization(
+    patient_access_scenario, monkeypatch, caplog
+):
+    user = patient_access_scenario["users"]["vht"]
+    patients = patient_access_scenario["patients"]
+    monkeypatch.setattr(authentication, "_decode_access_token", dict)
+    monkeypatch.setattr(user_utils, "get_current_user_from_jwt", lambda: user)
+
+    with caplog.at_level(logging.WARNING, logger="api.authorization_check"):
+        response = Client(app, app.response_class).get("/api/patients?search=AUTH-P")
+
+    assert response.status_code == 200
+    assert {patient["id"] for patient in response.json} == {patients["vht_direct"]}
+    assert not [
+        record for record in caplog.records if record.name == "api.authorization_check"
+    ]
 
 
 def test_vht_reading_collection_excludes_unassociated_patients(

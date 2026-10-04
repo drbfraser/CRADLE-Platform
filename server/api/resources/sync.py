@@ -7,6 +7,7 @@ from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
+from api.authorization import scope_patient_query
 from common import user_utils
 from common.patient_utils import PATIENT_NOT_FOUND_MSG
 from data import orm_serializer
@@ -261,7 +262,9 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
 
     # Read all patients that have been created or updated since last sync
     current_user = cast("dict[Any, Any]", current_user)
-    new_patients = view.patient_view(current_user, last_sync)
+    new_patients = view.patient_view(
+        current_user, last_sync, scope_query=scope_patient_query
+    )
     patients_json = [serialize.serialize_patient(p) for p in new_patients]
 
     return {"patients": patients_json, "errors": errors}, status_code
@@ -306,7 +309,9 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
 
     # Read all readings that have been created or updated since last sync
     last_sync = query.since
-    new_readings = view.reading_view(cast("dict[Any, Any]", current_user), last_sync)
+    new_readings = view.reading_view(
+        cast("dict[Any, Any]", current_user), last_sync, scope_query=scope_patient_query
+    )
 
     return {
         "readings": [serialize.serialize_reading(r) for r in new_readings],
@@ -345,7 +350,9 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
 
     # Read all referrals that have been created or updated since last sync
     last_sync = query.since
-    new_referrals = view.referral_view(cast("dict[Any, Any]", current_user), last_sync)
+    new_referrals = view.referral_view(
+        cast("dict[Any, Any]", current_user), last_sync, scope_query=scope_patient_query
+    )
 
     return {
         "referrals": [
@@ -367,7 +374,7 @@ def sync_assessments(query: LastSyncQueryParam):
     # Read all assessments that have been updated since last sync
     current_user = user_utils.get_current_user_from_jwt()
     new_assessments = view.assessment_view(
-        cast("dict[Any, Any]", current_user), last_sync
+        cast("dict[Any, Any]", current_user), last_sync, scope_query=scope_patient_query
     )
 
     return {
@@ -435,7 +442,9 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
             status_code = 207
 
     current_user = user_utils.get_current_user_from_jwt()
-    visible_patients = view.patient_list_view(cast("dict[Any, Any]", current_user))
+    visible_patients = view.patient_list_view(
+        cast("dict[Any, Any]", current_user), scope_query=scope_patient_query
+    )
     visible_patient_ids = {patient.id for patient in visible_patients}
     new_workflow_instances = [
         workflow_instance
