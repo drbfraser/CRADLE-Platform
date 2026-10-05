@@ -36,4 +36,11 @@ export class FormTemplatesPageModel extends PageObjectModel {
   async expectFormTemplateToBeListed(formName: string) {
     await expect(this.getFormTemplateRowByName(formName)).toBeVisible();
   }
+
+  async editFormTemplateByName(formTemplateName: string) {
+    await this.getFormTemplateRowByName(formTemplateName)
+      .getByLabel('Edit Form Template')
+      .getByRole('button')
+      .click();
+  }
 }

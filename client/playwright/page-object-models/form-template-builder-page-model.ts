@@ -82,6 +82,14 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
     return this.page.getByRole('button', { name: 'New Form' });
   }
 
+  get editFieldIcon(): Locator {
+    return this.page.locator('div:nth-child(6) > div:nth-child(2) > .MuiButtonBase-root')
+  }
+
+  get requiredSwitch(): Locator {
+    return this.page.getByRole('checkbox', { name: 'Required Make this field' });
+  }
+
   async fillFormMetadata(title: string, version: string) {
     await this.titleInput.fill(title);
     await this.versionInput.fill(version);
@@ -163,5 +171,20 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
     await this.addFieldButton.click();
     await this.dateFieldTypeButton.check();
     await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async addTextFieldWithRequired(fieldText: string, questionId: string, required: boolean) {
+    await this.addFieldButton.click();
+    await this.textFieldTypeButton.check();
+    if (required) {
+      await this.requiredSwitch.check();
+    }
+    await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async addCategory(categoryName: string) {
+    await this.addCategoryButton.click();
+    await this.englishCategoryNameInput.fill(categoryName);
+    await this.saveCategoryButton.click();
   }
 }
