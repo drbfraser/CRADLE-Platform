@@ -7,6 +7,7 @@ from flask_openapi3.models.tag import Tag
 from humps import decamelize
 from pydantic import ValidationError
 
+from api.authorization import mark_authorization_checked
 from authentication import sms_auth
 from common import phone_number_utils, user_utils
 from common.constants import MAX_SMS_RELAY_REQUEST_NUMBER
@@ -223,6 +224,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     # Sending request to endpoint
     method = str(decrypted_data.method)
     endpoint = decrypted_data.endpoint
+    mark_authorization_checked()
     response = _send_request_to_endpoint(user.id, method, endpoint, headers, json_body)
 
     # Update expected request number from user

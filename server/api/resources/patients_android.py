@@ -6,7 +6,8 @@ from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
 import data.db_operations as crud
-import service.FilterHelper as filter
+import service.FilterHelper as filter_helper
+from api.authorization import scope_patient_query
 from api.resources.patients import api_patients
 from common import user_utils
 from data import orm_serializer
@@ -80,7 +81,7 @@ def get_global_search_patients(current_user, search):
         return patient_dict
 
     user = crud.read(UserOrm, id=current_user["id"])
-    pairs = filter.annotated_global_patient_list(user, search)
+    pairs = filter_helper.annotated_global_patient_list(user, search)
     patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
     return [to_global_search_patient(p) for p in patients_query]
 
@@ -160,7 +161,7 @@ def get_patients_mobile():
     Returns info for Patient, their Medical/Drug Records, and their latest Pregnancy.
     """
     current_user = user_utils.get_current_user_from_jwt()
-    patients = view.patient_view(current_user)
+    patients = view.patient_view(current_user, scope_query=scope_patient_query)
 
     return [serialize.serialize_patient(p) for p in patients]
 
@@ -172,7 +173,7 @@ def get_patients_mobile():
 def get_readings_mobile():
     """Get Readings (Mobile)"""
     current_user = user_utils.get_current_user_from_jwt()
-    readings = view.reading_view(current_user)
+    readings = view.reading_view(current_user, scope_query=scope_patient_query)
 
     return [serialize.serialize_reading(r) for r in readings]
 
@@ -184,7 +185,7 @@ def get_readings_mobile():
 def get_referrals_mobile():
     """Get Referrals (Mobile)"""
     current_user = user_utils.get_current_user_from_jwt()
-    referrals = view.referral_view(current_user)
+    referrals = view.referral_view(current_user, scope_query=scope_patient_query)
     return [serialize.serialize_referral_or_assessment(r) for r in referrals]
 
 
@@ -197,7 +198,7 @@ def get_referrals_mobile():
 def get_assessments_mobile():
     """Get Assessments (Mobile)"""
     current_user = user_utils.get_current_user_from_jwt()
-    assessments = view.assessment_view(current_user)
+    assessments = view.assessment_view(current_user, scope_query=scope_patient_query)
     return [serialize.serialize_referral_or_assessment(a) for a in assessments]
 
 

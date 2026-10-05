@@ -16,6 +16,7 @@
 import sys
 import os
 import json
+from functools import partial
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -26,7 +27,9 @@ from logging.config import dictConfig
 from flask import Response, request
 from werkzeug.exceptions import HTTPException
 from humps import camelize
+from api.authorization_check import log_missing_authorization
 from api.resources import api
+from authentication import is_public_endpoint
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
@@ -78,6 +81,11 @@ def convert_response_body_to_camel_case(response: Response):
         response_body = camelize(json.loads(response.data))
         response.data = json.dumps(response_body)
     return response
+
+
+app.after_request(
+    partial(log_missing_authorization, is_public_endpoint=is_public_endpoint)
+)
 
 
 if __name__ == "__main__":

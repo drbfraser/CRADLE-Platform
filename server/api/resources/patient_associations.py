@@ -3,10 +3,9 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from common import user_utils
+from api.authorization import require_existing_patient_assignment
 from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
-from service.patient_authorization import can_assign_existing_patient
 from validation.associations import PatientAssociationModel
 
 # /api/patient_associations
@@ -23,9 +22,7 @@ api_patient_associations = APIBlueprint(
 @api_patient_associations.post("")
 def create_patient_association(body: PatientAssociationModel):
     """Create Patient Association"""
-    current_user = user_utils.get_current_user_from_jwt()
-    if not can_assign_existing_patient(current_user):
-        return abort(403, description="Not authorized to assign an existing patient.")
+    current_user = require_existing_patient_assignment()
     patient_id = body.patient_id
     facility_name = body.health_facility_name
     user_id = body.user_id
