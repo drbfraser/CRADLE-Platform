@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { useMediaQuery, Box, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
 import { useState, useMemo, useEffect } from 'react';
@@ -19,6 +19,7 @@ export const PatientsPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const debounceSetSearch = useMemo(() => debounce(setSearch, 500), []);
+  const isMobile = useMediaQuery('(max-width:720px)');
 
   useEffect(() => {
     return () => {
@@ -83,7 +84,11 @@ export const PatientsPage = () => {
           variant="h2"
           sx={{
             display: 'inline-block',
-            fontSize: '1.7rem',
+            fontSize: {
+              xs: '1.35rem',
+              md: '2rem',
+              sm: '1.75rem',
+            },
             fontWeight: '700',
           }}>
           Patients
@@ -97,6 +102,21 @@ export const PatientsPage = () => {
             flexDirection: 'row',
             gap: '0.5rem',
             alignItems: 'center',
+            '& .MuiInputBase-root': {
+              height: {
+                xs: '40px',
+                sm: '45px',
+                md: '50px',
+              },
+              width: {
+                xs: '70px',
+                sm: '180px',
+                md: '220px',
+              },
+              '@media (max-width: 320px)': {
+                width: '60px',
+              },
+            },
             [theme.breakpoints.up('lg')]: {
               float: 'right',
               height: '56px',
@@ -106,14 +126,55 @@ export const PatientsPage = () => {
             data-testid="search-input"
             size="small"
             label="Search"
-            placeholder="Patient ID or Name"
+            placeholder={isMobile ? 'ID/Name' : 'Patient ID or Name'}
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
+            sx={{
+              '& .MuiInputBase-input': {
+                fontSize: {
+                  xs: '0.70rem',
+                  sm: '0.875rem',
+                  md: '1rem',
+                },
+              },
+              '& .MuiInputLabel-root:not(.MuiInputLabel-shrink)': {
+                transform: {
+                  xs: 'translate(13px, 13px) scale(1)',
+                  sm: 'translate(14px, 12px) scale(1)',
+                  md: 'translate(14px, 15px) scale(1)',
+                },
+                fontSize: {
+                  xs: '0.70em',
+                  sm: '0.875rem',
+                  md: '1rem',
+                },
+              },
+            }}
           />
           <PrimaryButton
             component={Link}
             to={'/patients/new'}
-            data-testid="new-patient-button">
+            data-testid="new-patient-button"
+            sx={{
+              height: {
+                xs: '40px',
+                sm: '40px',
+                md: '50px',
+              },
+              width: {
+                xs: '120px',
+                sm: '180px',
+                md: '220px',
+              },
+              fontSize: {
+                xs: '0.70rem',
+                sm: 'medium',
+                md: 'large',
+              },
+              '@media (max-width: 320px)': {
+                width: '60px',
+              },
+            }}>
             New Patient
           </PrimaryButton>
         </Box>
