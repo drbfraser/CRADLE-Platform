@@ -161,6 +161,7 @@ def get_patient_info(path: PatientIdPath):
 @api_patients.put("/<string:patient_id>/info", responses={201: PatientModel})
 def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     """Update Patient Info"""
+    require_patient_access(path.patient_id)
     update_patient = body.model_dump(exclude_unset=True)
     base = body.base
     if base:
@@ -288,6 +289,7 @@ def get_patient_stats(path: PatientIdPath):
 @api_patients.get("/<string:patient_id>/readings", responses={200: ReadingList})
 def get_patient_readings(path: PatientIdPath):
     """Get Patient's Readings"""
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -300,6 +302,7 @@ def get_patient_readings(path: PatientIdPath):
 )
 def get_patient_most_recent_reading(path: PatientIdPath):
     """Get Patient's Most Recent Reading"""
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -321,6 +324,7 @@ def get_patient_most_recent_reading(path: PatientIdPath):
 @api_patients.get("/<string:patient_id>/referrals", responses={200: ReferralList})
 def get_patient_referrals(path: PatientIdPath):
     """Get Patient's Referrals"""
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -331,6 +335,7 @@ def get_patient_referrals(path: PatientIdPath):
 @api_patients.get("/<string:patient_id>/forms", responses={200: FormList})
 def get_patient_forms(path: PatientIdPath):
     """Get Patient's Forms"""
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -448,6 +453,7 @@ def get_all_records_for_patient(
     path: PatientIdPath, query: GetAllRecordsForPatientQueryParams
 ):
     """Get All Records for Patient (organized by type)"""
+    require_patient_access(path.patient_id)
     params = query.model_dump()
     records = crud.read_patient_all_records(path.patient_id, **params)
 

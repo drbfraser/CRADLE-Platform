@@ -1,6 +1,7 @@
 import pytest
 
 import data.db_operations as crud
+from data import orm_serializer
 from models import PregnancyOrm
 
 UNAUTHORIZED_PREGNANCY_ID = 602000001
@@ -41,6 +42,48 @@ def test_unassociated_vht_cannot_access_direct_patient_routes(api_get, endpoint)
     response = api_get(endpoint=endpoint)
 
     assert response.status_code == 403
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+@pytest.mark.parametrize(
+    "method, suffix",
+    [
+        ("PUT", "info"),
+        ("GET", "readings"),
+        ("GET", "most_recent_reading"),
+        ("GET", "referrals"),
+        ("GET", "forms"),
+        ("GET", "get_all_records"),
+    ],
+    ids=[
+        "update-info",
+        "readings",
+        "most-recent-reading",
+        "referrals",
+        "forms",
+        "all-records",
+    ],
+)
+def test_unassociated_vht_cannot_access_patient_data(
+    patient_factory, patient_info, api_get, api_put, method, suffix
+):
+    patient = patient_factory.create(**patient_info, last_edited=5)
+    crud.db_session.refresh(patient)
+    original_patient = orm_serializer.marshal(patient, shallow=True)
+    endpoint = f"/api/patients/{patient.id}/{suffix}"
+
+    if method == "PUT":
+        response = api_put(
+            endpoint=endpoint,
+            json={**patient_info, "name": "Unauthorized change"},
+        )
+    else:
+        response = api_get(endpoint=endpoint)
+
+    assert response.status_code == 403
+    if method == "PUT":
+        crud.db_session.refresh(patient)
+        assert orm_serializer.marshal(patient, shallow=True) == original_patient
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
