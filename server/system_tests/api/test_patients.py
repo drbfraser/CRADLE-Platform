@@ -402,6 +402,10 @@ def test_create_patient_with_nested_readings(database, api_post):
         assert response.status_code == 201
         assert crud.read(PatientOrm, id=patient_id) is not None
 
+        # The response should include the nested readings that were created
+        returned_reading_ids = {r["id"] for r in response_body["readings"]}
+        assert returned_reading_ids == set(reading_ids)
+
         for reading_id in reading_ids:
             reading = crud.read(ReadingOrm, id=reading_id)
             assert reading is not None
