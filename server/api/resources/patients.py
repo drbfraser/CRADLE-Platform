@@ -88,7 +88,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 
 # /api/patients [POST]
-@api_patients.post("", responses={201: PatientModel})
+@api_patients.post("", responses={201: NestedPatient})
 def create_patient(body: NestedPatient):
     """Create New Patient"""
     current_user = user_utils.get_current_user_from_jwt()
@@ -123,7 +123,9 @@ def create_patient(body: NestedPatient):
             # wipe out the patient we want to return we must refresh it.
             crud.db_session.refresh(patient)
 
-    return orm_serializer.marshal(patient, shallow=True), 201
+    # Return the patient with its nested readings, referrals, and assessments. Mobile
+    # saves the readings from this response locally after uploading a new patient.
+    return orm_serializer.marshal(patient), 201
 
 
 # /api/patients/<string:patient_id> [GET]
