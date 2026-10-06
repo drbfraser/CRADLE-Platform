@@ -113,7 +113,8 @@ export const PatientsPage = () => {
                 sm: '180px',
                 md: '220px',
               },
-              '@media (max-width: 320px)': {
+              // for screens smaller than 375px
+              '@media (max-width: 375px)': {
                 width: '60px',
               },
             },
@@ -171,7 +172,8 @@ export const PatientsPage = () => {
                 sm: 'medium',
                 md: 'large',
               },
-              '@media (max-width: 320px)': {
+              // for screens smaller than 375px
+              '@media (max-width: 375px)': {
                 width: '60px',
               },
             }}>
