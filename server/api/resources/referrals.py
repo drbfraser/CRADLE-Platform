@@ -97,6 +97,9 @@ def create_new_referral(body: ReferralModel):
     facility = referral.health_facility
     if not assoc.has_association(patient, facility):
         assoc.associate(patient, facility=facility)
+        # The associate function performs a database commit, which expires the
+        # referral we want to return, so we must refresh it.
+        crud.db_session.refresh(referral)
     return orm_serializer.marshal(referral), 201
 
 
