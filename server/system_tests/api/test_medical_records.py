@@ -1,8 +1,45 @@
+import pytest
 from humps import decamelize
 
 import data.db_operations as crud
 from common.print_utils import pretty_print
+from data import orm_serializer
 from models import MedicalRecordOrm
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+@pytest.mark.parametrize("method", ["GET", "PUT", "DELETE"])
+def test_unassociated_vht_cannot_access_medical_record(
+    create_patient,
+    medical_record_factory,
+    medical_record,
+    api_get,
+    api_put,
+    api_delete,
+    method,
+):
+    create_patient()
+    record = medical_record_factory.create(**medical_record)
+    crud.db_session.refresh(record)
+    original_record = orm_serializer.marshal(record)
+    endpoint = f"/api/medical_records/{record.id}"
+
+    if method == "PUT":
+        response = api_put(
+            endpoint=endpoint,
+            json={**medical_record, "information": "Unauthorized change"},
+        )
+    elif method == "DELETE":
+        response = api_delete(endpoint=endpoint)
+    else:
+        response = api_get(endpoint=endpoint)
+
+    assert response.status_code == 403
+    if method != "GET":
+        crud.db_session.rollback()
+        saved_record = crud.read(MedicalRecordOrm, id=medical_record["id"])
+        assert saved_record is not None
+        assert orm_serializer.marshal(saved_record) == original_record
 
 
 def test_get_record(create_patient, medical_record_factory, medical_record, api_get):

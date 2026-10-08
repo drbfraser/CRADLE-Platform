@@ -1,6 +1,7 @@
 from flask import abort, g
 from sqlalchemy.orm import Query
 
+import data.db_operations as crud
 from common import user_utils
 from enums import RoleEnum
 from service.patient_authorization import (
@@ -38,6 +39,14 @@ def require_patient_access(patient_id: str) -> None:
     if not can_access_patient(current_user, patient_id):
         abort(403, description="Not authorized to access this patient.")
     mark_authorization_checked()
+
+
+def load_authorized_patient_resource(resource_model, resource_id):
+    resource = crud.read(resource_model, id=resource_id)
+    if resource is None:
+        abort(404, description="Patient resource not found.")
+    require_patient_access(resource.patient_id)
+    return resource
 
 
 def require_existing_patient_assignment() -> dict:

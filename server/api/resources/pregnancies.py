@@ -5,7 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import require_patient_access
+from api.authorization import load_authorized_patient_resource, require_patient_access
 from api.resources.patients import api_patients
 from common.api_utils import PatientIdPath, PregnancyIdPath, SearchFilterQueryParams
 from data import orm_serializer
@@ -62,7 +62,7 @@ api_pregnancies = APIBlueprint(
 @api_pregnancies.get("/<string:pregnancy_id>", responses={200: PregnancyModel})
 def get_pregnancy(path: PregnancyIdPath):
     """Get Pregnancy"""
-    pregnancy = _get_pregnancy(path.pregnancy_id)
+    pregnancy = load_authorized_patient_resource(PregnancyOrm, path.pregnancy_id)
     return orm_serializer.marshal(pregnancy)
 
 
@@ -70,12 +70,10 @@ def get_pregnancy(path: PregnancyIdPath):
 @api_pregnancies.put("/<string:pregnancy_id>", responses={200: PregnancyModel})
 def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
     """Update Pregnancy"""
+    pregnancy = load_authorized_patient_resource(PregnancyOrm, path.pregnancy_id)
     pregnancy_model_dump = body.model_dump()
     pregnancy_model_dump["id"] = path.pregnancy_id
 
-    pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
-    if pregnancy is None:
-        return abort(404, description="No pregnancy found.")
     if body.patient_id != pregnancy.patient_id:
         return abort(400, description="Patient ID cannot be changed.")
 
@@ -93,7 +91,7 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
 @api_pregnancies.delete("/<string:pregnancy_id>")
 def delete_pregnancy(path: PregnancyIdPath):
     """Delete Pregnancy"""
-    pregnancy = _get_pregnancy(path.pregnancy_id)
+    pregnancy = load_authorized_patient_resource(PregnancyOrm, path.pregnancy_id)
     crud.delete(pregnancy)
     return {"message": "Pregnancy record deleted"}
 
@@ -114,11 +112,3 @@ def _check_conflicts(
         return abort(
             409, description="A conflict with existing pregnancy records occurred."
         )
-
-
-def _get_pregnancy(pregnancy_id: int):
-    """Get a pregnancy record by ID, or abort with 404 if not found."""
-    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
-    if pregnancy is None:
-        return abort(404, description=f"No pregnancy record with ID: {pregnancy_id}")
-    return pregnancy

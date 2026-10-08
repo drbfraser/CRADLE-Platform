@@ -5,7 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import require_patient_access
+from api.authorization import load_authorized_patient_resource, require_patient_access
 from api.resources.patients import api_patients
 from common.api_utils import (
     PatientIdPath,
@@ -123,7 +123,7 @@ api_medical_records = APIBlueprint(
 @api_medical_records.get("/<string:record_id>", responses={200: MedicalRecordModel})
 def get_medical_record(path: RecordIdPath):
     """Get Medical Record"""
-    record = _get_medical_record(path.record_id)
+    record = load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
     return orm_serializer.marshal(record)
 
 
@@ -131,11 +131,8 @@ def get_medical_record(path: RecordIdPath):
 @api_medical_records.put("/<string:record_id>", responses={200: MedicalRecordModel})
 def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
     """Update Medical Record"""
+    old_record = load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
     update_medical_record = body.model_dump()
-
-    old_record = crud.read(MedicalRecordOrm, id=path.record_id)
-    if old_record is None:
-        return abort(404, description=f"No Medical Record with ID: {path.record_id}")
 
     if body.patient_id != old_record.patient_id:
         return abort(400, description="Patient ID cannot be changed.")
@@ -151,7 +148,7 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
 @api_medical_records.delete("/<string:record_id>")
 def delete_medical_record(path: RecordIdPath):
     """Delete Medical Record"""
-    record = _get_medical_record(path.record_id)
+    record = load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
     crud.delete(record)
     return {"message": f"Deleted Medical Record with ID: {path.record_id}"}, 200
 
@@ -170,11 +167,3 @@ def _process_medical_history(request_body):
         else request_body.pop("medical_history")
     )
     return request_body
-
-
-def _get_medical_record(record_id):
-    """Get a medical record by ID, or abort with 404 if not found."""
-    record = crud.read(MedicalRecordOrm, id=record_id)
-    if record is None:
-        return abort(404, description=f"No medical record with ID: {record_id}")
-    return record

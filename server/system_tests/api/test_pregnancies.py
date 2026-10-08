@@ -1,13 +1,73 @@
 import datetime
 
+import pytest
 from humps import decamelize
 
 import data.db_operations as crud
 from common.print_utils import pretty_print
+from data import orm_serializer
 from models import PregnancyOrm
 
 approx_8_months = int(datetime.timedelta(days=8 * 30).total_seconds())
 approx_1_month = int(datetime.timedelta(days=30).total_seconds())
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+@pytest.mark.parametrize("method", ["GET", "PUT", "DELETE"])
+def test_unassociated_vht_cannot_access_pregnancy(
+    create_patient,
+    pregnancy_factory,
+    pregnancy_earlier,
+    api_get,
+    api_put,
+    api_delete,
+    method,
+):
+    create_patient()
+    pregnancy = pregnancy_factory.create(**pregnancy_earlier)
+    crud.db_session.refresh(pregnancy)
+    original_pregnancy = orm_serializer.marshal(pregnancy)
+    endpoint = f"/api/pregnancies/{pregnancy.id}"
+
+    if method == "PUT":
+        response = api_put(
+            endpoint=endpoint,
+            json={**pregnancy_earlier, "outcome": "Unauthorized change"},
+        )
+    elif method == "DELETE":
+        response = api_delete(endpoint=endpoint)
+    else:
+        response = api_get(endpoint=endpoint)
+
+    assert response.status_code == 403
+    if method != "GET":
+        crud.db_session.rollback()
+        saved_pregnancy = crud.read(PregnancyOrm, id=pregnancy_earlier["id"])
+        assert saved_pregnancy is not None
+        assert orm_serializer.marshal(saved_pregnancy) == original_pregnancy
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_pregnancy_access_uses_stored_patient(
+    create_patient,
+    pregnancy_factory,
+    pregnancy_earlier,
+    api_get,
+    api_put,
+):
+    create_patient()
+    pregnancy = pregnancy_factory.create(**pregnancy_earlier)
+    assert api_get("/api/patients/49300028162/info").status_code == 200
+    response = api_put(
+        endpoint=f"/api/pregnancies/{pregnancy.id}",
+        json={
+            **pregnancy_earlier,
+            "patient_id": "49300028162",
+            "outcome": "Unauthorized change",
+        },
+    )
+
+    assert response.status_code == 403
 
 
 def test_get_pregnancy(create_patient, pregnancy_factory, pregnancy_earlier, api_get):
