@@ -56,6 +56,11 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
   const onChangeRef = useRef(onChange);
   const onAppendCompleteRef = useRef(onAppendComplete);
   const [showWorkspaceHint, setShowWorkspaceHint] = useState(!initialJsonLogic);
+  const hintContainerRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLDivElement>(null);
+  const hintAnchorRef = useRef<{ x: number; y: number } | null>(null);
+  const updateHintPositionRef = useRef<() => void>(() => {});
+  const recenterHintRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -87,6 +92,41 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     });
 
     workspaceRef.current = workspace;
+    Blockly.svgResize(workspace);
+
+    const captureAnchor = () => {
+      const m = workspace.getMetrics();
+      const screenX = m.absoluteLeft + m.viewWidth / 2;
+      const screenY = m.absoluteTop + m.viewHeight / 2;
+      hintAnchorRef.current = {
+        x: (screenX - workspace.scrollX) / workspace.scale,
+        y: (screenY - workspace.scrollY) / workspace.scale,
+      };
+    };
+
+    const updateHintPosition = () => {
+      const el = hintRef.current;
+      const container = hintContainerRef.current;
+      const anchor = hintAnchorRef.current;
+      if (!el || !container || !anchor) return;
+
+      const m = workspace.getMetrics();
+      container.style.clipPath = `inset(${m.absoluteTop}px 0 0 ${m.absoluteLeft}px)`;
+
+      const x = workspace.scrollX + anchor.x * workspace.scale;
+      const y = workspace.scrollY + anchor.y * workspace.scale;
+      el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${workspace.scale})`;
+      el.style.visibility = 'visible';
+    };
+
+    const recenterHint = () => {
+      captureAnchor();
+      updateHintPosition();
+    };
+
+    updateHintPositionRef.current = updateHintPosition;
+    recenterHintRef.current = recenterHint;
+    recenterHint();
 
     const updateWorkspaceHint = () => {
       setShowWorkspaceHint(!workspaceHasBlocks(workspace));
@@ -111,6 +151,10 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     };
 
     workspace.addChangeListener((event: Blockly.Events.Abstract) => {
+      if (event.type === Blockly.Events.VIEWPORT_CHANGE) {
+        updateHintPosition();
+        return;
+      }
       if (isLoadingRef.current) return;
 
       if (
@@ -133,6 +177,12 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (showWorkspaceHint) {
+      recenterHintRef.current();
+    }
+  }, [showWorkspaceHint]);
 
   useEffect(() => {
     const workspace = workspaceRef.current;
@@ -159,6 +209,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
     const resizeWorkspace = () => {
       if (workspaceRef.current) {
         Blockly.svgResize(workspaceRef.current);
+        recenterHintRef.current();
       }
     };
 
@@ -187,6 +238,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
         }}>
         {showWorkspaceHint && !readOnly && (
           <Box
+            ref={hintContainerRef}
             sx={{
               position: 'absolute',
               inset: 0,
@@ -198,7 +250,14 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
               px: 4,
             }}>
             <Box
+              ref={hintRef}
               sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: 1,
+                transformOrigin: 'center center',
+                pointerEvents: 'none',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
