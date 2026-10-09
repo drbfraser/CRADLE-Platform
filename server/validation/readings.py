@@ -5,7 +5,7 @@ from pydantic import Field, RootModel
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
-from validation.referrals import ReferralModel
+from validation.referrals import CreateReferralRequest
 
 
 class ReadingModel(CradleBaseModel):
@@ -20,7 +20,7 @@ class ReadingModel(CradleBaseModel):
     last_edited: int = Field(default_factory=get_current_time)
     user_id: Optional[int] = None
     assessment: Optional[AssessmentPostBody] = None
-    referral: Optional[ReferralModel] = None
+    referral: Optional[CreateReferralRequest] = None
 
     model_config = dict(
         openapi_extra={

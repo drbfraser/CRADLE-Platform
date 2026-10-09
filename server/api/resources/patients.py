@@ -33,6 +33,7 @@ from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
 from validation.forms import FormList
 from validation.patients import (
+    CreatePatientRequest,
     NestedPatient,
     PatientModel,
     UpdatePatientRequestBody,
@@ -89,15 +90,15 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 # /api/patients [POST]
 @api_patients.post("", responses={201: NestedPatient})
-def create_patient(body: NestedPatient):
+def create_patient(body: CreatePatientRequest):
     """Create New Patient"""
     current_user = user_utils.get_current_user_from_jwt()
     for reading in body.readings:
         reading.user_id = current_user["id"]
-    for referral in body.referrals:
-        referral.user_id = current_user["id"]
 
     new_patient = body.model_dump()
+    for referral in new_patient["referrals"]:
+        referral["user_id"] = current_user["id"]
     assign_patient_id(new_patient)
     patient = orm_serializer.unmarshal(PatientOrm, new_patient)
 

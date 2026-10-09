@@ -32,8 +32,6 @@ def create_new_reading(body: ReadingModel):
     current_user = user_utils.get_current_user_from_jwt()
     user_id = current_user["id"]
     body.user_id = user_id
-    if body.referral is not None:
-        body.referral.user_id = user_id
 
     new_reading_dict = body.model_dump()
     if body.referral is not None:
@@ -51,7 +49,9 @@ def create_new_reading(body: ReadingModel):
             name=body.referral.health_facility_name,
         )
 
-        referral = orm_serializer.unmarshal(ReferralOrm, body.referral.model_dump())
+        new_referral = body.referral.model_dump()
+        new_referral["user_id"] = user_id
+        referral = orm_serializer.unmarshal(ReferralOrm, new_referral)
         crud.create(referral, refresh=True)
 
         patient = referral.patient

@@ -7,7 +7,7 @@ from common.commonUtil import get_current_time
 from enums import SexEnum
 from validation import CradleBaseModel
 from validation.readings import ReadingWithUrineTest
-from validation.referrals import ReferralModel
+from validation.referrals import CreateReferralRequest, ReferralResponse
 
 
 class PatientModel(CradleBaseModel):
@@ -93,9 +93,13 @@ def is_correct_date_format(s: Any) -> bool:
 
 class NestedPatient(PatientWithHistory):
     readings: list[ReadingWithUrineTest] = []
-    referrals: list[ReferralModel] = []
+    referrals: list[ReferralResponse] = []
     medical_history_id: Optional[str] = None
     drug_history_id: Optional[str] = None
+
+
+class CreatePatientRequest(NestedPatient):
+    referrals: list[CreateReferralRequest] = []
 
 
 class NestedPatientList(RootModel):
