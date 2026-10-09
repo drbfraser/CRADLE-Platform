@@ -41,9 +41,9 @@ export const ReferralsSearchBar = ({
           textAlign: 'center',
           verticalAlign: 'center',
           fontSize: {
-            xs: '1.6rem',
+            xs: '1.35rem',
             md: '2rem',
-            sm: '1.75rem',
+            sm: '2rem',
           },
           fontWeight: 'bold',
           letterSpacing: '-0.02em',
@@ -55,13 +55,17 @@ export const ReferralsSearchBar = ({
         sx={{
           display: 'flex',
           flexDirection: 'row',
-          gap: '0.5rem',
-          height: '50px',
+          gap: '0.1rem',
+          height: '25px',
           alignItems: 'center',
+          mr: {
+            xs: isPromptShown ? '-1.3rem' : 0,
+            sm: isPromptShown ? '-1rem' : 0,
+          },
           '& .MuiInputBase-root': {
             height: {
               xs: '30px',
-              sm: '45px',
+              sm: '40px',
               md: '50px',
             },
             width: {
@@ -69,10 +73,16 @@ export const ReferralsSearchBar = ({
               sm: '180px',
               md: '220px',
             },
+            fontSize: {
+              xs: '0.70rem',
+              sm: '0.875rem',
+              md: '1rem',
+            },
           },
         }}>
         <TextField
           label={isMobile ? '' : 'Search'}
+          size="small"
           data-testid="search-input"
           placeholder={isMobile ? 'Search' : 'Patient ID, Name or Village'}
           variant="outlined"
@@ -87,9 +97,9 @@ export const ReferralsSearchBar = ({
               md: '50px',
             },
             fontSize: {
-              xs: '0.8rem',
-              sm: 'medium',
-              md: 'large',
+              xs: '0.7rem',
+              sm: '0.875rem',
+              md: '1rem',
             },
             px: {
               xs: 1,
@@ -115,7 +125,14 @@ export const ReferralsSearchBar = ({
                   fontSize="small"
                   sx={{
                     color: 'error.main',
-                    ml: '-0.70rem',
+                    ml: {
+                      xs: '-0.4rem',
+                      sm: '0.3rem',
+                    },
+                    mr: {
+                      xs: '0.1rem',
+                      sm: '0.3rem',
+                    },
                   }}
                 />
               </IconButton>
@@ -129,8 +146,12 @@ export const ReferralsSearchBar = ({
                   sm: '40px',
                   md: '50px',
                 },
-                fontSize: 'medium',
-                ml: '-1.3rem',
+                fontSize: {
+                  xs: '0.8rem',
+                  sm: '0.875rem',
+                  md: '1rem',
+                },
+                ml: '-1.2rem',
               }}>
               {isMobile ? 'Clear' : 'Clear Filter'}
             </CancelButton>
