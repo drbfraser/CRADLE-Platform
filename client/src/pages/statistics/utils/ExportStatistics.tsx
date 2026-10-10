@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  useMediaQuery,
 } from '@mui/material';
 
 import { SexEnum } from 'src/shared/enums';
@@ -29,10 +30,30 @@ export const ExportStatistics = ({ getData }: IProps) => {
     setOpen(false);
   };
 
+  const isMobile = useMediaQuery('(max-width:720px)');
+
   return (
     <Box>
-      <PrimaryButton sx={{ float: 'right' }} onClick={handleClickOpen}>
-        Export Referrals
+      <PrimaryButton
+        sx={{
+          fontSize: {
+            xs: '0.75rem',
+            sm: '0.875rem',
+            md: '1rem',
+          },
+          px: {
+            xs: 0.5,
+            sm: 1.5,
+            md: 2,
+          },
+          py: {
+            xs: 0.25,
+            sm: 0.8,
+            md: 1,
+          },
+        }}
+        onClick={handleClickOpen}>
+        {isMobile ? 'Export' : 'Export Referrals'}
       </PrimaryButton>
 
       <Dialog open={open} onClose={handleClose}>

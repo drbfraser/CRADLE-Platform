@@ -36,14 +36,15 @@ export const UserStatistics = ({ from, to }: Props) => {
   };
 
   return (
-    <Stack sx={STATS_PAGE_SX} spacing="3rem">
+    <Stack sx={STATS_PAGE_SX} spacing="1rem">
       {allUsersQuery.isError && <APIErrorToast />}
 
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
           justifyContent: 'space-between',
           gap: '1rem',
           maxWidth: '100%',
@@ -52,13 +53,22 @@ export const UserStatistics = ({ from, to }: Props) => {
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            alignItems: 'center',
+            alignItems: 'baseline',
             gap: '0.75rem',
             flexWrap: 'wrap',
             maxWidth: '100%',
           }}>
-          <Typography variant="h5" gutterBottom sx={{ margin: '0' }}>
-            Please select a user from the list:
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              fontSize: {
+                xs: '1rem',
+                sm: '1.5rem',
+              },
+              margin: '0',
+            }}>
+            Select a user from the list:
           </Typography>
 
           <FormControl

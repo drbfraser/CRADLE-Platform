@@ -1,9 +1,8 @@
 import Divider from '@mui/material/Divider';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
-import Typography from '@mui/material/Typography';
 import { getAllStatisticsAsync } from 'src/shared/api';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
 type Props = {
@@ -19,7 +18,15 @@ export const AllStatistics = ({ from, to }: Props) => {
 
   return (
     <Box id="all-stats-container" sx={STATS_PAGE_SX}>
-      <Typography variant="h5" gutterBottom>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          fontSize: {
+            xs: '1rem',
+            sm: '1.5rem',
+          },
+        }}>
         During this period, all users and facilities have assessed:
       </Typography>
 

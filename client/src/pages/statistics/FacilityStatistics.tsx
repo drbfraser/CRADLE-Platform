@@ -51,8 +51,14 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
           variant="h5"
           component="h5"
           gutterBottom
-          sx={{ margin: '0' }}>
-          Please select a facility from the list:
+          sx={{
+            fontSize: {
+              xs: '1rem',
+              sm: '1.5rem',
+            },
+            margin: '0',
+          }}>
+          Select a facility from the list:
         </Typography>
         <FormControl
           variant="standard"

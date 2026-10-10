@@ -103,7 +103,11 @@ export const StatisticDashboard: React.FC<IProps> = ({ statsQuery }) => {
       <Typography
         variant="h2"
         sx={{
-          fontSize: '1.7rem',
+          fontSize: {
+            xs: '1.3rem',
+            sm: '1.7rem',
+            md: '2rem',
+          },
           fontWeight: '700',
           marginTop: '2rem',
           marginBottom: '1rem',

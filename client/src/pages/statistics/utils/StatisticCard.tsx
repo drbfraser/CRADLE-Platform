@@ -12,8 +12,16 @@ export const StatisticCard: React.FC<CardProps> = ({ label, data }) => {
     <Paper
       elevation={3}
       sx={(theme) => ({
-        width: '200px',
-        height: '100px',
+        width: {
+          xs: '120px',
+          sm: '180px',
+          md: '200px',
+        },
+        height: {
+          xs: '80px',
+          sm: '90px',
+          md: '100px',
+        },
         padding: theme.spacing(1, 1, 1, 2),
         borderColor: BORDER_COLOR,
         border: `1px solid ${BORDER_COLOR}`,
@@ -31,7 +39,14 @@ export const StatisticCard: React.FC<CardProps> = ({ label, data }) => {
         }}>
         <Typography
           sx={{
-            fontSize: '3rem',
+            fontSize: {
+              xs: '1.5rem',
+              sm: '2.5rem',
+              md: '3.5rem',
+            },
+            mr: {
+              xs: 1,
+            },
             fontWeight: 'medium',
             fontFamily: 'lato',
           }}>
@@ -42,7 +57,11 @@ export const StatisticCard: React.FC<CardProps> = ({ label, data }) => {
           color={'black'}
           sx={{
             width: '100px',
-            fontSize: '1rem',
+            fontSize: {
+              xs: '0.8rem',
+              sm: '1rem',
+              md: '1rem',
+            },
             fontWeight: 'bold',
             textTransform: 'uppercase',
             marginX: 'auto',
