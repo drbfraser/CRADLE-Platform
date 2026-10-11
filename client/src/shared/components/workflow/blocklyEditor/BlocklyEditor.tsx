@@ -81,7 +81,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
       readOnly,
       renderer: TYPED_ZELOS_RENDERER,
       scrollbars: true,
-      trashcan: true,
+      trashcan: false,
       zoom: {
         controls: true,
         wheel: true,

@@ -472,7 +472,7 @@ jobs:
     with:
       ENVIRONMENT: dev
       RUNNER_NAME: deploy-development
-      DOMAIN: cradle-dev.cmpt.sfu.ca
+      DOMAIN: "http://cradle-dev.cs.sfu.ca"
       IMAGE_TAG: ${{ needs.export-image-tag.outputs.image_tag }}
     secrets: inherit
 

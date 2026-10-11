@@ -11,8 +11,8 @@ reduce preventable maternal deaths in Ugandan villages.
 ## Sites and Servers
 
 - Issue tracking is managed via Github Enterprise Issues at: https://github.sfu.ca/cradle-project/Cradle-Platform/issues
-- `master` is continuously deployed to: https://cradle-dev.cmpt.sfu.ca
-- `staging` is continuously deployed to: https://cradle-stg.cmpt.sfu.ca
+- `master` is continuously deployed to: https://cradle-dev.cs.sfu.ca
+- `staging` is continuously deployed to: https://cradle-stg.cs.sfu.ca
 
 ## Development Setup & Information
 
@@ -132,3 +132,8 @@ the previously mentioned admin user is added along with a few additional users:
 | Amir Khamesy        | aka283@sfu.ca        |
 | Violet Yovendi      | ivy2@sfu.ca          |
 | Puja Shah           | pks37@sfu.ca         |
+| Matthew Widjaja     | mpw5@sfu.ca          |
+| John Camino         | jcamino@sfu.ca       |
+| Cira Chen           | sca386@sfu.ca        |
+| Ayush Arora         | aaa290@sfu.ca        |
+| Josie Tran          | mgt3@sfu.ca          |
