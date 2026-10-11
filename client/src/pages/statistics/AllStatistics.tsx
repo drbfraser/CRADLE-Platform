@@ -23,7 +23,7 @@ export const AllStatistics = ({ from, to }: Props) => {
         gutterBottom
         sx={{
           fontSize: {
-            xs: '1rem',
+            xs: '0.8rem',
             sm: '1.5rem',
           },
         }}>
