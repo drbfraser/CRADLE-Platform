@@ -12,6 +12,7 @@ from common import user_utils
 from common.patient_utils import PATIENT_NOT_FOUND_MSG
 from data import orm_serializer
 from models import (
+    DeletedPatientOrm,
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
@@ -74,6 +75,7 @@ class SyncWorkflowInstancesBody(RootModel[list[WorkflowInstanceModel]]):
 
 class SyncPatientsResponse(CradleBaseModel):
     patients: list[PatientWithHistory]
+    deleted_patient_ids: list[str] = []
 
 
 # /api/sync/patients [POST]
@@ -267,7 +269,19 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
     )
     patients_json = [serialize.serialize_patient(p) for p in new_patients]
 
-    return {"patients": patients_json, "errors": errors}, status_code
+    # Patients deleted on the server since the last sync
+    deleted_patient_ids = [
+        patient_id
+        for (patient_id,) in crud.db_session.query(DeletedPatientOrm.patient_id).filter(
+            DeletedPatientOrm.deleted_at > last_sync
+        )
+    ]
+
+    return {
+        "patients": patients_json,
+        "deleted_patient_ids": deleted_patient_ids,
+        "errors": errors,
+    }, status_code
 
 
 class SyncReadingsResponse(CradleBaseModel):
