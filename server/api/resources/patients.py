@@ -547,5 +547,7 @@ def delete_patient(path: PatientIdPath):
     """Delete Patient"""
     require_role(RoleEnum.ADMIN)
     patient = crud.read(PatientOrm, id=path.patient_id)
+    if patient is None:
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
     crud.delete(patient)
     return Response(status=200)
