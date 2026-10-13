@@ -1,5 +1,7 @@
 import json
 
+import pytest
+import requests
 from humps import decamelize
 
 import data.db_operations as crud
@@ -11,6 +13,94 @@ from models import FormSubmissionOrmV2, UserOrm
 
 def _question_by_order(template, order):
     return next(question for question in template.questions if question.order == order)
+
+
+@pytest.fixture
+def vht_auth_header(url):
+    response = requests.post(
+        f"{url}/api/user/auth",
+        json={"username": "vht@email.com", "password": "cradle-vht"},
+    )
+    access_token = decamelize(response.json())["access_token"]
+    return {"Authorization": f"Bearer {access_token}"}
+
+
+def _saved_submission_state(submission_id):
+    crud.db_session.rollback()
+    submission = crud.read(FormSubmissionOrmV2, id=submission_id)
+    return {
+        "user_id": submission.user_id,
+        "last_edited": submission.last_edited,
+        "answers": {answer.id: answer.answer for answer in submission.answers},
+    }
+
+
+@pytest.mark.parametrize("method", ["GET", "PATCH"])
+def test_unassociated_vht_cannot_access_form_submission(
+    create_patient,
+    form_v2_resources,
+    url,
+    vht_auth_header,
+    method,
+):
+    create_patient()
+    bundle = form_v2_resources.create_template()
+    integer_question = _question_by_order(bundle["template"], 1)
+    submission = form_v2_resources.create_submission(
+        bundle,
+        template_question_id=integer_question.id,
+    )
+    original_state = _saved_submission_state(submission["id"])
+    endpoint = f"{url}/api/forms/v2/submissions/{submission['id']}"
+
+    if method == "PATCH":
+        response = requests.patch(
+            endpoint,
+            headers=vht_auth_header,
+            json={
+                "answers": [
+                    {
+                        "id": next(iter(original_state["answers"])),
+                        "answer": {"number": 22},
+                        "question_id": integer_question.id,
+                    }
+                ]
+            },
+        )
+    else:
+        response = requests.get(endpoint, headers=vht_auth_header)
+
+    assert response.status_code == 403
+    assert _saved_submission_state(submission["id"]) == original_state
+
+
+def test_unassociated_vht_cannot_submit_form(
+    create_patient,
+    form_submission_v2,
+    form_v2_resources,
+    get_row_count,
+    url,
+    vht_auth_header,
+):
+    create_patient()
+    bundle = form_v2_resources.create_template()
+    submission_payload = form_submission_v2(
+        template_id=bundle["body"]["id"],
+        template_question_id=_question_by_order(bundle["template"], 1).id,
+    )
+    submission_count = get_row_count(FormSubmissionOrmV2)
+
+    response = requests.post(
+        f"{url}/api/forms/v2/submissions",
+        headers=vht_auth_header,
+        json=submission_payload,
+    )
+    if response.status_code == 201:
+        form_v2_resources.track_submission(response.json()["id"])
+
+    assert response.status_code == 403
+    crud.db_session.rollback()
+    assert get_row_count(FormSubmissionOrmV2) == submission_count
 
 
 def test_submit_missing_patient(api_post, form_submission_v2, form_v2_resources):

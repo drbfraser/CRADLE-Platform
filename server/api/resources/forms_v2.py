@@ -5,6 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import load_authorized_patient_resource, require_patient_access
 from common import form_utils, user_utils
 from common.commonUtil import get_current_time
 from data import orm_serializer
@@ -41,6 +42,7 @@ api_form_submissions_v2 = APIBlueprint(
 def submit_form(body: CreateFormSubmissionRequest):
     """Submit a Form"""
     submission = body
+    require_patient_access(submission.patient_id)
 
     if submission.id is not None:
         if crud.read(FormSubmissionOrmV2, id=submission.id):
@@ -100,10 +102,9 @@ def submit_form(body: CreateFormSubmissionRequest):
 )
 def get_form(path: FormIdPath):
     """Get Form"""
-    form = crud.read(FormSubmissionOrmV2, id=path.form_submission_id)
-
-    if form is None:
-        return abort(404, description=f"No form with ID: {path.form_submission_id}.")
+    form = load_authorized_patient_resource(
+        FormSubmissionOrmV2, path.form_submission_id
+    )
 
     form_answers = form_utils.attach_questions(form)
     form = orm_serializer.marshal(form, shallow=False)
@@ -125,11 +126,9 @@ def get_form(path: FormIdPath):
 )
 def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update a previously submitted form (partial update of answers)."""
-    form: FormSubmissionOrmV2 = crud.read(
-        FormSubmissionOrmV2, id=path.form_submission_id
+    form: FormSubmissionOrmV2 = load_authorized_patient_resource(
+        FormSubmissionOrmV2, path.form_submission_id
     )
-    if form is None:
-        return abort(404, description=f"No form with id {path.form_submission_id}")
 
     validation = form_utils.validate_form_answers(body.answers, form.form_template_id)
 
