@@ -32,7 +32,7 @@ from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
 from validation.patients import PatientWithHistory
 from validation.readings import ReadingModel
-from validation.referrals import ReferralModel
+from validation.referrals import CreateReferralRequest, ReferralResponse
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 # /api/sync
@@ -62,7 +62,7 @@ class SyncReadingsBody(RootModel[list[ReadingModel]]):
     model_config = dict(openapi_extra={"description": "List of Reading objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReferralsBody(RootModel[list[ReferralModel]]):
+class SyncReferralsBody(RootModel[list[CreateReferralRequest]]):
     model_config = dict(openapi_extra={"description": "List of Referral objects."})  # type: ignore[reportAssignmentType]
 
 
@@ -319,7 +319,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
 
 
 class SyncReferralsResponse(CradleBaseModel):
-    referrals: list[ReferralModel]
+    referrals: list[ReferralResponse]
 
 
 # /api/sync/referrals [POST]
@@ -343,7 +343,6 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
             # currently, for referrals that exist in server already we will skip them
             continue
         mobile_referral_dict["user_id"] = current_user["id"]
-        ReferralModel(**mobile_referral_dict)
 
         referral = orm_serializer.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)

@@ -18,9 +18,10 @@ from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from validation.referrals import (
     CancelStatus,
+    CreateReferralRequest,
     NotAttendReason,
     ReferralList,
-    ReferralModel,
+    ReferralResponse,
 )
 
 # /api/referrals
@@ -64,8 +65,8 @@ def get_referrals_list(query: GetReferralsListQueryParams):
 
 
 # /api/referrals [POST]
-@api_referrals.post("", responses={201: ReferralModel})
-def create_new_referral(body: ReferralModel):
+@api_referrals.post("", responses={201: ReferralResponse})
+def create_new_referral(body: CreateReferralRequest):
     """Create New Referral"""
     health_facility = crud.read(
         HealthFacilityOrm,
@@ -82,13 +83,13 @@ def create_new_referral(body: ReferralModel):
         name=body.health_facility_name,
     )
 
-    body.user_id = user_utils.get_current_user_from_jwt()["id"]
-
     patient = crud.read(PatientOrm, id=body.patient_id)
     if patient is None:
         return abort(404, description="Patient does not exist.")
 
-    referral = orm_serializer.unmarshal(ReferralOrm, body.model_dump())
+    new_referral = body.model_dump()
+    new_referral["user_id"] = user_utils.get_current_user_from_jwt()["id"]
+    referral = orm_serializer.unmarshal(ReferralOrm, new_referral)
 
     crud.create(referral, refresh=True)
     # Creating a referral also associates the corresponding patient to the health
@@ -104,7 +105,7 @@ def create_new_referral(body: ReferralModel):
 
 
 # /api/referrals/<string:referral_id> [GET]
-@api_referrals.get("/<string:referral_id>", responses={200: ReferralModel})
+@api_referrals.get("/<string:referral_id>", responses={200: ReferralResponse})
 def get_referral(path: ReferralIdPath):
     """Get Referral"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
@@ -114,7 +115,7 @@ def get_referral(path: ReferralIdPath):
 
 
 # /api/referrals/assess/<string:referral_id> [PUT]
-@api_referrals.put("/assess/<string:referral_id>", responses={200: ReferralModel})
+@api_referrals.put("/assess/<string:referral_id>", responses={200: ReferralResponse})
 def update_referral_assessed(path: ReferralIdPath):
     """
     Update Referral (Assessed)
@@ -135,7 +136,7 @@ def update_referral_assessed(path: ReferralIdPath):
 
 # /api/referrals/cancel-status-switch/<string:referral_id> [PUT]
 @api_referrals.put(
-    "/cancel-status-switch/<string:referral_id>", responses={200: ReferralModel}
+    "/cancel-status-switch/<string:referral_id>", responses={200: ReferralResponse}
 )
 def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
     """Update Referral (Cancel Status)"""
@@ -160,7 +161,9 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
 
 
 # /api/referrals/not-attend/<string:referral_id> [PUT]
-@api_referrals.put("/not-attend/<string:referral_id>", responses={200: ReferralModel})
+@api_referrals.put(
+    "/not-attend/<string:referral_id>", responses={200: ReferralResponse}
+)
 def update_referral_not_attend(path: ReferralIdPath, body: NotAttendReason):
     """Update Referral (Not Attend)"""
     referral = crud.read(ReferralOrm, id=path.referral_id)

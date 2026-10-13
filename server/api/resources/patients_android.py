@@ -26,7 +26,7 @@ from validation.assessments import AssessmentModel
 from validation.forms import FormModel
 from validation.patients import NestedPatientList
 from validation.readings import ReadingWithUrineTestList
-from validation.referrals import ReferralModel
+from validation.referrals import ReferralResponse
 
 ## Functions that are only used for these endpoints ##
 
@@ -180,7 +180,7 @@ def get_readings_mobile():
 
 # /api/mobile/referrals [GET]
 @api_patients_mobile.get(
-    "/referrals", tags=[mobile_patient_tag], responses={200: ReferralModel}
+    "/referrals", tags=[mobile_patient_tag], responses={200: ReferralResponse}
 )
 def get_referrals_mobile():
     """Get Referrals (Mobile)"""

@@ -3,8 +3,8 @@ from pydantic import ValidationError
 
 from validation.referrals import (
     CancelStatus,
+    CreateReferralRequest,
     NotAttendReason,
-    ReferralModel,
 )
 
 PATIENT_ID = "49300028161"
@@ -129,7 +129,7 @@ referral_field_health_facility_name_has_wrong_type_should_throw_exception = {
     "user_id": USER_ID,
 }
 
-referral_has_invalid_extra_field_should_throw_exception = {
+referral_with_extra_field_should_return_none = {
     "patient_id": PATIENT_ID,
     "health_facility_name": FACILITY,
     "comment": COMMENT,
@@ -200,41 +200,41 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
 @pytest.mark.parametrize(
     "json, output_type, entity",
     [
-        (referral_with_valid_fields_should_return_none, None, ReferralModel),
+        (referral_with_valid_fields_should_return_none, None, CreateReferralRequest),
         (
             referral_missing_optional_field_comment_should_return_none,
             None,
-            ReferralModel,
+            CreateReferralRequest,
         ),
         (
             referral_missing_optional_field_date_referred_should_return_none,
             None,
-            ReferralModel,
+            CreateReferralRequest,
         ),
         (
             referral_missing_required_field_patient_id_should_throw_exception,
             ValidationError,
-            ReferralModel,
+            CreateReferralRequest,
         ),
         (
             referral_missing_required_field_health_facility_name_should_throw_exception,
             ValidationError,
-            ReferralModel,
+            CreateReferralRequest,
         ),
         (
             referral_field_patient_id_has_wrong_type_should_throw_exception,
             ValidationError,
-            ReferralModel,
+            CreateReferralRequest,
         ),
         (
             referral_field_health_facility_name_has_wrong_type_should_throw_exception,
             ValidationError,
-            ReferralModel,
+            CreateReferralRequest,
         ),
         (
-            referral_has_invalid_extra_field_should_throw_exception,
-            ValidationError,
-            ReferralModel,
+            referral_with_extra_field_should_return_none,
+            None,
+            CreateReferralRequest,
         ),
         (cancel_put_with_valid_fields_should_return_none, None, CancelStatus),
         (
