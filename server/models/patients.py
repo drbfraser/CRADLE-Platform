@@ -82,6 +82,27 @@ class PatientAssociationsOrm(db.Model):
     )
 
 
+class DeletedPatientOrm(db.Model):
+    """
+    Record of permanently deleted patients.
+
+    Lets sync tell mobile devices which patients to remove, and stops a device
+    from re-creating a deleted patient by uploading it again.
+    """
+
+    __tablename__ = "deleted_patient"
+    # Not a foreign key as this record no longer exists
+    patient_id = db.Column(db.String(50), primary_key=True)
+
+    deleted_at = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time, index=True
+    )
+
+    deleted_by = db.Column(
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+
+
 class PregnancyOrm(db.Model):
     """
     Tracks pregnancy records for female patients in the Cradle system.
