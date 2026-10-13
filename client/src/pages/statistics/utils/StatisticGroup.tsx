@@ -10,7 +10,12 @@ export const StatisticGroup = ({ children }: PropsWithChildren) => {
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: '48px',
+        width: '100%',
+        gap: {
+          xs: '12px',
+          sm: '24px',
+          md: '48px',
+        },
         paddingBlockEnd: theme.spacing(2),
         alignItems: 'center',
         justifyContent: 'center',

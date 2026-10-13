@@ -1,7 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
 
 const BORDER_COLOR = 'rgb(211, 205, 205)';
-// const BORDER_RADIUS = '7px';
 interface CardProps {
   label: string;
   data?: number;
@@ -12,13 +11,22 @@ export const StatisticCard: React.FC<CardProps> = ({ label, data }) => {
     <Paper
       elevation={3}
       sx={(theme) => ({
-        width: '200px',
-        height: '100px',
-        padding: theme.spacing(1, 1, 1, 2),
+        width: {
+          xs: '120px',
+          sm: '180px',
+          md: '200px',
+        },
+        height: {
+          xs: '80px',
+          sm: '90px',
+          md: '100px',
+        },
+        p: 1,
         borderColor: BORDER_COLOR,
         border: `1px solid ${BORDER_COLOR}`,
         borderRadius: '7px',
         boxShadow: `3px 1px ${BORDER_COLOR}`,
+        overflow: 'hidden',
       })}>
       <Box
         sx={{
@@ -28,12 +36,22 @@ export const StatisticCard: React.FC<CardProps> = ({ label, data }) => {
           flexDirection: 'row',
           alignItems: 'center',
           textAlign: 'center',
+          gap: {
+            xs: 0.25,
+            sm: 0.5,
+          },
         }}>
         <Typography
           sx={{
-            fontSize: '3rem',
+            fontSize: {
+              xs: '1.25rem',
+              sm: '2rem',
+              md: '3rem',
+            },
             fontWeight: 'medium',
             fontFamily: 'lato',
+            flexShrink: 0,
+            lineHeight: 1,
           }}>
           {data}
         </Typography>
@@ -41,12 +59,17 @@ export const StatisticCard: React.FC<CardProps> = ({ label, data }) => {
           variant={'h5'}
           color={'black'}
           sx={{
-            width: '100px',
-            fontSize: '1rem',
+            flex: 1,
+            minWidth: 0,
+            fontSize: {
+              xs: '0.65rem',
+              sm: '0.9rem',
+              md: '1rem',
+            },
             fontWeight: 'bold',
             textTransform: 'uppercase',
-            marginX: 'auto',
             fontFamily: 'lato',
+            lineHeight: 1.1,
           }}>
           {label}
         </Typography>
