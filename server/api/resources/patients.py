@@ -21,6 +21,7 @@ from data import orm_serializer
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
+    DeletedPatientOrm,
     FormTemplateOrmV2,
     PatientOrm,
     PregnancyOrm,
@@ -549,5 +550,17 @@ def delete_patient(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
+
+    # Record the deletion so sync can tell mobile devices to remove this patient.
+    # Not committed on its own: crud.delete() below commits both changes together.
+    current_user = user_utils.get_current_user_from_jwt()
+    crud.merge(
+        DeletedPatientOrm(
+            patient_id=patient.id,
+            deleted_at=get_current_time(),
+            deleted_by=current_user["id"],
+        ),
+        autocommit=False,
+    )
     crud.delete(patient)
     return Response(status=200)
