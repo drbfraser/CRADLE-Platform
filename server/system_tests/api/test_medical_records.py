@@ -89,10 +89,8 @@ def test_post_and_delete_record(
     api_delete,
 ):
     create_patient()
-    record_id = medical_record["id"]
 
     record = {
-        "id": record_id,
         "patient_id": medical_record["patient_id"],
         "information": medical_record["information"],
         "is_drug_record": False,
@@ -106,6 +104,7 @@ def test_post_and_delete_record(
     pretty_print(response_body)
     assert response.status_code == 201
 
+    record_id = response_body["id"]
     new_record = crud.read(MedicalRecordOrm, id=record_id)
     assert new_record is not None
     assert new_record.patient_id == patient_id
@@ -189,28 +188,3 @@ def test_invalid_record_not_created(
     response_body = decamelize(response.json())
     pretty_print(response_body)
     assert response.status_code == 422
-
-
-def test_record_conflict_not_created(
-    create_patient,
-    medical_record_factory,
-    patient_id,
-    drug_record,
-    api_post,
-):
-    create_patient()
-    medical_record_factory.create(**drug_record)
-
-    response = api_post(
-        endpoint=f"/api/patients/{patient_id}/medical_records",
-        json={
-            "id": drug_record["id"],
-            "patient_id": drug_record["patient_id"],
-            "information": "Aspirin 75mg",
-            "is_drug_record": True,
-        },
-    )
-
-    response_body = decamelize(response.json())
-    pretty_print(response_body)
-    assert response.status_code == 409

@@ -10,7 +10,26 @@ from validation.readings import ReadingWithUrineTest
 from validation.referrals import CreateReferralRequest, ReferralResponse
 
 
-class PatientModel(CradleBaseModel):
+class PatientBase(CradleBaseModel):
+    name: str
+    sex: SexEnum
+    date_of_birth: str
+    is_exact_date_of_birth: bool
+    is_pregnant: Optional[bool] = False
+    household_number: Optional[str] = None
+    zone: Optional[str] = None
+    village_number: Optional[str] = None
+
+    @field_validator("date_of_birth", mode="before")
+    @classmethod
+    def validate_date_format(cls, date_of_birth):
+        """Raise if date_of_birth is not in YYYY-MM-DD format."""
+        if date_of_birth and not is_correct_date_format(date_of_birth):
+            raise ValueError("date_of_birth is not in the required YYYY-MM-DD format.")
+        return date_of_birth
+
+
+class PatientModel(PatientBase):
     """
     {
         "id": "123456",
@@ -31,26 +50,10 @@ class PatientModel(CradleBaseModel):
     """
 
     id: Optional[str] = None
-    name: str
-    sex: SexEnum
-    date_of_birth: str
-    is_exact_date_of_birth: bool
-    is_pregnant: Optional[bool] = False
-    household_number: Optional[str] = None
-    zone: Optional[str] = None
-    village_number: Optional[str] = None
     is_archived: Optional[bool] = None
     last_edited: Optional[int] = None
     date_created: Optional[int] = None
     base: Optional[int] = None
-
-    @field_validator("date_of_birth", mode="before")
-    @classmethod
-    def validate_date_format(cls, date_of_birth):
-        """Raise if date_of_birth is not in YYYY-MM-DD format."""
-        if date_of_birth and not is_correct_date_format(date_of_birth):
-            raise ValueError("date_of_birth is not in the required YYYY-MM-DD format.")
-        return date_of_birth
 
 
 class PatientWithPregnancy(PatientModel):
@@ -68,13 +71,14 @@ class PatientWithHistory(PatientWithPregnancy):
     drug_last_edited: Optional[int] = None
 
 
-class UpdatePatientRequestBody(PatientModel, extra="forbid"):
+class UpdatePatientRequestBody(PatientBase):
     """Request Body for Update Patient Endpoint"""
 
     medical_history: Optional[str] = None
     drug_history: Optional[str] = None
     allergy: Optional[str] = None
     last_edited: int = Field(default_factory=get_current_time)
+    base: Optional[int] = None
 
 
 def is_correct_date_format(s: Any) -> bool:
@@ -91,16 +95,22 @@ def is_correct_date_format(s: Any) -> bool:
         return False
 
 
-class NestedPatient(PatientWithHistory):
+class PatientWithRecordsResponse(PatientWithHistory):
     readings: list[ReadingWithUrineTest] = []
     referrals: list[ReferralResponse] = []
     medical_history_id: Optional[str] = None
     drug_history_id: Optional[str] = None
 
 
-class CreatePatientRequest(NestedPatient):
+class CreatePatientRequest(PatientBase):
+    id: Optional[str] = None
+    pregnancy_start_date: Optional[int] = None
+    drug_history: Optional[str] = None
+    medical_history: Optional[str] = None
+    allergy: Optional[str] = None
+    readings: list[ReadingWithUrineTest] = []
     referrals: list[CreateReferralRequest] = []
 
 
-class NestedPatientList(RootModel):
-    root: list[NestedPatient]
+class PatientWithRecordsResponseList(RootModel):
+    root: list[PatientWithRecordsResponse]

@@ -1,8 +1,7 @@
 from typing import Optional
 
-from pydantic import Field, RootModel
+from pydantic import RootModel
 
-from common.commonUtil import get_current_time
 from validation import CradleBaseModel
 
 
@@ -32,13 +31,20 @@ class MedicalRecordExamples:
 
 
 # TODO: Separate DrugRecord and MedicalRecord into two different models.
-class MedicalRecordModel(CradleBaseModel, extra="forbid"):
-    id: Optional[int] = None
+class MedicalRecordBase(CradleBaseModel):
     patient_id: str
     information: str
-    date_created: Optional[int] = Field(default_factory=get_current_time)
-    last_edited: Optional[int] = Field(default_factory=get_current_time)
     is_drug_record: bool
+
+
+class MedicalRecordRequest(MedicalRecordBase):
+    pass
+
+
+class MedicalRecordResponse(MedicalRecordBase):
+    id: Optional[int] = None
+    date_created: Optional[int] = None
+    last_edited: Optional[int] = None
 
     model_config = dict(
         openapi_extras={
@@ -62,4 +68,4 @@ class DrugHistory(CradleBaseModel):
 
 
 class MedicalRecordList(RootModel):
-    root: list[MedicalRecordModel]
+    root: list[MedicalRecordResponse]

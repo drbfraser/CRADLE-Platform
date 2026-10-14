@@ -13,7 +13,8 @@ from models import PregnancyOrm
 from service import view
 from validation.pregnancies import (
     PregnancyList,
-    PregnancyModel,
+    PregnancyRequest,
+    PregnancyResponse,
 )
 
 
@@ -28,18 +29,12 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
-@api_patients.post("/<string:patient_id>/pregnancies", responses={200: PregnancyModel})
-def create_new_pregnancy(path: PatientIdPath, body: PregnancyModel):
+@api_patients.post(
+    "/<string:patient_id>/pregnancies", responses={200: PregnancyResponse}
+)
+def create_new_pregnancy(path: PatientIdPath, body: PregnancyRequest):
     """Create New Pregnancy"""
     require_patient_access(path.patient_id)
-    if body.id is not None:
-        pregnancy_id = body.id
-        if crud.read(PregnancyOrm, id=pregnancy_id):
-            return abort(
-                409,
-                description=f"A pregnancy record with ID {pregnancy_id} already exists.",
-            )
-
     _check_conflicts(body.start_date, body.end_date, path.patient_id)
 
     body.patient_id = path.patient_id
@@ -59,7 +54,7 @@ api_pregnancies = APIBlueprint(
 
 
 # /api/pregnancies/<string:pregnancy_id> [GET]
-@api_pregnancies.get("/<string:pregnancy_id>", responses={200: PregnancyModel})
+@api_pregnancies.get("/<string:pregnancy_id>", responses={200: PregnancyResponse})
 def get_pregnancy(path: PregnancyIdPath):
     """Get Pregnancy"""
     pregnancy = load_authorized_patient_resource(PregnancyOrm, path.pregnancy_id)
@@ -67,13 +62,10 @@ def get_pregnancy(path: PregnancyIdPath):
 
 
 # /api/pregnancies/<string:pregnancy_id> [PUT]
-@api_pregnancies.put("/<string:pregnancy_id>", responses={200: PregnancyModel})
-def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
+@api_pregnancies.put("/<string:pregnancy_id>", responses={200: PregnancyResponse})
+def update_pregnancy(path: PregnancyIdPath, body: PregnancyRequest):
     """Update Pregnancy"""
     pregnancy = load_authorized_patient_resource(PregnancyOrm, path.pregnancy_id)
-    pregnancy_model_dump = body.model_dump()
-    pregnancy_model_dump["id"] = path.pregnancy_id
-
     if body.patient_id != pregnancy.patient_id:
         return abort(400, description="Patient ID cannot be changed.")
 
@@ -81,7 +73,7 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
         body.start_date, body.end_date, pregnancy.patient_id, path.pregnancy_id
     )
 
-    crud.update(PregnancyOrm, pregnancy_model_dump, id=path.pregnancy_id)
+    crud.update(PregnancyOrm, body.model_dump(), id=path.pregnancy_id)
     new_pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
 
     return orm_serializer.marshal(new_pregnancy)
