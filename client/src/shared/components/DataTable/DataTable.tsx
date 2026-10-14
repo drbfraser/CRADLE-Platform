@@ -202,6 +202,7 @@ export const DataTable = ({
               sm: '0.875rem',
               md: '1rem',
             },
+            p: 0.8,
             whiteSpace: 'normal',
             display: 'flex',
             alignItems: 'center',
