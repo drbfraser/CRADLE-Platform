@@ -181,8 +181,8 @@ export const DataTable = ({
               xs: '0.75rem',
               sm: '0.875rem',
               md: '1rem',
-              lg: '1.125rem',
             },
+            whiteSpace: 'normal',
           },
           '& .row-archived': {
             backgroundColor: ARCHIVED_ROW_COLOR,
