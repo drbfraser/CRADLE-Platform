@@ -145,6 +145,7 @@ export const DataTable = ({
         onRowClick={onRowClick}
         disableVirtualization={disableVirtualization}
         hideFooterPagination={disablePagination}
+        getRowHeight={() => 'auto'}
         pageSizeOptions={disablePagination ? [pageSize] : [10, 25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize } },
@@ -175,6 +176,14 @@ export const DataTable = ({
             borderBottom: '1px solid',
             borderColor: DATA_TABLE_BORDER_COLOR,
           },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontSize: {
+              xs: '0.75rem',
+              sm: '0.875rem',
+              md: '1rem',
+              lg: '1.125rem',
+            },
+          },
           '& .row-archived': {
             backgroundColor: ARCHIVED_ROW_COLOR,
           },
@@ -186,6 +195,16 @@ export const DataTable = ({
           },
           '& .row-archived.Mui-selected:hover': {
             backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
+          },
+          '& .MuiDataGrid-cell': {
+            fontSize: {
+              xs: '0.75rem',
+              sm: '0.875rem',
+              md: '1rem',
+            },
+            whiteSpace: 'normal',
+            display: 'flex',
+            alignItems: 'center',
           },
           '& .MuiDataGrid-cell:focus': {
             outline: 'none',

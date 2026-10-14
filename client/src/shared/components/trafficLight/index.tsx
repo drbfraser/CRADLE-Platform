@@ -14,11 +14,11 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const TRAFFIC_LIGHT_PROPS = {
-  height: '30px',
-  width: '30px',
+  width: 'clamp(20px, 3vw, 30px)',
+  height: 'clamp(20px, 3vw, 30px)',
 };
 const trafficLightArrowSx: SxProps<Theme> = (theme) => ({
-  fontSize: theme.spacing(5),
+  fontSize: 'clamp(20px, 4vw, 40px)',
 });
 
 export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
@@ -83,7 +83,9 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
           return (
             <Typography
               variant="h5"
-              style={{ height: '60px', lineHeight: '60px' }}>
+              sx={{
+                fontSize: 'clamp(0.875rem, 2vw, 1.5rem)',
+              }}>
               N/A
             </Typography>
           );
