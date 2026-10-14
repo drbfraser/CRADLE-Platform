@@ -268,11 +268,11 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
               }}>
               <SouthEastIcon sx={{ fontSize: 40, opacity: 0.45 }} />
               <Typography variant="body2" color="text.secondary">
-                Drag compare blocks here to build your condition
+                Drag blocks here to build your condition
               </Typography>
               <Typography variant="caption" color="text.disabled">
-                Drop multiple comparisons, connect them with AND/OR from Logic
-                Compare, then save once everything is linked
+                Use Comparisons and Logic to define rules, and Variables or
+                Values to provide inputs
               </Typography>
             </Box>
           </Box>
