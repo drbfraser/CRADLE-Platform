@@ -118,6 +118,10 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
         try:
             server_patient = crud.read(PatientOrm, id=patient_id)
             if server_patient is None:
+                if crud.read(DeletedPatientOrm, patient_id=patient_id) is not None:
+                    # Deleted on the server: don't re-create it from the device's copy.
+                    # The device removes it when it gets this ID in deleted_patient_ids.
+                    continue
                 """
                 TODO: Why are these functions called `deserialize`?
                 TODO: Why aren't the marshal/unmarshal functions being used??
