@@ -131,10 +131,8 @@ def test_post_and_delete_pregnancy(
     api_delete,
 ):
     create_patient()
-    pregnancy_id = pregnancy_later["id"]
 
     pregnancy = {
-        "id": pregnancy_id,
         "patient_id": patient_id,
         "start_date": pregnancy_later["start_date"],
     }
@@ -143,12 +141,12 @@ def test_post_and_delete_pregnancy(
         json=pregnancy,
     )
 
-    new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
-
     response_body = decamelize(response.json())
     print(response_body)
 
     assert response.status_code == 201
+    pregnancy_id = response_body["id"]
+    new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
     assert new_pregnancy is not None
     assert new_pregnancy.patient_id == patient_id
     assert new_pregnancy.start_date == pregnancy_later["start_date"]
@@ -264,23 +262,6 @@ def test_invalid_pregnancy_not_created(
 ):
     create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
-
-    start_date = pregnancy_earlier["end_date"] + approx_1_month
-    pregnancy = {
-        "id": pregnancy_earlier["id"],
-        "patient_id": patient_id,
-        "start_date": start_date,
-    }
-    response = api_post(
-        endpoint=f"/api/patients/{patient_id}/pregnancies",
-        json=pregnancy,
-    )
-
-    response_body = decamelize(response.json())
-    print(response_body)
-
-    assert response.status_code == 409
-    assert crud.read(PregnancyOrm, patient_id=patient_id, start_date=start_date) is None
 
     start_date = pregnancy_earlier["end_date"] - approx_1_month
     pregnancy = {

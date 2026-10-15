@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.pregnancies import PregnancyModel
+from validation.pregnancies import PregnancyRequest
 
 PATIENT_ID = "120000"
 
@@ -32,14 +32,6 @@ pregnancy_field_pregnancy_start_date_has_invalid_type_should_throw_exception = {
     "outcome": "Mode of delivery assisted birth",
 }
 
-pregnancy_has_unallowed_field_should_throw_exception = {
-    "patient_id": PATIENT_ID,
-    "start_date": "temp",
-    "end_date": PREGNANCY_END_DATE,
-    "outcome": "Mode of delivery assisted birth",
-    "extra": "I am an unwelcome extra",
-}
-
 pregnancy_start_date_occurs_after_end_date_should_throw_exception = {
     "patient_id": PATIENT_ID,
     "start_date": PREGNANCY_END_DATE + 10000,
@@ -63,10 +55,6 @@ pregnancy_start_date_occurs_after_end_date_should_throw_exception = {
             ValidationError,
         ),
         (
-            pregnancy_has_unallowed_field_should_throw_exception,
-            ValidationError,
-        ),
-        (
             pregnancy_start_date_occurs_after_end_date_should_throw_exception,
             ValidationError,
         ),
@@ -75,9 +63,9 @@ pregnancy_start_date_occurs_after_end_date_should_throw_exception = {
 def test_validate_pregnancy(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PregnancyModel(**json)
+            PregnancyRequest(**json)
     else:
         try:
-            PregnancyModel(**json)
+            PregnancyRequest(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

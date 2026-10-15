@@ -21,7 +21,8 @@ from validation.medicalRecords import (
     DrugHistory,
     MedicalRecordExamples,
     MedicalRecordList,
-    MedicalRecordModel,
+    MedicalRecordRequest,
+    MedicalRecordResponse,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -66,17 +67,11 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 @api_patients.post(
     "/<string:patient_id>/medical_records",
     tags=[medical_records_tag],
-    responses={201: MedicalRecordModel},
+    responses={201: MedicalRecordResponse},
 )
-def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
+def create_medical_record(path: PatientIdPath, body: MedicalRecordRequest):
     """Create Medical Record"""
     require_patient_access(path.patient_id)
-    if body.id is not None:
-        if crud.read(MedicalRecordOrm, id=body.id) is not None:
-            return abort(
-                409,
-                description=f"A medical record with ID {body.id} already exists.",
-            )
     if body.patient_id is not None:
         if body.patient_id != path.patient_id:
             return abort(400, description="Patient IDs must match.")
@@ -94,7 +89,7 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
 @api_patients.put(
     "/<string:patient_id>/drug_history",
     tags=[medical_records_tag],
-    responses={200: MedicalRecordModel},
+    responses={200: MedicalRecordResponse},
 )
 def update_patient_drug_history(path: PatientIdPath, body: DrugHistory):
     """Update Patient Drug History"""
@@ -120,7 +115,7 @@ api_medical_records = APIBlueprint(
 
 
 # /api/medical_records/<string:record_id> [GET]
-@api_medical_records.get("/<string:record_id>", responses={200: MedicalRecordModel})
+@api_medical_records.get("/<string:record_id>", responses={200: MedicalRecordResponse})
 def get_medical_record(path: RecordIdPath):
     """Get Medical Record"""
     record = load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
@@ -128,8 +123,8 @@ def get_medical_record(path: RecordIdPath):
 
 
 # /api/medical_records/<string:record_id> [PUT]
-@api_medical_records.put("/<string:record_id>", responses={200: MedicalRecordModel})
-def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
+@api_medical_records.put("/<string:record_id>", responses={200: MedicalRecordResponse})
+def update_medical_record(path: RecordIdPath, body: MedicalRecordRequest):
     """Update Medical Record"""
     old_record = load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
     update_medical_record = body.model_dump()

@@ -34,11 +34,11 @@ from validation.assessments import AssessmentPostBody
 from validation.forms import FormList
 from validation.patients import (
     CreatePatientRequest,
-    NestedPatient,
     PatientModel,
+    PatientWithRecordsResponse,
     UpdatePatientRequestBody,
 )
-from validation.pregnancies import PregnancyModel
+from validation.pregnancies import PregnancyResponse
 from validation.readings import ReadingList, ReadingModel
 from validation.referrals import ReferralList
 from validation.stats import PatientStats
@@ -89,7 +89,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 
 # /api/patients [POST]
-@api_patients.post("", responses={201: NestedPatient})
+@api_patients.post("", responses={201: PatientWithRecordsResponse})
 def create_patient(body: CreatePatientRequest):
     """Create New Patient"""
     current_user = user_utils.get_current_user_from_jwt()
@@ -130,7 +130,7 @@ def create_patient(body: CreatePatientRequest):
 
 
 # /api/patients/<string:patient_id> [GET]
-@api_patients.get("/<string:patient_id>", responses={200: NestedPatient})
+@api_patients.get("/<string:patient_id>", responses={200: PatientWithRecordsResponse})
 def get_patient(path: PatientIdPath):
     """
     Get Patient
@@ -347,7 +347,7 @@ def get_patient_forms(path: PatientIdPath):
 
 class PatientPregnancySummary(CradleBaseModel):
     is_pregnant: bool
-    past_pregnancies: list[PregnancyModel]
+    past_pregnancies: list[PregnancyResponse]
 
 
 # /api/patients/<string:patient_id>/pregnancy_summary [GET]
