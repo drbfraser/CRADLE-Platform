@@ -177,7 +177,6 @@ def deserialize_patient(
         "village_number": patient_data.get("village_number"),
         "household_number": patient_data.get("household_number"),
         "allergy": patient_data.get("allergy"),
-        "is_archived": patient_data.get("is_archived"),
     }
     if partial:
         if err := schema().validate(d, partial=True):
@@ -185,6 +184,7 @@ def deserialize_patient(
         return d
 
     patient = schema().load(d)
+    patient.is_archived = False
     if shallow:
         return patient
 
