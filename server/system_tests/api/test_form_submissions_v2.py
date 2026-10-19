@@ -312,6 +312,73 @@ def test_patch_string_too_long(
     )
 
 
+def test_patch_validates_answer_against_stored_question(
+    create_patient,
+    api_patch,
+    form_v2_resources,
+):
+    name_question = {
+        "question_type": QuestionTypeEnum.STRING.value,
+        "order": 2,
+        "required": True,
+        "question_text": {"english": "What is your name?"},
+        "string_max_length": 10,
+        "category_index": 0,
+        "user_question_id": "patient_name",
+        "mc_options": [],
+    }
+    notes_question = {
+        "question_type": QuestionTypeEnum.STRING.value,
+        "order": 3,
+        "required": False,
+        "question_text": {"english": "Notes"},
+        "category_index": 0,
+        "user_question_id": "notes",
+        "mc_options": [],
+    }
+
+    create_patient()
+    bundle = form_v2_resources.create_template(
+        extra_questions=[name_question, notes_question]
+    )
+    template = bundle["template"]
+    name_question_orm = _question_by_order(template, 2)
+    notes_question_orm = _question_by_order(template, 3)
+
+    submission = form_v2_resources.create_submission(
+        bundle,
+        extra_answers=[
+            {
+                "question_id": name_question_orm.id,
+                "answer": {"text": "Valid name"},
+            }
+        ],
+    )
+    submission_id = submission["id"]
+    original_state = _saved_submission_state(submission_id)
+    name_answer_id = next(
+        answer.id
+        for answer in crud.read(FormSubmissionOrmV2, id=submission_id).answers
+        if answer.question_id == name_question_orm.id
+    )
+
+    patch_response = api_patch(
+        f"/api/forms/v2/submissions/{submission_id}",
+        json={
+            "answers": [
+                {
+                    "id": name_answer_id,
+                    "question_id": notes_question_orm.id,
+                    "answer": {"text": "this name is definitely too long"},
+                }
+            ]
+        },
+    )
+
+    assert patch_response.status_code == 422
+    assert _saved_submission_state(submission_id) == original_state
+
+
 def test_get_submission_resolves_mc_labels(
     create_patient,
     api_get,
@@ -378,7 +445,7 @@ def test_create_form_submission_v2(
     assert actual["number"] == 90
 
 
-def test_create_form_submission_v2_records_caller_as_submitter(
+def test_create_form_submission_v2_keeps_client_id_and_sets_server_owned_fields(
     create_patient,
     database,
     api_post,
@@ -392,7 +459,12 @@ def test_create_form_submission_v2_records_caller_as_submitter(
         template_id=bundle["body"]["id"],
         template_question_id=_question_by_order(bundle["template"], 1).id,
     )
+    sent_submission_id = get_uuid()
+    sent_answer_id = get_uuid()
+    submission_payload["id"] = sent_submission_id
     submission_payload["user_id"] = vht_user_id
+    submission_payload["answers"][0]["id"] = sent_answer_id
+    submission_payload["answers"][0]["form_submission_id"] = get_uuid()
 
     response = api_post("/api/forms/v2/submissions", json=submission_payload)
     assert response.status_code == 201
@@ -402,7 +474,10 @@ def test_create_form_submission_v2_records_caller_as_submitter(
     database.session.commit()
     caller = crud.read(UserOrm, email="admin@email.com")
     submission_obj = crud.read(FormSubmissionOrmV2, id=submission_id)
+    assert submission_id == sent_submission_id
     assert submission_obj.user_id == caller.id
+    assert submission_obj.answers[0].id != sent_answer_id
+    assert submission_obj.answers[0].form_submission_id == submission_id
 
 
 def test_get_form_submission_v2(create_patient, api_get, form_v2_resources):
