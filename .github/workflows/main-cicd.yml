@@ -56,7 +56,7 @@ jobs:
         run: tar -czvf ../frontend.tar.gz .
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client/build
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-artifact
           path: ${{ env.CUSTOM_WORKSPACE }}/client/frontend.tar.gz
@@ -119,12 +119,12 @@ jobs:
         run: python -m pytest --junitxml=report.xml --cov --cov-report=html:coverage_report --cov-report=term-missing tests
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Upload Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unit_test_results
           path: /isolated-build/repo/server/report.xml
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage_report
           path: /isolated-build/repo/server/coverage_report/
@@ -188,7 +188,7 @@ jobs:
         run: python -m pytest --junitxml=report.xml system_tests
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Upload Test Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: system_test_results
           path: ${{ env.CUSTOM_WORKSPACE }}/server/report.xml
@@ -336,7 +336,7 @@ jobs:
           PORT: '3000'
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Upload Playwright Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
@@ -420,7 +420,7 @@ jobs:
         with:
           fetch-depth: 50
       - name: Get build products
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: frontend-artifact
       # FAKE BUILD: To make build faster for testing, comment out above and use this instead.
