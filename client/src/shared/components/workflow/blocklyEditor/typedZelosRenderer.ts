@@ -31,14 +31,14 @@ class TypedConstantProvider extends Blockly.zelos.ConstantProvider {
 
     const checkList = checks ? (Array.isArray(checks) ? checks : [checks]) : [];
 
-    if (checkList.includes('Boolean')) {
+    if (checkList.includes('Condition')) {
       return this.HEXAGONAL!;
     }
     if (checkList.includes('Number')) {
       return this.ROUNDED!;
     }
     if (checkList.includes('String')) {
-      return this.SQUARED!;
+      return this.ROUNDED!;
     }
     if (checkList.includes('Date')) {
       return this.ROUNDED!;

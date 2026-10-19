@@ -5,6 +5,7 @@ const CONDITION_ROOT_BLOCK_TYPES = new Set([
   'date_comparison',
   'string_comparison',
   'boolean_comparison',
+  'generic_comparison',
   'logic_op',
   'logic_negate',
   'string_op',

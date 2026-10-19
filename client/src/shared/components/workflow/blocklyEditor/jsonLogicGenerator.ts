@@ -56,6 +56,7 @@ for (const blockType of [
   'date_comparison',
   'string_comparison',
   'boolean_comparison',
+  'generic_comparison',
 ]) {
   jsonLogicGenerator.forBlock[blockType] = function (block) {
     return generateComparison(block, 'LEFT', 'RIGHT');

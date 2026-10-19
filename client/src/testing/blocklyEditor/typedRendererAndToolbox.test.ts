@@ -19,7 +19,7 @@ describe('typedZelosRenderer', () => {
 });
 
 describe('buildToolboxConfig', () => {
-  it('groups variables by source with per-type blocks inside each group', () => {
+  it('shows one generic "<Source> info" category per source under Variables', () => {
     type ToolboxItem = {
       name?: string;
       type?: string;
@@ -31,24 +31,13 @@ describe('buildToolboxConfig', () => {
 
     const variables = categories.find((c) => c.name == 'Variables')?.contents;
 
-    const patient = variables?.find((c) => c.name === 'Patient');
-    const forms = variables?.find((c) => c.name === 'Form Questions');
-
-    const patientNumber = patient?.contents?.find(
-      (c) => c.name === 'Number Variables'
-    );
-    const patientDate = patient?.contents?.find(
-      (c) => c.name === 'Date Variables'
-    );
-    const formString = forms?.contents?.find(
-      (c) => c.name === 'String Variables'
-    );
-
-    expect(patientNumber?.contents?.[0]?.type).toBe(
-      'app_variable_patient_Number'
-    );
-    expect(patientDate?.contents?.[0]?.type).toBe('app_variable_patient_Date');
-    expect(formString?.contents?.[0]?.type).toBe('app_variable_forms_String');
+    expect(variables?.map((c) => c.name)).toEqual([
+      'Patient info',
+      'Form Questions info',
+    ]);
+    expect(variables?.[0]?.contents?.[0]?.type).toBe('app_variable_patient');
+    expect(variables?.[1]?.contents?.[0]?.type).toBe('app_variable_forms');
+    expect(variables?.[0]?.contents).toHaveLength(1)
   });
 
   it('puts every comparison and logic block inside one Comparisons and Logic category', () => {
@@ -68,10 +57,11 @@ describe('buildToolboxConfig', () => {
     const blockTypes = comparisonsAndLogic?.contents.map((c) => c.type);
     expect(blockTypes).toContain('logic_op');
     expect(blockTypes).toContain('logic_negate');
-    expect(blockTypes).toContain('number_comparison');
-    expect(blockTypes).toContain('date_comparison');
-    expect(blockTypes).toContain('string_comparison');
-    expect(blockTypes).toContain('boolean_comparison');
+    expect(blockTypes).not.toContain('number_comparison');
+    expect(blockTypes).not.toContain('date_comparison');
+    expect(blockTypes).not.toContain('string_comparison');
+    expect(blockTypes).not.toContain('boolean_comparison');
+    expect(blockTypes).toContain('generic_comparison');
     expect(blockTypes).toContain('string_op');
 
     // Old type-based and split task-based categories shouldn't reappear
@@ -105,10 +95,11 @@ describe('buildToolboxConfig', () => {
     const blockTypes = comparisonsAndLogic?.contents?.map((c) => c.type);
     expect(blockTypes).toContain('logic_op');
     expect(blockTypes).toContain('logic_negate');
-    expect(blockTypes).toContain('number_comparison');
-    expect(blockTypes).toContain('date_comparison');
-    expect(blockTypes).toContain('string_comparison');
-    expect(blockTypes).toContain('boolean_comparison');
+    expect(blockTypes).not.toContain('number_comparison');
+    expect(blockTypes).not.toContain('date_comparison');
+    expect(blockTypes).not.toContain('string_comparison');
+    expect(blockTypes).not.toContain('boolean_comparison');
+    expect(blockTypes).toContain('generic_comparison');
     expect(blockTypes).toContain('string_op');
   });
 });

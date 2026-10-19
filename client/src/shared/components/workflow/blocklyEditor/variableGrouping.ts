@@ -66,6 +66,10 @@ export function variableBlockType(sourceKey: string, bType: string): string {
   return `app_variable_${sourceKey}_${bType}`;
 }
 
+export function genericVariableBlockType(sourceKey: string): string {
+  return `app_variable_${sourceKey}`;
+}
+
 export function groupVariablesBySource(
   variables: WorkflowVariable[]
 ): Map<string, WorkflowVariable[]> {

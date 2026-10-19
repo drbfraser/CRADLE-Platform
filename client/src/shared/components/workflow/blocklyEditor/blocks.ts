@@ -3,6 +3,7 @@ import { WorkflowVariable } from 'src/shared/api';
 import { DATE_OUTPUT_SHAPE } from './typedZelosRenderer';
 import { ensureVariableBlockGenerator } from './jsonLogicGenerator';
 import {
+  genericVariableBlockType,
   groupVariablesBySource,
   sortedSourceKeys,
   variableBlockType,
@@ -87,10 +88,88 @@ function defineComparisonBlock(
       this.appendDummyInput().appendField(new Blockly.FieldDropdown(ops), 'OP');
       this.appendValueInput('RIGHT').setCheck(typeCheck);
       this.setInputsInline(true);
-      this.setOutput(true, 'Boolean');
+      this.setOutput(true, CONDITION_TYPE);
       this.setColour(colour);
     },
   };
+}
+
+const ORDERED_TYPES = new Set(['Number', 'Date']);
+const GENERIC_COMPARE_COLOUR = 120;
+
+/** Output type of blocks that produce a whole condition (compare, AND/OR, NOT, text check) */
+const CONDITION_TYPE = 'Condition';
+/** Plain values a compare can take; conditions are deliberately excluded */
+const COMPARABLE_TYPES = ['Number', 'String', 'Boolean', 'Date'];
+/** AND / OR / NOT take conditions, plus true/false values (e.g. a boolean variable on its own) */
+const CONDITION_INPUT_TYPES = ['Boolean', CONDITION_TYPE];
+
+/**
+ * Returns a block's output type if it has exactly one type; otherwise returns null
+ */
+function outputTypeOf(block: Blockly.Block | null): string | null {
+  const check = block?.outputConnection?.getCheck();
+  if (!check || check.length !== 1) return null;
+  return check[0];
+}
+
+/**
+ * Determines the comparison type from connected inputs. (Left wins if both are present)
+ */
+export function genericCompareType(block: Blockly.Block): string | null {
+  return (
+    outputTypeOf(block.getInputTargetBlock('LEFT')) ??
+    outputTypeOf(block.getInputTargetBlock('RIGHT'))
+  );
+}
+
+function genericCompareOps(type: string | null): [string, string][] {
+  if (type === 'Date') return DATE_COMPARISON_OPS;
+  if (type === null || ORDERED_TYPES.has(type)) return NUMBER_COMPARISON_OPS;
+  return EQUALITY_OPS;
+}
+
+/**
+ * Updates an input's accepted types when necessary
+ */
+function setCheckIfChanged(input: Blockly.Input | null, type: string | null) {
+  const connection = input?.connection;
+  if (!connection) return;
+  const current = connection.getCheck();
+  const next = type ? [type] : COMPARABLE_TYPES;
+  if (JSON.stringify(current) === JSON.stringify(next)) return;
+  connection.setCheck(next);
+}
+
+/**
+ * Keeps both comparison inputs type-compatible
+ * Updates the available operators and block colour
+ */
+export function syncGenericCompareTypes(block: Blockly.Block): void {
+  const leftType = outputTypeOf(block.getInputTargetBlock('LEFT'));
+  const rightType = outputTypeOf(block.getInputTargetBlock('RIGHT'));
+
+  if (leftType) {
+    setCheckIfChanged(block.getInput('LEFT'), null);
+    setCheckIfChanged(block.getInput('RIGHT'), leftType);
+  } else if (rightType) {
+    setCheckIfChanged(block.getInput('LEFT'), rightType);
+    setCheckIfChanged(block.getInput('RIGHT'), null);
+  } else {
+    setCheckIfChanged(block.getInput('LEFT'), null);
+    setCheckIfChanged(block.getInput('RIGHT'), null);
+  }
+
+  const type = genericCompareType(block);
+  const allowedOps = genericCompareOps(type).map(([, value]) => value);
+  if (!allowedOps.includes(block.getFieldValue('OP'))) {
+    block.setFieldValue('==', 'OP');
+  }
+  block.setColour(
+    type
+      ? (TYPE_COLOURS[type] ?? GENERIC_COMPARE_COLOUR)
+      : GENERIC_COMPARE_COLOUR
+  );
 }
 
 function updateStringOpShape(block: Blockly.Block): void {
@@ -123,8 +202,51 @@ function updateStringOpShape(block: Blockly.Block): void {
         .appendDummyInput('CASE')
         .appendField(new Blockly.FieldDropdown(CASE_OPTIONS), 'CASE');
     }
-    block.setOutput(true, 'Boolean');
+    block.setOutput(true, CONDITION_TYPE);
   }
+}
+
+function applyVariableType(block: Blockly.Block, bType: string): void {
+  if (outputTypeOf(block) !== bType) {
+    block.setOutput(true, bType);
+  }
+  block.setOutputShape(bType === 'Date' ? DATE_OUTPUT_SHAPE : null);
+  block.setColour(TYPE_COLOURS[bType]);
+}
+
+function defineGenericVariableBlock(
+  sourceKey: string,
+  sourceVars: WorkflowVariable[]
+): void {
+  const tagToType = new Map<string, string>();
+  const options: [string, string][] = [];
+  for (const v of sourceVars) {
+    const bType = blocklyTypeFromVariableType(v.type);
+    if (!bType) continue;
+    tagToType.set(v.tag, bType);
+    options.push([variableDisplayName(v), v.tag]);
+  }
+  if (options.length === 0) return;
+
+  const blockName = genericVariableBlockType(sourceKey);
+  ensureVariableBlockGenerator(blockName);
+
+  Blockly.Blocks[blockName] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput().appendField(
+        new Blockly.FieldDropdown(options, (tag: string) => {
+          const bType = tagToType.get(tag);
+          if (bType) applyVariableType(this, bType);
+          return tag;
+        }),
+        'VAR_NAME'
+      );
+      applyVariableType(this, tagToType.get(options[0][1])!);
+      this.setTooltip(
+        "Pick any variable. The block takes on that variable's type."
+      );
+    },
+  };
 }
 
 export function registerBlocks(variables: WorkflowVariable[]): void {
@@ -132,6 +254,8 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   for (const sourceKey of sortedSourceKeys(sourceGroups)) {
     const sourceVars = sourceGroups.get(sourceKey)!;
+    defineGenericVariableBlock(sourceKey, sourceVars);
+
     const byType: Record<string, [string, string][]> = {
       Number: [],
       String: [],
@@ -198,6 +322,38 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
     TYPE_COLOURS.Boolean
   );
 
+  Blockly.Blocks['generic_comparison'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput('TYPE_LABEL').appendField('COMPARE');
+      this.appendValueInput('LEFT').setCheck(COMPARABLE_TYPES);
+      this.appendDummyInput().appendField(
+        new Blockly.FieldDropdown(function (this: Blockly.FieldDropdown) {
+          const source = this.getSourceBlock();
+          return genericCompareOps(source ? genericCompareType(source) : null);
+        }),
+        'OP'
+      );
+      this.appendValueInput('RIGHT').setCheck(COMPARABLE_TYPES);
+      this.setInputsInline(true);
+      this.setOutput(true, CONDITION_TYPE);
+      this.setColour(GENERIC_COMPARE_COLOUR);
+      this.setTooltip(
+        'Compare two values. Connect a block to either side and the other side will only accept the same type.'
+      );
+    },
+    onchange: function (this: Blockly.Block, event: Blockly.Events.Abstract) {
+      if (this.isInFlyout || this.isInsertionMarker()) return;
+      if (
+        event.type !== Blockly.Events.BLOCK_MOVE &&
+        event.type !== Blockly.Events.BLOCK_CREATE &&
+        event.type !== Blockly.Events.BLOCK_CHANGE
+      ) {
+        return;
+      }
+      syncGenericCompareTypes(this);
+    },
+  };
+
   // Placeholder block for variables removed from the form that are shown in red so
   // the user knows to delete or replace it before saving.
   Blockly.Blocks['app_variable_missing'] = {
@@ -215,7 +371,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   Blockly.Blocks['string_op'] = {
     init: function (this: Blockly.Block) {
-      this.appendDummyInput('TYPE_LABEL').appendField('text');
+      this.appendDummyInput('TYPE_LABEL').appendField('CHECK TEXT');
       this.appendValueInput('HAYSTACK').setCheck('String');
       this.appendDummyInput('OP_ROW').appendField(
         new Blockly.FieldDropdown(STRING_OP_OPTIONS, (value) => {
@@ -231,7 +387,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         new Blockly.FieldDropdown(CASE_OPTIONS),
         'CASE'
       );
-      this.setOutput(true, 'Boolean');
+      this.setOutput(true, CONDITION_TYPE);
       this.setColour(TYPE_COLOURS.String);
     },
     onchange: function (this: Blockly.Block) {
@@ -241,7 +397,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
   Blockly.Blocks['logic_op'] = {
     init: function (this: Blockly.Block) {
-      this.appendValueInput('A').setCheck('Boolean');
+      this.appendValueInput('A').setCheck(CONDITION_INPUT_TYPES);
       this.appendDummyInput().appendField(
         new Blockly.FieldDropdown([
           ['AND', 'and'],
@@ -249,17 +405,19 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         ]),
         'OP'
       );
-      this.appendValueInput('B').setCheck('Boolean');
+      this.appendValueInput('B').setCheck(CONDITION_INPUT_TYPES);
       this.setInputsInline(true);
-      this.setOutput(true, 'Boolean');
+      this.setOutput(true, CONDITION_TYPE);
       this.setColour(120);
     },
   };
 
   Blockly.Blocks['logic_negate'] = {
     init: function (this: Blockly.Block) {
-      this.appendValueInput('VALUE').setCheck('Boolean').appendField('NOT');
-      this.setOutput(true, 'Boolean');
+      this.appendValueInput('VALUE')
+        .setCheck(CONDITION_INPUT_TYPES)
+        .appendField('NOT');
+      this.setOutput(true, CONDITION_TYPE);
       this.setColour(120);
     },
   };
