@@ -76,6 +76,9 @@ def get_mobile_unit_tests(unit_test_files):
 
 def write_mobile_data(coverage, unit_tests):
     time = datetime.now()
+    last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
+    overall_coverage = round(
+        (coverage['branch'][0] + coverage['line'][0]) / (coverage['branch'][1] + coverage['line'][0]) * 100, 1)
     data = {
         "mobile": {
             "total": unit_tests["ran"],
@@ -87,9 +90,9 @@ def write_mobile_data(coverage, unit_tests):
                 ['Branch', coverage['branch'][0], coverage['branch'][1]], 
                 ['Line', coverage['line'][0], coverage['line'][1]]
             ],
-            "overall": round((coverage['branch'][0] / coverage['branch'][1]) * 100, 1),
+            "overall": overall_coverage,
         },
-        "lastUpdated": time.strftime("%Y-%m-%d %H:%M:%S")
+        "lastUpdated": last_updated 
     }
 
     output_path = Path(__file__).resolve().parent / "page" / "report-data.js"
