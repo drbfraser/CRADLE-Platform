@@ -206,13 +206,27 @@ AnswerValue = Union[
 ]
 
 
-class FormAnswer(CradleBaseModel, extra="forbid"):
+class FormAnswerBase(CradleBaseModel):
+    question_id: str
+    answer: AnswerValue
+
+
+class CreateFormAnswerRequest(FormAnswerBase):
+    """Answer in a request to create a form submission"""
+
+
+class UpdateFormAnswerRequest(CradleBaseModel):
+    """Answer in a request to update a form submission"""
+
+    id: str
+    answer: AnswerValue
+
+
+class FormAnswer(FormAnswerBase, extra="forbid"):
     """Model representing a submitted answer in a FormSubmission"""
 
     id: Optional[str] = None
-    question_id: str
     form_submission_id: Optional[str] = None
-    answer: AnswerValue
 
 
 class FormSubmission(CradleBaseModel, extra="forbid"):
@@ -250,9 +264,8 @@ class CreateFormSubmissionRequest(CradleBaseModel):
     id: Optional[str] = None
     form_template_id: str
     patient_id: str
-    user_id: Optional[int] = None
     lang: str = "English"
-    answers: list[FormAnswer]
+    answers: list[CreateFormAnswerRequest]
 
 
 class FormSubmissionWithAnswers(FormSubmission):
@@ -271,4 +284,4 @@ class UpdateFormRequestBody(CradleBaseModel):
     Request body for updating a submitted Form
     """
 
-    answers: list[FormAnswer]
+    answers: list[UpdateFormAnswerRequest]

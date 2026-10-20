@@ -19,8 +19,8 @@ from models import (
 from validation.formsV2_models import (
     AnswerWithQuestion,
     FormAnswer,
+    FormAnswerBase,
     FormClassification,
-    FormSubmissionWithAnswers,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
 )
@@ -131,19 +131,20 @@ def assign_form_template_ids_v2(req: FormTemplateUploadRequest) -> None:
                 _assign_id(opt, "string_id")
 
 
-def assign_form_ids_v2(req: FormSubmissionWithAnswers) -> None:
+def assign_form_ids_v2(req: dict) -> None:
     """
     Mutates the request dict to assign ALL required UUIDs:
     - submission.id
     - answer.id
     """
-    _assign_id(req, "id")
-    submission_id = req.id
+    if req.get("id") is None:
+        req["id"] = commonUtil.get_uuid()
+    submission_id = req["id"]
 
     # Answers
-    for answer in req.answers:
-        _assign_id(answer, "id")
-        answer.form_submission_id = submission_id
+    for answer in req["answers"]:
+        answer["id"] = commonUtil.get_uuid()
+        answer["form_submission_id"] = submission_id
 
 
 def getCsvFromFormTemplate(form_template: FormTemplateOrm):
@@ -548,7 +549,7 @@ class ValidationResult(NamedTuple):
 
 
 def validate_form_answers(
-    answers: list[FormAnswer], form_template_id: str
+    answers: list[FormAnswerBase], form_template_id: str
 ) -> ValidationResult:
     """
     Utility to validate the answers of a form submission for

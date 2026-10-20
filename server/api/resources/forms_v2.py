@@ -16,6 +16,7 @@ from models import (
 )
 from validation.formsV2_models import (
     CreateFormSubmissionRequest,
+    FormAnswerBase,
     FormIdPath,
     FormSubmission,
     FormSubmissionWithAnswers,
@@ -73,7 +74,6 @@ def submit_form(body: CreateFormSubmissionRequest):
                 )
 
     current_user = user_utils.get_current_user_from_jwt()
-    submission.user_id = int(current_user["id"])
 
     validation = form_utils.validate_form_answers(
         submission.answers, submission.form_template_id
@@ -82,10 +82,11 @@ def submit_form(body: CreateFormSubmissionRequest):
     if not validation.ok:
         return abort(validation.code, description=validation.msg)
 
-    form_utils.assign_form_ids_v2(submission)
+    form_data = submission.model_dump()
+    form_utils.assign_form_ids_v2(form_data)
+    form = orm_serializer.unmarshal(FormSubmissionOrmV2, form_data)
 
-    form = orm_serializer.unmarshal(FormSubmissionOrmV2, submission.model_dump())
-
+    form.user_id = int(current_user["id"])
     form.date_submitted = get_current_time()
     form.last_edited = form.date_submitted
     form.archived = False
@@ -130,11 +131,6 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
         FormSubmissionOrmV2, path.form_submission_id
     )
 
-    validation = form_utils.validate_form_answers(body.answers, form.form_template_id)
-
-    if not validation.ok:
-        return abort(validation.code, description=validation.msg)
-
     payload = body.model_dump()
 
     existing_answers_by_id = {a.id: a for a in form.answers}
@@ -148,8 +144,23 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
                 404, description=f"Answer with id {ans_id} does not exist on this form."
             )
 
+    answers_to_validate = [
+        FormAnswerBase(
+            question_id=existing_answers_by_id[updated_ans.id].question_id,
+            answer=updated_ans.answer,
+        )
+        for updated_ans in body.answers
+    ]
+    validation = form_utils.validate_form_answers(
+        answers_to_validate, form.form_template_id
+    )
+
+    if not validation.ok:
+        return abort(validation.code, description=validation.msg)
+
+    for updated_ans in payload["answers"]:
         # apply update
-        existing_answer = existing_answers_by_id[ans_id]
+        existing_answer = existing_answers_by_id[updated_ans["id"]]
 
         existing_answer.answer = json.dumps(updated_ans["answer"])
 
