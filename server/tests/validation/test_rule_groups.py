@@ -65,7 +65,8 @@ def test_rule_group_validation(json, expectation):
             RuleGroupModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error from {e}") from e
-            
+
+
 @pytest.mark.parametrize(
     "rule",
     [
@@ -117,7 +118,9 @@ def test_reject_null_operands(rule):
                 {">": [{"var": "bpm"}, 164]},
             ]
         },
-        {">": [{"var": "patient.age"}, 200]}, #accept medically wrong but well-formed rules 
+        {
+            ">": [{"var": "patient.age"}, 200]
+        },  # accept medically wrong but well-formed rules
     ],
 )
 def test_accept_well_formed_rules(rule):

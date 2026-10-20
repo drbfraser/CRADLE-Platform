@@ -4,14 +4,16 @@ from pydantic import field_validator
 
 from validation import CradleBaseModel
 
+
 def contains_null(value: object) -> bool:
     if value is None:
         return True
     if isinstance(value, dict):
         return any(contains_null(item) for item in value.values())
     if isinstance(value, list):
-        return any(contains_null(item) for item in value) 
+        return any(contains_null(item) for item in value)
     return False
+
 
 class RuleGroupExample:
     id = "rule-group-example-01"
@@ -36,7 +38,7 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
     def validate_rule(cls, rule: str) -> str:
         """Raise if rule is not valid JSON, is not an object, or contains null."""
         try:
-            parsed_rule =json.loads(rule)
+            parsed_rule = json.loads(rule)
         except json.JSONDecodeError:
             raise ValueError("rule attribute must be a JSON string")
         if not isinstance(parsed_rule, dict):
