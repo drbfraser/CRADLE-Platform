@@ -37,7 +37,7 @@ describe('buildToolboxConfig', () => {
     ]);
     expect(variables?.[0]?.contents?.[0]?.type).toBe('app_variable_patient');
     expect(variables?.[1]?.contents?.[0]?.type).toBe('app_variable_forms');
-    expect(variables?.[0]?.contents).toHaveLength(1)
+    expect(variables?.[0]?.contents).toHaveLength(1);
   });
 
   it('puts every comparison and logic block inside one Comparisons and Logic category', () => {
