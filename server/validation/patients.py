@@ -112,5 +112,20 @@ class CreatePatientRequest(PatientBase):
     referrals: list[CreateReferralRequest] = []
 
 
+class SyncPatientRequest(PatientBase):
+    id: Optional[str] = None
+    last_edited: Optional[int] = None
+    base: Optional[int] = None
+    pregnancy_start_date: Optional[int] = None
+    pregnancy_end_date: Optional[int] = None
+    pregnancy_outcome: Optional[str] = None
+    pregnancy_id: Optional[int] = None
+    drug_history: Optional[str] = None
+    medical_history: Optional[str] = None
+    allergy: Optional[str] = None
+    medical_last_edited: Optional[int] = None
+    drug_last_edited: Optional[int] = None
+
+
 class PatientWithRecordsResponseList(RootModel):
     root: list[PatientWithRecordsResponse]
