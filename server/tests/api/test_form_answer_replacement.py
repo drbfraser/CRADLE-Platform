@@ -54,6 +54,9 @@ def form_context(monkeypatch):
     )
     query = session.query.return_value.filter_by.return_value
     query.populate_existing.return_value.with_for_update.return_value.one_or_none.return_value = form
+    query.populate_existing.return_value.with_for_update.return_value.all.return_value = list(
+        form.answers
+    )
     monkeypatch.setattr(forms_v2.crud, "db_session", session)
     monkeypatch.setattr(forms_v2.crud, "read", Mock(return_value=template))
     monkeypatch.setattr(

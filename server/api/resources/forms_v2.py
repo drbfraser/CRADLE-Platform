@@ -3,6 +3,7 @@ import json
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from sqlalchemy.orm.attributes import set_committed_value
 
 import data.db_operations as crud
 from api.authorization import load_authorized_patient_resource, require_patient_access
@@ -182,13 +183,24 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
 def _read_form_for_update(submission_id: str):
     load_authorized_patient_resource(FormSubmissionOrmV2, submission_id)
     # PATCH and PUT serialize on the same row, including updates within one second
-    return (
+    form = (
         crud.db_session.query(FormSubmissionOrmV2)
         .filter_by(id=submission_id)
         .populate_existing()
         .with_for_update()
         .one_or_none()
     )
+    if form is not None:
+        # Authorization may have established an older REPEATABLE READ snapshot.
+        answers = (
+            crud.db_session.query(FormAnswerOrmV2)
+            .filter_by(form_submission_id=submission_id)
+            .populate_existing()
+            .with_for_update()
+            .all()
+        )
+        set_committed_value(form, "answers", answers)
+    return form
 
 
 @api_form_submissions_v2.put(
