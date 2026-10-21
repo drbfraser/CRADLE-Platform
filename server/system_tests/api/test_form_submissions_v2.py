@@ -103,6 +103,102 @@ def test_unassociated_vht_cannot_submit_form(
     assert get_row_count(FormSubmissionOrmV2) == submission_count
 
 
+def test_clear_all_optional_answers_then_get_empty_submission(
+    create_patient, api_put, api_get, form_v2_resources
+):
+    create_patient()
+    bundle = form_v2_resources.create_template(
+        overrides={
+            "questions": [
+                {
+                    "question_type": QuestionTypeEnum.INTEGER.value,
+                    "order": 1,
+                    "required": False,
+                    "question_text": {"english": "Optional heart rate"},
+                    "mc_options": [],
+                }
+            ],
+        }
+    )
+    submission = form_v2_resources.create_submission(bundle)
+    endpoint = f"/api/forms/v2/submissions/{submission['id']}"
+
+    response = api_put(endpoint, json={"expectedRevision": 1, "answers": []})
+    assert response.status_code == 200
+    response = api_get(endpoint)
+    assert response.status_code == 200
+    result = decamelize(response.json())
+    assert result["id"] == submission["id"]
+    assert result["revision"] == 2
+    assert result["answers"] == []
+
+
+def test_replace_answers_and_reject_stale_revision(
+    create_patient, api_get, api_put, api_patch, form_v2_resources
+):
+    create_patient()
+    bundle = form_v2_resources.create_template(
+        extra_questions=[
+            {
+                "question_type": QuestionTypeEnum.STRING.value,
+                "order": 2,
+                "required": False,
+                "question_text": {"english": "Notes"},
+                "category_index": 0,
+                "mc_options": [],
+            }
+        ]
+    )
+    required_id = _question_by_order(bundle["template"], 1).id
+    optional_id = _question_by_order(bundle["template"], 2).id
+    submission = form_v2_resources.create_submission(bundle)
+    endpoint = f"/api/forms/v2/submissions/{submission['id']}"
+    original = decamelize(api_get(endpoint).json())
+    answer_id = original["answers"][0]["id"]
+    required = {"question_id": required_id, "answer": {"number": 95}}
+    optional = {"question_id": optional_id, "answer": {"text": "Added note"}}
+
+    response = api_put(
+        endpoint, json={"expectedRevision": 1, "answers": [required, optional]}
+    )
+    assert response.status_code == 200
+    added = decamelize(api_get(endpoint).json())
+    assert added["revision"] == 2
+    by_question = {answer["question_id"]: answer for answer in added["answers"]}
+    assert by_question[required_id]["id"] == answer_id
+    assert by_question[required_id]["answer"]["number"] == 95
+    assert by_question[optional_id]["answer"]["text"] == "Added note"
+
+    response = api_put(endpoint, json={"expectedRevision": 2, "answers": [required]})
+    assert response.status_code == 200
+    cleared = decamelize(api_get(endpoint).json())
+    assert cleared["revision"] == 3
+    assert len(cleared["answers"]) == 1
+    assert cleared["answers"][0]["id"] == answer_id
+
+    response = api_put(endpoint, json={"expectedRevision": 3, "answers": []})
+    assert response.status_code == 422
+    assert decamelize(api_get(endpoint).json()) == cleared
+
+    response = api_patch(
+        endpoint,
+        json={
+            "answers": [
+                {
+                    "id": answer_id,
+                    "answer": {"number": 100},
+                }
+            ]
+        },
+    )
+    assert response.status_code == 200
+    response = api_put(endpoint, json={"expectedRevision": 3, "answers": [required]})
+    assert response.status_code == 409
+    saved = decamelize(api_get(endpoint).json())
+    assert saved["revision"] == 4
+    assert saved["answers"][0]["answer"]["number"] == 100
+
+
 def test_submit_missing_patient(api_post, form_submission_v2, form_v2_resources):
     bundle = form_v2_resources.create_template()
     template = bundle["template"]

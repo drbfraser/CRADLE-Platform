@@ -99,6 +99,7 @@ Response body (FormSubmission):
 | `last_edited` | integer |
 | `lang` | string |
 | `archived` | boolean |
+| `revision` | integer |
 
 Returns: 201, 404 if patient/template/user not found, 409 if ID exists, 422 if required answers missing.
 
@@ -124,15 +125,32 @@ Returns: 200, 404 if not found.
 
 ### V2 — PATCH /api/forms/v2/submissions/{form_submission_id}
 
-Unlike V1's PUT, only send the answers you want to change by answer `id`. Also updates `last_edited` and `user_id`.
+Unlike V1's PUT, only send the answers you want to change by answer `id`. Also updates `last_edited`, `user_id`, and `revision`. No revision check is required.
 
 | Field | Type | Required |
 |---|---|---|
 | `answers` | FormAnswer array | yes |
 
-Each answer: `id` (required), `question_id` (required), `answer` (required).
+Each answer: `id` (required), `answer` (required). The server looks up the question from the answer ID.
 
 Returns: 200, 404 if submission or answer not found.
+
+---
+
+### V2 — PUT /api/forms/v2/submissions/{form_submission_id}
+
+Replace all answers. Omitted optional answers are deleted; required answers cannot be omitted. Retained answers keep their IDs.
+
+| Field | Type | Required |
+|---|---|---|
+| `expected_revision` | integer | yes |
+| `answers` | array | yes |
+
+Each answer: `question_id` (required), `answer` (required). Duplicate questions and client-supplied answer IDs are rejected.
+
+Run migration `36_9be1fdea7def` first. Use `revision` from GET; successful PATCH/PUT increments it. After 409 or a lost response, GET and review differences before retrying.
+
+Returns: 200 with FormSubmission, 404 if not found, 409 if revision differs or submission is archived, 422 if answers are invalid.
 
 ---
 

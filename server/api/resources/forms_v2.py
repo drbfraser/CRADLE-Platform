@@ -10,6 +10,7 @@ from common import form_utils, user_utils
 from common.commonUtil import get_current_time
 from data import orm_serializer
 from models import (
+    FormAnswerOrmV2,
     FormSubmissionOrmV2,
     FormTemplateOrmV2,
     PatientOrm,
@@ -20,6 +21,7 @@ from validation.formsV2_models import (
     FormIdPath,
     FormSubmission,
     FormSubmissionWithAnswers,
+    ReplaceFormRequestBody,
     UpdateFormRequestBody,
 )
 
@@ -110,8 +112,7 @@ def get_form(path: FormIdPath):
     form_answers = form_utils.attach_questions(form)
     form = orm_serializer.marshal(form, shallow=False)
 
-    if form.get("answers", None):
-        form.pop("answers", None)
+    form.pop("answers", None)
 
     result = FormSubmissionWithAnswers(
         **form,
@@ -127,9 +128,9 @@ def get_form(path: FormIdPath):
 )
 def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update a previously submitted form (partial update of answers)."""
-    form: FormSubmissionOrmV2 = load_authorized_patient_resource(
-        FormSubmissionOrmV2, path.form_submission_id
-    )
+    form = _read_form_for_update(path.form_submission_id)
+    if form is None:
+        return abort(404, description=f"No form with id {path.form_submission_id}")
 
     payload = body.model_dump()
 
@@ -169,9 +170,59 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
 
     form.user_id = user_id
     form.last_edited = get_current_time()
+    form.revision += 1
 
     crud.db_session.commit()
     crud.db_session.refresh(form)
 
+    result = orm_serializer.marshal(form, shallow=True)
+    return FormSubmission(**result).model_dump(), 200
+
+
+def _read_form_for_update(submission_id: str):
+    load_authorized_patient_resource(FormSubmissionOrmV2, submission_id)
+    # PATCH and PUT serialize on the same row, including updates within one second
+    return (
+        crud.db_session.query(FormSubmissionOrmV2)
+        .filter_by(id=submission_id)
+        .populate_existing()
+        .with_for_update()
+        .one_or_none()
+    )
+
+
+@api_form_submissions_v2.put(
+    "/<string:form_submission_id>", responses={200: FormSubmission}
+)
+def replace_form_answers(path: FormIdPath, body: ReplaceFormRequestBody):
+    """Replace all answers only if the caller has the current revision."""
+    form = _read_form_for_update(path.form_submission_id)
+    if form is None:
+        return abort(404, description="Form submission does not exist.")
+    if form.archived or form.revision != body.expected_revision:
+        return abort(409, description="Form changed. Reload it before updating.")
+
+    validation = form_utils.validate_replacement_answers(form, body.answers)
+    if not validation.ok:
+        return abort(validation.code, description=validation.msg)
+
+    existing_answers_by_question_id = {
+        answer.question_id: answer for answer in form.answers
+    }
+    form_answers = []
+    for answer in body.answers:
+        existing_answer = existing_answers_by_question_id.get(answer.question_id)
+        if existing_answer is None:
+            existing_answer = FormAnswerOrmV2(question_id=answer.question_id)
+        existing_answer.answer = json.dumps(answer.answer.model_dump())
+        form_answers.append(existing_answer)
+    # delete orphan removes omitted answers; retained answers keep their IDs
+    form.answers = form_answers
+    current_user = user_utils.get_current_user_from_jwt()
+    form.user_id = int(current_user["id"])
+    form.last_edited = get_current_time()
+    form.revision += 1
+    crud.db_session.commit()
+    crud.db_session.refresh(form)
     result = orm_serializer.marshal(form, shallow=True)
     return FormSubmission(**result).model_dump(), 200

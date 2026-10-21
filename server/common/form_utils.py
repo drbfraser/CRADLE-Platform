@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from typing import TYPE_CHECKING, Literal, NamedTuple, Optional
 
 import data.db_operations as crud
@@ -18,11 +19,16 @@ from models import (
 )
 from validation.formsV2_models import (
     AnswerWithQuestion,
+    DateAnswer,
     FormAnswer,
     FormAnswerBase,
     FormClassification,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
+    MCAnswer,
+    NumberAnswer,
+    ReplacementFormAnswer,
+    TextAnswer,
 )
 
 if TYPE_CHECKING:
@@ -666,6 +672,80 @@ def validate_form_answers(
                 )
 
     return ValidationResult(True, "Answers are all valid", code=None)
+
+
+def validate_replacement_answers(
+    form: FormSubmissionOrmV2, answers: list[ReplacementFormAnswer]
+) -> ValidationResult:
+    """Validate a complete set before changing any persisted answers."""
+    template = crud.read(FormTemplateOrmV2, id=form.form_template_id)
+    questions = {question.id: question for question in template.questions}
+    submitted_ids = {answer.question_id for answer in answers}
+    existing_answers_by_question_id = {
+        answer.question_id: json.loads(answer.answer) for answer in form.answers
+    }
+    for question in template.questions:
+        if question.required and question.id not in submitted_ids:
+            return ValidationResult(
+                False, "Missing answer for required question.", code=422
+            )
+
+    expected_types = {
+        QuestionTypeEnum.INTEGER: NumberAnswer,
+        QuestionTypeEnum.DECIMAL: NumberAnswer,
+        QuestionTypeEnum.STRING: TextAnswer,
+        QuestionTypeEnum.MULTIPLE_CHOICE: MCAnswer,
+        QuestionTypeEnum.MULTIPLE_SELECT: MCAnswer,
+        QuestionTypeEnum.DATE: DateAnswer,
+        QuestionTypeEnum.DATETIME: DateAnswer,
+    }
+    changed_answers = []
+    for form_answer in answers:
+        question = questions.get(form_answer.question_id)
+        if question is None:
+            return ValidationResult(
+                False, "Question does not belong to this template.", code=422
+            )
+        answer = form_answer.answer
+        expected_type = expected_types.get(question.question_type)
+        if expected_type is None or not isinstance(answer, expected_type):
+            return ValidationResult(
+                False, "Answer type does not match question.", code=422
+            )
+        if isinstance(answer, NumberAnswer):
+            if not math.isfinite(answer.number) or (
+                question.question_type == QuestionTypeEnum.INTEGER
+                and not answer.number.is_integer()
+            ):
+                return ValidationResult(False, "Invalid numeric answer.", code=422)
+        if isinstance(answer, TextAnswer) and not answer.text.strip():
+            return ValidationResult(
+                False, "Omit unanswered optional questions.", code=422
+            )
+        if isinstance(answer, MCAnswer) and (
+            not answer.mc_id_array
+            or len(answer.mc_id_array) != len(set(answer.mc_id_array))
+            or (
+                question.question_type == QuestionTypeEnum.MULTIPLE_CHOICE
+                and len(answer.mc_id_array) != 1
+            )
+        ):
+            return ValidationResult(False, "Invalid choice answer.", code=422)
+        if isinstance(answer, DateAnswer):
+            try:
+                int(answer.date)
+            except ValueError:
+                return ValidationResult(False, "Date must be Unix seconds.", code=422)
+            # An unchanged historical date must not block edits to another question.
+            existing_answer = existing_answers_by_question_id.get(
+                form_answer.question_id, {}
+            )
+            if existing_answer.get("date") == answer.date:
+                continue
+        changed_answers.append(
+            FormAnswerBase(question_id=form_answer.question_id, answer=answer)
+        )
+    return validate_form_answers(changed_answers, form.form_template_id)
 
 
 def check_name_conflict(

@@ -214,6 +214,7 @@ class FormSubmissionOrmV2(db.Model):
 
     __tablename__ = "form_submission_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    revision = db.Column(db.Integer, nullable=False, default=1, server_default="1")
     form_template_id = db.Column(
         db.String(50),
         db.ForeignKey("form_template_v2.id", ondelete="RESTRICT"),

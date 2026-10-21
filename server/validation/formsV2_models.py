@@ -240,6 +240,7 @@ class FormSubmission(CradleBaseModel, extra="forbid"):
     last_edited: int
     lang: str
     archived: bool
+    revision: int = Field(default=1, ge=1)
 
     @model_validator(mode="after")
     def validate_date_sequence(self) -> Self:
@@ -285,3 +286,21 @@ class UpdateFormRequestBody(CradleBaseModel):
     """
 
     answers: list[UpdateFormAnswerRequest]
+
+
+class ReplacementFormAnswer(FormAnswerBase, extra="forbid"):
+    """Question and value only; answer IDs remain server-owned."""
+
+
+class ReplaceFormRequestBody(CradleBaseModel, extra="forbid"):
+    """Complete answer set; omitted optional questions become unanswered."""
+
+    expected_revision: int = Field(ge=1, strict=True)
+    answers: list[ReplacementFormAnswer]
+
+    @model_validator(mode="after")
+    def validate_unique_questions(self) -> Self:
+        question_ids = [answer.question_id for answer in self.answers]
+        if len(question_ids) != len(set(question_ids)):
+            raise ValueError("Each question may have only one answer.")
+        return self
