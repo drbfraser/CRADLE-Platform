@@ -38,7 +38,9 @@ const parsePregnancyData = (data: Pregnancy) => {
 
   return {
     ...data,
-    [PatientField.pregnancyEndDate]: data.endDate?.toString() ?? '',
+    [PatientField.pregnancyEndDate]: data.endDate
+      ? new Date(data.endDate * 1000).toISOString().split('T')[0]
+      : '',
     [PatientField.gestationalAgeUnit]: GestationalAgeUnitEnum.WEEKS,
     [PatientField.gestationalAgeDays]: String(days),
     [PatientField.gestationalAgeWeeks]: String(weeks),
