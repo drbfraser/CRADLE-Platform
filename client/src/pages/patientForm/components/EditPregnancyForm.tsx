@@ -45,6 +45,7 @@ const parsePregnancyData = (data: Pregnancy) => {
     [PatientField.gestationalAgeDays]: String(days),
     [PatientField.gestationalAgeWeeks]: String(weeks),
     [PatientField.gestationalAgeMonths]: String(months),
+    [PatientField.pregnancyOutcome]: data.outcome,
   };
 };
 
