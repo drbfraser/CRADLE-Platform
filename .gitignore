@@ -11,7 +11,7 @@ node_modules
 
 # testing
 coverage
-testing-dashboard/page/report-data.js
+testing-dashboard/page/report-data.json
 
 # production
 build

@@ -95,8 +95,8 @@ def write_mobile_data(coverage, unit_tests):
         "lastUpdated": last_updated 
     }
 
-    output_path = Path(__file__).resolve().parent / "page" / "report-data.js"
-    output_path.write_text("const DATA = " + json.dumps(data, indent=2) + ";\n", encoding="utf-8")
+    output_path = Path(__file__).resolve().parent / "page" / "report-data.json"
+    output_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":

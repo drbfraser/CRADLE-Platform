@@ -239,10 +239,15 @@
 
 </div>
 
-<script src="report-data.js">
-</script>
-<script>
+<script type="module">
 const COLORS = ['#4a9bff', '#9b7aee', '#3ec879', '#ffa04d'];
+let DATA;
+
+const response = await fetch("./report-data.json")
+if (!response.ok) {
+  throw new Error(`Failed to load report data: ${response.status}`)
+}
+DATA = await response.json()
 
 // const DATA = {
 //   frontend: {
