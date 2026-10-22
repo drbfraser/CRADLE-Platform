@@ -322,7 +322,11 @@ function render(key) {
     return `<div class="bar-col"><div class="val">${v}%</div><div class="fill" style="height:${v}%;background:${COLORS[i]}"></div></div>`;
   }).join('');
   const labels = d.coverage.map(([n, c, t]) => `<div>${n}<small>${fmt(c)} / ${fmt(t)}</small></div>`).join('');
-  const trendUp = d.trend >= 0;
+  let noTrendAvailable = d.trend === "N/A"
+  let trendUp;
+  if (!noTrendAvailable) {
+    trendUp = d.trend >= 0;
+  }
 
   $('cov').innerHTML = `
     <div class="donut-wrap">
@@ -330,8 +334,12 @@ function render(key) {
         <div class="donut-in"><b>${d.overall}%</b><span>Overall<br>Coverage</span></div>
       </div>
       <div class="good-pill${good ? '' : ' warn'}"><b>${label}</b></div>
-      <div class="trend ${trendUp ? 'up' : 'down'}">${trendUp ? '↗ +' : '↘ '}${d.trend}% from last run</div>
-    </div>
+      ${noTrendAvailable
+        ? '<div class="trend">No trend available</div>'
+        : `<div class="trend ${trendUp ? 'up' : 'down'}">
+          ${trendUp ? '↗ +' : '↘ '}${d.trend}% from last run</div>`
+      }
+      </div>
     <div class="cov-right">
       <div class="chart">
         <div class="yaxis"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>

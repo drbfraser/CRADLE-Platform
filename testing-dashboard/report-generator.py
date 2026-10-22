@@ -14,20 +14,31 @@ MOBILE_TOOLS = [
 
 
 """
-Usage: python3 ./report-generator.py --mobile-artifacts [path to artifacts]
-Flag is either --mobile-artifacts or --platform-artifacts
-Can use one flag or both at a time
+Usage: python3 ./report-generator.py [flag] [path]
+The flags are --mobile-artifacts, --platform-artifacts, and --previous
+At least one artifact path must be provided, previous must be provided. 
+Previous is a path containing the previously generated report-data.json, if none is found, trend
+will not be available.
 """
 def main():
+    # Add arguments and parse
     parser = argparse.ArgumentParser()
     parser.add_argument("--mobile-artifacts", type=Path)
     parser.add_argument("--platform-artifacts", type=Path)
+    parser.add_argument("--previous", type=Path, required=True)
     args = parser.parse_args()
     if args.mobile_artifacts is None and args.platform_artifacts is None:
         parser.error("Provide either --mobile-artifacts or --platform-artifacts, or both.")
     
+    # Get previous data, if available
+    prev_data = None
+    if args.previous.is_file():
+        with args.previous.open("r", encoding="utf-8") as prev_json:
+            prev_data = json.load(prev_json)
+
+    # Extract mobile test data
     if args.mobile_artifacts is not None:
-        coverage_files = list(args.mobile_artifacts.rglob("jacocoCombinedReport/jacocoCombinedReport.xml"))
+        coverage_files = list(args.mobile_artifacts.rglob("jacocoCombinedReport.xml"))
         if len(coverage_files) != 1:
             raise ValueError(f"Expected a JaCoCo report, found {len(coverage_files)}")
         unit_test_files = sorted(args.mobile_artifacts.rglob("TEST-*.xml"))
@@ -35,10 +46,11 @@ def main():
             raise FileNotFoundError("Unit test xml's not found")
         mobile_coverage = get_mobile_coverage(coverage_files[0])
         mobile_unit_tests = get_mobile_unit_tests(unit_test_files)
+
     # TODO: add one for platform
 
     # Write data in a JavaScript file, later used in index.html 
-    write_mobile_data(mobile_coverage, mobile_unit_tests) 
+    write_mobile_data(mobile_coverage, mobile_unit_tests, prev_data) 
 
 
 
@@ -74,11 +86,14 @@ def get_mobile_unit_tests(unit_test_files):
          test_stats["skipped"] += skipped
     return test_stats
 
-def write_mobile_data(coverage, unit_tests):
+def write_mobile_data(coverage, unit_tests, prev_data):
     time = datetime.now()
     last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
     overall_coverage = round(
         (coverage['branch'][0] + coverage['line'][0]) / (coverage['branch'][1] + coverage['line'][0]) * 100, 1)
+    trend = None
+    if prev_data is not None:
+        trend = round(overall_coverage - prev_data["mobile"]["overall"], 1)
     data = {
         "mobile": {
             "total": unit_tests["ran"],
@@ -91,8 +106,9 @@ def write_mobile_data(coverage, unit_tests):
                 ['Line', coverage['line'][0], coverage['line'][1]]
             ],
             "overall": overall_coverage,
+            "trend": trend if trend is not None else "N/A"
         },
-        "lastUpdated": last_updated 
+        "lastUpdated": last_updated,
     }
 
     output_path = Path(__file__).resolve().parent / "page" / "report-data.json"
