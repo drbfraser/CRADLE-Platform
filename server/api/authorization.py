@@ -2,8 +2,9 @@ from flask import abort, g
 from sqlalchemy.orm import Query
 
 import data.db_operations as crud
-from common import user_utils
+from common import user_utils, workflow_utils
 from enums import RoleEnum
+from models import WorkflowInstanceOrm
 from service.patient_authorization import (
     can_access_patient,
     can_assign_existing_patient,
@@ -47,6 +48,13 @@ def load_authorized_patient_resource(resource_model, resource_id):
         abort(404, description="Patient resource not found.")
     require_patient_access(resource.patient_id)
     return resource
+
+
+def load_authorized_workflow_step(workflow_instance_step_id: str):
+    step = workflow_utils.fetch_workflow_instance_step_or_404(workflow_instance_step_id)
+    workflow_instance = crud.read(WorkflowInstanceOrm, id=step.workflow_instance_id)
+    require_patient_access(workflow_instance.patient_id)
+    return step
 
 
 def require_existing_patient_assignment() -> dict:
