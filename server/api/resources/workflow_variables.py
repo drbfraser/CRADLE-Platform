@@ -14,6 +14,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import require_patient_access
 from common import user_utils
 from common.commonUtil import abort_not_found
 from enums import WorkflowVariableTypeEnum
@@ -137,6 +138,8 @@ def post_resolve_workflow_variables(body: ResolveWorkflowVariablesRequest):
     Evaluate a workflow rule against live data for a patient (and optional workflow
     instance). Uses the same resolution pipeline as runtime workflow branching.
     """
+    require_patient_access(body.patient_id)
+
     current_user = None
     if body.include_current_user:
         u = user_utils.get_current_user_from_jwt()
