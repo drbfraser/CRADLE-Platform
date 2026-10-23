@@ -6,11 +6,26 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
+"""
+Needs to be manually updated
+"""
 MOBILE_TOOLS = [
-    ['logos/junit.png', 'JUnit', 'Unit tests', 'v29.7.0'],
-    ['logos/jacoco.png', 'JaCoCo', 'Code coverage', 'v20.27.0'],
-    ['logos/gradle.svg', 'Gradle', 'Running tests and generating reports', 'v20.27.0']
+    ['logos/junit.png', 'JUnit Jupiter', 'Unit tests', 'v5.7.1'],
+    ['logos/jacoco.png', 'JaCoCo', 'Code coverage', 'v0.8.9'],
+    ['logos/gradle.svg', 'Gradle', 'Running tests and generating reports', 'v8.2']
 ]
+
+"""
+Comment whichever category wants to be skipped out
+"""
+COVERAGE_LABELS = {
+    "branch": "Branched",
+    "line": "Lines",
+    "instruction": "Instructions",
+    "method": "Methods",
+    "class": "Classes",
+    "complexity": "Complexity",
+}
 
 
 """
@@ -48,6 +63,9 @@ def main():
         mobile_unit_tests = get_mobile_unit_tests(unit_test_files)
 
     # TODO: add one for platform
+    if args.platform_artifacts is not None:
+        print("Not yet implemented.")
+        exit(0)
 
     # Write data in a JavaScript file, later used in index.html 
     write_mobile_data(mobile_coverage, mobile_unit_tests, prev_data) 
@@ -58,13 +76,13 @@ def main():
 def get_mobile_coverage(coverage_files):
     code_cov_root = ET.parse(coverage_files).getroot()
     coverage = {}
+
     for counter in code_cov_root.findall("counter"):
-        kind = counter.attrib["type"]
-        if kind in {"LINE", "BRANCH"}:
-            missed = int(counter.attrib["missed"])
-            covered = int(counter.attrib["covered"])
-            total = covered + missed
-            coverage[kind.lower()] = (covered, total) # covered, total
+        kind = counter.attrib["type"].lower()
+        missed = int(counter.attrib["missed"])
+        covered = int(counter.attrib["covered"])
+        total = covered + missed
+        coverage[kind.lower()] = (covered, total) # covered, total
     return coverage
 
 # Get unit test pass score
@@ -89,11 +107,20 @@ def get_mobile_unit_tests(unit_test_files):
 def write_mobile_data(coverage, unit_tests, prev_data):
     time = datetime.now()
     last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
-    overall_coverage = round(
-        (coverage['branch'][0] + coverage['line'][0]) / (coverage['branch'][1] + coverage['line'][0]) * 100, 1)
+    
+    # overall_coverage = round(
+    #     (coverage['branch'][0] + coverage['line'][0]) / (coverage['branch'][1] + coverage['line'][1]) * 100, 1)
+    total_covered = 0
+    total_tests = 0
+    for kind, _ in COVERAGE_LABELS.items():
+        total_covered += coverage[kind][0] 
+        total_tests += coverage[kind][1] 
+    overall_coverage = round(total_covered / total_tests * 100, 1)
+
     trend = None
     if prev_data is not None:
         trend = round(overall_coverage - prev_data["mobile"]["overall"], 1)
+
     data = {
         "mobile": {
             "total": unit_tests["ran"],
@@ -102,8 +129,9 @@ def write_mobile_data(coverage, unit_tests, prev_data):
             "skipped": unit_tests["skipped"],
             "tools": MOBILE_TOOLS,
             "coverage": [
-                ['Branch', coverage['branch'][0], coverage['branch'][1]], 
-                ['Line', coverage['line'][0], coverage['line'][1]]
+                [label, coverage[kind][0], coverage[kind][1]]
+                for kind, label in COVERAGE_LABELS.items()
+                if kind in coverage
             ],
             "overall": overall_coverage,
             "trend": trend if trend is not None else "N/A"
