@@ -101,7 +101,7 @@ jobs:
           with open("/tmp/change-sets.json") as f:
               for item in json.load(f)["Summaries"]:
                   reason = item.get("StatusReason", "") 
-                  if item["Status"] = "FAILED" and "didn't contain changes" in reason:
+                  if item["Status"] == "FAILED" and "didn't contain changes" in reason:
                       print(item["ChangeSetId"])
           PY
 
