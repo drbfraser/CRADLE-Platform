@@ -92,7 +92,7 @@ jobs:
           set -eu
 
           aws cloudformation list-change-sets \
-          --stack-name logs-cradle-staging \
+          --stack-name cradle-gitlab-ci \
           --region us-east-1 \
           --output json > /tmp/change-sets.json
 
