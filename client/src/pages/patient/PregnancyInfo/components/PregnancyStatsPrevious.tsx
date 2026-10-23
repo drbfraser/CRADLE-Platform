@@ -12,7 +12,7 @@ import {
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { PastPregnancy } from 'src/shared/types/patientTypes';
 import { gestationalAgeUnitFormatters } from 'src/shared/constants';
-import { getYearToDisplay } from 'src/shared/utils';
+import { getDateToDisplay } from 'src/shared/utils';
 import { RedirectButton } from 'src/shared/components/Button';
 import * as Styled from '../styled';
 import {
@@ -66,7 +66,7 @@ const PregnancyStatsPrevious = ({ patientId, pastPregnancies }: Props) => {
                   key={pastPregnancy.id}
                   onClick={() => handleClick(pastPregnancy.id)}>
                   <TableCell>
-                    {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
+                    {getDateToDisplay(pastPregnancy.pregnancyEndDate)}
                   </TableCell>
                   <TableCell>
                     Pregnancy carried to{' '}

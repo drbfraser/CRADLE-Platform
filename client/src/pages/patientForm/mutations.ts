@@ -58,6 +58,9 @@ export const useUpdatePregnancyMutation = (pregnancyId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
+      queryClient.invalidateQueries({
+        queryKey: ['pregnancyRecord', pregnancyId],
+      });
     },
   });
 };
