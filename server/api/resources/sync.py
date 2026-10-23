@@ -7,9 +7,9 @@ from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import scope_patient_query
+from api.authorization import mark_authorization_checked, scope_patient_query
 from common import user_utils
-from common.patient_utils import PATIENT_NOT_FOUND_MSG
+from common.patient_utils import PATIENT_ID_DELETED_MSG, PATIENT_NOT_FOUND_MSG
 from data import orm_serializer
 from models import (
     DeletedPatientOrm,
@@ -75,7 +75,6 @@ class SyncWorkflowInstancesBody(RootModel[list[WorkflowInstanceModel]]):
 
 class SyncPatientsResponse(CradleBaseModel):
     patients: list[PatientWithHistory]
-    deleted_patient_ids: list[str] = []
 
 
 # /api/sync/patients [POST]
@@ -119,9 +118,11 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             server_patient = crud.read(PatientOrm, id=patient_id)
             if server_patient is None:
                 if crud.read(DeletedPatientOrm, patient_id=patient_id) is not None:
-                    # Deleted on the server: don't re-create it from the device's copy.
-                    # The device removes it when it gets this ID in deleted_patient_ids.
-                    continue
+                    # Deleted IDs can't be reused. Reported as an error rather than
+                    # skipped, so a new patient created offline with this ID isn't
+                    # silently lost; a stale copy is removed by the device after
+                    # checking /sync/deleted_patients.
+                    raise ValidationError(PATIENT_ID_DELETED_MSG.format(patient_id))
                 """
                 TODO: Why are these functions called `deserialize`?
                 TODO: Why aren't the marshal/unmarshal functions being used??
@@ -273,19 +274,42 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
     )
     patients_json = [serialize.serialize_patient(p) for p in new_patients]
 
-    # Patients deleted on the server since the last sync
+    return {"patients": patients_json, "errors": errors}, status_code
+
+
+class SyncDeletedPatientsBody(CradleBaseModel):
+    patient_ids: list[str] = Field(
+        ..., description="IDs of the patients currently stored on the device."
+    )
+
+
+class SyncDeletedPatientsResponse(CradleBaseModel):
+    deleted_patient_ids: list[str]
+
+
+# /api/sync/deleted_patients [POST]
+@api_sync.post("/deleted_patients", responses={200: SyncDeletedPatientsResponse})
+def sync_deleted_patients(body: SyncDeletedPatientsBody):
+    """
+    Sync Deleted Patients
+
+    Of the patient IDs the device holds, returns those that have been deleted on the
+    server, so the device can remove them. Only IDs the device already has are
+    confirmed, so this doesn't reveal other deleted patients.
+    """
+    # Any logged-in user may ask about patients already on their device.
+    mark_authorization_checked()
+
+    if not body.patient_ids:
+        return {"deleted_patient_ids": []}, 200
+
     deleted_patient_ids = [
         patient_id
         for (patient_id,) in crud.db_session.query(DeletedPatientOrm.patient_id).filter(
-            DeletedPatientOrm.deleted_at > last_sync
+            DeletedPatientOrm.patient_id.in_(body.patient_ids)
         )
     ]
-
-    return {
-        "patients": patients_json,
-        "deleted_patient_ids": deleted_patient_ids,
-        "errors": errors,
-    }, status_code
+    return {"deleted_patient_ids": deleted_patient_ids}, 200
 
 
 class SyncReadingsResponse(CradleBaseModel):

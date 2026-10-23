@@ -15,7 +15,7 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from common.patient_utils import assign_patient_id
+from common.patient_utils import PATIENT_ID_DELETED_MSG, assign_patient_id
 from config import db
 from data import orm_serializer
 from enums import RoleEnum, TrafficLightEnum
@@ -101,6 +101,10 @@ def create_patient(body: CreatePatientRequest):
     for referral in new_patient["referrals"]:
         referral["user_id"] = current_user["id"]
     assign_patient_id(new_patient)
+    # IDs of deleted patients can't be reused, so devices holding the old patient
+    # can't confuse it with a new one.
+    if crud.read(DeletedPatientOrm, patient_id=new_patient["id"]) is not None:
+        return abort(409, description=PATIENT_ID_DELETED_MSG.format(new_patient["id"]))
     patient = orm_serializer.unmarshal(PatientOrm, new_patient)
 
     # Resolve invariants and set the creation timestamp for the patient ensuring

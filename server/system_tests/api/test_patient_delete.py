@@ -89,23 +89,68 @@ def test_delete_unknown_patient_returns_404(api_delete):
     assert response.status_code == 404
 
 
-def test_sync_returns_patients_deleted_since_last_sync(
+def test_sync_deleted_patients_returns_only_requested_deleted_ids(
     create_patient_with_reading, patient_id, database, api_delete, api_post
 ):
     create_patient_with_reading()
     api_delete(endpoint=f"/api/patients/{patient_id}")
     database.session.commit()
-    deleted_at = crud.read(DeletedPatientOrm, patient_id=patient_id).deleted_at
 
-    # Last synced before the deletion: the device is told to remove the patient
-    response = api_post(endpoint=f"/api/sync/patients?since={deleted_at - 1}", json=[])
-    assert response.status_code == 200
-    assert patient_id in decamelize(response.json())["deleted_patient_ids"]
+    # The device holds the deleted patient and one the server never deleted
+    response = api_post(
+        endpoint="/api/sync/deleted_patients",
+        json={"patient_ids": [patient_id, "99999999999"]},
+    )
 
-    # Already synced since the deletion: nothing to remove
-    response = api_post(endpoint=f"/api/sync/patients?since={deleted_at}", json=[])
     assert response.status_code == 200
-    assert patient_id not in decamelize(response.json())["deleted_patient_ids"]
+    assert decamelize(response.json())["deleted_patient_ids"] == [patient_id]
+
+
+def test_sync_deleted_patients_does_not_reveal_other_deletions(
+    create_patient_with_reading, patient_id, database, api_delete, api_post
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    # A device that doesn't hold the deleted patient isn't told about it
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": ["99999999999"]}
+    )
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == []
+
+    response = api_post(endpoint="/api/sync/deleted_patients", json={"patient_ids": []})
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == []
+
+
+def test_create_patient_with_deleted_id_returns_409(
+    create_patient_with_reading,
+    patient_id,
+    patient_info,
+    database,
+    api_delete,
+    api_post,
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/patients",
+        json={
+            "id": patient_id,
+            "name": "New Patient",
+            "sex": SexEnum.FEMALE.value,
+            "date_of_birth": patient_info["date_of_birth"],
+            "is_exact_date_of_birth": False,
+        },
+    )
+    database.session.commit()
+
+    assert response.status_code == 409
+    assert crud.read(PatientOrm, id=patient_id) is None
 
 
 def test_sync_does_not_recreate_deleted_patient(
@@ -135,7 +180,10 @@ def test_sync_does_not_recreate_deleted_patient(
     )
     database.session.commit()
 
-    assert response.status_code == 200
+    # Reported as an error (not silently skipped) and nothing is re-created
+    assert response.status_code == 207
+    errors = decamelize(response.json())["errors"]
+    assert [error["patient_id"] for error in errors] == [patient_id]
     assert crud.read(PatientOrm, id=patient_id) is None
     assert crud.read(PatientAssociationsOrm, patient_id=patient_id) is None
 
