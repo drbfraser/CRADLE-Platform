@@ -87,13 +87,30 @@ jobs:
           apt install -y awscli
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
 
-      - name: List CloudFormation outdated sets
+      - name: Delete CloudFormation outdated sets
         run: |
           aws cloudformation list-change-sets \
           --stack-name logs-cradle-staging \
           --region us-east-1 \
           --query 'Summaries[].{Name:ChangeSetName,Status:Status,Reason:StatusReason}' \
-          --output table
+          --output json > /tmp/change-sets.json
+
+          python3 - <<'PY' > /tmp/change-set-ids.txt
+          import json
+
+          with open("/tmp/change-sets.json") as f:
+              for item in json.load(f)["Summaries"]:
+                  reason = item.get("StatusReason", "") 
+                  if item["Status"] = "FAILED" and "didn't contain changes" in reason:
+                      print(item["ChangeSetId"])
+          PY
+
+          while IFS= read -r change_set_id; do
+            echo "deleting: $change_set_id"
+            aws cloudformation delete-change-set \
+              --change-set-name "$change_set_id" \
+              --region us-east-1
+            done < /tmp/change-set-ids.txt
 
       - name: Deploy CloudFormation stack
         run: |
