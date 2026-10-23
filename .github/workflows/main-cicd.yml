@@ -89,10 +89,11 @@ jobs:
 
       - name: Delete CloudFormation outdated sets
         run: |
+          set -eu
+
           aws cloudformation list-change-sets \
           --stack-name logs-cradle-staging \
           --region us-east-1 \
-          --query 'Summaries[].{Name:ChangeSetName,Status:Status,Reason:StatusReason}' \
           --output json > /tmp/change-sets.json
 
           python3 - <<'PY' > /tmp/change-set-ids.txt
