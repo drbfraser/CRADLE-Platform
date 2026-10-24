@@ -108,14 +108,15 @@ def write_mobile_data(coverage, unit_tests, prev_data):
     time = datetime.now()
     last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
     
-    # overall_coverage = round(
-    #     (coverage['branch'][0] + coverage['line'][0]) / (coverage['branch'][1] + coverage['line'][1]) * 100, 1)
     total_covered = 0
     total_tests = 0
-    for kind, _ in COVERAGE_LABELS.items():
-        total_covered += coverage[kind][0] 
-        total_tests += coverage[kind][1] 
-    overall_coverage = round(total_covered / total_tests * 100, 1)
+    for covered, total in coverage.values():
+        total_covered += covered
+        total_tests += total 
+    overall_coverage = (
+        round(total_covered / total_tests * 100, 1)
+        if total_tests else None # zero guard
+    )
 
     trend = None
     if prev_data is not None:
