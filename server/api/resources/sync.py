@@ -7,10 +7,11 @@ from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import mark_authorization_checked, scope_patient_query
+from api.authorization import require_role, scope_patient_query
 from common import user_utils
 from common.patient_utils import PATIENT_ID_DELETED_MSG, PATIENT_NOT_FOUND_MSG
 from data import orm_serializer
+from enums import RoleEnum
 from models import (
     DeletedPatientOrm,
     MedicalRecordOrm,
@@ -294,11 +295,11 @@ def sync_deleted_patients(body: SyncDeletedPatientsBody):
     Sync Deleted Patients
 
     Of the patient IDs the device holds, returns those that have been deleted on the
-    server, so the device can remove them. Only IDs the device already has are
-    confirmed, so this doesn't reveal other deleted patients.
+    server, so the device can remove them. Only the IDs the device sends are checked,
+    so other deleted patients are not listed.
     """
-    # Any logged-in user may ask about patients already on their device.
-    mark_authorization_checked()
+    # Restricted to the roles that use mobile sync.
+    require_role(RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT)
 
     if not body.patient_ids:
         return {"deleted_patient_ids": []}, 200

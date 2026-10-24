@@ -1,6 +1,7 @@
 import time
 
 import pytest
+import requests
 from humps import decamelize
 
 import data.db_operations as crud
@@ -123,6 +124,31 @@ def test_sync_deleted_patients_does_not_reveal_other_deletions(
     response = api_post(endpoint="/api/sync/deleted_patients", json={"patient_ids": []})
     assert response.status_code == 200
     assert decamelize(response.json())["deleted_patient_ids"] == []
+
+
+@pytest.mark.parametrize(
+    "credentials",
+    [
+        ("admin@email.com", "cradle-admin"),
+        ("hcw@email.com", "cradle-hcw"),
+        ("cho@email.com", "cradle-cho"),
+        ("vht@email.com", "cradle-vht"),
+    ],
+)
+def test_sync_deleted_patients_allowed_for_sync_roles(credentials, api_post):
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": ["99999999999"]}
+    )
+
+    assert response.status_code == 200
+
+
+def test_sync_deleted_patients_requires_login(url):
+    response = requests.post(
+        f"{url}/api/sync/deleted_patients", json={"patient_ids": ["99999999999"]}
+    )
+
+    assert response.status_code == 401
 
 
 def test_create_patient_with_deleted_id_returns_409(
