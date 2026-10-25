@@ -56,7 +56,7 @@ def main():
         coverage_files = list(args.mobile_artifacts.rglob("jacocoCombinedReport.xml"))
         if len(coverage_files) != 1:
             raise ValueError(f"Expected a JaCoCo report, found {len(coverage_files)}")
-        unit_test_files = sorted(args.mobile_artifacts.rglob("TEST-*.xml"))
+        unit_test_files = sorted(args.mobile_artifacts.rglob("testDebugUnitTest/TEST-*.xml"))
         if not unit_test_files:
             raise FileNotFoundError("Unit test xml's not found")
         mobile_coverage = get_mobile_coverage(coverage_files[0])
@@ -119,7 +119,7 @@ def write_mobile_data(coverage, unit_tests, prev_data):
     )
 
     trend = None
-    if prev_data is not None:
+    if prev_data is not None and overall_coverage is not None:
         trend = round(overall_coverage - prev_data["mobile"]["overall"], 1)
 
     data = {
