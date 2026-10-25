@@ -6,7 +6,12 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import scope_patient_query
+from api.authorization import (
+    load_authorized_patient_resource,
+    load_authorized_referral,
+    require_referral_action,
+    scope_patient_query,
+)
 from common import user_utils
 from common.api_utils import (
     ReferralIdPath,
@@ -16,6 +21,7 @@ from common.commonUtil import get_current_time
 from data import orm_serializer
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
+from service.patient_authorization import ReferralAction
 from validation.referrals import (
     CancelStatus,
     CreateReferralRequest,
@@ -68,6 +74,7 @@ def get_referrals_list(query: GetReferralsListQueryParams):
 @api_referrals.post("", responses={201: ReferralResponse})
 def create_new_referral(body: CreateReferralRequest):
     """Create New Referral"""
+    require_referral_action(body.patient_id, ReferralAction.CREATE)
     health_facility = crud.read(
         HealthFacilityOrm,
         name=body.health_facility_name,
@@ -108,9 +115,7 @@ def create_new_referral(body: CreateReferralRequest):
 @api_referrals.get("/<string:referral_id>", responses={200: ReferralResponse})
 def get_referral(path: ReferralIdPath):
     """Get Referral"""
-    referral = crud.read(ReferralOrm, id=path.referral_id)
-    if referral is None:
-        return abort(404, description=f"No Referral with ID: {path.referral_id}")
+    referral = load_authorized_patient_resource(ReferralOrm, path.referral_id)
     return orm_serializer.marshal(referral)
 
 
@@ -121,9 +126,7 @@ def update_referral_assessed(path: ReferralIdPath):
     Update Referral (Assessed)
     Marks the Referral as having been assessed.
     """
-    referral = crud.read(ReferralOrm, id=path.referral_id)
-    if referral is None:
-        return abort(404, description=f"No Referral with ID: {path.referral_id}")
+    referral = load_authorized_referral(path.referral_id, ReferralAction.ASSESS)
 
     if not referral.is_assessed:
         referral.is_assessed = True
@@ -140,8 +143,7 @@ def update_referral_assessed(path: ReferralIdPath):
 )
 def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
     """Update Referral (Cancel Status)"""
-    if crud.read(ReferralOrm, id=path.referral_id) is None:
-        return abort(404, description=f"No referral with ID: {path.referral_id}")
+    load_authorized_referral(path.referral_id, ReferralAction.CANCEL)
 
     cancel_status_model_dump = body.model_dump()
 
@@ -166,9 +168,9 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
 )
 def update_referral_not_attend(path: ReferralIdPath, body: NotAttendReason):
     """Update Referral (Not Attend)"""
-    referral = crud.read(ReferralOrm, id=path.referral_id)
-    if referral is None:
-        return abort(404, description=f"No referral with id {path.referral_id}")
+    referral = load_authorized_referral(
+        path.referral_id, ReferralAction.MARK_NOT_ATTENDED
+    )
 
     not_attend_model_dump = body.model_dump()
     if not referral.not_attended:
