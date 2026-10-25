@@ -1,8 +1,12 @@
-from flask import request
+from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from api.authorization import require_role
+from api.authorization import (
+    load_authorized_workflow_step,
+    require_patient_access,
+    require_role,
+)
 from common import form_utils, user_utils, workflow_utils
 from common.api_utils import WorkflowInstanceStepIdPath, convert_query_parameter_to_bool
 from enums import RoleEnum, WorkflowStepStatusEnum
@@ -32,6 +36,7 @@ def get_workflow_instance_steps(body: GetWorkflowInstanceStepsRequest):
     workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
         body.workflow_instance_id
     )
+    require_patient_access(workflow_instance.patient_id)
 
     response = GetWorkflowInstanceStepsResponse(
         items=[step.model_dump() for step in workflow_instance.steps]
@@ -49,9 +54,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     with_form = request.args.get("with_form", default=False)
     with_form = convert_query_parameter_to_bool(with_form)
 
-    step = workflow_utils.fetch_workflow_instance_step_or_404(
-        path.workflow_instance_step_id
-    )
+    step = load_authorized_workflow_step(path.workflow_instance_step_id)
 
     if not with_form:
         step.form = None
@@ -70,12 +73,15 @@ def create_workflow_instance_step(
     Create Workflow Instance Step
     Return 409 conflict if incomplete step instance already exists
     """
-    step_instance = workflow_utils.fetch_workflow_instance_step_or_404(
-        path.workflow_instance_step_id
-    )
+    step_instance = load_authorized_workflow_step(path.workflow_instance_step_id)
     workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
         body.workflow_instance_id
     )
+    require_patient_access(workflow_instance.patient_id)
+    if step_instance.workflow_instance_id != workflow_instance.id:
+        return abort(
+            400, description="Workflow step does not belong to this workflow instance."
+        )
 
     # check whether an incomplete step instance of the same template already exists
     existing_steps = [
@@ -119,12 +125,17 @@ def update_workflow_instance_step(
     path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepPatchModel
 ):
     """Update Workflow Instance Step"""
-    step = workflow_utils.fetch_workflow_instance_step_or_404(
-        path.workflow_instance_step_id
-    )
+    step = load_authorized_workflow_step(path.workflow_instance_step_id)
 
     if body.form_id is not None and body.form_id != step.form_id:
-        form_utils.fetch_form_or_404(body.form_id)
+        form = form_utils.fetch_form_or_404(body.form_id)
+        workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+            step.workflow_instance_id
+        )
+        if form.patient_id != workflow_instance.patient_id:
+            return abort(
+                400, description="Form submission belongs to a different patient."
+            )
 
     if body.assigned_to is not None and body.assigned_to != step.assigned_to:
         user_utils.fetch_user_or_404(body.assigned_to)
@@ -143,9 +154,7 @@ def update_workflow_instance_step(
 def archive_form(path: WorkflowInstanceStepIdPath):
     """Archive submitted form associated with workflow instance step"""
     require_role(RoleEnum.ADMIN)
-    step = workflow_utils.fetch_workflow_instance_step_or_404(
-        path.workflow_instance_step_id
-    )
+    step = load_authorized_workflow_step(path.workflow_instance_step_id)
 
     form_utils.fetch_form_or_404(step.form_id)
 
@@ -164,9 +173,7 @@ def archive_form(path: WorkflowInstanceStepIdPath):
 )
 def evaluate_step(path: WorkflowInstanceStepIdPath):
     """Evaluate a Workflow Instance Step"""
-    step = workflow_utils.fetch_workflow_instance_step_or_404(
-        path.workflow_instance_step_id
-    )
+    step = load_authorized_workflow_step(path.workflow_instance_step_id)
     workflow_view = workflow_utils.fetch_workflow_view_or_404(step.workflow_instance_id)
 
     current_user = user_utils.get_current_user_from_jwt()

@@ -11,7 +11,7 @@ import data.db_operations as crud
 from enums import StrEnum
 from validation.assessments import AssessmentModel
 from validation.patients import PatientModel
-from validation.pregnancies import PregnancyModel
+from validation.pregnancies import PregnancyResponse
 from validation.readings import ReadingModel, UrineTestModel
 
 ObjectResolver = Callable[[str, str], Any]
@@ -36,7 +36,7 @@ DataModel = Union[
     PatientModel,
     ReadingModel,
     AssessmentModel,
-    PregnancyModel,
+    PregnancyResponse,
     UrineTestModel,
 ]
 
@@ -47,7 +47,7 @@ MODEL_REGISTRY: dict[str, type[BaseModel]] = {
     "patient": PatientModel,
     "reading": ReadingModel,
     "assessment": AssessmentModel,
-    "pregnancy": PregnancyModel,
+    "pregnancy": PregnancyResponse,
     "urine_test": UrineTestModel,
 }
 

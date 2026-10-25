@@ -31,7 +31,7 @@ from service.workflow.workflow_service import (
 )
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
-from validation.patients import PatientWithHistory
+from validation.patients import PatientWithHistory, SyncPatientRequest
 from validation.readings import ReadingModel
 from validation.referrals import CreateReferralRequest, ReferralResponse
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
@@ -55,7 +55,7 @@ class LastSyncQueryParam(CradleBaseModel):
     since: int = Field(..., description="Timestamp of last sync.")
 
 
-class SyncPatientsBody(RootModel[list[PatientWithHistory]]):
+class SyncPatientsBody(RootModel[list[SyncPatientRequest]]):
     model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 

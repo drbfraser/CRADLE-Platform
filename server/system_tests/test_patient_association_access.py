@@ -13,7 +13,7 @@ from common import user_utils
 from enums import RoleEnum, SexEnum
 from models import HealthFacilityOrm, PatientAssociationsOrm, PatientOrm, UserOrm
 from service import assoc
-from validation.patients import PatientWithHistory
+from validation.patients import SyncPatientRequest
 
 
 @pytest.mark.parametrize(
@@ -105,7 +105,7 @@ def test_vht_sync_does_not_create_an_existing_patient_association(
 ):
     patient_id = "P2"
     current_user = {"id": 7, "role": RoleEnum.VHT.value, "health_facility_name": "F1"}
-    mobile_patient = PatientWithHistory(
+    mobile_patient = SyncPatientRequest(
         id=patient_id,
         name="Test Patient",
         sex=SexEnum.FEMALE,

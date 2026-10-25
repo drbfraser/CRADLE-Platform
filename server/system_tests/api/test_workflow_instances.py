@@ -21,6 +21,7 @@ from validation.workflow_models import (
     CompleteWorkflowActionModel,
     SkipStepActionModel,
     StartStepActionModel,
+    StartWorkflowActionModel,
     WorkflowInstanceModel,
     WorkflowTemplateModel,
 )
@@ -221,6 +222,158 @@ def test_getting_workflow_instance(
             delete_classification=True,
             id=workflow_template1["id"],
         )
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_vht_workflow_instance_list_is_scoped(
+    workflow_instance1, workflow_instance2, workflow_template1, api_get
+):
+    workflow_instance2["patient_id"] = "49300028162"
+    try:
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
+        )
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance1)
+        )
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance2)
+        )
+
+        response = api_get(endpoint="/api/workflow/instances")
+        assert response.status_code == 200
+        instance_ids = [item["id"] for item in response.json()["items"]]
+        assert workflow_instance2["id"] in instance_ids
+        assert workflow_instance1["id"] not in instance_ids
+
+        unassociated_patient_id = workflow_instance1["patient_id"]
+        response = api_get(
+            endpoint=f"/api/workflow/instances?patient_id={unassociated_patient_id}"
+        )
+        assert response.status_code == 403
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_instance1["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_instance2["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+@pytest.mark.parametrize(
+    "method, endpoint_suffix",
+    [
+        ("GET", ""),
+        ("GET", "/actions"),
+        ("GET", "/data"),
+        ("POST", "/steps/si-1/description-variables"),
+    ],
+)
+def test_unassociated_vht_cannot_read_workflow_instance(
+    sequential_workflow_view_with_db, api_get, api_post, method, endpoint_suffix
+):
+    instance_id = sequential_workflow_view_with_db.instance.id
+    endpoint = f"/api/workflow/instances/{instance_id}{endpoint_suffix}"
+
+    if method == "POST":
+        response = api_post(endpoint=endpoint, json={"variable_tags": ["patient.age"]})
+    else:
+        response = api_get(endpoint=endpoint)
+
+    assert response.status_code == 403
+
+
+def _patient_workflow_state(patient_id: str) -> list:
+    return [
+        (
+            instance.model_dump(),
+            WorkflowService.get_workflow_instance_data_rows(instance.id),
+        )
+        for instance in WorkflowService.get_workflow_instances(patient_id=patient_id)
+    ]
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+@pytest.mark.parametrize(
+    "write",
+    [
+        "create",
+        "patch",
+        "delete",
+        "apply_action",
+        "advance",
+        "override_current_step",
+        "set_data",
+    ],
+)
+def test_unassociated_vht_cannot_change_workflow_instance(
+    sequential_workflow_view_with_db, api_post, api_patch, api_delete, write
+):
+    workflow_view = sequential_workflow_view_with_db
+    patient_id = workflow_view.instance.patient_id
+    instance_endpoint = f"/api/workflow/instances/{workflow_view.instance.id}"
+    requests_by_write = {
+        "create": (
+            api_post,
+            "/api/workflow/instances",
+            {
+                "workflow_template_id": workflow_view.template.id,
+                "patient_id": patient_id,
+            },
+        ),
+        "patch": (api_patch, instance_endpoint, {"name": "Unauthorized change"}),
+        "delete": (api_delete, instance_endpoint, None),
+        "apply_action": (
+            api_post,
+            f"{instance_endpoint}/actions",
+            ApplyActionRequest(action=StartWorkflowActionModel()).model_dump(),
+        ),
+        "advance": (api_post, f"{instance_endpoint}/advance", {}),
+        "override_current_step": (
+            api_post,
+            f"{instance_endpoint}/override_current_step",
+            {"workflow_instance_step_id": "si-1"},
+        ),
+        "set_data": (
+            api_post,
+            f"{instance_endpoint}/data",
+            {"items": [{"field_tag": "unauthorized", "field_type": "string"}]},
+        ),
+    }
+    original_state = _patient_workflow_state(patient_id)
+
+    send_request, endpoint, body = requests_by_write[write]
+    response = send_request(endpoint=endpoint, json=body)
+
+    assert response.status_code == 403
+    crud.db_session.rollback()
+    assert _patient_workflow_state(patient_id) == original_state
+
+
+def test_patch_workflow_instance_cannot_change_patient(
+    sequential_workflow_view_with_db, api_patch
+):
+    workflow_view = sequential_workflow_view_with_db
+    original_patient_id = workflow_view.instance.patient_id
+
+    response = api_patch(
+        endpoint=f"/api/workflow/instances/{workflow_view.instance.id}",
+        json={"patient_id": "49300028162"},
+    )
+
+    assert response.status_code == 400
+    crud.db_session.rollback()
+    saved_instance = WorkflowService.get_workflow_instance(workflow_view.instance.id)
+    assert saved_instance.patient_id == original_patient_id
 
 
 def test_patch_workflow_instance(

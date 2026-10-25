@@ -26,22 +26,20 @@ from models import (
     FormTemplateOrmV2,
     PatientOrm,
     PregnancyOrm,
-    ReadingOrm,
     ReferralOrm,
     UserOrm,
 )
 from service import assoc, invariant, serialize, statsCalculation, view
 from validation import CradleBaseModel
-from validation.assessments import AssessmentPostBody
 from validation.forms import FormList
 from validation.patients import (
     CreatePatientRequest,
-    NestedPatient,
     PatientModel,
+    PatientWithRecordsResponse,
     UpdatePatientRequestBody,
 )
-from validation.pregnancies import PregnancyModel
-from validation.readings import ReadingList, ReadingModel
+from validation.pregnancies import PregnancyResponse
+from validation.readings import ReadingList
 from validation.referrals import ReferralList
 from validation.stats import PatientStats
 
@@ -91,7 +89,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 
 # /api/patients [POST]
-@api_patients.post("", responses={201: NestedPatient})
+@api_patients.post("", responses={201: PatientWithRecordsResponse})
 def create_patient(body: CreatePatientRequest):
     """Create New Patient"""
     current_user = user_utils.get_current_user_from_jwt()
@@ -136,7 +134,7 @@ def create_patient(body: CreatePatientRequest):
 
 
 # /api/patients/<string:patient_id> [GET]
-@api_patients.get("/<string:patient_id>", responses={200: NestedPatient})
+@api_patients.get("/<string:patient_id>", responses={200: PatientWithRecordsResponse})
 def get_patient(path: PatientIdPath):
     """
     Get Patient
@@ -353,7 +351,7 @@ def get_patient_forms(path: PatientIdPath):
 
 class PatientPregnancySummary(CradleBaseModel):
     is_pregnant: bool
-    past_pregnancies: list[PregnancyModel]
+    past_pregnancies: list[PregnancyResponse]
 
 
 # /api/patients/<string:patient_id>/pregnancy_summary [GET]
@@ -406,45 +404,6 @@ def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams)
     params = query.model_dump()
     records = crud.read_patient_timeline(path.patient_id, **params)
     return [serialize.serialize_patient_timeline(r) for r in records]
-
-
-class NewReadingAndAssessment(CradleBaseModel):
-    reading: ReadingModel
-    assessment: AssessmentPostBody
-
-
-# /api/patients/reading-assessment [POST]
-@api_patients.post(
-    "/patients/reading-assessment", responses={201: NewReadingAndAssessment}
-)
-def create_reading_with_assessment(body: NewReadingAndAssessment):
-    """Create Reading With Assessment"""
-    reading = body.reading
-    assessment = body.assessment
-
-    current_user = user_utils.get_current_user_from_jwt()
-    user_id = current_user["id"]
-    reading.user_id = user_id
-    assessment.healthcare_worker_id = user_id
-
-    new_reading = orm_serializer.unmarshal(ReadingOrm, reading.model_dump())
-
-    if crud.read(ReadingOrm, id=new_reading.id):
-        return abort(409, description=f"A reading already exists with id: {reading.id}")
-
-    invariant.resolve_reading_invariants(new_reading)
-
-    new_assessment = orm_serializer.unmarshal(AssessmentOrm, assessment.model_dump())
-
-    crud.create(new_reading, refresh=True)
-    crud.create(new_assessment)
-
-    response_body = {
-        "reading": orm_serializer.marshal(reading),
-        "assessment": orm_serializer.marshal(assessment),
-    }
-
-    return response_body, 201
 
 
 class GetAllRecordsForPatientQueryParams(CradleBaseModel):
