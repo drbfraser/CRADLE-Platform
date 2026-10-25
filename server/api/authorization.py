@@ -7,6 +7,7 @@ from enums import RoleEnum
 from service.patient_authorization import (
     can_access_patient,
     can_assign_existing_patient,
+    scope_query_to_accessible_deleted_patients,
     scope_query_to_accessible_patients,
 )
 
@@ -55,6 +56,14 @@ def require_existing_patient_assignment() -> dict:
         abort(403, description="Not authorized to assign an existing patient.")
     mark_authorization_checked()
     return current_user
+
+
+def scope_deleted_patient_query(
+    query: Query, patient_id_column, user: user_utils.UserDict
+) -> Query:
+    query = scope_query_to_accessible_deleted_patients(query, patient_id_column, user)
+    mark_authorization_checked()
+    return query
 
 
 def scope_patient_query(

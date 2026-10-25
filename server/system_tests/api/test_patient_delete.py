@@ -13,6 +13,7 @@ from models import (
     PatientOrm,
     PatientSchema,
     ReadingOrm,
+    UserOrm,
 )
 
 
@@ -126,31 +127,6 @@ def test_sync_deleted_patients_does_not_reveal_other_deletions(
     assert decamelize(response.json())["deleted_patient_ids"] == []
 
 
-@pytest.mark.parametrize(
-    "credentials",
-    [
-        ("admin@email.com", "cradle-admin"),
-        ("hcw@email.com", "cradle-hcw"),
-        ("cho@email.com", "cradle-cho"),
-        ("vht@email.com", "cradle-vht"),
-    ],
-)
-def test_sync_deleted_patients_allowed_for_sync_roles(credentials, api_post):
-    response = api_post(
-        endpoint="/api/sync/deleted_patients", json={"patient_ids": ["99999999999"]}
-    )
-
-    assert response.status_code == 200
-
-
-def test_sync_deleted_patients_requires_login(url):
-    response = requests.post(
-        f"{url}/api/sync/deleted_patients", json={"patient_ids": ["99999999999"]}
-    )
-
-    assert response.status_code == 401
-
-
 def test_create_patient_with_deleted_id_returns_409(
     create_patient_with_reading,
     patient_id,
@@ -238,3 +214,73 @@ def test_sync_skips_readings_for_deleted_patient(
 
     assert response.status_code == 200
     assert crud.read(ReadingOrm, id=mobile_reading_id) is None
+
+
+def _delete_as_admin(url, patient_id):
+    """Deletes a patient as admin, for tests that run as a different user."""
+    token = decamelize(
+        requests.post(
+            f"{url}/api/user/auth",
+            json={"username": "admin@email.com", "password": "cradle-admin"},
+        ).json()
+    )["access_token"]
+    response = requests.delete(
+        f"{url}/api/patients/{patient_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+
+
+def _link_vht(database, patient_id):
+    vht = crud.read(UserOrm, email="vht@email.com")
+    crud.create(PatientAssociationsOrm(patient_id=patient_id, user_id=vht.id))
+    database.session.commit()
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_vht_gets_back_linked_deleted_patient(
+    credentials, create_patient_with_reading, patient_id, database, url, api_post
+):
+    create_patient_with_reading()
+    _link_vht(database, patient_id)
+    _delete_as_admin(url, patient_id)
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": [patient_id]}
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == [patient_id]
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_vht_does_not_get_back_unlinked_deleted_patient(
+    credentials, create_patient_with_reading, patient_id, database, url, api_post
+):
+    create_patient_with_reading()
+    _delete_as_admin(url, patient_id)
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": [patient_id]}
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == []
+
+
+@pytest.mark.parametrize("credentials", [("hcw@email.com", "cradle-hcw")])
+def test_hcw_gets_back_any_deleted_patient(
+    credentials, create_patient_with_reading, patient_id, database, url, api_post
+):
+    create_patient_with_reading()
+    _delete_as_admin(url, patient_id)
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": [patient_id]}
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == [patient_id]

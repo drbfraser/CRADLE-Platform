@@ -103,6 +103,25 @@ class DeletedPatientOrm(db.Model):
     )
 
 
+class DeletedPatientUserOrm(db.Model):
+    """
+    Users who were associated with a patient when it was deleted.
+
+    Associations are deleted along with the patient, so this keeps who had access,
+    letting sync tell each user only about deleted patients they could see.
+    """
+
+    __tablename__ = "deleted_patient_user"
+    patient_id = db.Column(
+        db.String(50),
+        db.ForeignKey("deleted_patient.patient_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
+    )
+
+
 class PregnancyOrm(db.Model):
     """
     Tracks pregnancy records for female patients in the Cradle system.

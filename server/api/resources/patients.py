@@ -22,6 +22,7 @@ from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
     DeletedPatientOrm,
+    DeletedPatientUserOrm,
     FormTemplateOrmV2,
     PatientOrm,
     PregnancyOrm,
@@ -566,5 +567,18 @@ def delete_patient(path: PatientIdPath):
         ),
         autocommit=False,
     )
+
+    # Associations are deleted with the patient, so keep who had access for sync.
+    associated_user_ids = {
+        association.user_id
+        for association in patient.associations
+        if association.user_id is not None
+    }
+    for user_id in associated_user_ids:
+        crud.merge(
+            DeletedPatientUserOrm(patient_id=patient.id, user_id=user_id),
+            autocommit=False,
+        )
+
     crud.delete(patient)
     return Response(status=200)
