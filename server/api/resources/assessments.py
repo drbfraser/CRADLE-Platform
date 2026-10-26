@@ -14,9 +14,9 @@ from data import orm_serializer
 from models import AssessmentOrm
 from validation.assessments import (
     AssessmentList,
-    AssessmentPostBody,
-    AssessmentPutBody,
     AssessmentResponse,
+    CreateAssessmentRequest,
+    UpdateAssessmentRequest,
 )
 
 # /api/assessments
@@ -43,13 +43,14 @@ def get_all_assessments():
 
 # /api/assessments [POST]
 @api_assessments.post("", responses={201: AssessmentResponse})
-def create_new_assessment(body: AssessmentPostBody):
+def create_new_assessment(body: CreateAssessmentRequest):
     """Create New Assessment"""
     require_patient_access(body.patient_id)
     if body.id is not None and crud.read(AssessmentOrm, id=body.id):
         return abort(409, description=f"Assessment with ID: {body.id} already exists.")
-    body.healthcare_worker_id = get_current_user_from_jwt()["id"]
-    assessment = orm_serializer.unmarshal(AssessmentOrm, body.model_dump())
+    assessment_data = body.model_dump()
+    assessment_data["healthcare_worker_id"] = get_current_user_from_jwt()["id"]
+    assessment = orm_serializer.unmarshal(AssessmentOrm, assessment_data)
     crud.create(assessment, refresh=True)
     return orm_serializer.marshal(assessment), 201
 
@@ -64,7 +65,7 @@ def get_assessment(path: AssessmentIdPath):
 
 # /api/assessments/<string:assessment_id> [PUT]
 @api_assessments.put("/<string:assessment_id>", responses={200: AssessmentResponse})
-def update_assessment(path: AssessmentIdPath, body: AssessmentPutBody):
+def update_assessment(path: AssessmentIdPath, body: UpdateAssessmentRequest):
     """Update Assessment"""
     assessment = load_authorized_patient_resource(AssessmentOrm, path.assessment_id)
     if body.id != path.assessment_id:

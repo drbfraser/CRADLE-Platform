@@ -22,7 +22,7 @@ from models import (
 )
 from service import serialize, view
 from validation import CradleBaseModel
-from validation.assessments import AssessmentModel
+from validation.assessments import AssessmentResponse
 from validation.forms import FormModel
 from validation.patients import PatientWithRecordsResponseList
 from validation.readings import ReadingWithUrineTestList
@@ -195,7 +195,7 @@ def get_referrals_mobile():
 @api_patients_mobile.get(
     "/assessments",
     tags=[mobile_patient_tag],
-    responses={200: AssessmentModel},
+    responses={200: AssessmentResponse},
 )
 def get_assessments_mobile():
     """Get Assessments (Mobile)"""

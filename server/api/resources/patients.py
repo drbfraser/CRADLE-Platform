@@ -91,10 +91,9 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 def create_patient(body: CreatePatientRequest):
     """Create New Patient"""
     current_user = user_utils.get_current_user_from_jwt()
-    for reading in body.readings:
-        reading.user_id = current_user["id"]
-
     new_patient = body.model_dump()
+    for reading in new_patient["readings"]:
+        reading["user_id"] = current_user["id"]
     for referral in new_patient["referrals"]:
         referral["user_id"] = current_user["id"]
     assign_patient_id(new_patient)

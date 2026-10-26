@@ -16,7 +16,7 @@ from data import orm_serializer
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from service.patient_authorization import ReferralAction
-from validation.readings import ReadingModel
+from validation.readings import CreateReadingRequest, ReadingResponse
 
 # /api/readings
 api_readings = APIBlueprint(
@@ -29,8 +29,8 @@ api_readings = APIBlueprint(
 
 
 # /api/readings [POST]
-@api_readings.post("", responses={201: ReadingModel})
-def create_new_reading(body: ReadingModel):
+@api_readings.post("", responses={201: ReadingResponse})
+def create_new_reading(body: CreateReadingRequest):
     """Create New Reading"""
     if body.referral is None:
         require_patient_access(body.patient_id)
@@ -46,9 +46,8 @@ def create_new_reading(body: ReadingModel):
 
     current_user = user_utils.get_current_user_from_jwt()
     user_id = current_user["id"]
-    body.user_id = user_id
-
     new_reading_dict = body.model_dump()
+    new_reading_dict["user_id"] = user_id
     if body.referral is not None:
         health_facility = crud.read(
             HealthFacilityOrm,
@@ -86,7 +85,7 @@ def create_new_reading(body: ReadingModel):
 
 
 # /api/readings/<string:reading_id> [GET]
-@api_readings.get("/<string:reading_id>", responses={200: ReadingModel})
+@api_readings.get("/<string:reading_id>", responses={200: ReadingResponse})
 def get_reading(path: ReadingIdPath):
     """Get Reading"""
     reading = load_authorized_patient_resource(ReadingOrm, path.reading_id)

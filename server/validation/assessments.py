@@ -76,13 +76,11 @@ class AssessmentExamples:
     }
 
 
-class AssessmentModel(CradleBaseModel):
-    id: str
+class AssessmentBase(CradleBaseModel):
     patient_id: str
     date_assessed: int = Field(default_factory=lambda: get_current_time())
     diagnosis: Optional[str] = None
     medication_prescribed: Optional[str] = None
-    healthcare_worker_id: Optional[int] = None
     special_investigations: Optional[str] = None
     treatment: Optional[str] = None
     follow_up_needed: bool
@@ -103,7 +101,7 @@ class AssessmentModel(CradleBaseModel):
         return self
 
 
-class AssessmentPostBody(AssessmentModel):
+class CreateAssessmentRequest(AssessmentBase):
     id: Optional[str] = None
 
     model_config = dict(
@@ -135,7 +133,9 @@ class AssessmentPostBody(AssessmentModel):
     )
 
 
-class AssessmentPutBody(AssessmentModel):
+class UpdateAssessmentRequest(AssessmentBase):
+    id: str
+
     model_config = dict(
         openapi_extra={
             "description": "Assessment Put Request Body",
@@ -159,7 +159,10 @@ class AssessmentPutBody(AssessmentModel):
     )
 
 
-class AssessmentResponse(AssessmentModel):
+class AssessmentResponse(AssessmentBase):
+    id: str
+    healthcare_worker_id: Optional[int] = None
+
     model_config = dict(
         openapi_extra={
             "description": "An Assessment object.",
@@ -168,7 +171,7 @@ class AssessmentResponse(AssessmentModel):
     )
 
 
-class AssessmentList(RootModel[list[AssessmentModel]]):
+class AssessmentList(RootModel[list[AssessmentResponse]]):
     model_config = dict(
         openapi_extra={
             "description": "An array of Assessment objects.",
