@@ -36,7 +36,7 @@ const DeletePatientDialog = ({ open, onClose, patient }: IProps) => {
 
       <ConfirmDialog
         title={`Delete Patient: ${name}`}
-        content={`Are you sure you want to permanently delete ${name} (ID: ${patient.id})? This deletes all of their readings, referrals, assessments, pregnancies, medical records and forms. This cannot be undone. To hide the patient instead, use Archive.`}
+        content={`Are you sure you want to permanently delete ${name} (ID: ${patient.id})? This deletes all of their readings, referrals, assessments, pregnancies, medical records and forms. This cannot be undone. To hide the patient from other users instead, use Archive.`}
         open={open}
         onClose={onClose}
         onConfirm={handleDelete}
