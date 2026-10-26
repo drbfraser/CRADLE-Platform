@@ -239,6 +239,15 @@ def test_unassociated_vht_cannot_change_clinical_record(
                 "systolic_blood_pressure": 110,
                 "diastolic_blood_pressure": 80,
                 "heart_rate": 70,
+            },
+        ),
+        (
+            "/api/readings",
+            {
+                "id": NEW_RECORD_ID,
+                "systolic_blood_pressure": 110,
+                "diastolic_blood_pressure": 80,
+                "heart_rate": 70,
                 "referral": {
                     "id": NEW_RECORD_ID,
                     "health_facility_name": FACILITY_NAME,
@@ -254,7 +263,7 @@ def test_unassociated_vht_cannot_change_clinical_record(
             {"id": NEW_RECORD_ID, "follow_up_needed": False},
         ),
     ],
-    ids=["reading-with-referral", "referral", "assessment"],
+    ids=["reading", "reading-with-referral", "referral", "assessment"],
 )
 def test_unassociated_vht_cannot_create_clinical_record(
     clinical_records, get_row_count, api_post, endpoint, body
