@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing Overview</title>
+<style>
+  :root {
+    --surface: #ffffff;
+    --border: #e3e9f3;
+    --text: #0f1b3d;
+    --muted: #5b6785;
+    --blue: #2f6df6;
+    --blue-soft: #eaf1ff;
+    --green: #16a34a;
+    --green-soft: #e6f8ee;
+    --red: #dc2626;
+    --red-soft: #fdeaea;
+    --amber: #d97706;
+    --amber-soft: #fff6e0;
+    --chip: #eef1f6;
+    --bg: #fbfcfe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+  }
+  .page {
+    max-width: 1200px; margin: 0 auto; margin-bottom: 40px;
+    background: var(--surface);
+    overflow: hidden;
+    padding-bottom: 16px;
+  }
+
+  /* Header */
+  .top { display: flex; justify-content: space-between; align-items: flex-start; padding: 22px 32px 18px; }
+  .top h1 { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
+  .top p { color: var(--muted); margin-top: 2px; }
+  .updated { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: 13px; }
+  .updated svg { width: 20px; height: 20px; margin-top: 2px; }
+
+  /* Tabs */
+  .tabs { display: flex; margin: 0 32px; border-bottom: 1px solid var(--border); }
+  .tab {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 40px; font-size: 15px; color: var(--muted);
+    background: var(--bg); border: 0; cursor: pointer; font-family: inherit;
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; border-bottom: 2px solid var(--blue); }
+  .tab.active svg { stroke: var(--blue); }
+
+  /* Layout */
+  .grid { display: grid; grid-template-columns: 5fr 7fr; gap: 18px; padding: 16px 20px 0; }
+  .col { display: flex; flex-direction: column; gap: 16px; }
+  .card.wide { grid-column: 1 / -1; position: relative; margin-top: 18px; }
+  .card.wide::before { content: ""; position: absolute; left: 0; right: 0; top: -18px; border-top: 1px solid var(--border); }
+  .card { border: 0px; border-radius: 12px; padding: 16px; background: var(--surface); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .card-title { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; }
+  .card-title svg { width: 24px; height: 24px; stroke: var(--blue); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border: 1px solid #c9d6f3; border-radius: 8px;
+    color: var(--blue); background: var(--surface); font-size: 14px; font-weight: 500; text-decoration: none;
+  }
+  .btn svg { width: 16px; height: 16px; stroke: var(--blue); }
+
+  /* Tools */
+  .tools { display: flex; flex-direction: column; gap: 10px; }
+  .tool {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface); border: 0px; border-radius: 10px; padding: 5px 14px;
+  }
+  .tool .logo { width: 44px; height: 44px; display: grid; place-items: center; font-size: 30px; }
+  .tool .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .tool .info { flex: 1; }
+  .tool b { display: block; font-size: 16px; font-weight: 600; }
+  .tool span { font-size: 12px; color: var(--muted); }
+  .ver { background: var(--chip); border-radius: 6px; padding: 6px 12px; font-size: 13px; color: var(--muted); }
+
+  /* Results */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat { border-radius: 10px; padding: 14px; border: 1px solid transparent; }
+  .stat .label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; }
+  .stat .num { font-size: 26px; font-weight: 700; margin: 6px 0 2px 38px; }
+  .stat .pct { margin-left: 38px; font-size: 14px; font-weight: 500; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 15px; font-weight: 700; }
+  .total { background: #eef2f8; color: var(--muted); }
+  .total .num {color: var(--text); }
+  .total .label span.icon { font-size: 22px; }
+  .pass { background: var(--green-soft); color: var(--green); border-color: #cdeedb; }
+  .pass .dot { background: var(--green); }
+  .pass .num { color: var(--green); }
+  .fail { background: var(--red-soft); color: var(--red); border-color: #f7d0d0; }
+  .fail .dot { background: var(--red); }
+  .skip { background: var(--amber-soft); color: var(--amber); border-color: #f6e4b4; }
+  .skip .dot { background: #f5a623; }
+  .skip .num, .fail .num { color: inherit; }
+  .fail .num, .skip .num { color: inherit; }
+
+  .bar-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .bar { flex: 1; display: flex; height: 22px; border-radius: 6px; overflow: hidden; }
+  .bar i { display: block; height: 100%; }
+  .bar .g { width: 94.8%; background: #4ccd78; }
+  .bar .r { width: 3.4%; background: #f26363; }
+  .bar .y { width: 1.7%; background: #f9bd30; }
+  .bar-row span { font-size: 15px; color: var(--muted); white-space: nowrap; }
+
+  /* Coverage */
+  .chart { display: grid; grid-template-columns: 40px 1fr; gap: 6px; height: 190px; }
+  .yaxis { display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; color: var(--muted); text-align: right; padding-bottom: 0; }
+  .plot {
+    position: relative; display: flex; justify-content: space-around; align-items: flex-end;
+    background:
+      repeating-linear-gradient(to top, transparent 0, transparent calc(25% - 1px), #e3e9f3 calc(25% - 1px), #e3e9f3 25%);
+    border-left: 1px solid var(--border);
+  }
+  .bar-col { width: 18%; max-width: 110px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; position: relative; }
+  .bar-col .val { text-align: center; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .bar-col .fill { border-radius: 3px 3px 0 0; }
+  .labels { display: grid; grid-template-columns: 40px 1fr; gap: 6px; margin-top: 10px; }
+  .labels div.row { display: flex; justify-content: space-around; text-align: center; }
+  .labels .row div { width: 20%; font-size: 14px; font-weight: 500; }
+  .labels .row small { display: block; font-size: 13px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .tab { padding: 12px 18px; }
+    .top { flex-direction: column; gap: 12px; padding: 20px; }
+    .tabs { margin: 0 20px; overflow-x: auto; }
+    .card-head { flex-wrap: wrap; gap: 10px; }
+    .step { grid-template-columns: 30px 1fr; }
+    .step .status, .step .date { display: none; }
+  }
+
+  /* Coverage donut */
+  .cov { display: flex; gap: 28px; align-items: flex-start; }
+  .cov-right { flex: 1; min-width: 0; }
+  .donut-wrap { width: 190px; text-align: center; flex: none; }
+  .donut {
+    width: 180px; height: 180px; margin: 0 auto; border-radius: 50%;
+    background: conic-gradient(#2fc477 0 87%, #e9edf5 0);
+    display: grid; place-items: center;
+  }
+  .donut-in {
+    width: 144px; height: 144px; border-radius: 50%; background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .donut-in b { font-size: 32px; font-weight: 800; line-height: 1.1; }
+  .donut-in span { font-size: 14px; color: var(--muted); line-height: 1.3; }
+  .good-pill { display: inline-flex; margin-top: 10px; background: var(--green-soft); border-radius: 8px; padding: 5px 16px; }
+  .good-pill b { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+  .good-pill b::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--green); }
+  .trend { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .trend { color: var(--muted); }
+  .cov .chart { height: 170px; }
+  @media (max-width: 900px) { .cov { flex-direction: column; align-items: stretch; } }
+
+  /* Tab states */
+  .tab:hover:not(.active) { background: #e9eef7; }
+  .tab:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .good-pill.warn b::before { background: #f5a623; }
+  .good-pill.warn { background: var(--amber-soft); }
+  .trend.down { color: var(--red); }
+  .trend.up { color: var(--green); }
+  .fade { animation: fade .25s ease; }
+  @keyframes fade { from { opacity: .4; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .fade { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="top">
+    <div>
+      <h1>Testing Report</h1>
+    </div>
+    <div class="updated">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <div>Last updated<br><span id="last-updated"></span></div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button class="tab" role="tab" data-tab="frontend" aria-selected="false" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>Frontend
+    </button>
+    <button class="tab" role="tab" data-tab="backend" aria-selected="false" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/></svg>Backend
+    </button>
+    <button class="tab active" role="tab" data-tab="mobile" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>Mobile
+    </button>
+  </nav>
+
+  <div class="grid">
+
+    <!-- Left: tools -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5M3 17.5 12 22l9-4.5"/></svg>
+          Testing Tools &amp; Stack
+        </div>
+      </div>
+      <div class="tools" id="tools"></div>
+    </section>
+
+    <!-- Right: results -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 8h3"/></svg>
+          Test Results
+        </div>
+        <a class="btn" href="reports/mobile/unit-tests/index.html"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>View Full Report</a>
+      </div>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <!-- Full width: coverage -->
+    <section class="card wide">
+      <div class="card-head">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 8h3"/></svg>
+          Code Coverage 
+        </div>
+        <a class="btn" href="reports/mobile/jacoco/index.html"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>View Full Report</a>
+      </div>
+      <div class="cov" id="cov"></div>
+    </section>
+  </div>
+
+</div>
+
+<script type="module">
+const COLORS = ['#4a9bff', '#9b7aee', '#3ec879', '#ffa04d', '#EAB308', '#EC4899'];
+let DATA;
+
+const response = await fetch("./report-data.json")
+if (!response.ok) {
+  throw new Error(`Failed to load report data: ${response.status}`)
+}
+DATA = await response.json()
+
+const $ = id => document.getElementById(id);
+const pct = (n, t) => (n / t * 100).toFixed(1);
+const fmt = n => n.toLocaleString('en-US');
+$('last-updated').innerText = DATA["lastUpdated"];
+
+function render(key) {
+  const d = DATA[key];
+  const rate = pct(d.passed, d.total);
+  const good = d.overall >= 80;
+
+  $('tools').innerHTML = d.tools.map(([logo, name, desc, ver]) => `
+    <div class="tool">
+      ${logo.startsWith('<') ? logo : `<div class="logo">${/\.(svg|png)$/.test(logo) ? `<img src="${logo}" alt="${name} logo">` : logo}</div>`}
+      <div class="info"><b>${name}</b><span>${desc}</span></div>
+      <span class="ver">${ver}</span>
+    </div>`).join('');
+
+  $('stats').innerHTML = `
+    <div class="stat total"><div class="label"><span class="icon">📄</span>Total Tests</div><div class="num">${d.total}</div></div>
+    <div class="stat pass"><div class="label"><span class="dot">✓</span>Passed</div><div class="num">${d.passed}</div><div class="pct">${rate}%</div></div>
+    <div class="stat fail"><div class="label"><span class="dot">✕</span>Failed</div><div class="num">${d.failed}</div><div class="pct">${pct(d.failed, d.total)}%</div></div>
+    <div class="stat skip"><div class="label"><span class="dot">–</span>Skipped</div><div class="num">${d.skipped}</div><div class="pct">${pct(d.skipped, d.total)}%</div></div>`;
+
+  const label = good ? 'Good' : 'Needs work';
+
+  const bars = d.coverage.map(([, c, t], i) => {
+    const v = Math.round(c / t * 100);
+    return `<div class="bar-col"><div class="val">${v}%</div><div class="fill" style="height:${v}%;background:${COLORS[i]}"></div></div>`;
+  }).join('');
+  const labels = d.coverage.map(([n, c, t]) => `<div>${n}<small>${fmt(c)} / ${fmt(t)}</small></div>`).join('');
+  let noTrendAvailable = d.trend === "N/A"
+  let trendUp;
+  if (!noTrendAvailable) {
+    trendUp = d.trend >= 0;
+  }
+
+  $('cov').innerHTML = `
+    <div class="donut-wrap">
+      <div class="donut" style="background:conic-gradient(${good ? '#2fc477' : '#f5a623'} 0 ${d.overall}%, #e9edf5 0)">
+        <div class="donut-in"><b>${d.overall}%</b><span>Overall<br>Coverage</span></div>
+      </div>
+      <div class="good-pill${good ? '' : ' warn'}"><b>${label}</b></div>
+      ${noTrendAvailable
+        ? '<div class="trend">No trend available</div>'
+        : `<div class="trend ${trendUp ? 'up' : 'down'}">
+          ${trendUp ? '↗ +' : '↘ '}${d.trend}% from last run</div>`
+      }
+      </div>
+    <div class="cov-right">
+      <div class="chart">
+        <div class="yaxis"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+        <div class="plot">${bars}</div>
+      </div>
+      <div class="labels"><div></div><div class="row">${labels}</div></div>
+    </div>`;
+
+  document.querySelectorAll('.grid, .plan').forEach(el => {
+    el.classList.remove('fade'); void el.offsetWidth; el.classList.add('fade');
+  });
+}
+
+const tabs = document.querySelectorAll('.tab');
+tabs.forEach(tab => tab.addEventListener('click', () => {
+  tabs.forEach(t => { t.classList.toggle('active', t === tab); t.setAttribute('aria-selected', t === tab); });
+  render(tab.dataset.tab);
+}));
+
+
+render('mobile'); // TODO: render frontend and backend too
+</script>
+</body>
+</html>
