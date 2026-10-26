@@ -22,6 +22,14 @@ export const getPregnancyValues = (
   };
 
   const gestationalAgeUnit = rawValues[PatientField.gestationalAgeUnit];
+
+  if (rawValues[PatientField.pregnancyEndDate]) {
+    submitValues.endDate =
+      Date.parse(rawValues[PatientField.pregnancyEndDate]) / 1000;
+  } else {
+    submitValues.endDate = undefined;
+  }
+
   if (submitValues.endDate) {
     submitValues.startDate =
       gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
@@ -46,14 +54,9 @@ export const getPregnancyValues = (
           );
   }
 
-  if (rawValues[PatientField.pregnancyEndDate]) {
-    submitValues.endDate =
-      Date.parse(rawValues[PatientField.pregnancyEndDate]) / 1000;
-  } else {
-    submitValues.endDate = undefined;
-  }
-
   submitValues.startDate = Math.trunc(Number(submitValues.startDate));
-  submitValues.endDate = Math.trunc(Number(submitValues.endDate));
+  if (submitValues.endDate !== undefined) {
+    submitValues.endDate = Math.trunc(submitValues.endDate);
+  }
   return submitValues;
 };
