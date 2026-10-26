@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from enums import QuestionTypeEnum
 from validation.formsV2_models import (
+    CreateFormAnswerRequest,
     CreateFormSubmissionRequest,
     FormAnswer,
     FormSubmission,
@@ -347,7 +348,6 @@ def test_form_answer_validation(json, expectation):
 valid_create_request = {
     "form_template_id": VALID_TEMPLATE_ID,
     "patient_id": VALID_PATIENT_ID,
-    "user_id": VALID_USER_ID,
     "lang": "English",
     "answers": [
         {"question_id": "q1", "answer": {"number": 75}},
@@ -359,7 +359,6 @@ valid_create_request_with_id = {
     "id": VALID_SUBMISSION_ID,
     "form_template_id": VALID_TEMPLATE_ID,
     "patient_id": VALID_PATIENT_ID,
-    "user_id": VALID_USER_ID,
     "lang": "French",
     "answers": [
         {"question_id": "q1", "answer": {"number": 75}},
@@ -368,27 +367,18 @@ valid_create_request_with_id = {
 
 create_request_missing_template_id = {
     "patient_id": VALID_PATIENT_ID,
-    "user_id": VALID_USER_ID,
     "answers": [{"question_id": "q1", "answer": {"number": 75}}],
 }
 
 create_request_missing_answers = {
     "form_template_id": VALID_TEMPLATE_ID,
     "patient_id": VALID_PATIENT_ID,
-    "user_id": VALID_USER_ID,
 }
 
 create_request_empty_answers = {
     "form_template_id": VALID_TEMPLATE_ID,
     "patient_id": VALID_PATIENT_ID,
-    "user_id": VALID_USER_ID,
     "answers": [],
-}
-
-create_request_without_user_id = {
-    "form_template_id": VALID_TEMPLATE_ID,
-    "patient_id": VALID_PATIENT_ID,
-    "answers": [{"question_id": "q1", "answer": {"number": 75}}],
 }
 
 
@@ -399,7 +389,6 @@ create_request_without_user_id = {
         (valid_create_request, None),
         (valid_create_request_with_id, None),
         (create_request_empty_answers, None),  # Empty answers is valid
-        (create_request_without_user_id, None),  # endpoint derives user_id from JWT
         # Missing required fields
         (create_request_missing_template_id, ValidationError),
         (create_request_missing_answers, ValidationError),
@@ -418,14 +407,20 @@ def test_create_form_submission_request_validation(json, expectation):
 
 valid_update_request = {
     "answers": [
-        {"id": "ans-1", "question_id": "q1", "answer": {"number": 80}},
-        {"id": "ans-2", "question_id": "q2", "answer": {"text": "Updated"}},
+        {"id": "ans-1", "answer": {"number": 80}},
+        {"id": "ans-2", "answer": {"text": "Updated"}},
     ],
 }
 
 valid_update_request_single_answer = {
     "answers": [
-        {"id": "ans-1", "question_id": "q1", "answer": {"number": 80}},
+        {"id": "ans-1", "answer": {"number": 80}},
+    ],
+}
+
+update_request_answer_missing_id = {
+    "answers": [
+        {"question_id": "q1", "answer": {"number": 80}},
     ],
 }
 
@@ -443,7 +438,8 @@ update_request_empty_answers = {
         (valid_update_request, None),
         (valid_update_request_single_answer, None),
         (update_request_empty_answers, None),  # empty list is valid
-        # Missing required field
+        # Missing required fields
+        (update_request_answer_missing_id, ValidationError),
         (update_request_missing_answers, ValidationError),
     ],
 )
@@ -467,13 +463,18 @@ class TestFormSubmissionComplexScenarios:
         request = CreateFormSubmissionRequest(
             form_template_id=VALID_TEMPLATE_ID,
             patient_id=VALID_PATIENT_ID,
-            user_id=VALID_USER_ID,
             lang="English",
             answers=[
-                FormAnswer(question_id="q1", answer={"number": 75}),
-                FormAnswer(question_id="q2", answer={"text": "Good health"}),
-                FormAnswer(question_id="q3", answer={"mc_id_array": [0, 2]}),
-                FormAnswer(question_id="q4", answer={"date": "2025-01-15"}),
+                CreateFormAnswerRequest(question_id="q1", answer={"number": 75}),
+                CreateFormAnswerRequest(
+                    question_id="q2", answer={"text": "Good health"}
+                ),
+                CreateFormAnswerRequest(
+                    question_id="q3", answer={"mc_id_array": [0, 2]}
+                ),
+                CreateFormAnswerRequest(
+                    question_id="q4", answer={"date": "2025-01-15"}
+                ),
             ],
         )
         assert len(request.answers) == 4
@@ -483,7 +484,6 @@ class TestFormSubmissionComplexScenarios:
         request = CreateFormSubmissionRequest(
             form_template_id=VALID_TEMPLATE_ID,
             patient_id=VALID_PATIENT_ID,
-            user_id=VALID_USER_ID,
             answers=[],
         )
         assert request.lang == "English"

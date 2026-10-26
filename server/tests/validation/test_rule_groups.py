@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from pydantic import ValidationError
 
@@ -63,3 +65,70 @@ def test_rule_group_validation(json, expectation):
             RuleGroupModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error from {e}") from e
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        None,
+        123,
+        "hello",
+        True,
+        [],
+        [1, 2],
+    ],
+)
+def test_reject_non_object_root(rule):
+    with pytest.raises(ValidationError):
+        RuleGroupModel(
+            id="test-rule",
+            rule=json.dumps(rule),
+        )
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        {"==": [None, "Yes"]},
+        {"==": [{"var": "patient.age"}, None]},
+        {
+            "and": [
+                {">": [{"var": "patient.age"}, 18]},
+                {"==": [None, "Yes"]},
+            ]
+        },
+        {"!": None},
+    ],
+)
+def test_reject_null_operands(rule):
+    with pytest.raises(ValidationError):
+        RuleGroupModel(
+            id="test-rule",
+            rule=json.dumps(rule),
+        )
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        {"==": [{"var": "patient.age"}, 18]},
+        {
+            "and": [
+                {"<": [{"var": "patient.age"}, 32]},
+                {">": [{"var": "bpm"}, 164]},
+            ]
+        },
+        {
+            ">": [{"var": "patient.age"}, 200]
+        },  # accept medically wrong but well-formed rules
+    ],
+)
+def test_accept_well_formed_rules(rule):
+    rule_string = json.dumps(rule)
+
+    model = RuleGroupModel(
+        id="test-rule",
+        rule=rule_string,
+    )
+
+    assert model.rule == rule_string

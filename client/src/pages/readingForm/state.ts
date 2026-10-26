@@ -19,7 +19,7 @@ export enum ReadingField {
   lossOfSmell = 'lossOfSmell',
   otherSymptoms = 'otherSymptoms',
   // vital signs
-  bpSystolic = 'systolicBloopPressure',
+  bpSystolic = 'systolicBloodPressure',
   bpDiastolic = 'diastolicBloodPressure',
   heartRate = 'heartRate',
   // urine test

@@ -27,7 +27,7 @@ What this module provides
 """
 
 import json
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from common.commonUtil import get_current_time, get_uuid
 from data.db_operations import M, db_session
@@ -160,6 +160,9 @@ def read_workflow_instances(
     status: Optional[WorkflowStatusEnum] = None,
     workflow_template_id: Optional[str] = None,
     last_edited: Optional[int] = None,
+    user: Optional[dict] = None,
+    *,
+    scope_query: Optional[Callable] = None,
 ) -> list[WorkflowInstanceOrm]:
     """
     Queries the database for all workflow instances that have either been assigned by a specific user or all instances in total
@@ -170,11 +173,18 @@ def read_workflow_instances(
     :param workflow_template_id: ID of workflow template the instances are based on
     :param last_edited: Timestamp to filter workflow instances by last-edited time greater
     than the timestamp; by default this filter is not applied
+    :param user: Authenticated user; when given, ``scope_query`` limits the results to
+    instances for patients this user can access
+    :param scope_query: Function that scopes the query to the user's patients; required
+    when ``user`` is given
     :return: A list of workflow instances
     """
     query = db_session.query(WorkflowInstanceOrm)
 
     # user_id filter removed: workflow_instance no longer has last_edited_by.
+
+    if user is not None:
+        query = scope_query(query, WorkflowInstanceOrm.patient_id, user)
 
     if patient_id:
         query = query.filter(WorkflowInstanceOrm.patient_id == patient_id)

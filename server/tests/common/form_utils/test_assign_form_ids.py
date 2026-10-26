@@ -9,13 +9,10 @@ import pytest
 from common.form_utils import assign_form_ids_v2, assign_form_template_ids_v2
 from enums import QuestionTypeEnum
 from validation.formsV2_models import (
-    CreateFormSubmissionRequest,
-    FormAnswer,
     FormClassification,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
     MCOption,
-    TextAnswer,
 )
 
 EXISTING_CLASSIFICATION_ID = "classification-existing"
@@ -25,7 +22,6 @@ EXISTING_QUESTION_ID = "question-existing"
 EXISTING_QUESTION_STRING_ID = "question-string-existing"
 EXISTING_MC_OPTION_ID = "mc-option-existing"
 EXISTING_SUBMISSION_ID = "submission-existing"
-EXISTING_ANSWER_ID = "answer-existing"
 
 
 def _uuid_sequence(*values: str):
@@ -83,28 +79,14 @@ def _make_upload_request(
     )
 
 
-def _make_submission_request(
-    *,
-    submission_id: str | None = None,
-    answer_id: str | None = None,
-) -> CreateFormSubmissionRequest:
-    return CreateFormSubmissionRequest(
-        id=submission_id,
-        form_template_id="template-1",
-        patient_id="patient-1",
-        user_id=1,
-        answers=[
-            FormAnswer(
-                id=answer_id,
-                question_id="question-1",
-                answer=TextAnswer(text="Jane Doe"),
-            ),
-            FormAnswer(
-                question_id="question-2",
-                answer=TextAnswer(text="Follow-up"),
-            ),
+def _make_submission_request(*, submission_id: str | None = None) -> dict:
+    return {
+        "id": submission_id,
+        "answers": [
+            {"question_id": "question-1", "answer": {"text": "Jane Doe"}},
+            {"question_id": "question-2", "answer": {"text": "Follow-up"}},
         ],
-    )
+    }
 
 
 def test_assign_form_template_ids_v2_assigns_missing_classification_ids():
@@ -245,11 +227,11 @@ def test_assign_form_ids_v2_assigns_missing_submission_and_answer_ids():
     with _uuid_sequence("uuid-submission-id", "uuid-answer-1", "uuid-answer-2"):
         assign_form_ids_v2(submission)
 
-    assert submission.id == "uuid-submission-id"
-    assert submission.answers[0].id == "uuid-answer-1"
-    assert submission.answers[0].form_submission_id == "uuid-submission-id"
-    assert submission.answers[1].id == "uuid-answer-2"
-    assert submission.answers[1].form_submission_id == "uuid-submission-id"
+    assert submission["id"] == "uuid-submission-id"
+    assert submission["answers"][0]["id"] == "uuid-answer-1"
+    assert submission["answers"][0]["form_submission_id"] == "uuid-submission-id"
+    assert submission["answers"][1]["id"] == "uuid-answer-2"
+    assert submission["answers"][1]["form_submission_id"] == "uuid-submission-id"
 
 
 def test_assign_form_ids_v2_preserves_existing_submission_id():
@@ -258,20 +240,6 @@ def test_assign_form_ids_v2_preserves_existing_submission_id():
     with _uuid_sequence("uuid-answer-1", "uuid-answer-2"):
         assign_form_ids_v2(submission)
 
-    assert submission.id == EXISTING_SUBMISSION_ID
-    assert submission.answers[0].form_submission_id == EXISTING_SUBMISSION_ID
-    assert submission.answers[1].form_submission_id == EXISTING_SUBMISSION_ID
-
-
-def test_assign_form_ids_v2_preserves_existing_answer_ids():
-    submission = _make_submission_request(
-        submission_id=EXISTING_SUBMISSION_ID,
-        answer_id=EXISTING_ANSWER_ID,
-    )
-
-    with _uuid_sequence("uuid-answer-2"):
-        assign_form_ids_v2(submission)
-
-    assert submission.answers[0].id == EXISTING_ANSWER_ID
-    assert submission.answers[1].id == "uuid-answer-2"
-    assert submission.answers[0].form_submission_id == EXISTING_SUBMISSION_ID
+    assert submission["id"] == EXISTING_SUBMISSION_ID
+    assert submission["answers"][0]["form_submission_id"] == EXISTING_SUBMISSION_ID
+    assert submission["answers"][1]["form_submission_id"] == EXISTING_SUBMISSION_ID
