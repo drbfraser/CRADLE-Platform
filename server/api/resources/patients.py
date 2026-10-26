@@ -15,12 +15,14 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from common.patient_utils import assign_patient_id
+from common.patient_utils import PATIENT_ID_DELETED_MSG, assign_patient_id
 from config import db
 from data import orm_serializer
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
+    DeletedPatientOrm,
+    DeletedPatientUserOrm,
     FormTemplateOrmV2,
     PatientOrm,
     PregnancyOrm,
@@ -98,6 +100,10 @@ def create_patient(body: CreatePatientRequest):
     for referral in new_patient["referrals"]:
         referral["user_id"] = current_user["id"]
     assign_patient_id(new_patient)
+    # IDs of deleted patients can't be reused, so devices holding the old patient
+    # can't confuse it with a new one.
+    if crud.read(DeletedPatientOrm, patient_id=new_patient["id"]) is not None:
+        return abort(409, description=PATIENT_ID_DELETED_MSG.format(new_patient["id"]))
     patient = orm_serializer.unmarshal(PatientOrm, new_patient)
 
     # Resolve invariants and set the creation timestamp for the patient ensuring
@@ -506,5 +512,32 @@ def delete_patient(path: PatientIdPath):
     """Delete Patient"""
     require_role(RoleEnum.ADMIN)
     patient = crud.read(PatientOrm, id=path.patient_id)
+    if patient is None:
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
+
+    # Record the deletion so sync can tell mobile devices to remove this patient.
+    # Not committed on its own: crud.delete() below commits both changes together.
+    current_user = user_utils.get_current_user_from_jwt()
+    crud.merge(
+        DeletedPatientOrm(
+            patient_id=patient.id,
+            deleted_at=get_current_time(),
+            deleted_by=current_user["id"],
+        ),
+        autocommit=False,
+    )
+
+    # Associations are deleted with the patient, so keep who had access for sync.
+    associated_user_ids = {
+        association.user_id
+        for association in patient.associations
+        if association.user_id is not None
+    }
+    for user_id in associated_user_ids:
+        crud.merge(
+            DeletedPatientUserOrm(patient_id=patient.id, user_id=user_id),
+            autocommit=False,
+        )
+
     crud.delete(patient)
     return Response(status=200)

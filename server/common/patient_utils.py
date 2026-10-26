@@ -3,6 +3,9 @@ from common.commonUtil import abort_not_found, get_uuid
 from models import PatientOrm
 
 PATIENT_NOT_FOUND_MSG = "Patient with ID: ({}) not found."
+PATIENT_ID_DELETED_MSG = (
+    "Patient ID ({}) belonged to a deleted patient and cannot be reused."
+)
 
 
 def assign_patient_id(patient: dict) -> None:
