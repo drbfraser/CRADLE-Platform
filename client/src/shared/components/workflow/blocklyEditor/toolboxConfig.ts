@@ -9,16 +9,12 @@ import {
 function buildVariableCategories(variables: WorkflowVariable[]) {
   const sourceGroups = groupVariablesBySource(variables);
 
-  return sortedSourceKeys(sourceGroups).flatMap((sourceKey) => {
-    const label = variableSourceLabel(sourceKey);
-    const infoCategory = {
-      kind: 'category',
-      name: `${label} info`,
-      colour: '20',
-      contents: [{ kind: 'block', type: genericVariableBlockType(sourceKey) }],
-    };
-    return [infoCategory];
-  });
+  return sortedSourceKeys(sourceGroups).map((sourceKey) => ({
+    kind: 'category',
+    name: `${variableSourceLabel(sourceKey)} info`,
+    colour: '20',
+    contents: [{ kind: 'block', type: genericVariableBlockType(sourceKey) }],
+  }));
 }
 
 export function buildToolboxConfig(variables: WorkflowVariable[]) {
