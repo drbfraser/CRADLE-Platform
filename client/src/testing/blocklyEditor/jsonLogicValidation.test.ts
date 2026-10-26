@@ -1,15 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { inferBlocklyType } from 'src/shared/components/workflow/blocklyEditor/ruleTypeInference';
 import {
   stripRuleMetadata,
   validateJsonLogic,
 } from 'src/shared/components/workflow/blocklyEditor/jsonLogicGenerator';
-
-const tagToType = new Map<string, string | null>([
-  ['patient.age', 'Number'],
-  ['forms[latest].q1', 'String'],
-  ['patient.dob', 'Date'],
-]);
 
 describe('validateJsonLogic', () => {
   it('accepts a complete number comparison at root', () => {
@@ -44,20 +37,5 @@ describe('validateJsonLogic', () => {
       name: 'branch-a',
     };
     expect(validateJsonLogic(stripRuleMetadata(rule), true)).toBe(true);
-  });
-});
-
-describe('ruleTypeInference', () => {
-  it('maps variable tags to blockly types', () => {
-    expect(inferBlocklyType({ var: 'patient.age' }, tagToType)).toBe('Number');
-    expect(inferBlocklyType({ var: 'forms[latest].q1' }, tagToType)).toBe(
-      'String'
-    );
-    expect(inferBlocklyType({ var: 'patient.dob' }, tagToType)).toBe('Date');
-  });
-
-  it('treats ISO date strings as Date literals', () => {
-    expect(inferBlocklyType('2024-06-15', tagToType)).toBe('Date');
-    expect(inferBlocklyType('Yes', tagToType)).toBe('String');
   });
 });

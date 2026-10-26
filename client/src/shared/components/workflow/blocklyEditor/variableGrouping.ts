@@ -62,10 +62,6 @@ export function variableSourceLabel(sourceKey: string): string {
   );
 }
 
-export function variableBlockType(sourceKey: string, bType: string): string {
-  return `app_variable_${sourceKey}_${bType}`;
-}
-
 export function genericVariableBlockType(sourceKey: string): string {
   return `app_variable_${sourceKey}`;
 }

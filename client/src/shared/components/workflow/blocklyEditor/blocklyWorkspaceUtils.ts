@@ -1,10 +1,6 @@
 import * as Blockly from 'blockly';
 
 const CONDITION_ROOT_BLOCK_TYPES = new Set([
-  'number_comparison',
-  'date_comparison',
-  'string_comparison',
-  'boolean_comparison',
   'generic_comparison',
   'logic_op',
   'logic_negate',

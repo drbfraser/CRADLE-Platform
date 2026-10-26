@@ -159,6 +159,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
 
       if (
         event.type !== Blockly.Events.BLOCK_CHANGE &&
+        event.type !== Blockly.Events.BLOCK_FIELD_INTERMEDIATE_CHANGE &&
         event.type !== Blockly.Events.BLOCK_MOVE &&
         event.type !== Blockly.Events.BLOCK_CREATE &&
         event.type !== Blockly.Events.BLOCK_DELETE

@@ -2,7 +2,6 @@ import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
 import { blocklyTypeFromVariableType, syncGenericCompareTypes } from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
-import { comparisonBlockType, inferBlocklyType } from './ruleTypeInference';
 import { resolveVariableBlockType } from './variableGrouping';
 
 const COMPARISON_OPS = ['<', '>', '==', '<=', '>=', '!='];
@@ -63,9 +62,6 @@ export function appendJsonLogicToWorkspace(
   block.moveBy(x, y);
   return true;
 }
-
-// Re-export for tests.
-export { inferBlocklyType, comparisonBlockType };
 
 function connectValueBlock(
   parent: Blockly.BlockSvg,
