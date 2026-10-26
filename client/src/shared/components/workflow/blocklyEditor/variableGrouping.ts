@@ -98,12 +98,11 @@ export function sortedSourceKeys(
 
 export function resolveVariableBlockType(
   tag: string,
-  variables: WorkflowVariable[],
-  bType: string
+  variables: WorkflowVariable[]
 ): string {
   const variable = variables.find((v) => v.tag === tag);
   const sourceKey = variable
     ? inferVariableSourceKey(variable)
     : inferSourceKeyFromTag(tag);
-  return variableBlockType(sourceKey, bType);
+  return genericVariableBlockType(sourceKey);
 }

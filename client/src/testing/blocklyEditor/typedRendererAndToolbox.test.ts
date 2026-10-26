@@ -55,14 +55,12 @@ describe('buildToolboxConfig', () => {
     expect(comparisonsAndLogic).toBeTruthy();
 
     const blockTypes = comparisonsAndLogic?.contents.map((c) => c.type);
-    expect(blockTypes).toContain('logic_op');
-    expect(blockTypes).toContain('logic_negate');
-    expect(blockTypes).not.toContain('number_comparison');
-    expect(blockTypes).not.toContain('date_comparison');
-    expect(blockTypes).not.toContain('string_comparison');
-    expect(blockTypes).not.toContain('boolean_comparison');
-    expect(blockTypes).toContain('generic_comparison');
-    expect(blockTypes).toContain('string_op');
+    expect(blockTypes).toEqual([
+      'logic_op',
+      'logic_negate',
+      'generic_comparison',
+      'string_op',
+    ]);
 
     // Old type-based and split task-based categories shouldn't reappear
     // (would duplicate blocks now unified under Comparisons and Logic).
@@ -93,13 +91,11 @@ describe('buildToolboxConfig', () => {
       (c) => c.name === 'Comparisons and Logic'
     );
     const blockTypes = comparisonsAndLogic?.contents?.map((c) => c.type);
-    expect(blockTypes).toContain('logic_op');
-    expect(blockTypes).toContain('logic_negate');
-    expect(blockTypes).not.toContain('number_comparison');
-    expect(blockTypes).not.toContain('date_comparison');
-    expect(blockTypes).not.toContain('string_comparison');
-    expect(blockTypes).not.toContain('boolean_comparison');
-    expect(blockTypes).toContain('generic_comparison');
-    expect(blockTypes).toContain('string_op');
+    expect(blockTypes).toEqual([
+      'logic_op',
+      'logic_negate',
+      'generic_comparison',
+      'string_op',
+    ]);
   });
 });

@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
-import { blocklyTypeFromVariableType } from './blocks';
+import { blocklyTypeFromVariableType, syncGenericCompareTypes } from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { comparisonBlockType, inferBlocklyType } from './ruleTypeInference';
 import { resolveVariableBlockType } from './variableGrouping';
@@ -81,13 +81,9 @@ function createComparisonBlock(
   op: string,
   args: unknown[],
   tagToType: Map<string, string | null>,
-  variables: WorkflowVariable[],
-  blockType?: string
+  variables: WorkflowVariable[]
 ): Blockly.BlockSvg {
-  const resolvedType =
-    blockType ?? comparisonBlockType(args[0], args[1], tagToType, op);
-  const block = workspace.newBlock(resolvedType);
-  block.setFieldValue(op, 'OP');
+  const block = workspace.newBlock('generic_comparison');
   block.initSvg();
   block.render();
 
@@ -105,6 +101,8 @@ function createComparisonBlock(
   );
   connectValueBlock(block, 'LEFT', leftBlock);
   connectValueBlock(block, 'RIGHT', rightBlock);
+  syncGenericCompareTypes(block);
+  block.setFieldValue(op, 'OP');
   return block;
 }
 
@@ -218,8 +216,7 @@ function createBlockFromRule(
       block.render();
       return block;
     }
-    const bType = tagToType.get(tag) ?? 'String';
-    const blockType = resolveVariableBlockType(tag, variables, bType);
+    const blockType = resolveVariableBlockType(tag, variables);
     const block = workspace.newBlock(blockType);
     block.setFieldValue(tag, 'VAR_NAME');
     block.initSvg();

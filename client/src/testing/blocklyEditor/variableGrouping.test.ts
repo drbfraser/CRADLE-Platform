@@ -20,12 +20,15 @@ describe('variableGrouping', () => {
     expect(variableSourceLabel('forms')).toBe('Form Questions');
   });
 
-  it('resolves source-specific variable block types for saved rules', () => {
-    expect(
-      resolveVariableBlockType('patient.age', TEST_VARIABLES, 'Number')
-    ).toBe('app_variable_patient_Number');
-    expect(
-      resolveVariableBlockType('forms[latest].q1', TEST_VARIABLES, 'String')
-    ).toBe('app_variable_forms_String');
+  it('resolves the generic per-source variable block for saved rules', () => {
+    expect(resolveVariableBlockType('patient.age', TEST_VARIABLES)).toBe(
+      'app_variable_patient'
+    );
+    expect(resolveVariableBlockType('patient.dob', TEST_VARIABLES)).toBe(
+      'app_variable_patient'
+    );
+    expect(resolveVariableBlockType('forms[latest].q1', TEST_VARIABLES)).toBe(
+      'app_variable_forms'
+    );
   });
 });

@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  comparisonBlockType,
-  inferBlocklyType,
-} from 'src/shared/components/workflow/blocklyEditor/ruleTypeInference';
+import { inferBlocklyType } from 'src/shared/components/workflow/blocklyEditor/ruleTypeInference';
 import {
   stripRuleMetadata,
   validateJsonLogic,
@@ -62,48 +59,5 @@ describe('ruleTypeInference', () => {
   it('treats ISO date strings as Date literals', () => {
     expect(inferBlocklyType('2024-06-15', tagToType)).toBe('Date');
     expect(inferBlocklyType('Yes', tagToType)).toBe('String');
-  });
-
-  it('picks the correct comparison block type', () => {
-    expect(
-      comparisonBlockType({ var: 'forms[latest].q1' }, 'Yes', tagToType)
-    ).toBe('string_comparison');
-    expect(comparisonBlockType({ var: 'patient.age' }, 18, tagToType)).toBe(
-      'number_comparison'
-    );
-    expect(
-      comparisonBlockType(
-        { var: 'patient.dob' },
-        { date: '2024-01-01' },
-        tagToType
-      )
-    ).toBe('date_comparison');
-  });
-
-  it('uses the value side when the variable is missing from the catalogue', () => {
-    expect(
-      comparisonBlockType({ var: 'forms[latest].missing_age' }, 18, tagToType)
-    ).toBe('number_comparison');
-    expect(
-      comparisonBlockType(
-        { var: 'forms[latest].missing_dob' },
-        { date: '2024-01-01' },
-        tagToType
-      )
-    ).toBe('date_comparison');
-    expect(
-      comparisonBlockType({ var: 'forms[latest].missing_q' }, 'male', tagToType)
-    ).toBe('string_comparison');
-  });
-
-  it('uses ordered operators as a number hint when both sides are unknown', () => {
-    expect(
-      comparisonBlockType(
-        { var: 'forms[latest].missing' },
-        { var: 'also.missing' },
-        tagToType,
-        '>='
-      )
-    ).toBe('number_comparison');
   });
 });
