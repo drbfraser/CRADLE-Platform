@@ -2,9 +2,9 @@ import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FormControlLabel, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import DeleteForever from '@mui/icons-material/DeleteForever';
-import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
-
 import { Patient } from 'src/shared/types/patientTypes';
 import { getPatientsAdminAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -18,6 +18,7 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import ArchivePatientDialog from './ArchivePatientDialog';
+import DeletePatientDialog from './DeletePatientDialog';
 import UnarchivePatientDialog from './UnarchivePatientDialog';
 
 export const ManagePatients = () => {
@@ -25,6 +26,7 @@ export const ManagePatients = () => {
   const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<Patient>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
 
   const adminPatientListQuery = useQuery({
     queryKey: ['adminPatientList', showArchivedPatients],
@@ -38,7 +40,7 @@ export const ManagePatients = () => {
     if (patient.isArchived) {
       actions.push({
         tooltip: 'Unarchive Patient',
-        Icon: RestoreFromTrashIcon,
+        Icon: UnarchiveIcon,
         onClick: () => {
           setUnarchivePopupOpen(true);
           setPopupPatient(patient);
@@ -47,13 +49,21 @@ export const ManagePatients = () => {
     } else {
       actions.push({
         tooltip: 'Archive Patient',
-        Icon: DeleteForever,
+        Icon: ArchiveIcon,
         onClick: () => {
           setArchivePopupOpen(true);
           setPopupPatient(patient);
         },
       });
     }
+    actions.push({
+      tooltip: 'Delete Patient',
+      Icon: DeleteForever,
+      onClick: () => {
+        setDeletePopupOpen(true);
+        setPopupPatient(patient);
+      },
+    });
 
     return <TableActionButtons actions={actions} />;
   }, []);
@@ -124,6 +134,14 @@ export const ManagePatients = () => {
             open={unarchivePopupOpen}
             onClose={() => {
               setUnarchivePopupOpen(false);
+              adminPatientListQuery.refetch();
+            }}
+            patient={popupPatient}
+          />
+          <DeletePatientDialog
+            open={deletePopupOpen}
+            onClose={() => {
+              setDeletePopupOpen(false);
               adminPatientListQuery.refetch();
             }}
             patient={popupPatient}

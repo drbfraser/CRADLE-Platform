@@ -71,6 +71,13 @@ export const unarchivePatientAsync = async (patientId: string) => {
   });
 };
 
+export const deletePatientAsync = async (patientId: string) => {
+  await axiosFetch({
+    method: 'DELETE',
+    url: EndpointEnum.PATIENTS + '/' + patientId,
+  });
+};
+
 //dashboards
 export const getPatientStatisticsAsync = async (
   patientId: string
