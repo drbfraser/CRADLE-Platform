@@ -72,10 +72,17 @@ export const ReadingFormPage = () => {
   ) => {
     if (isFinalPage) {
       addReading.mutate(values, {
-        onSuccess: () => navigate(`/patients/${patientId}`),
+        onSuccess: () => {
+          helpers.setSubmitting(false);
+          navigate(`/patients/${patientId}`);
+        },
+        onError: () => {
+          helpers.setSubmitting(false);
+        },
       });
     } else {
       helpers.setTouched({});
+      helpers.setSubmitting(false);
       setPageNum(pageNum + 1);
     }
   };

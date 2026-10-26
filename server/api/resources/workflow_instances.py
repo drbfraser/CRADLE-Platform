@@ -2,6 +2,7 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+from api.authorization import require_patient_access, scope_patient_query
 from common import patient_utils, user_utils, workflow_utils
 from common.api_utils import (
     WorkflowInstanceAndStepIdPath,
@@ -44,6 +45,7 @@ api_workflow_instances = APIBlueprint(
 @api_workflow_instances.post("", responses={201: WorkflowInstanceModel})
 def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     """Create Workflow Instance"""
+    require_patient_access(body.patient_id)
     lang = body.lang or "English"
     workflow_template = workflow_utils.fetch_workflow_template_or_404(
         body.workflow_template_id, lang=lang
@@ -89,10 +91,15 @@ def get_workflow_instances():
     )
     with_steps = request.args.get("with_steps", default=False)
 
+    if patient_id:
+        require_patient_access(patient_id)
+
     workflow_instances = WorkflowService.get_workflow_instances(
         patient_id=patient_id,
         status=status,
         workflow_template_id=workflow_template_id,
+        user=user_utils.get_current_user_from_jwt(),
+        scope_query=scope_patient_query,
     )
 
     if not with_steps:
@@ -116,6 +123,7 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
         path.workflow_instance_id
     )
+    require_patient_access(workflow_instance.patient_id)
 
     if not with_steps:
         workflow_instance.steps = []
@@ -134,9 +142,10 @@ def patch_workflow_instance(
     workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
         path.workflow_instance_id
     )
+    require_patient_access(workflow_instance.patient_id)
 
     if body.patient_id is not None and body.patient_id != workflow_instance.patient_id:
-        patient_utils.fetch_patient_or_404(body.patient_id)
+        return abort(400, description="Patient ID cannot be changed.")
 
     WorkflowService.apply_workflow_instance_patch(workflow_instance, body)
 
@@ -150,7 +159,10 @@ def patch_workflow_instance(
 @api_workflow_instances.delete("/<string:workflow_instance_id>", responses={204: None})
 def delete_workflow_instance(path: WorkflowInstanceIdPath):
     """Delete Workflow Instance"""
-    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        path.workflow_instance_id
+    )
+    require_patient_access(workflow_instance.patient_id)
     WorkflowService.delete_workflow_instance(path.workflow_instance_id)
 
     return "", 204
@@ -164,6 +176,7 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
 def get_available_actions(path: WorkflowInstanceIdPath):
     """Get Available Workflow Actions"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    require_patient_access(workflow_view.instance.patient_id)
     actions = WorkflowService.get_available_workflow_actions(workflow_view)
 
     response = GetAvailableActionsResponse(actions=actions)
@@ -177,6 +190,7 @@ def get_available_actions(path: WorkflowInstanceIdPath):
 def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
     """Apply a Workflow Action"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    require_patient_access(workflow_view.instance.patient_id)
 
     try:
         WorkflowService.apply_workflow_action(body.action, workflow_view)
@@ -196,6 +210,7 @@ def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
 def advance(path: WorkflowInstanceIdPath, body: AdvanceWorkflowRequest):
     """Advance the workflow to the next step, if possible"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    require_patient_access(workflow_view.instance.patient_id)
     current_user = user_utils.get_current_user_from_jwt()
 
     if body.target_template_step_id:
@@ -221,6 +236,7 @@ def override_current_step(
 ):
     """Override the current step of a workflow"""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    require_patient_access(workflow_view.instance.patient_id)
     workflow_utils.find_workflow_instance_step_or_404(
         workflow_view.instance, body.workflow_instance_step_id
     )
@@ -240,7 +256,10 @@ def override_current_step(
 )
 def get_workflow_instance_data(path: WorkflowInstanceIdPath):
     """List dynamic data fields for a workflow instance (``workflow_instance_data``)."""
-    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        path.workflow_instance_id
+    )
+    require_patient_access(workflow_instance.patient_id)
     rows = WorkflowService.get_workflow_instance_data_rows(path.workflow_instance_id)
     items = [WorkflowInstanceDataRowModel(**r) for r in rows]
     return GetWorkflowInstanceDataResponse(items=items).model_dump(), 200
@@ -255,7 +274,10 @@ def set_workflow_instance_data(
     path: WorkflowInstanceIdPath, body: SetWorkflowInstanceDataRequest
 ):
     """Create or update dynamic workflow instance fields (used by ``wf.<tag>`` rules)."""
-    workflow_utils.fetch_workflow_instance_or_404(path.workflow_instance_id)
+    workflow_instance = workflow_utils.fetch_workflow_instance_or_404(
+        path.workflow_instance_id
+    )
+    require_patient_access(workflow_instance.patient_id)
     payload = [(i.field_tag, i.field_type, i.value) for i in body.items]
     WorkflowService.upsert_workflow_instance_data_items(
         path.workflow_instance_id, payload
@@ -272,9 +294,6 @@ def set_workflow_instance_data(
 # module docstring for why freezing values is a separate feature.
 #
 # TODO: remaining items before this is production-ready:
-# - Authorization: call require_patient_access() with the workflow instance's
-#   patient_id -- right now nothing stops a caller who merely knows a
-#   workflow_instance_id from pulling patient data through this route.
 # - Pass a reference timestamp (the step's start_date) into resolution so
 #   age/"latest"-style values freeze relative to when the step started, not
 #   wall-clock "now" -- see the staleness discussion. Requires extending
@@ -291,6 +310,7 @@ def get_description_variables(
 ):
     """Resolve the variable tags referenced by a step description's `{{...}}` tokens."""
     workflow_view = workflow_utils.fetch_workflow_view_or_404(path.workflow_instance_id)
+    require_patient_access(workflow_view.instance.patient_id)
     # TODO: use the step (e.g. its start_date) once "as of" resolution exists.
     workflow_utils.find_workflow_instance_step_or_404(
         workflow_view.instance, path.workflow_instance_step_id

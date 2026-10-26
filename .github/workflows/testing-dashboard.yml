@@ -1,0 +1,107 @@
+name: Testing Dashboard
+
+on:
+  workflow_dispatch:
+    inputs:
+      mobile_run_id:
+        description: "Cradle-Mobile repo's workflow run ID, containing test and coverage artifacts"
+        required: true
+        type: string
+      previous_run_id:
+        description: "Previous Platform testing dashboard artifact, to calculate trend. Leave empty if first run."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  CUSTOM_WORKSPACE: /isolated-build/repo
+
+jobs:
+  generate-dashboard:
+    runs-on: [self-hosted, docker]
+    container:
+      image: python:3.10.18-bookworm
+    timeout-minutes: 20
+
+    steps:
+      - name: Install tools
+        run: |
+          apt-get update
+          apt-get install -y git gh
+
+      - name: Checkout Platform
+        uses: bfraser/cicd/actions/checkout@v1
+        with:
+          path: ${{ env.CUSTOM_WORKSPACE }}
+
+      - name: Prepare isolated report directories
+        run: |
+          report_work="$(mktemp -d /isolated-build/dashboard.XXXX)"
+          echo "REPORT_WORK=$report_work" >> "$GITHUB_ENV"
+          mkdir -p "$report_work/current/tests"
+          mkdir -p "$report_work/current/coverage"
+          mkdir -p "$report_work/previous"
+          mkdir -p "$report_work/site"
+          cp -a testing-dashboard/page/index.html "$report_work/site/"
+          cp -a testing-dashboard/page/logos "$report_work/site/"
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+
+      - name: Download Mobile Artifacts
+        env:
+          GH_HOST: github.sfu.ca
+          GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
+          MOBILE_RUN_ID: ${{ github.event.inputs.mobile_run_id }}
+        run: |
+          gh run download "$MOBILE_RUN_ID" \
+          --repo github.sfu.ca/cradle-project/Cradle-Mobile \
+          --name mobile-unit-test-results \
+          --dir "$REPORT_WORK/current/tests"
+
+          gh run download "$MOBILE_RUN_ID" \
+          --repo github.sfu.ca/cradle-project/Cradle-Mobile \
+          --name mobile-jacoco-report \
+          --dir "$REPORT_WORK/current/coverage"
+
+      - name: Download previous artifacts
+        if: ${{ github.event.inputs.previous_run_id != '' }}
+        env:
+          GH_HOST: github.sfu.ca
+          GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
+          PREVIOUS_RUN_ID: ${{ github.event.inputs.previous_run_id }}
+          PLATFORM_REPOSITORY: ${{ github.repository }}
+        run: |
+          gh run download "$PREVIOUS_RUN_ID" \
+          --repo github.sfu.ca/$PLATFORM_REPOSITORY \
+          --name testing-dashboard \
+          --dir "$REPORT_WORK/previous"
+  
+      - name: Generate dashboard data
+        run: |
+          python testing-dashboard/report-generator.py \
+          --mobile-artifacts "$REPORT_WORK/current" \
+          --previous "$REPORT_WORK/previous/report-data.json"
+
+          cp testing-dashboard/page/report-data.json "$REPORT_WORK/site/"
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+
+      - name: Package detailed HTML reports
+        run: |
+          unit_report="$REPORT_WORK/current/tests/reports/tests/testDebugUnitTest"
+          coverage_report="$REPORT_WORK/current/coverage/coverage/combined"
+          
+          test -f "$unit_report/index.html"
+          test -f "$coverage_report/index.html"
+          
+          mkdir -p "$REPORT_WORK/site/reports/mobile"
+          cp -a "$unit_report" "$REPORT_WORK/site/reports/mobile/unit-tests"
+          cp -a "$coverage_report" "$REPORT_WORK/site/reports/mobile/jacoco"
+
+      - name: Upload dashboard
+        uses: actions/upload-artifact@v3
+        with:
+          name: testing-dashboard
+          path: ${{ env.REPORT_WORK }}/site/
+          if-no-files-found: error

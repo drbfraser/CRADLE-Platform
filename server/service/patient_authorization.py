@@ -5,7 +5,7 @@ from sqlalchemy.orm import Query
 
 import data.db_operations as crud
 from common.user_utils import UserDict
-from enums import RoleEnum
+from enums import RoleEnum, StrEnum
 from models import PatientAssociationsOrm
 
 UNRESTRICTED_PATIENT_ROLES = {
@@ -20,8 +20,31 @@ EXISTING_PATIENT_ASSIGNMENT_ROLES = {
 }
 
 
+class ReferralAction(StrEnum):
+    CREATE = "create"
+    ASSESS = "assess"
+    CANCEL = "cancel"
+    MARK_NOT_ATTENDED = "mark_not_attended"
+
+
+ALL_ROLES = frozenset(role.value for role in RoleEnum)
+
+# Intentionally apply relaxed rules for now as to not break existing functionality.
+# This can be restricted further once policy rules are finalized.
+REFERRAL_ACTION_ROLES = {
+    ReferralAction.CREATE: ALL_ROLES,
+    ReferralAction.ASSESS: ALL_ROLES,
+    ReferralAction.CANCEL: ALL_ROLES,
+    ReferralAction.MARK_NOT_ATTENDED: ALL_ROLES,
+}
+
+
 def can_assign_existing_patient(user: UserDict) -> bool:
     return user.get("role") in EXISTING_PATIENT_ASSIGNMENT_ROLES
+
+
+def can_perform_referral_action(user: UserDict, action: ReferralAction) -> bool:
+    return user.get("role") in REFERRAL_ACTION_ROLES[action]
 
 
 def can_access_patient(user: UserDict, patient_id: str) -> bool:
