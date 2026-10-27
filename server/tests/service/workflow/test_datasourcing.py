@@ -7,14 +7,14 @@ from service.workflow.datasourcing.data_sourcing import (
     DatasourceVariable,
     VariablePath,
 )
-from validation.assessments import AssessmentModel
+from validation.assessments import AssessmentResponse
 from validation.patients import PatientModel
-from validation.readings import ReadingModel
+from validation.readings import ReadingResponse
 
 REAL_MODEL_REGISTRY = {
     "patient": PatientModel,
-    "assessment": AssessmentModel,
-    "reading": ReadingModel,
+    "assessment": AssessmentResponse,
+    "reading": ReadingResponse,
 }
 
 

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.assessments import AssessmentPostBody
+from validation.assessments import CreateAssessmentRequest, UpdateAssessmentRequest
 
 ASSESSED_DATE = 1551447833
 HEALTHCARE_WORKER_ID = 2
@@ -118,9 +118,23 @@ assessments_missing_follow_up_instructions_when_follow_up_needed_true_should_thr
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            AssessmentPostBody(**json)
+            CreateAssessmentRequest(**json)
     else:
         try:
-            AssessmentPostBody(**json)
+            CreateAssessmentRequest(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected error: {e}") from e
+
+
+@pytest.mark.parametrize(
+    "request_model", [CreateAssessmentRequest, UpdateAssessmentRequest]
+)
+def test_assessment_request_ignores_worker_identity(request_model):
+    request = request_model(
+        id="assessment-contract",
+        patientId="patient-contract",
+        followUpNeeded=False,
+        healthcareWorkerId=2,
+    )
+
+    assert "healthcare_worker_id" not in request.model_dump()

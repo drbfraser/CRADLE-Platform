@@ -1,6 +1,5 @@
 from typing import Any, NamedTuple, Union, cast
 
-from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
@@ -30,9 +29,9 @@ from service.workflow.workflow_service import (
     _resolve_workflow_template_text,
 )
 from validation import CradleBaseModel
-from validation.assessments import AssessmentModel
+from validation.assessments import AssessmentResponse
 from validation.patients import PatientWithHistory, SyncPatientRequest
-from validation.readings import ReadingModel
+from validation.readings import CreateReadingRequest, ReadingResponse
 from validation.referrals import CreateReferralRequest, ReferralResponse
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
@@ -59,7 +58,7 @@ class SyncPatientsBody(RootModel[list[SyncPatientRequest]]):
     model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReadingsBody(RootModel[list[ReadingModel]]):
+class SyncReadingsBody(RootModel[list[CreateReadingRequest]]):
     model_config = dict(openapi_extra={"description": "List of Reading objects."})  # type: ignore[reportAssignmentType]
 
 
@@ -308,7 +307,7 @@ def sync_deleted_patients(body: SyncDeletedPatientsBody):
 
 
 class SyncReadingsResponse(CradleBaseModel):
-    readings: list[ReadingModel]
+    readings: list[ReadingResponse]
 
 
 # /api/sync/readings [POST]
@@ -336,10 +335,6 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
             )
         else:
             mobile_reading_dict["user_id"] = current_user["id"]
-            try:
-                ReadingModel(**mobile_reading_dict)
-            except ValidationError as e:
-                return abort(422, description=str(e))
             reading = orm_serializer.unmarshal(ReadingOrm, mobile_reading_dict)
             invariant.resolve_reading_invariants(reading)
             crud.create(reading, refresh=True)
@@ -398,7 +393,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
 
 
 class SyncAssessmentsResponse(CradleBaseModel):
-    assessments: list[AssessmentModel]
+    assessments: list[AssessmentResponse]
 
 
 # /api/sync/assessments [POST]

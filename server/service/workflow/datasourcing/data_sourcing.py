@@ -9,10 +9,10 @@ from pydantic import BaseModel
 
 import data.db_operations as crud
 from enums import StrEnum
-from validation.assessments import AssessmentModel
+from validation.assessments import AssessmentResponse
 from validation.patients import PatientModel
 from validation.pregnancies import PregnancyResponse
-from validation.readings import ReadingModel, UrineTestModel
+from validation.readings import ReadingResponse, UrineTestModel
 
 ObjectResolver = Callable[[str, str], Any]
 CustomResolver = Callable[[dict], Any]
@@ -34,8 +34,8 @@ MISSING: Any = object()
 
 DataModel = Union[
     PatientModel,
-    ReadingModel,
-    AssessmentModel,
+    ReadingResponse,
+    AssessmentResponse,
     PregnancyResponse,
     UrineTestModel,
 ]
@@ -45,8 +45,8 @@ WORKFLOW_VARIABLE_NAMESPACE = "wf"
 
 MODEL_REGISTRY: dict[str, type[BaseModel]] = {
     "patient": PatientModel,
-    "reading": ReadingModel,
-    "assessment": AssessmentModel,
+    "reading": ReadingResponse,
+    "assessment": AssessmentResponse,
     "pregnancy": PregnancyResponse,
     "urine_test": UrineTestModel,
 }

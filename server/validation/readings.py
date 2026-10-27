@@ -4,11 +4,11 @@ from pydantic import Field, RootModel
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
-from validation.assessments import AssessmentPostBody
-from validation.referrals import CreateReferralRequest
+from validation.assessments import AssessmentResponse, CreateAssessmentRequest
+from validation.referrals import CreateReferralRequest, ReferralResponse
 
 
-class ReadingModel(CradleBaseModel):
+class ReadingBase(CradleBaseModel):
     id: Optional[str] = None
     patient_id: str
     systolic_blood_pressure: int
@@ -18,9 +18,7 @@ class ReadingModel(CradleBaseModel):
     symptoms: list[str] = []
     date_taken: int = Field(default_factory=get_current_time)
     last_edited: int = Field(default_factory=get_current_time)
-    user_id: Optional[int] = None
-    assessment: Optional[AssessmentPostBody] = None
-    referral: Optional[CreateReferralRequest] = None
+    date_retest_needed: Optional[int] = None
 
     model_config = dict(
         openapi_extra={
@@ -33,14 +31,24 @@ class ReadingModel(CradleBaseModel):
                 "symptoms": ["Headache", "Blurred vision", "Bleeding", "Sleepy"],
                 "date_taken": 868545,
                 "last_edited": 868545,
-                "user_id": 1,
             }
         }
     )
 
 
-class ReadingList(RootModel):
-    root: list[ReadingModel]
+class CreateReadingRequest(ReadingBase):
+    assessment: Optional[CreateAssessmentRequest] = None
+    referral: Optional[CreateReferralRequest] = None
+
+
+class ReadingResponse(ReadingBase):
+    user_id: Optional[int] = None
+    assessment: Optional[AssessmentResponse] = None
+    referral: Optional[ReferralResponse] = None
+
+
+class ReadingList(RootModel[list[ReadingResponse]]):
+    pass
 
 
 class UrineTestModel(CradleBaseModel):
@@ -51,12 +59,16 @@ class UrineTestModel(CradleBaseModel):
     blood: str
 
 
-class ReadingWithUrineTest(ReadingModel):
+class CreateReadingWithUrineTestRequest(CreateReadingRequest):
     urine_tests: Optional[UrineTestModel] = None
 
 
-class ReadingWithUrineTestList(RootModel):
-    list[ReadingWithUrineTest]
+class ReadingWithUrineTestResponse(ReadingResponse):
+    urine_tests: Optional[UrineTestModel] = None
+
+
+class ReadingWithUrineTestList(RootModel[list[ReadingWithUrineTestResponse]]):
+    pass
 
 
 class ColorReadingStats(CradleBaseModel):

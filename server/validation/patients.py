@@ -6,7 +6,10 @@ from pydantic import Field, RootModel, field_validator
 from common.commonUtil import get_current_time
 from enums import SexEnum
 from validation import CradleBaseModel
-from validation.readings import ReadingWithUrineTest
+from validation.readings import (
+    CreateReadingWithUrineTestRequest,
+    ReadingWithUrineTestResponse,
+)
 from validation.referrals import CreateReferralRequest, ReferralResponse
 
 
@@ -96,7 +99,7 @@ def is_correct_date_format(s: Any) -> bool:
 
 
 class PatientWithRecordsResponse(PatientWithHistory):
-    readings: list[ReadingWithUrineTest] = []
+    readings: list[ReadingWithUrineTestResponse] = []
     referrals: list[ReferralResponse] = []
     medical_history_id: Optional[str] = None
     drug_history_id: Optional[str] = None
@@ -108,7 +111,7 @@ class CreatePatientRequest(PatientBase):
     drug_history: Optional[str] = None
     medical_history: Optional[str] = None
     allergy: Optional[str] = None
-    readings: list[ReadingWithUrineTest] = []
+    readings: list[CreateReadingWithUrineTestRequest] = []
     referrals: list[CreateReferralRequest] = []
 
 
