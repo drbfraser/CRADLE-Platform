@@ -28,6 +28,7 @@ import {
   isConditionRootBlock,
 } from 'src/shared/components/workflow/blocklyEditor/blocklyWorkspaceUtils';
 import { evaluateWorkspace } from 'src/shared/components/workflow/blocklyEditor/workspaceValidation';
+import { syncGenericCompareTypes } from 'src/shared/components/workflow/blocklyEditor/blocks';
 
 describe('Blockly workspace rules', () => {
   let container: HTMLDivElement;
@@ -62,7 +63,7 @@ describe('Blockly workspace rules', () => {
     });
 
     it('does not count string variables or value blocks as condition roots', () => {
-      const variable = placeRootBlock(workspace, 'app_variable_forms_String', {
+      const variable = placeRootBlock(workspace, 'app_variable_forms', {
         VAR_NAME: 'forms[latest].q1',
       });
       const value = placeRootBlock(workspace, 'string_value', { TEXT: 'Yes' });
@@ -85,7 +86,7 @@ describe('Blockly workspace rules', () => {
     });
 
     it('flags orphan variable blocks as incomplete conditions', () => {
-      placeRootBlock(workspace, 'app_variable_forms_String', {
+      placeRootBlock(workspace, 'app_variable_forms', {
         VAR_NAME: 'forms[latest].q1',
       });
       const result = evaluateWorkspace(workspace);
@@ -111,8 +112,8 @@ describe('Blockly workspace rules', () => {
     });
 
     it('allows multiple condition roots while building', () => {
-      placeRootBlock(workspace, 'string_comparison', { OP: '==' });
-      placeRootBlock(workspace, 'number_comparison', { OP: '>' });
+      placeRootBlock(workspace, 'generic_comparison', { OP: '==' });
+      placeRootBlock(workspace, 'generic_comparison', { OP: '>' });
 
       expect(getConditionRootBlocks(workspace)).toHaveLength(2);
       expect(evaluateWorkspace(workspace).error).toContain(
@@ -124,7 +125,7 @@ describe('Blockly workspace rules', () => {
 
   describe('building conditions', () => {
     it('reports incomplete when comparison slots are empty', () => {
-      placeRootBlock(workspace, 'string_comparison', { OP: '==' });
+      placeRootBlock(workspace, 'generic_comparison', { OP: '==' });
       const result = evaluateWorkspace(workspace);
       expect(result.error).toBe(
         'The condition is incomplete. All inputs must be connected before saving.'
@@ -132,10 +133,10 @@ describe('Blockly workspace rules', () => {
     });
 
     it('generates JSON Logic for string comparison with variable and value', () => {
-      const comparison = placeRootBlock(workspace, 'string_comparison', {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
         OP: '==',
       });
-      const variable = workspace.newBlock('app_variable_forms_String');
+      const variable = workspace.newBlock('app_variable_forms');
       variable.setFieldValue('forms[latest].q1', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -161,7 +162,7 @@ describe('Blockly workspace rules', () => {
         CASE: 'INSENSITIVE',
       });
 
-      const variable = workspace.newBlock('app_variable_forms_String');
+      const variable = workspace.newBlock('app_variable_forms');
       variable.setFieldValue('forms[latest].q1', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -183,10 +184,10 @@ describe('Blockly workspace rules', () => {
     });
 
     it('flags invalid date literals', () => {
-      const comparison = placeRootBlock(workspace, 'date_comparison', {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
         OP: '<',
       });
-      const variable = workspace.newBlock('app_variable_patient_Date');
+      const variable = workspace.newBlock('app_variable_patient');
       variable.setFieldValue('patient.dob', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -205,10 +206,10 @@ describe('Blockly workspace rules', () => {
     });
 
     it('flags invalid calendar dates (e.g. 2026-26-26)', () => {
-      const comparison = placeRootBlock(workspace, 'date_comparison', {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
         OP: '<',
       });
-      const variable = workspace.newBlock('app_variable_patient_Date');
+      const variable = workspace.newBlock('app_variable_patient');
       variable.setFieldValue('patient.dob', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -229,11 +230,11 @@ describe('Blockly workspace rules', () => {
     });
 
     it('flags invalid leap-year dates (2023-02-29)', () => {
-      const comparison = placeRootBlock(workspace, 'date_comparison', {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
         OP: '<',
       });
 
-      const variable = workspace.newBlock('app_variable_patient_Date');
+      const variable = workspace.newBlock('app_variable_patient');
       variable.setFieldValue('patient.dob', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -254,10 +255,10 @@ describe('Blockly workspace rules', () => {
     });
 
     it('combines two comparisons with AND into one valid condition', () => {
-      const ageCompare = placeRootBlock(workspace, 'number_comparison', {
+      const ageCompare = placeRootBlock(workspace, 'generic_comparison', {
         OP: '>',
       });
-      const ageVar = workspace.newBlock('app_variable_patient_Number');
+      const ageVar = workspace.newBlock('app_variable_patient');
       ageVar.setFieldValue('patient.age', 'VAR_NAME');
       ageVar.initSvg();
       ageVar.render();
@@ -268,10 +269,10 @@ describe('Blockly workspace rules', () => {
       connectBlockToInput(ageCompare, 'LEFT', ageVar);
       connectBlockToInput(ageCompare, 'RIGHT', ageValue);
 
-      const nameCompare = placeRootBlock(workspace, 'string_comparison', {
+      const nameCompare = placeRootBlock(workspace, 'generic_comparison', {
         OP: '==',
       });
-      const nameVar = workspace.newBlock('app_variable_forms_String');
+      const nameVar = workspace.newBlock('app_variable_forms');
       nameVar.setFieldValue('forms[latest].q1', 'VAR_NAME');
       nameVar.initSvg();
       nameVar.render();
@@ -303,10 +304,10 @@ describe('Blockly workspace rules', () => {
     });
 
     it('flags disconnected blocks that are not part of the condition tree', () => {
-      const comparison = placeRootBlock(workspace, 'string_comparison', {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
         OP: '==',
       });
-      const variable = workspace.newBlock('app_variable_forms_String');
+      const variable = workspace.newBlock('app_variable_forms');
       variable.setFieldValue('forms[latest].q1', 'VAR_NAME');
       variable.initSvg();
       variable.render();
@@ -356,6 +357,120 @@ describe('Blockly workspace rules', () => {
       const exported = workspaceToJsonLogic(workspace);
       expect(JSON.parse(exported!)).toEqual(JSON.parse(rule));
     });
+
+    it('loads comparisons as generic blocks narrowed to the variable type', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({ '>': [{ var: 'patient.age' }, 18] }),
+        TEST_VARIABLES
+      );
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+      expect(root.type).toBe('generic_comparison');
+      expect(root.getFieldValue('OP')).toBe('>');
+
+      const left = root.getInputTargetBlock('LEFT');
+      expect(left?.type).toBe('app_variable_patient');
+      expect(left?.outputConnection?.getCheck()).toEqual(['Number']);
+      expect(root.getInput('RIGHT')?.connection?.getCheck()).toEqual([
+        'Number',
+      ]);
+    });
+
+    it('keeps date operators when loading a date comparison', () => {
+      const rule = JSON.stringify({
+        '<=': [{ var: 'patient.dob' }, { date: '2024-01-01' }],
+      });
+      loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+      expect(root.type).toBe('generic_comparison');
+      expect(root.getFieldValue('OP')).toBe('<=');
+      expect(root.getInputTargetBlock('LEFT')?.getFieldValue('VAR_NAME')).toBe(
+        'patient.dob'
+      );
+      expect(root.getInput('RIGHT')?.connection?.getCheck()).toEqual(['Date']);
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        JSON.parse(rule)
+      );
+    });
+
+    it('keeps an ordered operator when both sides are unknown variables', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({
+          '>=': [{ var: 'forms[latest].missing' }, { var: 'also.missing' }],
+        }),
+        TEST_VARIABLES
+      );
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+      expect(root.type).toBe('generic_comparison');
+      expect(root.getFieldValue('OP')).toBe('>=');
+    });
+
+    it('does not nest a condition inside a comparison when loading', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({ '==': [{ '>': [{ var: 'patient.age' }, 18] }, true] }),
+        TEST_VARIABLES
+      );
+
+      const comparisons = workspace
+        .getAllBlocks(false)
+        .filter((b) => b.type === 'generic_comparison');
+      const outer = comparisons.find((b) => !b.getParent())!;
+      expect(outer.getInputTargetBlock('LEFT')).toBeNull();
+      expect(evaluateWorkspace(workspace).jsonLogic).toBeNull();
+    });
+  });
+
+  describe('generic comparison typing', () => {
+    it('narrows the other side to the connected variable type', () => {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
+        OP: '>',
+      });
+      const ageVar = workspace.newBlock('app_variable_patient');
+      ageVar.setFieldValue('patient.age', 'VAR_NAME');
+      ageVar.initSvg();
+      ageVar.render();
+      connectBlockToInput(comparison, 'LEFT', ageVar);
+      syncGenericCompareTypes(comparison);
+
+      expect(comparison.getInput('RIGHT')?.connection?.getCheck()).toEqual([
+        'Number',
+      ]);
+
+      const text = workspace.newBlock('string_value');
+      text.initSvg();
+      text.render();
+      connectBlockToInput(comparison, 'RIGHT', text);
+      expect(comparison.getInputTargetBlock('RIGHT')).toBeNull();
+    });
+
+    it('resets ordered operators to == when the type only supports equality', () => {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
+        OP: '>',
+      });
+      const q1 = workspace.newBlock('app_variable_forms');
+      q1.setFieldValue('forms[latest].q1', 'VAR_NAME');
+      q1.initSvg();
+      q1.render();
+      connectBlockToInput(comparison, 'LEFT', q1);
+      syncGenericCompareTypes(comparison);
+
+      expect(comparison.getFieldValue('OP')).toBe('==');
+    });
+
+    it('changes output type when a different variable is picked', () => {
+      const variable = placeRootBlock(workspace, 'app_variable_patient', {
+        VAR_NAME: 'patient.age',
+      });
+      expect(variable.outputConnection?.getCheck()).toEqual(['Number']);
+
+      variable.setFieldValue('patient.dob', 'VAR_NAME');
+      expect(variable.outputConnection?.getCheck()).toEqual(['Date']);
+    });
   });
 
   describe('append loading', () => {
@@ -393,7 +508,7 @@ describe('Blockly workspace rules', () => {
       const roots = getConditionRootBlocks(workspace);
       expect(roots).toHaveLength(1);
       const root = roots[0]!;
-      expect(root.type).toBe('string_comparison');
+      expect(root.type).toBe('generic_comparison');
       const left = root.getInputTargetBlock('LEFT');
       expect(left?.type).toBe('app_variable_missing');
       expect(left?.getFieldValue('VAR_NAME')).toBe('forms[latest].missing_q');
@@ -403,7 +518,7 @@ describe('Blockly workspace rules', () => {
       expect(root.getFieldValue('OP')).toBe('==');
     });
 
-    it('keeps number compare when a missing form question had a numeric value', () => {
+    it('keeps the ordered operator when a missing form question had a numeric value', () => {
       loadJsonLogicToWorkspace(
         workspace,
         JSON.stringify({
@@ -415,7 +530,7 @@ describe('Blockly workspace rules', () => {
       const roots = getConditionRootBlocks(workspace);
       expect(roots).toHaveLength(1);
       const root = roots[0]!;
-      expect(root.type).toBe('number_comparison');
+      expect(root.type).toBe('generic_comparison');
       const left = root.getInputTargetBlock('LEFT');
       expect(left?.type).toBe('app_variable_missing');
       expect(left?.getFieldValue('VAR_NAME')).toBe('forms[latest].patient_age');
