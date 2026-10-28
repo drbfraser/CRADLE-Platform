@@ -156,10 +156,10 @@ def get_patient(path: PatientIdPath):
 @api_patients.get("/<string:patient_id>/info", responses={200: PatientModel})
 def get_patient_info(path: PatientIdPath):
     """Get Patient Info"""
-    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
+    require_patient_access(path.patient_id)
     return orm_serializer.marshal(patient, shallow=True)
 
 
