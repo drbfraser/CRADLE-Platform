@@ -250,6 +250,24 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         '["date_taken"]',
         "vitals",
     ),
+    catalogue_variable(
+        "var-vitals-latest-traffic-color",
+        "vitals[latest].traffic_color",
+        "Latest vital sign traffic light color",
+        VariableType.STRING,
+        "vitals",
+        '["traffic_color"]',
+        "vitals",
+    ),
+    catalogue_variable(
+        "var-vitals-latest-traffic-arrow",
+        "vitals[latest].traffic_arrow",
+        "Latest vital sign traffic light arrow",
+        VariableType.STRING,
+        "vitals",
+        '["traffic_arrow"]',
+        "vitals",
+    ),
     # Pregnancy history
     catalogue_variable(
         "var-preg-latest-start",

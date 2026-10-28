@@ -44,6 +44,14 @@ def __query_vitals_collection(patient_id: str) -> list[dict[str, Any]]:
     for reading in readings:
         reading_dict = orm_serializer.marshal(reading)
 
+        status = reading_dict.get("traffic_light_status")
+
+        if status:
+            parts = str(status).split("_")
+
+            reading_dict["traffic_color"] = parts[0]
+            reading_dict["traffic_arrow"] = parts[1] if len(parts) > 1 else None
+
         # Attach nested urine_test if present on the ORM relationship.
         urine: UrineTestOrm | None = getattr(reading, "urine_tests", None)
         if urine is not None:
