@@ -14,6 +14,7 @@ from models import (
     PatientOrm,
     PregnancyOrm,
     ReadingOrm,
+    ReferralOrm,
     UrineTestOrm,
 )
 from service.workflow.datasourcing import custom_lookup as cl
@@ -70,21 +71,22 @@ def __query_pregnancies_collection(patient_id: str) -> list[dict[str, Any]]:
 
 def __query_referrals_collection(patient_id: str) -> list[dict[str, Any]]:
     """
-    Skeleton: query referrals collection for a patient.
-
-    Phase 3 focuses on vitals and pregnancies; referrals will be
-    implemented in a later phase.
+    Query referrals collection for a patient, ordered by date_referred (newest first).
     """
-    # TODO: Implement referral collection query (Phase 3 extension).
-    return []
+    referrals: list[ReferralOrm] = crud.read_patient_all_records(
+        patient_id, referrals=True
+    )
+    return [orm_serializer.marshal(r) for r in referrals]
 
 
 def __query_assessments_collection(patient_id: str) -> list[dict[str, Any]]:
     """
-    Skeleton: query assessments collection for a patient.
+    Query assessments collection for a patient, ordered by date_assessed (newest first).
     """
-    # TODO: Implement assessment collection query (Phase 3 extension).
-    return []
+    assessments: list[AssessmentOrm] = crud.read_patient_all_records(
+        patient_id, assessments=True
+    )
+    return [orm_serializer.marshal(a) for a in assessments]
 
 
 def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:

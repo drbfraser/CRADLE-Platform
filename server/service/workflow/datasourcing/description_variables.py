@@ -37,7 +37,7 @@ from service.workflow.datasourcing.data_sourcing import (
 # "(not yet available)" instead of a silent blank.
 #
 # TODO: remove an entry here once its __query_*_collection() is actually implemented.
-NOT_YET_IMPLEMENTED_NAMESPACES: frozenset[str] = frozenset({"referrals", "assessments"})
+NOT_YET_IMPLEMENTED_NAMESPACES: frozenset[str] = frozenset()
 
 
 class VariableOutcomeStatus(str, Enum):
