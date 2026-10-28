@@ -73,6 +73,7 @@ def __query_referrals_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query referrals collection for a patient, ordered by date_referred (newest first).
     """
+    # Reuse existing patient query that already orders readings by date.
     referrals: list[ReferralOrm] = crud.read_patient_all_records(
         patient_id, referrals=True
     )
@@ -83,6 +84,7 @@ def __query_assessments_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query assessments collection for a patient, ordered by date_assessed (newest first).
     """
+    # Reuse existing patient query that already orders readings by date.
     assessments: list[AssessmentOrm] = crud.read_patient_all_records(
         patient_id, assessments=True
     )
