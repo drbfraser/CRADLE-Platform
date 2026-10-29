@@ -71,12 +71,17 @@ class AnswerTypeMCId(CradleBaseModel):
 class AnswerTypeDate(CradleBaseModel):
     date: str
 
+class AnswerTypeTime(CradleBaseModel):
+    time: str
+    offset: int
+
 
 AnswerType = Union[
     AnswerTypeNumber,
     AnswerTypeText,
     AnswerTypeMCId,
     AnswerTypeDate,
+    AnswerTypeTime,
 ]
 
 
@@ -197,12 +202,16 @@ class MCAnswer(AnswerTypeMCId):
 class DateAnswer(AnswerTypeDate):
     comment: Optional[str] = None
 
+class TimeAnswer(AnswerTypeTime):
+    comment: Optional[str] = None
+
 
 AnswerValue = Union[
     NumberAnswer,
     TextAnswer,
     MCAnswer,
     DateAnswer,
+    TimeAnswer,
 ]
 
 
