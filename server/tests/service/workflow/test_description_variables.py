@@ -1,6 +1,8 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 from service.workflow.datasourcing import data_sourcing, description_variables
 from service.workflow.datasourcing.description_variables import (
     VariableOutcomeStatus,
@@ -65,25 +67,46 @@ def test_resolves_no_data_when_namespace_missing_from_catalogue():
     assert result["patient.name"].value is None
 
 
-def test_resolves_collection_namespace_variable():
-    catalogue = {
-        "vitals": {
-            "query": lambda _patient_id: [
+@pytest.mark.parametrize(
+    "namespace, field, rows, expected",
+    [
+        (
+            "vitals",
+            "systolic_blood_pressure",
+            [
                 {"systolic_blood_pressure": 120, "date_taken": 100},
                 {"systolic_blood_pressure": 110, "date_taken": 90},
             ],
-            "collection": True,
-        }
-    }
+            120,
+        ),
+        (
+            "referrals",
+            "is_assessed",
+            [
+                {"is_assessed": False, "date_referred": 200},
+                {"is_assessed": True, "date_referred": 100},
+            ],
+            False,
+        ),
+        (
+            "assessments",
+            "follow_up_needed",
+            [
+                {"follow_up_needed": True, "date_assessed": 200},
+                {"follow_up_needed": False, "date_assessed": 100},
+            ],
+            True,
+        ),
+    ],
+)
+def test_resolves_collection_namespace_variable(namespace, field, rows, expected):
+    catalogue = {namespace: {"query": lambda _patient_id: rows, "collection": True}}
+    tag = f"{namespace}[latest].{field}"
     with patch.object(description_variables, "get_catalogue", return_value=catalogue):
-        result = resolve_description_variables(
-            {"patient_id": "p1"},
-            ["vitals[latest].systolic_blood_pressure"],
-        )
+        result = resolve_description_variables({"patient_id": "p1"}, [tag])
 
-    resolved = result["vitals[latest].systolic_blood_pressure"]
-    assert resolved.status == VariableOutcomeStatus.RESOLVED
-    assert resolved.value == 120
+    assert result[tag].status == VariableOutcomeStatus.RESOLVED
+    assert result[tag].value == expected
 
 
 def test_resolves_wf_namespace_variable():
@@ -115,7 +138,14 @@ def test_resolves_wf_namespace_variable():
 
 
 def test_not_yet_implemented_namespace_is_flagged_distinctly():
-    with patch.object(description_variables, "get_catalogue", return_value={}):
+    with (
+        patch.object(description_variables, "get_catalogue", return_value={}),
+        patch.object(
+            description_variables,
+            "NOT_YET_IMPLEMENTED_NAMESPACES",
+            frozenset({"referrals"}),
+        ),
+    ):
         result = resolve_description_variables(
             {"patient_id": "p1"}, ["referrals[latest].date_referred"]
         )
