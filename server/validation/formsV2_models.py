@@ -71,9 +71,12 @@ class AnswerTypeMCId(CradleBaseModel):
 class AnswerTypeDate(CradleBaseModel):
     date: str
 
+
 class AnswerTypeTime(CradleBaseModel):
     time: str
-    offset: int
+    offset: int = Field(
+        strict=True # Inputted answer MUST be int
+    )
 
 
 AnswerType = Union[

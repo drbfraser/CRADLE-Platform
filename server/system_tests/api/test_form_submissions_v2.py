@@ -496,6 +496,69 @@ def test_get_form_submission_v2(create_patient, api_get, form_v2_resources):
     assert body["answers"][0]["answer"]["number"] == 90
 
 
+def test_time_answer_and_comment_survive_create_update_and_get(
+    create_patient,
+    api_get,
+    api_patch,
+    form_v2_resources,
+):
+    create_patient()
+    time_question = {
+        "question_type": QuestionTypeEnum.TIME.value,
+        "order": 2,
+        "required": True,
+        "question_text": {"english": "Appointment time"},
+        "category_index": 0,
+        "user_question_id": "appointment_time",
+        "has_comment_attached": True,
+        "mc_options": [],
+    }
+    bundle = form_v2_resources.create_template(extra_questions=[time_question])
+    question_id = _question_by_order(bundle["template"], 2).id
+    original_answer = {
+        "time": "15:30",
+        "offset": -420,
+        "comment": "Appointment time",
+    }
+
+    submission = form_v2_resources.create_submission(
+        bundle,
+        extra_answers=[{"question_id": question_id, "answer": original_answer}],
+    )
+    endpoint = f"/api/forms/v2/submissions/{submission['id']}"
+
+    response = api_get(endpoint)
+    assert response.status_code == 200, response.text
+    body = decamelize(response.json())
+    saved_answer = next(
+        answer for answer in body["answers"] if answer["question_id"] == question_id
+    )
+    assert saved_answer["question_type"] == QuestionTypeEnum.TIME.value
+    assert saved_answer["answer"] == original_answer
+    answer_id = saved_answer["id"]
+
+    updated_answer = {
+        "time": "16:00",
+        "offset": 330,
+        "comment": "Rescheduled",
+    }
+    response = api_patch(
+        endpoint,
+        json={"answers": [{"id": answer_id, "answer": updated_answer}]},
+    )
+    assert response.status_code == 200, response.text
+
+    response = api_get(endpoint)
+    assert response.status_code == 200, response.text
+    body = decamelize(response.json())
+    saved_answer = next(
+        answer for answer in body["answers"] if answer["question_id"] == question_id
+    )
+    assert saved_answer["id"] == answer_id
+    assert saved_answer["question_type"] == QuestionTypeEnum.TIME.value
+    assert saved_answer["answer"] == updated_answer
+
+
 def test_update_form_submission_v2(
     database,
     create_patient,
