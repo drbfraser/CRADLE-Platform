@@ -286,14 +286,15 @@ def test_date_future_not_allowed(mock_get_current_time, mock_template_read):
     assert result.code == 422
     assert result.msg == "Future dates are not allowed"
 
+
 @pytest.mark.parametrize(
-        "time, offset",
-        [
-            ("00:00", 0),
-            ("15:30", -420),
-            ("23:59", 840),
-            ("12:00", -720),  
-        ]
+    "time, offset",
+    [
+        ("00:00", 0),
+        ("15:30", -420),
+        ("23:59", 840),
+        ("12:00", -720),
+    ],
 )
 def test_valid_time_answer(mock_template_read, time, offset):
     answers = [
@@ -308,6 +309,7 @@ def test_valid_time_answer(mock_template_read, time, offset):
     assert result.ok is True
     assert result.code is None
 
+
 @pytest.mark.parametrize(
     "wrong_answer",
     [
@@ -315,9 +317,7 @@ def test_valid_time_answer(mock_template_read, time, offset):
         NumberAnswer(number=15),
     ],
 )
-def test_time_question_rejects_wrong_answer_type(
-    mock_template_read, wrong_answer
-):
+def test_time_question_rejects_wrong_answer_type(mock_template_read, wrong_answer):
     answers = [
         FormAnswer(
             question_id=TIME_Q_ID,
@@ -330,6 +330,7 @@ def test_time_question_rejects_wrong_answer_type(
     assert result.ok is False
     assert result.code == 442
     assert result.msg == "TIME questions require a TIME answer"
+
 
 def test_unknown_question_id(mock_template_read):
     answers = [

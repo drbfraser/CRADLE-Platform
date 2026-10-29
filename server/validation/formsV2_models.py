@@ -75,7 +75,7 @@ class AnswerTypeDate(CradleBaseModel):
 class AnswerTypeTime(CradleBaseModel):
     time: str
     offset: int = Field(
-        strict=True # Inputted answer MUST be int
+        strict=True  # Inputted answer MUST be int
     )
 
 
@@ -204,6 +204,7 @@ class MCAnswer(AnswerTypeMCId):
 
 class DateAnswer(AnswerTypeDate):
     comment: Optional[str] = None
+
 
 class TimeAnswer(AnswerTypeTime):
     comment: Optional[str] = None

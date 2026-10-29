@@ -24,7 +24,7 @@ from validation.formsV2_models import (
     FormClassification,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
-    TimeAnswer
+    TimeAnswer,
 )
 
 if TYPE_CHECKING:
@@ -668,10 +668,10 @@ def validate_form_answers(
                         False, "TIME questions require a TIME answer", code=442
                     )
 
-                if re.fullmatch(
-                    r"([01][0-9]|2[0-3]):[0-5][0-9]",
-                    answer.answer.time
-                ) is None:
+                if (
+                    re.fullmatch(r"([01][0-9]|2[0-3]):[0-5][0-9]", answer.answer.time)
+                    is None
+                ):
                     return ValidationResult(
                         False, "Time must use HH:mm between 00:00 and 23:59", code=442
                     )

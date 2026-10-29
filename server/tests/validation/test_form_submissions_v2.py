@@ -9,7 +9,7 @@ from validation.formsV2_models import (
     FormSubmission,
     FormSubmissionWithAnswers,
     UpdateFormRequestBody,
-    TimeAnswer
+    TimeAnswer,
 )
 
 VALID_SUBMISSION_ID = "submission-123"
@@ -454,6 +454,7 @@ def test_update_form_request_body_validation(json, expectation):
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error: {e}") from e
 
+
 def test_time_answer_parses_and_serializes():
     payload = {
         "time": "15:30",
@@ -461,20 +462,18 @@ def test_time_answer_parses_and_serializes():
         "comment": "Check up",
     }
 
-    form_answer = FormAnswer(
-        question_id=VALID_QUESTION_ID,
-        answer=payload
-    )
+    form_answer = FormAnswer(question_id=VALID_QUESTION_ID, answer=payload)
 
     assert isinstance(form_answer.answer, TimeAnswer)
     assert form_answer.model_dump()["answer"] == payload
 
+
 @pytest.mark.parametrize(
-        "payload",
-        [
-            {"offset": -420},
-            {"time": "15:30"},
-        ]
+    "payload",
+    [
+        {"offset": -420},
+        {"time": "15:30"},
+    ],
 )
 def test_time_answer_missing_required_field(payload):
     with pytest.raises(ValidationError):
@@ -482,6 +481,7 @@ def test_time_answer_missing_required_field(payload):
             question_id=VALID_QUESTION_ID,
             answer=payload,
         )
+
 
 @pytest.mark.parametrize(
     "payload",
@@ -499,6 +499,7 @@ def test_time_answer_invalid_field_type(payload):
             answer=payload,
         )
 
+
 def test_time_answer_without_comment():
     form_answer = FormAnswer(
         question_id=VALID_QUESTION_ID,
@@ -507,6 +508,7 @@ def test_time_answer_without_comment():
 
     assert isinstance(form_answer.answer, TimeAnswer)
     assert form_answer.answer.comment is None
+
 
 # Additional scenario tests
 class TestFormSubmissionComplexScenarios:
