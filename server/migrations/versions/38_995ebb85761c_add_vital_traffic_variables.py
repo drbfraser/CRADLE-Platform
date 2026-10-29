@@ -1,8 +1,8 @@
 """
 Add vital traffic light colour and arrow variables to workflow catalog
 
-Revision ID: 37_995ebb85761c
-Revises: 36_e4a517d9d610
+Revision ID: 38_995ebb85761c
+Revises: 37_seed_referral_assessment_vars
 Create Date: 2026-10-26 13:46
 
 """
@@ -12,8 +12,8 @@ import time
 import sqlalchemy as sa
 from alembic import op
 
-revision = "37_995ebb85761c"
-down_revision = "36_e4a517d9d610"
+revision = "38_995ebb85761c"
+down_revision = "37_seed_referral_assessment_vars"
 branch_labels = None
 depends_on = None
 
