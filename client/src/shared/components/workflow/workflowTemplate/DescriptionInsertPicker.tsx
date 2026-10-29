@@ -27,11 +27,6 @@ const UNIT_OPTIONS = [
   { value: 'y', label: 'year(s)' },
 ];
 
-// Namespaces whose backing data isn't actually wired up yet on the backend
-// (see server's NOT_YET_IMPLEMENTED_NAMESPACES) -- don't offer these for
-// insertion, since they'd always resolve to "not yet available".
-const UNAVAILABLE_NAMESPACES = new Set(['referrals', 'assessments']);
-
 // Friendly shortcuts for commonly-used variables, shown above the full
 // searchable catalogue below. These always show the current ("floating")
 // value, not a fixed snapshot.
@@ -136,11 +131,7 @@ export default function DescriptionInsertPicker({
 
   const availableVariables = useMemo(() => {
     const variables = variablesQuery.data ?? [];
-    return variables.filter(
-      (v) =>
-        (!v.namespace || !UNAVAILABLE_NAMESPACES.has(v.namespace)) &&
-        !curatedTags.has(v.tag)
-    );
+    return variables.filter((v) => !curatedTags.has(v.tag));
   }, [variablesQuery.data, curatedTags]);
 
   const filteredVariables = useMemo(() => {
