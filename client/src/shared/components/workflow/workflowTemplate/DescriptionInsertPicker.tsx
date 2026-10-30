@@ -70,6 +70,8 @@ const READING_ENTRIES: { label: string; tag: string }[] = [
   },
   { label: 'Heart rate', tag: 'vitals[latest].heart_rate' },
   { label: 'Date taken', tag: 'vitals[latest].date_taken' },
+  { label: 'Traffic light color', tag: 'vitals[latest].traffic_color' },
+  { label: 'Traffic light arrow', tag: 'vitals[latest].traffic_arrow' },
   {
     label: 'Flagged for follow-up',
     tag: 'vitals[latest].is_flagged_for_follow_up',

@@ -80,6 +80,24 @@ def test_resolves_no_data_when_namespace_missing_from_catalogue():
             120,
         ),
         (
+            "vitals",
+            "traffic_color",
+            [
+                {"traffic_color": "YELLOW", "date_taken": 100},
+                {"traffic_color": "RED", "date_taken": 90},
+            ],
+            "YELLOW",
+        ),
+        (
+            "vitals",
+            "traffic_arrow",
+            [
+                {"traffic_arrow": "DOWN", "date_taken": 100},
+                {"traffic_arrow": "UP", "date_taken": 90},
+            ],
+            "DOWN",
+        ),
+        (
             "referrals",
             "is_assessed",
             [
