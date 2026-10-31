@@ -20,6 +20,11 @@ function variableBlockGenerator(block: Blockly.Block): [string, number] {
   return [JSON.stringify({ var: varName }), 0];
 }
 
+jsonLogicGenerator.forBlock['enum_value'] = function (block) {
+  const value = block.getFieldValue('VALUE');
+  return [JSON.stringify(value), 0];
+};
+
 export function ensureVariableBlockGenerator(blockType: string): void {
   if (!jsonLogicGenerator.forBlock[blockType]) {
     jsonLogicGenerator.forBlock[blockType] = variableBlockGenerator;

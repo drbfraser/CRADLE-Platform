@@ -19,6 +19,7 @@ def catalogue_variable(
     *,
     computed=False,
     dynamic=False,
+    allowed_values=None,
 ):
     return {
         "id": id,
@@ -30,6 +31,7 @@ def catalogue_variable(
         "field_path": field_path,
         "is_computed": computed,
         "is_dynamic": dynamic,
+        "allowed_values": allowed_values,
     }
 
 
@@ -258,6 +260,7 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         "vitals",
         '["traffic_color"]',
         "vitals",
+        allowed_values=["GREEN", "YELLOW", "RED"],
     ),
     catalogue_variable(
         "var-vitals-latest-traffic-arrow",
@@ -267,6 +270,7 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         "vitals",
         '["traffic_arrow"]',
         "vitals",
+        allowed_values=["UP", "DOWN"],
     ),
     # Pregnancy history
     catalogue_variable(

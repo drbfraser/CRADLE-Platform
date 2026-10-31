@@ -185,6 +185,7 @@ class WorkflowVariableCatalogueItemModel(CradleBaseModel, extra="forbid"):
     field_path: Optional[list[str]] = None
     is_computed: bool = False
     is_dynamic: bool = False
+    allowed_values: Optional[list[str]] = None
 
 
 class GetWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):
