@@ -665,7 +665,7 @@ def validate_form_answers(
             case QuestionTypeEnum.TIME:
                 if not isinstance(answer.answer, TimeAnswer):
                     return ValidationResult(
-                        False, "TIME questions require a TIME answer", code=442
+                        False, "TIME questions require a TIME answer", code=422
                     )
 
                 if (
@@ -673,12 +673,12 @@ def validate_form_answers(
                     is None
                 ):
                     return ValidationResult(
-                        False, "Time must use HH:mm between 00:00 and 23:59", code=442
+                        False, "Time must use HH:mm between 00:00 and 23:59", code=422
                     )
 
                 if not -720 <= answer.answer.offset <= 840:
                     return ValidationResult(
-                        False, "Offset must be between -720 and 840 minutes", code=442
+                        False, "Offset must be between -720 and 840 minutes", code=422
                     )
 
             case _:

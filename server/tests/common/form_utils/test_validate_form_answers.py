@@ -328,7 +328,7 @@ def test_time_question_rejects_wrong_answer_type(mock_template_read, wrong_answe
     result = validate_form_answers(answers, TEMPLATE_ID)
 
     assert result.ok is False
-    assert result.code == 442
+    assert result.code == 422
     assert result.msg == "TIME questions require a TIME answer"
 
 
