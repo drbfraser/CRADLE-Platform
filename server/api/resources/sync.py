@@ -1,4 +1,5 @@
-from typing import Any, NamedTuple, Union, cast
+from functools import cache
+from typing import Any, Callable, NamedTuple, Optional, Union, cast
 
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
@@ -9,6 +10,7 @@ import data.db_operations as crud
 from api.authorization import scope_deleted_patient_query, scope_patient_query
 from common import user_utils
 from common.patient_utils import PATIENT_ID_DELETED_MSG, PATIENT_NOT_FOUND_MSG
+from common.user_utils import UserDict
 from data import orm_serializer
 from models import (
     DeletedPatientOrm,
@@ -18,11 +20,15 @@ from models import (
     PregnancyOrm,
     ReadingOrm,
     ReferralOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
 )
 from service import invariant, serialize, view
 from service.patient_authorization import (
+    ReferralAction,
     can_access_patient,
     can_assign_existing_patient,
+    can_perform_referral_action,
 )
 from service.workflow.workflow_service import (
     WorkflowService,
@@ -315,23 +321,21 @@ class SyncReadingsResponse(CradleBaseModel):
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     """Sync Readings"""
     current_user = user_utils.get_current_user_from_jwt()
-    patients_on_server_cache = set()
+    can_sync_patient = _patient_sync_checker(current_user)
     mobile_readings = body.root
     for mobile_reading in mobile_readings:
         mobile_reading_dict = mobile_reading.model_dump()
-        if mobile_reading_dict.get("patient_id") not in patients_on_server_cache:
-            patient_on_server = crud.read(
-                PatientOrm, id=mobile_reading_dict.get("patient_id")
-            )
-            if patient_on_server is None:
-                continue
-            patients_on_server_cache.add(patient_on_server.id)
+        if not can_sync_patient(mobile_reading.patient_id):
+            continue
 
-        if crud.read(ReadingOrm, id=mobile_reading_dict.get("id")):
+        server_reading = crud.read(ReadingOrm, id=mobile_reading.id)
+        if server_reading is not None:
+            if server_reading.patient_id != mobile_reading.patient_id:
+                continue
             crud.update(
                 ReadingOrm,
                 {"date_retest_needed": mobile_reading_dict.get("date_retest_needed")},
-                id=mobile_reading_dict.get("id"),
+                id=mobile_reading.id,
             )
         else:
             mobile_reading_dict["user_id"] = current_user["id"]
@@ -359,19 +363,17 @@ class SyncReferralsResponse(CradleBaseModel):
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     """Sync Referrals"""
     current_user = user_utils.get_current_user_from_jwt()
-    patients_on_server_cache = set()
+    can_sync_patient = _patient_sync_checker(current_user)
+    can_create_referral = can_perform_referral_action(
+        current_user, ReferralAction.CREATE
+    )
     mobile_referrals = body.root
     for mobile_referral in mobile_referrals:
         mobile_referral_dict = mobile_referral.model_dump()
-        if mobile_referral_dict.get("patient_id") not in patients_on_server_cache:
-            patient_on_server = crud.read(
-                PatientOrm, id=mobile_referral_dict.get("patient_id")
-            )
-            if patient_on_server is None:
-                continue
-            patients_on_server_cache.add(patient_on_server.id)
+        if not can_create_referral or not can_sync_patient(mobile_referral.patient_id):
+            continue
 
-        if crud.read(ReferralOrm, id=mobile_referral_dict.get("id")):
+        if crud.read(ReferralOrm, id=mobile_referral.id):
             # currently, for referrals that exist in server already we will skip them
             continue
         mobile_referral_dict["user_id"] = current_user["id"]
@@ -448,15 +450,16 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
     last_sync = query.since
     status_code = 200
     errors: list[dict] = list()
+    current_user = user_utils.get_current_user_from_jwt()
 
     mobile_workflow_instances = body.root
     for mobile_workflow_instance in mobile_workflow_instances:
-        patient_id = mobile_workflow_instance.patient_id
-        if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
+        error = _workflow_instance_sync_error(current_user, mobile_workflow_instance)
+        if error is not None:
             errors.append(
                 {
                     "workflow_instance_id": mobile_workflow_instance.id,
-                    "errors": PATIENT_NOT_FOUND_MSG.format(patient_id),
+                    "errors": error,
                 }
             )
             status_code = 207
@@ -472,7 +475,6 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
             )
             status_code = 207
 
-    current_user = user_utils.get_current_user_from_jwt()
     visible_patients = view.patient_list_view(
         cast("dict[Any, Any]", current_user), scope_query=scope_patient_query
     )
@@ -492,6 +494,48 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
         ],
         "errors": errors,
     }, status_code
+
+
+def _patient_sync_checker(current_user: UserDict) -> Callable[[str], bool]:
+    @cache
+    def can_sync_patient(patient_id: str) -> bool:
+        return crud.read(PatientOrm, id=patient_id) is not None and can_access_patient(
+            current_user, patient_id
+        )
+
+    return can_sync_patient
+
+
+def _workflow_instance_sync_error(
+    current_user: UserDict, mobile_workflow_instance: WorkflowInstanceModel
+) -> Optional[str]:
+    patient_id = mobile_workflow_instance.patient_id
+    if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
+        return PATIENT_NOT_FOUND_MSG.format(patient_id)
+    if not can_access_patient(current_user, patient_id):
+        return "Not authorized to sync this patient."
+
+    server_workflow_instance = crud.read(
+        WorkflowInstanceOrm, id=mobile_workflow_instance.id
+    )
+    if (
+        server_workflow_instance is not None
+        and server_workflow_instance.patient_id != patient_id
+    ):
+        return "Patient ID cannot be changed."
+
+    step_error = "Workflow step does not belong to this workflow instance."
+    for step in mobile_workflow_instance.steps:
+        if step.workflow_instance_id != mobile_workflow_instance.id:
+            return step_error
+        server_step = crud.read(WorkflowInstanceStepOrm, id=step.id)
+        if (
+            server_step is not None
+            and server_step.workflow_instance_id != mobile_workflow_instance.id
+        ):
+            return step_error
+
+    return None
 
 
 ERROR_MESSAGES = {

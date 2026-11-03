@@ -81,7 +81,9 @@ def get_global_search_patients(current_user, search):
         return patient_dict
 
     user = crud.read(UserOrm, id=current_user["id"])
-    pairs = filter_helper.annotated_global_patient_list(user, search)
+    pairs = filter_helper.annotated_global_patient_list(
+        user, search, current_user, scope_query=scope_patient_query
+    )
     patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
     return [to_global_search_patient(p) for p in patients_query]
 
@@ -120,8 +122,9 @@ class MobileGlobalSearchPatientsList(RootModel):
 def search_patient_list_mobile(path: SearchPath):
     """
     Search Patient List (Mobile)
-    Get a list of ALL patients and their basic information
-    (information necessary for the patient page) that match the search criteria.
+    Get a list of the patients that the current user can access and their basic
+    information (information necessary for the patient page) that match the search
+    criteria.
     For now search criteria could be:
         - A portion/full match of the patient's ID.
         - A portion/full match of the patient's initials.
