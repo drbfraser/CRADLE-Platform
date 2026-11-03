@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from humps import decamelize
 
@@ -7,13 +9,21 @@ from models import HealthFacilityOrm
 
 
 def test_post_facility(facility_name, health_facility, api_post):
+    health_facility["newReferrals"] = "client-time"
+    before_request = round(time.time() * 1000)
     try:
         response = api_post(endpoint="/api/facilities", json=health_facility)
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
         assert response.status_code == 201
-        assert crud.read(HealthFacilityOrm, name=facility_name) is not None
-
+        response_body = decamelize(response.json())
+        facility = crud.read(HealthFacilityOrm, name=facility_name)
+        assert facility is not None
+        assert (
+            before_request <= int(facility.new_referrals) <= round(time.time() * 1000)
+        )
+        assert int(response_body["new_referrals"]) == int(facility.new_referrals)
+        assert facility.location == health_facility["location"]
+        assert facility.about == health_facility["about"]
+        assert facility.type == health_facility["type"]
     finally:
         crud.delete_by(HealthFacilityOrm, name=facility_name)
 
