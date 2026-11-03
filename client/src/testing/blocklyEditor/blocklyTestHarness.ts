@@ -32,6 +32,16 @@ export const TEST_VARIABLES: WorkflowVariable[] = [
     isComputed: false,
     isDynamic: false,
   },
+  {
+    tag: 'forms[latest].traffic_color',
+    type: 'string',
+    description: 'Traffic Color',
+    namespace: 'forms',
+    collectionName: 'forms',
+    isComputed: false,
+    isDynamic: true,
+    allowedValues: ['GREEN', 'YELLOW', 'RED'],
+  },
 ];
 
 export function createTestWorkspace(): {

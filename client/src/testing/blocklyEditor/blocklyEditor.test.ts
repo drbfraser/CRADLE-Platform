@@ -554,5 +554,26 @@ describe('Blockly workspace rules', () => {
       const left = roots[0]!.getInputTargetBlock('LEFT');
       expect(left?.getFieldValue('VAR_NAME')).toBe('forms[latest].q1');
     });
+
+    it('restores enum values when loading a saved rule', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({
+          '==': [{ var: 'forms[latest].traffic_color' }, 'YELLOW'],
+        }),
+        TEST_VARIABLES
+      );
+
+      const roots = getConditionRootBlocks(workspace);
+
+      expect(roots).toHaveLength(1);
+
+      const root = roots[0]!;
+
+      const right = root.getInputTargetBlock('RIGHT');
+
+      expect(right?.type).toBe('enum_value');
+      expect(right?.getFieldValue('VALUE')).toBe('YELLOW');
+    });
   });
 });
