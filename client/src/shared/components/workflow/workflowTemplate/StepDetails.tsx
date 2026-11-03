@@ -189,7 +189,9 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
                 fullWidth
                 variant="outlined"
                 size="small"
-                value={selectedStep.name}
+                value={selectedStep.name ?? ''}
+                placeholder="e.g. Step 1"
+                required
                 error={isMultiLang && !selectedStep.name?.trim()}
                 helperText={
                   isMultiLang && !selectedStep.name?.trim()
