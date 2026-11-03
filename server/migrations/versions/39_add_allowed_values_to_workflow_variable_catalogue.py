@@ -26,7 +26,7 @@ def upgrade():
         sa.text(
             """
             UPDATE workflow_variable_catalogue
-            SET allowed_variables = :allowed_values
+            SET allowed_values = :allowed_values
             WHERE tag = 'vitals[latest].traffic_color'
             """
         ),
