@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import TYPE_CHECKING, Literal, NamedTuple, Optional
 
 import data.db_operations as crud
-import re
 from common import commonUtil
 from enums import QuestionTypeEnum
 from models import (

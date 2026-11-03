@@ -1,10 +1,9 @@
-from pathlib import Path
+import argparse
+import json
 import sys
 import xml.etree.ElementTree as ET
-import json
-import argparse
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 """
 Needs to be manually updated
