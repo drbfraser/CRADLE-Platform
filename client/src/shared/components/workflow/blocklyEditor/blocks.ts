@@ -211,7 +211,6 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
       : GENERIC_COMPARE_COLOUR
   );
 
-  // ENUM HANDLING LAST
   if (allowedValues?.length) {
     let rightBlock = block.getInputTargetBlock('RIGHT');
 
@@ -226,7 +225,13 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
 
       const newOptions = JSON.stringify(allowedValues);
 
-      if (existingOptions !== newOptions) {
+      const field = rightBlock.getField('VALUE');
+
+      const needsRefresh =
+        !(field instanceof Blockly.FieldDropdown) ||
+        field.getOptions().length <= 1;
+
+      if (needsRefresh || existingOptions !== newOptions) {
         setEnumOptions(rightBlock, allowedValues);
         rightBlock.data = newOptions;
       }

@@ -112,7 +112,13 @@ function createComparisonBlock(
 
     const savedValue = String(args[1]);
 
-    enumBlock.setFieldValue(savedValue, 'VALUE');
+    const matchedValue = variable.allowedValues.find(
+      (v) => v.toLowerCase() === savedValue.toLowerCase()
+    );
+
+    if (matchedValue) {
+      enumBlock.setFieldValue(matchedValue, 'VALUE');
+    }
 
     enumBlock.initSvg();
     enumBlock.render();

@@ -20,6 +20,30 @@ def upgrade():
         sa.Column("allowed_values", sa.JSON(), nullable=True),
     )
 
+    bind = op.get_bind()
+
+    bind.execute(
+        sa.text(
+            """
+            UPDATE workflow_variable_catalogue
+            SET allowed_variables = :allowed_values
+            WHERE tag = 'vitals[latest].traffic_color'
+            """
+        ),
+        {"allowed_values": '["GREEN", "YELLOW", "RED"]'},
+    )
+
+    bind.execute(
+        sa.text(
+            """
+            UPDATE workflow_variable_catalogue
+            SET allowed_values = :allowed_values
+            WHERE tag = 'vitals[latest].traffic_arrow'
+            """
+        ),
+        {"allowed_values": '["UP", "DOWN"]'},
+    )
+
 
 def downgrade():
     op.drop_column(
