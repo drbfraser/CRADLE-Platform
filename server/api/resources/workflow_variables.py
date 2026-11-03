@@ -70,6 +70,7 @@ def _orm_to_item_model(
         field_path=field_path_list,
         is_computed=orm.is_computed or False,
         is_dynamic=orm.is_dynamic or False,
+        allowed_values=orm.allowed_values,
     )
 
 

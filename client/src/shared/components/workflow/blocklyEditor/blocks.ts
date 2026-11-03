@@ -69,6 +69,8 @@ const CASE_OPTIONS: [string, string][] = [
   ['case insensitive', 'INSENSITIVE'],
 ];
 
+const variableMetadata = new Map<string, WorkflowVariable>();
+
 function variableDisplayName(v: WorkflowVariable): string {
   return v.description ?? v.tag;
 }
@@ -120,6 +122,49 @@ function setCheckIfChanged(input: Blockly.Input | null, type: string | null) {
   connection.setCheck(next);
 }
 
+export function setEnumOptions(
+  block: Blockly.Block,
+  allowedValues: string[]
+): void {
+  const currentValue = block.getFieldValue('VALUE');
+
+  const input = block.getInput('ENUM_INPUT');
+  if (!input) return;
+
+  const oldField = block.getField('VALUE');
+  if (oldField) {
+    input.removeField('VALUE');
+  }
+
+  input.appendField(
+    new Blockly.FieldDropdown(
+      allowedValues.map((v) => [v, v] as [string, string])
+    ),
+    'VALUE'
+  );
+
+  if (currentValue && allowedValues.includes(currentValue)) {
+    block.setFieldValue(currentValue, 'VALUE');
+  }
+}
+function createEnumBlock(
+  comparisonBlock: Blockly.Block,
+  allowedValues: string[]
+): void {
+  const workspace = comparisonBlock.workspace as Blockly.WorkspaceSvg;
+
+  const enumBlock = workspace.newBlock('enum_value') as Blockly.BlockSvg;
+
+  enumBlock.initSvg();
+  enumBlock.render();
+
+  setEnumOptions(enumBlock, allowedValues);
+
+  comparisonBlock
+    .getInput('RIGHT')
+    ?.connection?.connect(enumBlock.outputConnection!);
+}
+
 /**
  * Keeps both comparison inputs type-compatible
  * Updates the available operators and block colour
@@ -127,6 +172,22 @@ function setCheckIfChanged(input: Blockly.Input | null, type: string | null) {
 export function syncGenericCompareTypes(block: Blockly.Block): void {
   const leftType = outputTypeOf(block.getInputTargetBlock('LEFT'));
   const rightType = outputTypeOf(block.getInputTargetBlock('RIGHT'));
+
+  const leftBlock = block.getInputTargetBlock('LEFT');
+
+  const tag = leftBlock?.getFieldValue?.('VAR_NAME');
+
+  const allowedValues = tag
+    ? variableMetadata.get(tag)?.allowedValues
+    : undefined;
+
+  if (!allowedValues?.length) {
+    const rightBlock = block.getInputTargetBlock('RIGHT');
+
+    if (rightBlock?.type === 'enum_value') {
+      rightBlock.dispose();
+    }
+  }
 
   if (leftType) {
     setCheckIfChanged(block.getInput('LEFT'), null);
@@ -149,6 +210,33 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
       ? (TYPE_COLOURS[type] ?? GENERIC_COMPARE_COLOUR)
       : GENERIC_COMPARE_COLOUR
   );
+
+  if (allowedValues?.length) {
+    let rightBlock = block.getInputTargetBlock('RIGHT');
+
+    if (!rightBlock) {
+      createEnumBlock(block, allowedValues);
+
+      rightBlock = block.getInputTargetBlock('RIGHT');
+    }
+
+    if (rightBlock?.type === 'enum_value') {
+      const existingOptions = rightBlock.data;
+
+      const newOptions = JSON.stringify(allowedValues);
+
+      const field = rightBlock.getField('VALUE');
+
+      const needsRefresh =
+        !(field instanceof Blockly.FieldDropdown) ||
+        field.getOptions().length <= 1;
+
+      if (needsRefresh || existingOptions !== newOptions) {
+        setEnumOptions(rightBlock, allowedValues);
+        rightBlock.data = newOptions;
+      }
+    }
+  }
 }
 
 function updateStringOpShape(block: Blockly.Block): void {
@@ -203,6 +291,7 @@ function defineGenericVariableBlock(
     const bType = blocklyTypeFromVariableType(v.type);
     if (!bType) continue;
     tagToType.set(v.tag, bType);
+    variableMetadata.set(v.tag, v);
     options.push([variableDisplayName(v), v.tag]);
   }
   if (options.length === 0) return;
@@ -215,7 +304,9 @@ function defineGenericVariableBlock(
       this.appendDummyInput().appendField(
         new Blockly.FieldDropdown(options, (tag: string) => {
           const bType = tagToType.get(tag);
+
           if (bType) applyVariableType(this, bType);
+
           return tag;
         }),
         'VAR_NAME'
@@ -279,6 +370,17 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
       this.setTooltip(
         'This variable no longer exists in the form. Delete this block or replace it with a valid variable.'
       );
+    },
+  };
+
+  Blockly.Blocks['enum_value'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput('ENUM_INPUT')
+        .appendField('Value:')
+        .appendField(new Blockly.FieldDropdown([['-', '-']]), 'VALUE');
+
+      this.setOutput(true, 'String');
+      this.setColour(TYPE_COLOURS['String']);
     },
   };
 

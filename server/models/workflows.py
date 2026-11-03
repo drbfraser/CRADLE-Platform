@@ -331,6 +331,7 @@ class WorkflowVariableCatalogueOrm(db.Model):
     is_computed = db.Column(db.Boolean, nullable=False, default=False)
     is_dynamic = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    allowed_values = db.Column(db.JSON, nullable=True)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
