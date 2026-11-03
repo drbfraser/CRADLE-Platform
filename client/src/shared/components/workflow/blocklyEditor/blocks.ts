@@ -9,6 +9,7 @@ import {
 } from './variableGrouping';
 import { isValidDateString } from './workspaceValidation';
 import { isValidDateFormat } from './workspaceValidation';
+import { current } from '@reduxjs/toolkit';
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
 ): string | null {
@@ -122,8 +123,11 @@ function setCheckIfChanged(input: Blockly.Input | null, type: string | null) {
   connection.setCheck(next);
 }
 
-function setEnumOptions(block: Blockly.Block, allowedValues: string[]): void {
-  console.log('SETTING OPTIONS', allowedValues);
+export function setEnumOptions(
+  block: Blockly.Block,
+  allowedValues: string[]
+): void {
+  const currentValue = block.getFieldValue('VALUE');
 
   const input = block.getInput('ENUM_INPUT');
   if (!input) return;
@@ -139,6 +143,10 @@ function setEnumOptions(block: Blockly.Block, allowedValues: string[]): void {
     ),
     'VALUE'
   );
+
+  if (currentValue && allowedValues.includes(currentValue)) {
+    block.setFieldValue(currentValue, 'VALUE');
+  }
 }
 function createEnumBlock(
   comparisonBlock: Blockly.Block,
@@ -156,8 +164,6 @@ function createEnumBlock(
   comparisonBlock
     .getInput('RIGHT')
     ?.connection?.connect(enumBlock.outputConnection!);
-
-  console.log('created enum block');
 }
 
 /**
@@ -178,8 +184,6 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
 
   if (!allowedValues?.length) {
     const rightBlock = block.getInputTargetBlock('RIGHT');
-
-    console.log('RIGHT TYPE', rightBlock?.type);
 
     if (rightBlock?.type === 'enum_value') {
       rightBlock.dispose();
@@ -213,14 +217,10 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
     let rightBlock = block.getInputTargetBlock('RIGHT');
 
     if (!rightBlock) {
-      console.log('creating enum block');
-
       createEnumBlock(block, allowedValues);
 
       rightBlock = block.getInputTargetBlock('RIGHT');
     }
-
-    console.log('RIGHT BLOCK', rightBlock?.type);
 
     if (rightBlock?.type === 'enum_value') {
       const existingOptions = rightBlock.data;
@@ -232,8 +232,6 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
         rightBlock.data = newOptions;
       }
     }
-
-    console.log('ENUM VARIABLE', allowedValues);
   }
 }
 
@@ -291,7 +289,6 @@ function defineGenericVariableBlock(
     tagToType.set(v.tag, bType);
     variableMetadata.set(v.tag, v);
     options.push([variableDisplayName(v), v.tag]);
-    console.log(v.tag, v.allowedValues);
   }
   if (options.length === 0) return;
 
@@ -304,24 +301,8 @@ function defineGenericVariableBlock(
         new Blockly.FieldDropdown(options, (tag: string) => {
           const bType = tagToType.get(tag);
 
-          const allowedValues = variableMetadata.get(tag)?.allowedValues;
-
-          console.log(
-            'selected variable',
-            tag,
-            variableMetadata.get(tag)?.allowedValues
-          );
           if (bType) applyVariableType(this, bType);
 
-          const comparisonBlock = this.getParent();
-
-          console.log(
-            'selected variable',
-            tag,
-            allowedValues,
-            'parent',
-            comparisonBlock?.type
-          );
           return tag;
         }),
         'VAR_NAME'
@@ -396,7 +377,6 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
 
       this.setOutput(true, 'String');
       this.setColour(TYPE_COLOURS['String']);
-      console.log('enum init', (this as any).enumOptions);
     },
   };
 

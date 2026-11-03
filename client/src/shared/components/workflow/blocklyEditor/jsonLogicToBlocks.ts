@@ -1,6 +1,10 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
-import { blocklyTypeFromVariableType, syncGenericCompareTypes } from './blocks';
+import {
+  blocklyTypeFromVariableType,
+  syncGenericCompareTypes,
+  setEnumOptions,
+} from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { resolveVariableBlockType } from './variableGrouping';
 
@@ -89,12 +93,35 @@ function createComparisonBlock(
     tagToType,
     variables
   );
-  const rightBlock = createBlockFromRule(
-    workspace,
-    args[1],
-    tagToType,
-    variables
-  );
+
+  let rightBlock: Blockly.BlockSvg | null;
+
+  const leftRule = args[0] as Record<string, unknown>;
+
+  const tag =
+    typeof leftRule === 'object' && leftRule !== null && 'var' in leftRule
+      ? extractVarTag(leftRule.var)
+      : null;
+
+  const variable = variables.find((v) => v.tag === tag);
+
+  if (variable?.allowedValues?.length && typeof args[1] === 'string') {
+    const enumBlock = workspace.newBlock('enum_value');
+
+    setEnumOptions(enumBlock, variable.allowedValues);
+
+    const savedValue = String(args[1]);
+
+    enumBlock.setFieldValue(savedValue, 'VALUE');
+
+    enumBlock.initSvg();
+    enumBlock.render();
+
+    rightBlock = enumBlock;
+  } else {
+    rightBlock = createBlockFromRule(workspace, args[1], tagToType, variables);
+  }
+
   connectValueBlock(block, 'LEFT', leftBlock);
   connectValueBlock(block, 'RIGHT', rightBlock);
   syncGenericCompareTypes(block);
