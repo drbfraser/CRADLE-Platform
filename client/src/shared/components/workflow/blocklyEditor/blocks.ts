@@ -9,7 +9,6 @@ import {
 } from './variableGrouping';
 import { isValidDateString } from './workspaceValidation';
 import { isValidDateFormat } from './workspaceValidation';
-import { current } from '@reduxjs/toolkit';
 export function blocklyTypeFromVariableType(
   type: WorkflowVariable['type']
 ): string | null {
