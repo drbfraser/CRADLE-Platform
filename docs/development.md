@@ -37,6 +37,7 @@ Before running the project locally, ensure the following tools are installed on 
   - Prettier – Code formatter
   - ESLint – Linting for JS/TS
   - Python – Linting and debugging
+  - Ruff – Python linting and formatting (see [Ruff VS Code Extension](#ruff-vs-code-extension-recommended))
 
 ## 2. Development Environment Setup 
 ### Cloning the Repo
@@ -490,7 +491,7 @@ ruff format users.py
 # Lint a specific file (example: users.py)
 ruff check users.py
 ```
-To ensure your merge request doesn’t fail due to formatting issues, always run ruff before submitting.
+To ensure your merge request doesn’t fail due to formatting issues, always run ruff before submitting. See [Backend Code Formatting (required for CI)](#code-formatting-required-for-ci) for setup, commands, and the VS Code extension.
 
 For more details:
 [Cradle Platform Testing Guide](testing/testing.md)
@@ -578,11 +579,30 @@ npm run format          # runs Prettier and ESLint
 ```
 #### Backend
 Backend code is formatted using Ruff.
-With your Docker containers running, run the following command to format all backend files:
+
+Install the version the project uses (see `server/requirements.txt`):
+```bash
+pip install ruff==0.6.7
+```
+
+From the `server` directory, run:
+```bash
+ruff format .          # auto-format all files
+ruff check .           # report lint errors
+ruff check --fix .     # auto-fix what Ruff can fix
+```
+Or, with your Docker containers running:
 
 ```bash 
 docker exec cradle_flask ruff format .
+docker exec cradle_flask ruff check --fix .
 ```
+
+#### Ruff VS Code Extension 
+The Ruff extension underlines lint errors as you type and can format on save.
+
+1. Open the Extensions panel (`Ctrl+Shift+X` / `Cmd+Shift+X`), search for **Ruff** (publisher: *Astral Software*), and install it. The extension finds `server/ruff.toml` automatically, so the editor applies the same rules as CI.
+2. To format a file in the editor, run **Format Document** (`Shift+Alt+F` / `Shift+Option+F`) and choose Ruff as the formatter.
 
 ### Package Changes
 It's always best to avoid adding additional dependencies to the project if possible. Try to use existing packages rather than installing a new one.
