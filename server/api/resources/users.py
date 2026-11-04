@@ -17,8 +17,9 @@ from validation.phone_numbers import PhoneNumberE164
 from validation.sms_key import SmsKeyModel
 from validation.users import (
     RegisterUserRequestBody,
+    UpdateUserRequest,
     UserList,
-    UserModel,
+    UserResponse,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -95,7 +96,7 @@ def change_password_current_user():
 
 
 # /api/user/register [POST]
-@api_users.post("/register", responses={201: UserModel})
+@api_users.post("/register", responses={201: UserResponse})
 def register_user(body: RegisterUserRequestBody):
     """Register New User"""
     require_role(RoleEnum.ADMIN)
@@ -110,7 +111,7 @@ def register_user(body: RegisterUserRequestBody):
 
 
 # /api/user/current [GET]
-@api_users.get("/current", responses={200: UserModel})
+@api_users.get("/current", responses={200: UserResponse})
 def get_current_user():
     """
     Get Current User
@@ -121,8 +122,8 @@ def get_current_user():
 
 
 # /api/user/<int:user_id> [PUT]
-@api_users.put("/<int:user_id>", responses={200: UserModel})
-def edit_user(path: UserIdPath, body: UserModel):
+@api_users.put("/<int:user_id>", responses={200: UserResponse})
+def edit_user(path: UserIdPath, body: UpdateUserRequest):
     """Edit User"""
     require_role(RoleEnum.ADMIN)
     try:
@@ -136,7 +137,7 @@ def edit_user(path: UserIdPath, body: UserModel):
 
 
 # /api/user/<int:user_id> [GET]
-@api_users.get("/<int:user_id>", responses={200: UserModel})
+@api_users.get("/<int:user_id>", responses={200: UserResponse})
 def get_user(path: UserIdPath):
     """Get User"""
     require_admin_or_self(path.user_id)

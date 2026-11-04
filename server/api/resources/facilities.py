@@ -11,9 +11,10 @@ from data import orm_serializer
 from enums import RoleEnum
 from models import HealthFacilityOrm
 from validation.facilities import (
+    CreateHealthFacilityRequest,
     HealthFacilityList,
-    HealthFacilityModel,
     HealthFacilityNameList,
+    HealthFacilityResponse,
     HealthFacilityWithNewReferrals,
 )
 
@@ -47,8 +48,8 @@ def get_all_facility_names():
 
 
 # /api/facilities [POST]
-@api_facilities.post("", responses={201: HealthFacilityModel})
-def create_facility(body: HealthFacilityModel):
+@api_facilities.post("", responses={201: HealthFacilityResponse})
+def create_facility(body: CreateHealthFacilityRequest):
     """Create Health Facility"""
     require_role(RoleEnum.ADMIN)
     new_facility = body.model_dump()
@@ -70,7 +71,7 @@ def create_facility(body: HealthFacilityModel):
 
 # /api/facilities/<string:health_facility_name> [GET]
 @api_facilities.get(
-    "/<string:health_facility_name>", responses={200: HealthFacilityModel}
+    "/<string:health_facility_name>", responses={200: HealthFacilityResponse}
 )
 def get_facility(path: FacilityNamePath):
     """Get Health Facility"""

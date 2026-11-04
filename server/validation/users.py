@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import AfterValidator, EmailStr, RootModel
 
@@ -49,9 +49,7 @@ class UserExamples:
     }
 
 
-class UserModel(CradleBaseModel):
-    id: int
-    username: Username
+class UserBase(CradleBaseModel):
     email: EmailStr
     name: Annotated[str, AfterValidator(to_titlecase)]
     health_facility_name: Annotated[str, AfterValidator(to_uppercase)]
@@ -60,14 +58,23 @@ class UserModel(CradleBaseModel):
     supervises: list[int] = []
 
 
-class UserWithSmsKey(UserModel):
+class UserResponse(UserBase):
+    id: int
+    username: Username
+
+
+class UserWithSmsKey(UserResponse):
     sms_key: SmsKeyModel
 
 
-class RegisterUserRequestBody(UserModel):
-    id: Optional[int] = None
+class RegisterUserRequestBody(UserBase):
+    username: Username
     password: str
 
 
+class UpdateUserRequest(UserBase):
+    pass
+
+
 class UserList(RootModel):
-    root: list[UserModel]
+    root: list[UserResponse]

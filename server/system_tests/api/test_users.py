@@ -81,7 +81,10 @@ def sms_authenticated_users(database, user_factory):
     return users
 
 
-def test_register_user(auth_header):
+@pytest.mark.parametrize(
+    "request_id", [None, "client-id"], ids=["web-payload", "ignored-id"]
+)
+def test_register_user(auth_header, request_id):
     url_register_user = "http://localhost:5000/api/user/register"
     username = "test_register_user"
     email = "test_register@email.com"
@@ -97,43 +100,58 @@ def test_register_user(auth_header):
         "role": "VHT",
         "supervises": [],
     }
-    response = requests.post(url_register_user, json=payload, headers=auth_header)
-    response_body = decamelize(response.json())
-    pretty_print(response_body)
-    assert response.status_code == 200
-    # Cleanup
-    user_utils.delete_user(username)
-    assert crud.read(UserOrm, username=username) is None
+    if request_id is not None:
+        payload["id"] = request_id
+
+    try:
+        response = requests.post(url_register_user, json=payload, headers=auth_header)
+        assert response.status_code == 200
+        response_body = decamelize(response.json())
+        saved_user = crud.read(UserOrm, username=username)
+        assert saved_user is not None
+        assert response_body["id"] == saved_user.id
+        assert response_body["username"] == username
+        assert saved_user.name == payload["name"]
+        assert saved_user.health_facility_name == payload["health_facility_name"]
+        assert saved_user.role == payload["role"]
+    finally:
+        if crud.read(UserOrm, username=username) is not None:
+            user_utils.delete_user(username)
 
 
-def test_edit_user(auth_header, database):
-    url_edit_user = "http://localhost:5000/api/user/2"
+@pytest.mark.parametrize(
+    "legacy_fields",
+    [{}, {"id": "client-id", "username": "ignored-username"}],
+    ids=["editable-fields", "ignored-identity-fields"],
+)
+def test_edit_user(auth_header, database, legacy_fields):
     username = "test_vht"
+    user = user_utils.get_user_data_from_username(username)
+    user_id = user["id"]
+    original_name = user["name"]
+    payload = cast("dict[Any, Any]", user)
+    del payload["sms_key"]
+    del payload["username"]
+    del payload["id"]
+    payload["name"] = "Test Name Changed"
+    payload.update(legacy_fields)
 
-    # Get test VHT.
-    vht = user_utils.get_user_data_from_username(username)
-    original_name = vht["name"]
-    new_name = "Test Name Changed"
-    vht = cast("dict[Any, Any]", vht)
-    del vht["sms_key"]
-
-    # Edit VHT
-    vht["name"] = new_name
-    response = requests.put(
-        url_edit_user,
-        json=vht,
-        headers=auth_header,
-    )
-    database.session.commit()
-    response_body = decamelize(response.json())
-    pretty_print(response_body)
-    assert response.status_code == 200
-    vht = user_utils.get_user_dict_from_username(username)
-    # Check that name has been changed correctly.
-    assert vht["name"] == new_name
-
-    # Change the name back.
-    crud.update(UserOrm, {"name": original_name}, id=vht["id"])
+    try:
+        response = requests.put(
+            f"http://localhost:5000/api/user/{user_id}",
+            json=payload,
+            headers=auth_header,
+        )
+        assert response.status_code == 200
+        response_body = decamelize(response.json())
+        database.session.rollback()
+        saved_user = crud.read(UserOrm, id=user_id)
+        assert saved_user.name == payload["name"]
+        assert saved_user.username == username
+        assert response_body["id"] == user_id
+        assert response_body["username"] == username
+    finally:
+        crud.update(UserOrm, {"name": original_name}, id=user_id)
 
 
 def test_get_all_users(auth_header):

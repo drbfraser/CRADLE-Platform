@@ -11,7 +11,7 @@ import data.db_operations as crud
 from app import app
 from common import user_utils
 from enums import RoleEnum, SexEnum
-from models import HealthFacilityOrm, PatientAssociationsOrm, PatientOrm, UserOrm
+from models import PatientAssociationsOrm, PatientOrm, UserOrm
 from service import assoc
 from validation.patients import SyncPatientRequest
 
@@ -40,8 +40,6 @@ def test_existing_patient_association_requires_approved_role(
         if model is UserOrm:
             assert filters == {"id": user.id}
             return user
-        if model is HealthFacilityOrm:
-            return facility
         raise AssertionError(f"Unexpected model: {model}")
 
     read = Mock(side_effect=read_model)
@@ -54,7 +52,8 @@ def test_existing_patient_association_requires_approved_role(
 
     with caplog.at_level(logging.WARNING, logger="api.authorization_check"):
         response = Client(app, app.response_class).post(
-            "/api/patient_associations", json={"patientId": patient.id}
+            "/api/patient_associations",
+            json={"patientId": patient.id, "userId": 8, "healthFacilityName": "F2"},
         )
 
     assert response.status_code == expected_status
@@ -68,35 +67,43 @@ def test_existing_patient_association_requires_approved_role(
     ]
 
 
-def test_admin_can_assign_existing_patient_to_another_user(monkeypatch):
-    patient = SimpleNamespace(id="P3")
-    facility = SimpleNamespace(name="F3")
-    assigned_user = SimpleNamespace(id=8, health_facility=facility)
-    current_user = {"id": 7, "role": RoleEnum.ADMIN.value}
+@pytest.mark.parametrize(
+    "extra_fields",
+    [(), ("userId", "healthFacilityName"), ("healthFacilityName",)],
+    ids=["mobile-payload", "other-user-and-facility", "other-facility"],
+)
+def test_patient_association_uses_current_user_and_facility(
+    monkeypatch, patient_factory, facility_factory, user_factory, extra_fields
+):
+    facility = facility_factory.create(name="association-current-facility")
+    other_facility = facility_factory.create(name="association-other-facility")
+    user = user_factory.create(
+        username="association_current_user", health_facility_name=facility.name
+    )
+    other_user = user_factory.create(
+        username="association_other_user", health_facility_name=other_facility.name
+    )
+    patient = patient_factory.create(id="association-patient")
+    current_user = {"id": user.id, "role": RoleEnum.ADMIN.value}
+    ignored_values = {
+        "userId": other_user.id,
+        "healthFacilityName": other_facility.name,
+    }
+    payload = {"patientId": patient.id}
+    payload.update({field: ignored_values[field] for field in extra_fields})
 
-    def read_model(model, **filters):
-        if model is PatientOrm:
-            assert filters == {"id": patient.id}
-            return patient
-        if model is UserOrm:
-            assert filters == {"id": assigned_user.id}
-            return assigned_user
-        raise AssertionError(f"Unexpected model: {model}")
-
-    associate = Mock()
     monkeypatch.setattr(authentication, "_decode_access_token", dict)
     monkeypatch.setattr(user_utils, "get_current_user_from_jwt", lambda: current_user)
-    monkeypatch.setattr(crud, "read", Mock(side_effect=read_model))
-    monkeypatch.setattr(assoc, "has_association", Mock(return_value=False))
-    monkeypatch.setattr(assoc, "associate", associate)
 
-    response = Client(app, app.response_class).post(
-        "/api/patient_associations",
-        json={"patientId": patient.id, "userId": assigned_user.id},
-    )
+    client = Client(app, app.response_class)
+    for _ in range(2):
+        response = client.post("/api/patient_associations", json=payload)
+        assert response.status_code == 201
 
-    assert response.status_code == 201
-    associate.assert_called_once_with(patient, facility, assigned_user)
+    associations = crud.read_all(PatientAssociationsOrm, patient_id=patient.id)
+    assert [(item.user_id, item.health_facility_name) for item in associations] == [
+        (user.id, facility.name)
+    ]
 
 
 @pytest.mark.parametrize(("has_access", "expected_status"), [(True, 200), (False, 207)])
