@@ -22,9 +22,16 @@ def upgrade():
         op.f("ix_patient_id_number"), "patient", ["id_number"], unique=False
     )
 
-    # Existing patients were created with the user-entered ID as their key, so it
-    # becomes their ID number.
-    op.get_bind().execute(sa.text("UPDATE patient SET id_number = id"))
+    # Patients created on mobile have the user-entered ID as their key, so it
+    # becomes their ID number. Patients created on the web have a generated UUID
+    # key and no user-entered ID, so their ID number is left empty.
+    op.get_bind().execute(
+        sa.text(
+            "UPDATE patient SET id_number = id "
+            "WHERE id NOT REGEXP "
+            "'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"
+        )
+    )
 
 
 def downgrade():
