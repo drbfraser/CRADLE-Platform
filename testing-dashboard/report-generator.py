@@ -1,18 +1,17 @@
-from pathlib import Path
+import argparse
+import json
 import sys
 import xml.etree.ElementTree as ET
-import json
-import argparse
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 """
 Needs to be manually updated
 """
 MOBILE_TOOLS = [
-    ['logos/junit.png', 'JUnit Jupiter', 'Unit tests', 'v5.7.1'],
-    ['logos/jacoco.png', 'JaCoCo', 'Code coverage', 'v0.8.9'],
-    ['logos/gradle.svg', 'Gradle', 'Running tests and generating reports', 'v8.2']
+    ["logos/junit.png", "JUnit Jupiter", "Unit tests", "v5.7.1"],
+    ["logos/jacoco.png", "JaCoCo", "Code coverage", "v0.8.9"],
+    ["logos/gradle.svg", "Gradle", "Running tests and generating reports", "v8.2"],
 ]
 
 """
@@ -35,6 +34,8 @@ At least one artifact path must be provided, previous must be provided.
 Previous is a path containing the previously generated report-data.json, if none is found, trend
 will not be available.
 """
+
+
 def main():
     # Add arguments and parse
     parser = argparse.ArgumentParser()
@@ -43,8 +44,10 @@ def main():
     parser.add_argument("--previous", type=Path, required=True)
     args = parser.parse_args()
     if args.mobile_artifacts is None and args.platform_artifacts is None:
-        parser.error("Provide either --mobile-artifacts or --platform-artifacts, or both.")
-    
+        parser.error(
+            "Provide either --mobile-artifacts or --platform-artifacts, or both."
+        )
+
     # Get previous data, if available
     prev_data = None
     if args.previous.is_file():
@@ -56,7 +59,9 @@ def main():
         coverage_files = list(args.mobile_artifacts.rglob("jacocoCombinedReport.xml"))
         if len(coverage_files) != 1:
             raise ValueError(f"Expected a JaCoCo report, found {len(coverage_files)}")
-        unit_test_files = sorted(args.mobile_artifacts.rglob("testDebugUnitTest/TEST-*.xml"))
+        unit_test_files = sorted(
+            args.mobile_artifacts.rglob("testDebugUnitTest/TEST-*.xml")
+        )
         if not unit_test_files:
             raise FileNotFoundError("Unit test xml's not found")
         mobile_coverage = get_mobile_coverage(coverage_files[0])
@@ -67,9 +72,8 @@ def main():
         print("Not yet implemented.")
         exit(0)
 
-    # Write data in a JavaScript file, later used in index.html 
-    write_mobile_data(mobile_coverage, mobile_unit_tests, prev_data) 
-
+    # Write data in a JavaScript file, later used in index.html
+    write_mobile_data(mobile_coverage, mobile_unit_tests, prev_data)
 
 
 # Get code coverage from jacoco's report
@@ -82,8 +86,9 @@ def get_mobile_coverage(coverage_files):
         missed = int(counter.attrib["missed"])
         covered = int(counter.attrib["covered"])
         total = covered + missed
-        coverage[kind.lower()] = (covered, total) # covered, total
+        coverage[kind.lower()] = (covered, total)  # covered, total
     return coverage
+
 
 # Get unit test pass score
 def get_mobile_unit_tests(unit_test_files):
@@ -94,28 +99,30 @@ def get_mobile_unit_tests(unit_test_files):
 
     test_stats = {"ran": 0, "passed": 0, "errors": 0, "skipped": 0, "failures": 0}
     for test_suite in test_suite_roots:
-         ran = int(test_suite.attrib["tests"])
-         failures = int(test_suite.attrib["failures"])
-         errors = int(test_suite.attrib["errors"])
-         skipped = int(test_suite.attrib["skipped"])
-         test_stats["ran"] += ran
-         test_stats["passed"] += ran - failures - skipped - errors
-         test_stats["failures"] += failures + errors
-         test_stats["skipped"] += skipped
+        ran = int(test_suite.attrib["tests"])
+        failures = int(test_suite.attrib["failures"])
+        errors = int(test_suite.attrib["errors"])
+        skipped = int(test_suite.attrib["skipped"])
+        test_stats["ran"] += ran
+        test_stats["passed"] += ran - failures - skipped - errors
+        test_stats["failures"] += failures + errors
+        test_stats["skipped"] += skipped
     return test_stats
+
 
 def write_mobile_data(coverage, unit_tests, prev_data):
     time = datetime.now()
     last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
-    
+
     total_covered = 0
     total_tests = 0
     for covered, total in coverage.values():
         total_covered += covered
-        total_tests += total 
+        total_tests += total
     overall_coverage = (
         round(total_covered / total_tests * 100, 1)
-        if total_tests else None # zero guard
+        if total_tests
+        else None  # zero guard
     )
 
     trend = None
@@ -135,7 +142,7 @@ def write_mobile_data(coverage, unit_tests, prev_data):
                 if kind in coverage
             ],
             "overall": overall_coverage,
-            "trend": trend if trend is not None else "N/A"
+            "trend": trend if trend is not None else "N/A",
         },
         "lastUpdated": last_updated,
     }

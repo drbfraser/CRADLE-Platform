@@ -22,8 +22,9 @@ def client():
     app.after_request(
         partial(
             log_missing_authorization,
-            is_public_endpoint=lambda current_request: current_request.endpoint
-            == "public",
+            is_public_endpoint=lambda current_request: (
+                current_request.endpoint == "public"
+            ),
         )
     )
 
