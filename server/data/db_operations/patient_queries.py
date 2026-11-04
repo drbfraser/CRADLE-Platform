@@ -383,6 +383,7 @@ def read_patients(
     query = (
         db_session.query(
             PatientOrm.id.label("patient_id"),
+            PatientOrm.id_number,
             PatientOrm.name,
             PatientOrm.sex,
             PatientOrm.date_of_birth,

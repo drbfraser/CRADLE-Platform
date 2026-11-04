@@ -15,6 +15,11 @@ def assign_patient_id(patient: dict) -> None:
 
     :param patient: A dictionary containing the patient data to be uploaded to the DB
     """
+    # Clients that predate id_number send the user-entered ID as the key, so it is
+    # also the ID number.
+    if patient.get("id_number") is None:
+        patient["id_number"] = patient["id"]
+
     if patient["id"] is None:
         patient["id"] = get_uuid()
 

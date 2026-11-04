@@ -106,6 +106,7 @@ def serialize_patient(
     """Serialize a patient with optional readings, referrals, and assessments to a dict."""
     return {
         "id": patient.patient_id,
+        "id_number": patient.id_number,
         "name": patient.name,
         "sex": patient.sex.value,
         "date_of_birth": str(patient.date_of_birth),
@@ -178,6 +179,12 @@ def deserialize_patient(
         "household_number": patient_data.get("household_number"),
         "allergy": patient_data.get("allergy"),
     }
+    # Clients that predate id_number don't send it: on create the user-entered ID is
+    # the key, so it is also the ID number; on update the ID number is left unchanged.
+    if patient_data.get("id_number") is not None:
+        d["id_number"] = patient_data["id_number"]
+    elif not partial:
+        d["id_number"] = patient_data.get("id")
     if partial:
         if err := schema().validate(d, partial=True):
             raise ValidationError(err)
