@@ -26,6 +26,7 @@ def serialize_patient_list(patients: list[Any]) -> list[dict]:
     return [
         {
             "id": p.id,
+            "id_number": p.id_number,
             "name": p.name,
             "village_number": p.village_number,
             "traffic_light_status": (
@@ -42,6 +43,7 @@ def serialize_patients_admin(patients: list[Any]) -> list[dict]:
     return [
         {
             "id": p.id,
+            "id_number": p.id_number,
             "name": p.name,
             "is_archived": p.is_archived,
         }
@@ -55,6 +57,7 @@ def serialize_referral_list(referrals: list[Any]) -> list[dict]:
         {
             "referral_id": referral.referral_id,
             "patient_id": referral.patient_id,
+            "patient_id_number": referral.patient_id_number,
             "patient_name": referral.patient_name,
             "village_number": referral.village_number,
             "date_referred": referral.date_referred,

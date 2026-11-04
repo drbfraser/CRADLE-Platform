@@ -11,7 +11,8 @@ PATIENT_ID_DELETED_MSG = (
 def assign_patient_id(patient: dict) -> None:
     """
     Assigns an ID to a patient if none has been provided, if the patient already has readings,
-    referrals, and assessments, those will also be assigned an ID and be updated to contain the new patient ID
+    referrals, and assessments, those will also be assigned an ID and be updated to contain the new patient ID.
+    If no ID number is provided, the provided ID is used as the ID number.
 
     :param patient: A dictionary containing the patient data to be uploaded to the DB
     """

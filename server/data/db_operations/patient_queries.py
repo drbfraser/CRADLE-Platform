@@ -63,6 +63,7 @@ def read_patient_list(
     query = (
         db_session.query(
             PatientOrm.id,
+            PatientOrm.id_number,
             PatientOrm.name,
             PatientOrm.village_number,
             ReadingOrm.traffic_light_status,
@@ -105,6 +106,7 @@ def read_admin_patient(
     """
     query = db_session.query(
         PatientOrm.id,
+        PatientOrm.id_number,
         PatientOrm.name,
         PatientOrm.is_archived,
     )

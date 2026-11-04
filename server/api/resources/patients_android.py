@@ -38,6 +38,7 @@ def to_global_search_patient(patient):
     global_search_patient = {
         "name": patient["name"],
         "id": patient["id"],
+        "id_number": patient["id_number"],
         "village_number": patient["village_number"],
         "readings": patient["readings"],
         "state": patient["state"],
@@ -103,6 +104,7 @@ class MobileGlobalSearchReading(CradleBaseModel):
 
 class MobileGlobalSearchPatient(CradleBaseModel):
     id: str
+    id_number: Optional[str] = None
     name: str
     state: str
     village_number: str
@@ -126,7 +128,7 @@ def search_patient_list_mobile(path: SearchPath):
     information (information necessary for the patient page) that match the search
     criteria.
     For now search criteria could be:
-        - A portion/full match of the patient's ID.
+        - A portion/full match of the patient's ID or ID number.
         - A portion/full match of the patient's initials.
 
     Returns info for Patient and their Readings.

@@ -24,13 +24,14 @@ from models import PatientOrm
 
 
 def __filter_by_patient_search(query: Query, **kwargs) -> Query:
-    """Filter a query by a search string matched against patient ID, name, and village number."""
+    """Filter a query by a search string matched against patient ID, ID number, name, and village number."""
     search_text = kwargs.get("search")
     if search_text:
         search_text = f"%{search_text}%"
         query = query.filter(
             or_(
                 PatientOrm.id.like(search_text),
+                PatientOrm.id_number.like(search_text),
                 PatientOrm.name.like(search_text),
                 PatientOrm.village_number.like(search_text),
             ),
