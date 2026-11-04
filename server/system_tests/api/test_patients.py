@@ -547,6 +547,83 @@ def test_invalid_patient_not_created(api_post):
     assert crud.read(PatientOrm, id=patient_id) is None
 
 
+def test_create_patient_without_id_assigns_key(database, api_post):
+    patient = __make_patient(None, [])
+    patient["id_number"] = "IDN-1"
+    response = api_post(endpoint="/api/patients", json=patient)
+    database.session.commit()
+    patient_id = response.json().get("id")
+
+    try:
+        assert response.status_code == 201
+        assert patient_id not in (None, "IDN-1")
+        assert crud.read(PatientOrm, id=patient_id).id_number == "IDN-1"
+    finally:
+        if patient_id is not None:
+            crud.delete_by(PatientOrm, id=patient_id)
+
+
+def test_create_patient_without_id_number_uses_id(database, api_post):
+    patient_id = "6390160146141"
+    response = api_post(endpoint="/api/patients", json=__make_patient(patient_id, []))
+    database.session.commit()
+
+    try:
+        assert response.status_code == 201
+        assert crud.read(PatientOrm, id=patient_id).id_number == patient_id
+    finally:
+        crud.delete_by(PatientOrm, id=patient_id)
+
+
+def test_patients_can_share_id_number(database, api_post):
+    patient_ids = []
+    try:
+        for _ in range(2):
+            patient = __make_patient(None, [])
+            patient["id_number"] = "IDN-SHARED"
+            response = api_post(endpoint="/api/patients", json=patient)
+            database.session.commit()
+            assert response.status_code == 201
+            patient_ids.append(response.json()["id"])
+
+        assert patient_ids[0] != patient_ids[1]
+        for patient_id in patient_ids:
+            assert crud.read(PatientOrm, id=patient_id).id_number == "IDN-SHARED"
+    finally:
+        for patient_id in patient_ids:
+            crud.delete_by(PatientOrm, id=patient_id)
+
+
+def test_update_patient_id_number(patient_factory, api_put, api_get):
+    patient_id = "74164134514"
+    patient_factory.create(id=patient_id, id_number="IDN-OLD")
+
+    response = api_get(f"/api/patients/{patient_id}/info")
+    patient = decamelize(response.json())
+    patient["id_number"] = "IDN-NEW"
+
+    response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=patient)
+
+    assert response.status_code == 200
+    patient = crud.read(PatientOrm, id=patient_id)
+    assert patient.id == patient_id
+    assert patient.id_number == "IDN-NEW"
+
+
+@pytest.mark.parametrize(
+    "endpoint", ["/api/patients?search={}", "/api/patients/global/{}"]
+)
+def test_search_matches_id_and_id_number(database, patient_factory, api_get, endpoint):
+    patient_id = "IDKEY-SEARCH-1"
+    patient_factory.create(id=patient_id, id_number="ZQX-77")
+    database.session.commit()
+
+    for search in ["ZQX", "IDKEY"]:
+        response = api_get(endpoint=endpoint.format(search))
+        assert response.status_code == 200
+        assert patient_id in {p["id"] for p in response.json()}
+
+
 def __make_patient(patient_id: str, reading_ids: list[str]) -> dict:
     return {
         "id": patient_id,

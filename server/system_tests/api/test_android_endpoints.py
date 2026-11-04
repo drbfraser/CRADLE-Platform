@@ -268,6 +268,40 @@ def test_sync_patients_fully_successful(
         crud.delete_by(PatientOrm, id=mobile_patient_id)
 
 
+@pytest.mark.parametrize(
+    "sent_id_number, expected_id_number", [(None, "IDN-OLD"), ("IDN-NEW", "IDN-NEW")]
+)
+def test_sync_patient_update_id_number(
+    database, patient_factory, api_post, sent_id_number, expected_id_number
+):
+    last_sync = int(time.time()) - 1
+    patient_id = "90259047727"
+    patient_factory.create(id=patient_id, id_number="IDN-OLD", last_edited=5)
+    database.session.commit()
+
+    mobile_patient = {
+        "id": patient_id,
+        "name": "Edited",
+        "sex": SexEnum.FEMALE.value,
+        "date_of_birth": "1990-01-01",
+        "is_exact_date_of_birth": True,
+        "last_edited": last_sync + 1,
+        "base": 5,
+    }
+    if sent_id_number is not None:
+        mobile_patient["id_number"] = sent_id_number
+
+    response = api_post(
+        endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient]
+    )
+    database.session.commit()
+
+    assert response.status_code == 200
+    patient = crud.read(PatientOrm, id=patient_id)
+    assert patient.name == "Edited"
+    assert patient.id_number == expected_id_number
+
+
 @pytest.mark.skip(
     reason="Changes to validation of endpoints mean that the endpoint will throw an exception if any of the patients have invalid fields."
 )
