@@ -53,9 +53,9 @@ def test_medical_record_medical_path_maps_information_to_medical_history_only():
     assert marshalled["date_created"] == 1577836800
     assert marshalled["last_edited"] == 1577923200
     assert marshalled["medical_history"] == "Asthma (childhood)"
-    assert "drug_history" not in marshalled, (
-        "drug_history must not be present for non-drug records"
-    )
+    assert (
+        "drug_history" not in marshalled
+    ), "drug_history must not be present for non-drug records"
 
 
 def test_medical_record_drug_path_maps_information_to_drug_history_only():
@@ -75,9 +75,9 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
     }
 
     assert marshalled["drug_history"] == "Amoxicillin 500mg BID x7d"
-    assert "medical_history" not in marshalled, (
-        "medical_history must not be present for drug records"
-    )
+    assert (
+        "medical_history" not in marshalled
+    ), "medical_history must not be present for drug records"
 
 
 def test_medical_record_keeps_empty_information_string():
@@ -107,9 +107,9 @@ def test_medical_record_relationship_not_leaked_and_input_not_mutated():
 
     marshalled = orm_seralizer.marshal(medical_record)
 
-    assert "patient" not in marshalled, (
-        "Relationship object must not leak into the payload"
-    )
+    assert (
+        "patient" not in marshalled
+    ), "Relationship object must not leak into the payload"
     assert "_secret" not in marshalled, "Private attrs must never leak"
     # verifying original object not mutated
     assert medical_record.information == before_info
