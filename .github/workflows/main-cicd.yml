@@ -116,18 +116,35 @@ jobs:
           pip install -r requirements.txt
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Run Unit Tests
-        run: python -m pytest --junitxml=report.xml --cov --cov-report=html:coverage_report --cov-report=term-missing tests
+        run: |
+         python -m pytest tests \
+         --junitxml=report.xml \
+         --html=unit-test-report.html --self-contained-html \
+         --cov \
+         --cov-report=xml:coverage_report.xml
+         --cov-report=html:coverage_report \
+         --cov-report=term-missing 
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-      - name: Upload Test Results
+      - name: Upload Test Results HTML
         uses: actions/upload-artifact@v3
         with:
-          name: unit_test_results
-          path: /isolated-build/repo/server/report.xml
-      - name: Upload Coverage Report
+          name: backend-unit-test-html
+          path: /isolated-build/repo/server/unit_report.html 
+      - name: Upload Test Results XML 
         uses: actions/upload-artifact@v3
         with:
-          name: coverage_report
-          path: /isolated-build/repo/server/coverage_report/
+          name: backend-unit-test-xml 
+          path: /isolated-build/repo/server/unit_report.xml
+      - name: Upload Coverage Report HTML
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage-report-html
+          path: /isolated-build/repo/server/coverage_report.html
+      - name: Upload Coverage Report XML
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage-report-xml
+          path: /isolated-build/repo/server/coverage_report.xml
 
   backend_system_tests:
     runs-on: [self-hosted, docker]
