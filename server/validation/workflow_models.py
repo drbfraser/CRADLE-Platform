@@ -14,10 +14,13 @@ from validation.rule_groups import RuleGroupModel
 from validation.shared_models import MultiLangText
 
 
-class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
-    id: str
+class WorkflowClassificationBase(CradleBaseModel):
     name: str
     collection_id: Optional[str] = None
+
+
+class WorkflowClassificationModel(WorkflowClassificationBase, extra="forbid"):
+    id: str
 
 
 class WorkflowClassificationMultiLangModel(WorkflowClassificationModel):
@@ -28,9 +31,12 @@ class WorkflowClassificationMultiLangModel(WorkflowClassificationModel):
     name: MultiLangText
 
 
-class WorkflowCollectionModel(CradleBaseModel, extra="forbid"):
-    id: str
+class WorkflowCollectionBase(CradleBaseModel):
     name: str
+
+
+class WorkflowCollectionModel(WorkflowCollectionBase, extra="forbid"):
+    id: str
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
 

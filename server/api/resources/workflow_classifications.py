@@ -22,11 +22,11 @@ from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
     WorkflowClassificationPatchModel,
+    WorkflowClassificationUpdateModel,
     WorkflowClassificationUploadModel,
 )
 from validation.workflow_models import (
     WorkflowClassificationModel,
-    WorkflowClassificationMultiLangModel,
 )
 
 
@@ -171,7 +171,7 @@ def get_workflow_classification(path: WorkflowClassificationIdPath):
     "/<string:workflow_classification_id>", responses={200: WorkflowClassificationModel}
 )
 def update_workflow_classification(
-    path: WorkflowClassificationIdPath, body: WorkflowClassificationMultiLangModel
+    path: WorkflowClassificationIdPath, body: WorkflowClassificationUpdateModel
 ):
     """Update Workflow Classification"""
     workflow_classification = crud.read(
