@@ -1,10 +1,11 @@
+import pytest
 from humps import decamelize
 
 import data.db_operations as crud
 from common.commonUtil import get_uuid
 from common.form_utils import resolve_string_text
 from common.print_utils import pretty_print
-from models import WorkflowClassificationOrm
+from models import WorkflowClassificationOrm, WorkflowCollectionOrm
 
 
 def test_create_workflow_classification_success(database, api_post):
@@ -44,15 +45,22 @@ def test_create_workflow_classification_success(database, api_post):
         )
 
 
-def test_patch_workflow_classification(database, api_get, api_post, api_patch):
-    expected_name = "Test Classification"
+@pytest.mark.parametrize("method", ["PUT", "PATCH"])
+def test_update_workflow_classification(
+    database, api_get, api_post, api_put, api_patch, method
+):
     classification_data = {
         "id": get_uuid(),
-        "name": {"English": expected_name},
+        "name": {"English": "Test Classification"},
     }
 
-    patch_data = {
+    collection_id = get_uuid()
+    crud.create(
+        WorkflowCollectionOrm(id=collection_id, name="Classification collection")
+    )
+    update_data = {
         "name": {"English": "updated_classification_name"},
+        "collectionId": collection_id,
     }
 
     try:
@@ -60,48 +68,37 @@ def test_patch_workflow_classification(database, api_get, api_post, api_patch):
             endpoint="/api/workflow/classifications", json=classification_data
         )
         database.session.commit()
-
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-
         assert response.status_code == 201
-        assert response_body["name"] == expected_name
-        assert response_body["id"] == classification_data["id"]
 
-        # Verify it was actually created in the database
-        created_classification = crud.read(
-            WorkflowClassificationOrm, id=classification_data["id"]
-        )
-        assert created_classification is not None
-        assert (
-            resolve_string_text(created_classification.name_string_id, "English")
-            == expected_name
-        )
-
-        response = api_patch(
+        send_request = api_put if method == "PUT" else api_patch
+        response = send_request(
             endpoint=f"/api/workflow/classifications/{classification_data['id']}",
-            json=patch_data,
+            json=update_data,
         )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
 
         assert response.status_code == 200
+        assert response_body["id"] == classification_data["id"]
         assert response_body["name"] == "updated_classification_name"
+        assert response_body["collection_id"] == collection_id
 
-        # Verify the changes persisted by getting the instance
         response = api_get(
             endpoint=f"/api/workflow/classifications/{classification_data['id']}"
         )
         response_body = decamelize(response.json())
 
         assert response.status_code == 200
+        assert response_body["id"] == classification_data["id"]
         assert response_body["name"] == "updated_classification_name"
+        assert response_body["collection_id"] == collection_id
 
     finally:
         crud.delete_workflow_classification(
             WorkflowClassificationOrm, id=classification_data["id"]
         )
+        crud.delete_by(WorkflowCollectionOrm, id=collection_id)
 
 
 def test_get_workflow_classifications_with_data(database, api_get, api_post):

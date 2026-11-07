@@ -18,6 +18,7 @@ permissions:
 
 env:
   CUSTOM_WORKSPACE: /isolated-build/repo
+  REPORT_WORK: /isolated-build/dashboard-${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
   generate-dashboard:
@@ -39,8 +40,7 @@ jobs:
 
       - name: Prepare isolated report directories
         run: |
-          report_work="$(mktemp -d /isolated-build/dashboard.XXXX)"
-          echo "REPORT_WORK=$report_work" >> "$GITHUB_ENV"
+          report_work="$REPORT_WORK"
           mkdir -p "$report_work/current/tests"
           mkdir -p "$report_work/current/coverage"
           mkdir -p "$report_work/previous"

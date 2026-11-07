@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import TYPE_CHECKING, Literal, NamedTuple, Optional
 
 import data.db_operations as crud
@@ -23,6 +24,7 @@ from validation.formsV2_models import (
     FormClassification,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
+    TimeAnswer,
 )
 
 if TYPE_CHECKING:
@@ -658,6 +660,25 @@ def validate_form_answers(
                 ):
                     return ValidationResult(
                         False, "Future dates are not allowed", code=422
+                    )
+
+            case QuestionTypeEnum.TIME:
+                if not isinstance(answer.answer, TimeAnswer):
+                    return ValidationResult(
+                        False, "TIME questions require a TIME answer", code=422
+                    )
+
+                if (
+                    re.fullmatch(r"([01][0-9]|2[0-3]):[0-5][0-9]", answer.answer.time)
+                    is None
+                ):
+                    return ValidationResult(
+                        False, "Time must use HH:mm between 00:00 and 23:59", code=422
+                    )
+
+                if not -720 <= answer.answer.offset <= 840:
+                    return ValidationResult(
+                        False, "Offset must be between -720 and 840 minutes", code=422
                     )
 
             case _:

@@ -265,6 +265,7 @@ class FormAnswerOrmV2(db.Model):
     - NUMBER: {"value": 72.5}
     - MULTIPLE_CHOICE: {"mc_id_array": [0, 2]}  (indices of selected choices)
     - DATE: {"date": "2025-10-30"}
+    - TIME: {"time": "18:15", "offset": -60}
 
     For questions with comments attached, the format includes:
     - {"text": "Other", "comment": "Allergies to peanuts"}

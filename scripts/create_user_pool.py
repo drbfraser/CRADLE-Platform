@@ -2,9 +2,9 @@
 import os
 import pprint
 import sys
-from dotenv import load_dotenv
 
 import boto3
+from dotenv import load_dotenv
 
 """
 This script programmatically creates an AWS Cognito User Pool.

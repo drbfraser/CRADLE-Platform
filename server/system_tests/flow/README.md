@@ -28,6 +28,7 @@ The following is a full, heavily annotated, example on how to create a simple fl
 import data.crud as crud
 from models import Patient
 
+
 def test_creating_a_patient(single_facility_actors, api, make_patient):
     # Unpack actors, any that aren't needed can be named '_'
     facility, admin, hcw, cho, vht = single_facility_actors
@@ -52,7 +53,7 @@ def test_creating_a_patient(single_facility_actors, api, make_patient):
             endpoint="/api/patients",
             payload=patient_dict,
             email=vht.email,
-            password="ftest"
+            password="ftest",
         )
         assert response.status_code == 201
 

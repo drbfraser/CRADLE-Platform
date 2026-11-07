@@ -1,6 +1,7 @@
 import json
-from discord_webhook import DiscordWebhook, DiscordEmbed
 import os
+
+from discord_webhook import DiscordEmbed, DiscordWebhook
 
 
 def send_discord_alert(webhook_url):

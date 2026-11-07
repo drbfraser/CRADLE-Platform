@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.users import RegisterUserRequestBody, UserModel
+from validation.users import RegisterUserRequestBody, UserResponse
 
 ID = 7
 USERNAME = "jane_vht"
@@ -222,10 +222,10 @@ user_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
 def test_validation(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            UserModel(**json)
+            UserResponse(**json)
     else:
         try:
-            UserModel(**json)
+            UserResponse(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 

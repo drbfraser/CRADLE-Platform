@@ -72,11 +72,19 @@ class AnswerTypeDate(CradleBaseModel):
     date: str
 
 
+class AnswerTypeTime(CradleBaseModel):
+    time: str
+    offset: int = Field(
+        strict=True  # Inputted answer MUST be int
+    )
+
+
 AnswerType = Union[
     AnswerTypeNumber,
     AnswerTypeText,
     AnswerTypeMCId,
     AnswerTypeDate,
+    AnswerTypeTime,
 ]
 
 
@@ -198,11 +206,16 @@ class DateAnswer(AnswerTypeDate):
     comment: Optional[str] = None
 
 
+class TimeAnswer(AnswerTypeTime):
+    comment: Optional[str] = None
+
+
 AnswerValue = Union[
     NumberAnswer,
     TextAnswer,
     MCAnswer,
     DateAnswer,
+    TimeAnswer,
 ]
 
 
