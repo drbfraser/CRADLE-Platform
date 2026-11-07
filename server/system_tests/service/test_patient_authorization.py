@@ -54,9 +54,11 @@ def patient_access_scenario(
     }
 
     patients = {
-        "vht_direct": patient_factory.create(id="AUTH-P1", id_number="AUTH-P1"),
-        "unrelated": patient_factory.create(id="AUTH-P2", id_number="AUTH-P2"),
-        "unknown_direct": patient_factory.create(id="AUTH-P3", id_number="AUTH-P3"),
+        "vht_direct": patient_factory.create(id="AUTH-P1", patient_number="AUTH-P1"),
+        "unrelated": patient_factory.create(id="AUTH-P2", patient_number="AUTH-P2"),
+        "unknown_direct": patient_factory.create(
+            id="AUTH-P3", patient_number="AUTH-P3"
+        ),
     }
 
     assoc.associate(patients["vht_direct"], user=users["vht"])

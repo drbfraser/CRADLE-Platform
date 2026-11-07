@@ -26,7 +26,7 @@ def serialize_patient_list(patients: list[Any]) -> list[dict]:
     return [
         {
             "id": p.id,
-            "id_number": p.id_number,
+            "patient_number": p.patient_number,
             "name": p.name,
             "village_number": p.village_number,
             "traffic_light_status": (
@@ -43,7 +43,7 @@ def serialize_patients_admin(patients: list[Any]) -> list[dict]:
     return [
         {
             "id": p.id,
-            "id_number": p.id_number,
+            "patient_number": p.patient_number,
             "name": p.name,
             "is_archived": p.is_archived,
         }
@@ -57,7 +57,7 @@ def serialize_referral_list(referrals: list[Any]) -> list[dict]:
         {
             "referral_id": referral.referral_id,
             "patient_id": referral.patient_id,
-            "patient_id_number": referral.patient_id_number,
+            "patient_number": referral.patient_number,
             "patient_name": referral.patient_name,
             "village_number": referral.village_number,
             "date_referred": referral.date_referred,
@@ -109,7 +109,7 @@ def serialize_patient(
     """Serialize a patient with optional readings, referrals, and assessments to a dict."""
     return {
         "id": patient.patient_id,
-        "id_number": patient.id_number,
+        "patient_number": patient.patient_number,
         "name": patient.name,
         "sex": patient.sex.value,
         "date_of_birth": str(patient.date_of_birth),
@@ -182,12 +182,9 @@ def deserialize_patient(
         "household_number": patient_data.get("household_number"),
         "allergy": patient_data.get("allergy"),
     }
-    # Clients that predate id_number don't send it: on create the user-entered ID is
-    # the key, so it is also the ID number; on update the ID number is left unchanged.
-    if patient_data.get("id_number") is not None:
-        d["id_number"] = patient_data["id_number"]
-    elif not partial:
-        d["id_number"] = patient_data.get("id")
+    # Only set when sent, so that an update without it keeps the existing value.
+    if patient_data.get("patient_number") is not None:
+        d["patient_number"] = patient_data["patient_number"]
     if partial:
         if err := schema().validate(d, partial=True):
             raise ValidationError(err)

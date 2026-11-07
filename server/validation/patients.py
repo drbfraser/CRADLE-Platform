@@ -18,7 +18,7 @@ class PatientBase(CradleBaseModel):
     sex: SexEnum
     date_of_birth: str
     is_exact_date_of_birth: bool
-    id_number: Optional[str] = None
+    patient_number: Optional[str] = None
     is_pregnant: Optional[bool] = False
     household_number: Optional[str] = None
     zone: Optional[str] = None
@@ -37,7 +37,7 @@ class PatientModel(PatientBase):
     """
     {
         "id": "3f2b8c1e-5a7d-4e9b-8c6a-1d2e3f4a5b6c",
-        "id_number": "123456",
+        "patient_number": "123456",
         "name": "Jane Doe",
         "is_pregnant": true,
         "sex": "FEMALE",

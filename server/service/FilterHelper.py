@@ -30,7 +30,7 @@ def annotated_global_patient_list(
     query = PatientOrm.query.filter(
         or_(
             func.upper(PatientOrm.id).contains(search, autoescape=True),
-            func.upper(PatientOrm.id_number).contains(search, autoescape=True),
+            func.upper(PatientOrm.patient_number).contains(search, autoescape=True),
             func.upper(PatientOrm.name).contains(search, autoescape=True),
         )
     )

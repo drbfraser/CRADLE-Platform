@@ -63,7 +63,7 @@ def read_patient_list(
     query = (
         db_session.query(
             PatientOrm.id,
-            PatientOrm.id_number,
+            PatientOrm.patient_number,
             PatientOrm.name,
             PatientOrm.village_number,
             ReadingOrm.traffic_light_status,
@@ -106,7 +106,7 @@ def read_admin_patient(
     """
     query = db_session.query(
         PatientOrm.id,
-        PatientOrm.id_number,
+        PatientOrm.patient_number,
         PatientOrm.name,
         PatientOrm.is_archived,
     )
@@ -385,7 +385,7 @@ def read_patients(
     query = (
         db_session.query(
             PatientOrm.id.label("patient_id"),
-            PatientOrm.id_number,
+            PatientOrm.patient_number,
             PatientOrm.name,
             PatientOrm.sex,
             PatientOrm.date_of_birth,

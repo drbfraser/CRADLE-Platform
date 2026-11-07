@@ -269,14 +269,15 @@ def test_sync_patients_fully_successful(
 
 
 @pytest.mark.parametrize(
-    "sent_id_number, expected_id_number", [(None, "IDN-OLD"), ("IDN-NEW", "IDN-NEW")]
+    "sent_patient_number, expected_patient_number",
+    [(None, "IDN-OLD"), ("IDN-NEW", "IDN-NEW")],
 )
-def test_sync_patient_update_id_number(
-    database, patient_factory, api_post, sent_id_number, expected_id_number
+def test_sync_patient_update_patient_number(
+    database, patient_factory, api_post, sent_patient_number, expected_patient_number
 ):
     last_sync = int(time.time()) - 1
     patient_id = "90259047727"
-    patient_factory.create(id=patient_id, id_number="IDN-OLD", last_edited=5)
+    patient_factory.create(id=patient_id, patient_number="IDN-OLD", last_edited=5)
     database.session.commit()
 
     mobile_patient = {
@@ -288,8 +289,8 @@ def test_sync_patient_update_id_number(
         "last_edited": last_sync + 1,
         "base": 5,
     }
-    if sent_id_number is not None:
-        mobile_patient["id_number"] = sent_id_number
+    if sent_patient_number is not None:
+        mobile_patient["patient_number"] = sent_patient_number
 
     response = api_post(
         endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient]
@@ -299,7 +300,7 @@ def test_sync_patient_update_id_number(
     assert response.status_code == 200
     patient = crud.read(PatientOrm, id=patient_id)
     assert patient.name == "Edited"
-    assert patient.id_number == expected_id_number
+    assert patient.patient_number == expected_patient_number
 
 
 @pytest.mark.skip(
