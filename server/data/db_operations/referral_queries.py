@@ -80,6 +80,7 @@ def read_referral_list(
             ReferralOrm.date_referred,
             ReferralOrm.is_assessed,
             PatientOrm.id.label("patient_id"),
+            PatientOrm.patient_number.label("patient_number"),
             PatientOrm.name.label("patient_name"),
             PatientOrm.village_number,
             vital_sign_field,
