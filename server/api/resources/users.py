@@ -6,7 +6,11 @@ from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
 import data.db_operations as crud
-from api.authorization import require_admin_or_self, require_role
+from api.authorization import (
+    allow_any_authenticated_user,
+    require_admin_or_self,
+    require_role,
+)
 from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
 from data import orm_serializer
@@ -117,6 +121,7 @@ def get_current_user():
     Get Current User
     Get info of current user from Access Token.
     """
+    allow_any_authenticated_user()
     current_user = user_utils.get_current_user_from_jwt()
     return current_user, 200
 

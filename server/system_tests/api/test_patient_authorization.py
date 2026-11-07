@@ -44,8 +44,9 @@ def test_hcw_and_cho_can_access_unassociated_patient(api_get):
         "/api/patients/49300028161/info",
         "/api/patients/49300028161/pregnancies",
         "/api/patients/49300028161/medical_records",
+        "/api/mobile/forms/49300028161/dt9",
     ],
-    ids=["patient", "pregnancy", "medical-record"],
+    ids=["patient", "pregnancy", "medical-record", "mobile-form"],
 )
 def test_unassociated_vht_cannot_access_direct_patient_routes(api_get, endpoint):
     response = api_get(endpoint=endpoint)

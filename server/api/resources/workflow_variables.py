@@ -14,7 +14,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import require_patient_access
+from api.authorization import allow_any_authenticated_user, require_patient_access
 from common import user_utils
 from common.commonUtil import abort_not_found
 from enums import WorkflowVariableTypeEnum
@@ -23,6 +23,7 @@ from service.workflow.evaluate.rule_evaluator import RuleEvaluator
 from service.workflow.evaluate.rule_logic_parser import (
     parse_single_comparison_from_rule,
 )
+from validation import CradleBaseModel
 from validation.workflow_api_models import (
     GetWorkflowVariablesResponse,
     ResolveWorkflowVariablesRequest,
@@ -78,6 +79,7 @@ def _orm_to_item_model(
 @api_workflow_variables.get("", responses={200: GetWorkflowVariablesResponse})
 def get_workflow_variables():
     """List all available workflow variables with optional filters."""
+    allow_any_authenticated_user()
     namespace = request.args.get("namespace", type=str) or None
     type_filter = request.args.get("type", type=str) or None
     collection = request.args.get("collection", type=str) or None
@@ -113,6 +115,7 @@ def get_rule_logic():
     Used during workflow instance to show e.g. "if patient.age >= 18".
     Only supports a single-comparison rule; returns 404 if rule is compound or not found.
     """
+    allow_any_authenticated_user()
     rule_group_id = request.args.get("rule_group_id", type=str)
     if not rule_group_id:
         abort_not_found("rule_group_id query parameter is required.")
@@ -169,19 +172,24 @@ def post_resolve_workflow_variables(body: ResolveWorkflowVariablesRequest):
     return response.model_dump(), 200
 
 
+class WorkflowVariableTagPath(CradleBaseModel):
+    variable_tag: str
+
+
 # GET /api/workflow/variables/<variable_tag>
 @api_workflow_variables.get(
     "/<string:variable_tag>",
     responses={200: WorkflowVariableDetailModel},
 )
-def get_workflow_variable(variable_tag: str):
+def get_workflow_variable(path: WorkflowVariableTagPath):
     """Get detailed information about a specific variable by tag."""
+    allow_any_authenticated_user()
     orm = crud.read_by_filter(
         WorkflowVariableCatalogueOrm,
-        WorkflowVariableCatalogueOrm.tag == variable_tag,
+        WorkflowVariableCatalogueOrm.tag == path.variable_tag,
     )
     if orm is None:
-        abort_not_found(f"Workflow variable with tag '{variable_tag}' not found.")
+        abort_not_found(f"Workflow variable with tag '{path.variable_tag}' not found.")
 
     item = _orm_to_item_model(orm)
     detail = WorkflowVariableDetailModel(

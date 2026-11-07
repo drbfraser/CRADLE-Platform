@@ -4,7 +4,7 @@ import os
 import boto3
 import jwt
 from dotenv import load_dotenv
-from flask import Request, Response, request
+from flask import Request, Response, g, request
 from werkzeug.exceptions import Unauthorized
 
 import config
@@ -136,6 +136,7 @@ def require_authorization():
     """
     Run authorization check for all urls by default.
     """
+    g.request_authenticated = False
     # Respond OK to pre-flight request.
     if request.method.upper() == "OPTIONS":
         return Response()
@@ -145,3 +146,4 @@ def require_authorization():
 
     # Decoding the access token will also verify it. If verification fails, an exception will be thrown.
     _decode_access_token()
+    g.request_authenticated = True

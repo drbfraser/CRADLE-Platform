@@ -11,6 +11,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import require_patient_access
 from common.api_utils import PatientIdPath
 from models import PatientOrm
 from service.workflow.datasourcing import data_sourcing
@@ -103,6 +104,7 @@ def evaluate_workflow_demo(path: PatientIdPath):
     Shows how the rule engine selects branches based on patient data.
     Uses short-circuit evaluation - returns first TRUE branch.
     """
+    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=f"Patient {path.patient_id} not found")

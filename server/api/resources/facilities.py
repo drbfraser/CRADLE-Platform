@@ -5,7 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from common.api_utils import FacilityNamePath
 from data import orm_serializer
 from enums import RoleEnum
@@ -32,6 +32,7 @@ api_facilities = APIBlueprint(
 @api_facilities.get("", responses={200: HealthFacilityList})
 def get_all_facilities():
     """Get All Health Facilities"""
+    allow_any_authenticated_user()
     facilities = crud.read_all(HealthFacilityOrm)
     return [orm_serializer.marshal(f) for f in facilities]
 
@@ -43,6 +44,7 @@ def get_all_facility_names():
     Get All Health Facility Names
     Get a list containing the names of all Health Facilities.
     """
+    allow_any_authenticated_user()
     facilities = crud.read_all(HealthFacilityOrm)
     return [f.name for f in facilities]
 
@@ -75,6 +77,7 @@ def create_facility(body: CreateHealthFacilityRequest):
 )
 def get_facility(path: FacilityNamePath):
     """Get Health Facility"""
+    allow_any_authenticated_user()
     facility = crud.read(HealthFacilityOrm, name=path.health_facility_name)
     if facility is None:
         return abort(
@@ -89,6 +92,7 @@ def get_facility(path: FacilityNamePath):
 )
 def get_facility_new_referrals(path: FacilityNamePath):
     """Get Health Facility's New Referrals Timestamp"""
+    allow_any_authenticated_user()
     facility = crud.read(HealthFacilityOrm, name=path.health_facility_name)
     if facility is None:
         return abort(

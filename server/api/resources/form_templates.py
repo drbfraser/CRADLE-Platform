@@ -8,7 +8,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
@@ -48,6 +48,7 @@ class GetAllFormTemplatesQuery(CradleBaseModel):
 @api_form_templates.get("", responses={200: FormTemplateList})
 def get_all_form_templates(query: GetAllFormTemplatesQuery):
     """Get All Form Templates"""
+    allow_any_authenticated_user()
     filters: dict = {}
     filters["archived"] = 1 if query.include_archived else 0
 
@@ -169,6 +170,7 @@ def upload_form_template_body(body: FormTemplateUpload):
 @api_form_templates.get("<string:form_template_id>/versions")
 def get_form_template_versions(path: FormTemplateIdPath):
     """Get Form Template Versions"""
+    allow_any_authenticated_user()
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
@@ -192,6 +194,7 @@ class FormTemplateVersionPath(FormTemplateIdPath):
 )
 def get_form_template_version_as_csv(path: FormTemplateVersionPath):
     """Get Form Template Version as CSV"""
+    allow_any_authenticated_user()
     filters: dict = {
         "id": path.form_template_id,
         "version": path.version,
@@ -224,6 +227,7 @@ def get_form_template_language_version(
     path: FormTemplateIdPath, query: GetFormTemplateQuery
 ):
     """Get Form Template"""
+    allow_any_authenticated_user()
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
@@ -269,6 +273,7 @@ class ArchiveFormTemplateBody(CradleBaseModel):
 )
 def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBody):
     """Archive Form Template"""
+    require_role(RoleEnum.ADMIN)
     # TODO: It would make more sense to take the "archived" bool from query params.
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
 
@@ -291,6 +296,7 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 )
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     """Get Blank Form Template"""
+    allow_any_authenticated_user()
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
