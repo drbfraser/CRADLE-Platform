@@ -66,10 +66,9 @@ jobs:
               --repo "$MOBILE_REPO" \
               --workflow "$MOBILE_WORKFLOW" \
               --branch "$MOBILE_BRANCH" \
-              --status completed \
               --limit 1 \
               --json databaseId \
-              --jq '.[0].databaseId // empty')
+              --jq '[.[] | select(.status == "completed")][0].databaseId // empty')
           fi
 
           if [ -z "$MOBILE_RUN_ID" ]; then
@@ -103,10 +102,9 @@ jobs:
               --repo "github.sfu.ca/$PLATFORM_REPOSITORY" \
               --workflow testing-dashboard.yml \
               --branch "$GITHUB_REF_NAME" \
-              --status success \
               --limit 100 \
               --json databaseId \
-              --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID)][0].databaseId // empty")
+              --jq "[.[] | select(.conclusion == \"success\" and .databaseId != $GITHUB_RUN_ID)][0].databaseId // empty")
           fi
 
           if [ -z "$PREVIOUS_RUN_ID" ]; then
