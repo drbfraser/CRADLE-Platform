@@ -101,7 +101,7 @@ jobs:
             PREVIOUS_RUN_ID=$(gh run list \
               --repo "github.sfu.ca/$PLATFORM_REPOSITORY" \
               --workflow testing-dashboard.yml \
-              --branch "$GITHUB_REF_NAME" \
+              --branch "main" \
               --limit 100 \
               --json databaseId,conclusion \
               --jq "[.[] | select(.conclusion == \"success\" and .databaseId != $GITHUB_RUN_ID)][0].databaseId // empty")
