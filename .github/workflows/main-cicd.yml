@@ -121,7 +121,7 @@ jobs:
          --junitxml=report.xml \
          --html=unit-test-report.html --self-contained-html \
          --cov \
-         --cov-report=xml:coverage_report.xml
+         --cov-report=xml:coverage_report.xml \
          --cov-report=html:coverage_report \
          --cov-report=term-missing 
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server

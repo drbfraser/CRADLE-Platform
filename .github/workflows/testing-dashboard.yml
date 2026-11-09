@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       previous_run_id:
-        description: "Previous Platform testing dashboard artifact, to calculate trend. Leave empty if first run."
+        description: "Previous testing dashboard workflow run ID, to calculate trend. Leave empty if first run."
         required: false
         type: string
 
