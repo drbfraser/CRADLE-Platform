@@ -7,6 +7,8 @@ module is the source of truth for live application code and reset_db seeding.
 
 from enums import WorkflowVariableTypeEnum as VariableType
 
+URINE_TEST_VALUES = ["NAD", "+", "++", "+++"]
+
 
 def catalogue_variable(
     id,
@@ -125,6 +127,14 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         VariableType.BOOLEAN,
         "patient",
         '["is_archived"]',
+    ),
+    catalogue_variable(
+        "var-patient-allergy",
+        "patient.allergy",
+        "Patient allergies",
+        VariableType.STRING,
+        "patient",
+        '["allergy"]',
     ),
     # System context
     catalogue_variable(
@@ -272,7 +282,67 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         "vitals",
         allowed_values=["UP", "DOWN"],
     ),
+    catalogue_variable(
+        "var-vitals-latest-urine-leukocytes",
+        "vitals[latest].urine_test.leukocytes",
+        "Latest urine test result: leukocytes",
+        VariableType.STRING,
+        "vitals",
+        '["urine_test", "leukocytes"]',
+        "vitals",
+        allowed_values=URINE_TEST_VALUES,
+    ),
+    catalogue_variable(
+        "var-vitals-latest-urine-nitrites",
+        "vitals[latest].urine_test.nitrites",
+        "Latest urine test result: nitrites",
+        VariableType.STRING,
+        "vitals",
+        '["urine_test", "nitrites"]',
+        "vitals",
+        allowed_values=URINE_TEST_VALUES,
+    ),
+    catalogue_variable(
+        "var-vitals-latest-urine-glucose",
+        "vitals[latest].urine_test.glucose",
+        "Latest urine test result: glucose",
+        VariableType.STRING,
+        "vitals",
+        '["urine_test", "glucose"]',
+        "vitals",
+        allowed_values=URINE_TEST_VALUES,
+    ),
+    catalogue_variable(
+        "var-vitals-latest-urine-protein",
+        "vitals[latest].urine_test.protein",
+        "Latest urine test result: protein",
+        VariableType.STRING,
+        "vitals",
+        '["urine_test", "protein"]',
+        "vitals",
+        allowed_values=URINE_TEST_VALUES,
+    ),
+    catalogue_variable(
+        "var-vitals-latest-urine-blood",
+        "vitals[latest].urine_test.blood",
+        "Latest urine test result: blood",
+        VariableType.STRING,
+        "vitals",
+        '["urine_test", "blood"]',
+        "vitals",
+        allowed_values=URINE_TEST_VALUES,
+    ),
     # Pregnancy history
+    catalogue_variable(
+        "var-pregnancies-size",
+        "pregnancies.size",
+        "Number of pregnancy records",
+        VariableType.INTEGER,
+        "pregnancies",
+        '["size"]',
+        "pregnancies",
+        computed=True,
+    ),
     catalogue_variable(
         "var-preg-latest-start",
         "pregnancies[latest].start_date",
@@ -282,7 +352,35 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         '["start_date"]',
         "pregnancies",
     ),
+    catalogue_variable(
+        "var-preg-latest-end",
+        "pregnancies[latest].end_date",
+        "End date of the latest pregnancy",
+        VariableType.INTEGER,
+        "pregnancies",
+        '["end_date"]',
+        "pregnancies",
+    ),
+    catalogue_variable(
+        "var-preg-latest-outcome",
+        "pregnancies[latest].outcome",
+        "Outcome of the latest pregnancy",
+        VariableType.STRING,
+        "pregnancies",
+        '["outcome"]',
+        "pregnancies",
+    ),
     # Referrals
+    catalogue_variable(
+        "var-referrals-size",
+        "referrals.size",
+        "Number of referrals",
+        VariableType.INTEGER,
+        "referrals",
+        '["size"]',
+        "referrals",
+        computed=True,
+    ),
     catalogue_variable(
         "var-referrals-latest-date-referred",
         "referrals[latest].date_referred",
@@ -319,6 +417,24 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         '["not_attended"]',
         "referrals",
     ),
+    catalogue_variable(
+        "var-referrals-latest-health-facility",
+        "referrals[latest].health_facility_name",
+        "Health facility the latest referral was sent to",
+        VariableType.STRING,
+        "referrals",
+        '["health_facility_name"]',
+        "referrals",
+    ),
+    catalogue_variable(
+        "var-referrals-latest-comment",
+        "referrals[latest].comment",
+        "Comment on the latest referral",
+        VariableType.STRING,
+        "referrals",
+        '["comment"]',
+        "referrals",
+    ),
     # Assessments
     catalogue_variable(
         "var-assessments-latest-follow-up-needed",
@@ -347,7 +463,54 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         '["diagnosis"]',
         "assessments",
     ),
+    # Medical and drug history
+    catalogue_variable(
+        "var-medical-records-latest-history",
+        "medical_records[latest].medical_history",
+        "Patient's current medical history",
+        VariableType.STRING,
+        "medical_records",
+        '["medical_history"]',
+        "medical_records",
+    ),
+    catalogue_variable(
+        "var-medical-records-latest-date-created",
+        "medical_records[latest].date_created",
+        "Date the medical history was last updated",
+        VariableType.INTEGER,
+        "medical_records",
+        '["date_created"]',
+        "medical_records",
+    ),
+    catalogue_variable(
+        "var-drug-records-latest-history",
+        "drug_records[latest].drug_history",
+        "Patient's current drug history",
+        VariableType.STRING,
+        "drug_records",
+        '["drug_history"]',
+        "drug_records",
+    ),
+    catalogue_variable(
+        "var-drug-records-latest-date-created",
+        "drug_records[latest].date_created",
+        "Date the drug history was last updated",
+        VariableType.INTEGER,
+        "drug_records",
+        '["date_created"]',
+        "drug_records",
+    ),
     # Workflow
+    catalogue_variable(
+        "var-all-wf-size",
+        "all_wf.size",
+        "Number of workflows for the patient",
+        VariableType.INTEGER,
+        "all_wf",
+        '["size"]',
+        "all_wf",
+        computed=True,
+    ),
     catalogue_variable(
         "var-all-wf-latest-status",
         "all_wf[latest].status",
