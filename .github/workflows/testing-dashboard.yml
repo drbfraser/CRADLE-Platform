@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       mobile_run_id:
-        description: "Cradle-Mobile repo's workflow run ID, containing test and coverage artifacts"
-        required: true
+        description: "Optional Mobile workflow run ID. Leave empty to select latest completed run."
+        required: false 
         type: string
       previous_run_id:
-        description: "Previous Platform testing dashboard artifact, to calculate trend. Leave empty if first run."
+        description: "Optional previous dashboard workflow run ID. Leave empty to select the latest successful dashboard run."
         required: false
         type: string
 
@@ -54,29 +54,72 @@ jobs:
           GH_HOST: github.sfu.ca
           GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
           MOBILE_RUN_ID: ${{ github.event.inputs.mobile_run_id }}
-        run: |
-          gh run download "$MOBILE_RUN_ID" \
-          --repo github.sfu.ca/cradle-project/Cradle-Mobile \
-          --name mobile-unit-test-results \
-          --dir "$REPORT_WORK/current/tests"
+        # change MOBILE_BRANCH and MOBILE_WORKFLOW if the branch that is reported changes or the workflow that produces test artifacts changes respectively
+        run: | 
+          set -eu
+          MOBILE_BRANCH="main" 
+          MOBILE_WORKFLOW="main-cicd.yml"
+          MOBILE_REPO="github.sfu.ca/cradle-project/Cradle-Mobile"
+
+          if [ -z "$MOBILE_RUN_ID" ]; then
+            MOBILE_RUN_ID=$(gh run list \
+              --repo "$MOBILE_REPO" \
+              --workflow "$MOBILE_WORKFLOW" \
+              --branch "$MOBILE_BRANCH" \
+              --status completed \
+              --limit 1 \
+              --json databaseId \
+              --jq '.[0].databaseId // empty')
+          fi
+
+          if [ -z "$MOBILE_RUN_ID" ]; then
+            echo "Error: No completed Mobile workflow run found."
+            exit 1
+          fi
+
+          echo "Using mobile run ID: $MOBILE_RUN_ID"
 
           gh run download "$MOBILE_RUN_ID" \
-          --repo github.sfu.ca/cradle-project/Cradle-Mobile \
-          --name mobile-jacoco-report \
-          --dir "$REPORT_WORK/current/coverage"
+            --repo "$MOBILE_REPO" \
+            --name mobile-unit-test-results \
+            --dir "$REPORT_WORK/current/tests"
+
+          gh run download "$MOBILE_RUN_ID" \
+            --repo "$MOBILE_REPO" \
+            --name mobile-jacoco-report \
+            --dir "$REPORT_WORK/current/coverage"
 
       - name: Download previous artifacts
-        if: ${{ github.event.inputs.previous_run_id != '' }}
         env:
           GH_HOST: github.sfu.ca
           GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
           PREVIOUS_RUN_ID: ${{ github.event.inputs.previous_run_id }}
           PLATFORM_REPOSITORY: ${{ github.repository }}
         run: |
+          set -eu
+
+          if [ -z "$PREVIOUS_RUN_ID" ]; then
+            PREVIOUS_RUN_ID=$(gh run list \
+              --repo "github.sfu.ca/$PLATFORM_REPOSITORY" \
+              --workflow testing-dashboard.yml \
+              --branch "$GITHUB_REF_NAME" \
+              --status success \
+              --limit 100 \
+              --json databaseId \
+              --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID)][0].databaseId // empty")
+          fi
+
+          if [ -z "$PREVIOUS_RUN_ID" ]; then
+            echo "No previous successful dashboard found, skipping trend comparison."
+            exit 0
+          fi
+
+          echo "Using previous run ID: $PREVIOUS_RUN_ID"
+
           gh run download "$PREVIOUS_RUN_ID" \
-          --repo github.sfu.ca/$PLATFORM_REPOSITORY \
-          --name testing-dashboard \
-          --dir "$REPORT_WORK/previous"
+            --repo "github.sfu.ca/$PLATFORM_REPOSITORY" \
+            --name testing-dashboard \
+            --dir "$REPORT_WORK/previous"
   
       - name: Generate dashboard data
         run: |
