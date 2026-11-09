@@ -66,8 +66,8 @@ jobs:
               --repo "$MOBILE_REPO" \
               --workflow "$MOBILE_WORKFLOW" \
               --branch "$MOBILE_BRANCH" \
-              --limit 1 \
-              --json databaseId \
+              --limit 100 \
+              --json databaseId,status \
               --jq '[.[] | select(.status == "completed")][0].databaseId // empty')
           fi
 
@@ -103,7 +103,7 @@ jobs:
               --workflow testing-dashboard.yml \
               --branch "$GITHUB_REF_NAME" \
               --limit 100 \
-              --json databaseId \
+              --json databaseId,conclusion \
               --jq "[.[] | select(.conclusion == \"success\" and .databaseId != $GITHUB_RUN_ID)][0].databaseId // empty")
           fi
 
