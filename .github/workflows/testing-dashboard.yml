@@ -58,7 +58,7 @@ jobs:
         run: | 
           set -eu
           MOBILE_BRANCH="main" 
-          MOBILE_WORKFLOW="main-cicd.yml"
+          MOBILE_WORKFLOW="main-cicd.yaml"
           MOBILE_REPO="github.sfu.ca/cradle-project/Cradle-Mobile"
 
           if [ -z "$MOBILE_RUN_ID" ]; then
