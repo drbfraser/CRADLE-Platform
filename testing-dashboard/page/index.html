@@ -293,8 +293,8 @@ function render(key) {
       <div class="good-pill${good ? '' : ' warn'}"><b>${label}</b></div>
       ${noTrendAvailable
         ? '<div class="trend">No trend available</div>'
-        : `<div class="trend ${trendUp ? 'up' : 'down'} from previous main commit.">
-          ${trendUp ? '↗ +' : '↘ '}${d.trend}% from last run</div>`
+        : `<div class="trend ${trendUp ? 'up' : 'down'}">
+          ${trendUp ? '↗ +' : '↘ '}${d.trend}% from previous main commit</div>`
       }
       </div>
     <div class="cov-right">
