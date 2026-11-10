@@ -77,6 +77,7 @@ function variableDisplayName(v: WorkflowVariable): string {
 
 const ORDERED_TYPES = new Set(['Number', 'Date']);
 const GENERIC_COMPARE_COLOUR = 120;
+const LOGIC_COLOUR = 330;
 
 /** Output type of blocks that produce a whole condition (compare, AND/OR, NOT, text check) */
 const CONDITION_TYPE = 'Condition';
@@ -84,6 +85,26 @@ const CONDITION_TYPE = 'Condition';
 const COMPARABLE_TYPES = ['Number', 'String', 'Boolean', 'Date'];
 /** AND / OR / NOT take conditions, plus true/false values (e.g. a boolean variable on its own) */
 const CONDITION_INPUT_TYPES = ['Boolean', CONDITION_TYPE];
+
+export const MIN_LOGIC_INPUTS = 2;
+
+const PLUS_ICON =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="white" fill-opacity="0.3"/><path d="M8 4v8M4 8h8" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>'
+  );
+
+const MINUS_ICON =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="white" fill-opacity="0.3"/><path d="M4 8h8" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>'
+  );
+
+export type LogicOpBlock = Blockly.Block & {
+  itemCount_: number;
+  updateShape_: () => void;
+  changeCount_: (delta: number) => void;
+};
 
 /**
  * Returns a block's output type if it has exactly one type; otherwise returns null
@@ -411,19 +432,97 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
   };
 
   Blockly.Blocks['logic_op'] = {
-    init: function (this: Blockly.Block) {
-      this.appendValueInput('A').setCheck(CONDITION_INPUT_TYPES);
-      this.appendDummyInput().appendField(
+    init: function (this: LogicOpBlock) {
+      this.appendDummyInput('HEADER').appendField(
         new Blockly.FieldDropdown([
           ['AND', 'and'],
           ['OR', 'or'],
         ]),
         'OP'
       );
-      this.appendValueInput('B').setCheck(CONDITION_INPUT_TYPES);
-      this.setInputsInline(true);
+      this.appendDummyInput('BUTTONS').appendField(
+        new Blockly.FieldImage(PLUS_ICON, 16, 16, 'Add condition', () =>
+          this.changeCount_(1)
+        ),
+        'PLUS'
+      );
       this.setOutput(true, CONDITION_TYPE);
-      this.setColour(120);
+      this.setColour(LOGIC_COLOUR);
+      this.setInputsInline(true);
+      this.itemCount_ = MIN_LOGIC_INPUTS;
+      this.updateShape_();
+    },
+
+    saveExtraState: function (this: LogicOpBlock) {
+      return { itemCount: this.itemCount_ };
+    },
+
+    loadExtraState: function (
+      this: LogicOpBlock,
+      state: { itemCount?: number }
+    ) {
+      this.itemCount_ = Math.max(
+        MIN_LOGIC_INPUTS,
+        state?.itemCount ?? MIN_LOGIC_INPUTS
+      );
+      this.updateShape_();
+    },
+
+    changeCount_: function (this: LogicOpBlock, delta: number) {
+      if (this.isInFlyout) return;
+      const next = this.itemCount_ + delta;
+      if (next < MIN_LOGIC_INPUTS) return;
+
+      Blockly.Events.setGroup(true);
+      try {
+        const oldState = JSON.stringify(this.saveExtraState!());
+        if (delta < 0) {
+          this.getInputTargetBlock(`ARG${this.itemCount_ - 1}`)?.unplug();
+        }
+        this.itemCount_ = next;
+        this.updateShape_();
+        const newState = JSON.stringify(this.saveExtraState!());
+        Blockly.Events.fire(
+          new Blockly.Events.BlockChange(
+            this,
+            'mutation',
+            null,
+            oldState,
+            newState
+          )
+        );
+      } finally {
+        Blockly.Events.setGroup(false);
+      }
+    },
+
+    updateShape_: function (this: LogicOpBlock) {
+      for (let i = 0; i < this.itemCount_; i++) {
+        if (this.getInput(`ARG${i}`)) continue;
+        this.appendValueInput(`ARG${i}`).setCheck(CONDITION_INPUT_TYPES);
+      }
+      for (let i = this.itemCount_; this.getInput(`ARG${i}`); i++) {
+        this.removeInput(`ARG${i}`);
+      }
+      this.moveInputBefore('BUTTONS', null);
+
+      // Only show the minus button when above the minimum slot count.
+      const buttons = this.getInput('BUTTONS')!;
+      const hasMinus = !!this.getField('MINUS');
+      if (this.itemCount_ > MIN_LOGIC_INPUTS && !hasMinus) {
+        buttons.appendField(
+          new Blockly.FieldImage(
+            MINUS_ICON,
+            16,
+            16,
+            'Remove last condition',
+            () => this.changeCount_(-1)
+          ),
+          'MINUS'
+        );
+      } else if (this.itemCount_ <= MIN_LOGIC_INPUTS && hasMinus) {
+        buttons.removeField('MINUS');
+      }
     },
   };
 
@@ -433,7 +532,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         .setCheck(CONDITION_INPUT_TYPES)
         .appendField('NOT');
       this.setOutput(true, CONDITION_TYPE);
-      this.setColour(120);
+      this.setColour(LOGIC_COLOUR);
     },
   };
 
