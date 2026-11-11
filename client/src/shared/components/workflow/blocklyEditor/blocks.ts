@@ -71,6 +71,14 @@ const CASE_OPTIONS: [string, string][] = [
 
 const variableMetadata = new Map<string, WorkflowVariable>();
 
+export const VITAL_COLLECTION_TAG_MAP: Record<string, string> = {
+  traffic_color: 'vitals[latest].traffic_color',
+  traffic_arrow: 'vitals[latest].traffic_arrow',
+  heart_rate: 'vitals[latest].heart_rate',
+  systolic_blood_pressure: 'vitals[latest].systolic_blood_pressure',
+  diastolic_blood_pressure: 'vitals[latest].diastolic_blood_pressure',
+};
+
 function variableDisplayName(v: WorkflowVariable): string {
   return v.description ?? v.tag;
 }
@@ -196,11 +204,21 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
 
   const leftBlock = block.getInputTargetBlock('LEFT');
 
-  const tag = leftBlock?.getFieldValue?.('VAR_NAME');
+  let allowedValues: string[] | undefined;
 
-  const allowedValues = tag
-    ? variableMetadata.get(tag)?.allowedValues
-    : undefined;
+  if (leftBlock?.type === 'vital_collection') {
+    const field = leftBlock.getFieldValue('FIELD');
+
+    const metadataTag = VITAL_COLLECTION_TAG_MAP[field];
+
+    allowedValues = metadataTag
+      ? variableMetadata.get(metadataTag)?.allowedValues
+      : undefined;
+  } else {
+    const tag = leftBlock?.getFieldValue?.('VAR_NAME');
+
+    allowedValues = tag ? variableMetadata.get(tag)?.allowedValues : undefined;
+  }
 
   if (!allowedValues?.length) {
     const rightBlock = block.getInputTargetBlock('RIGHT');
@@ -570,6 +588,45 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         );
       this.setOutput(true, 'Boolean');
       this.setColour(TYPE_COLOURS['Boolean']);
+    },
+  };
+
+  const VITAL_COLLECTION_TYPES: Record<string, string> = {
+    traffic_color: 'String',
+    traffic_arrow: 'String',
+    heart_rate: 'Number',
+    systolic_blood_pressure: 'Number',
+    diastolic_blood_pressure: 'Number',
+  };
+  function applyHistoricalVitalType(block: Blockly.Block, field: string) {
+    const outputType = VITAL_COLLECTION_TYPES[field] ?? 'String';
+    block.setOutput(true, outputType);
+    block.setColour(TYPE_COLOURS[outputType]);
+  }
+  Blockly.Blocks['vital_collection'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput()
+        .appendField('Vital Sign')
+        .appendField(
+          new Blockly.FieldDropdown(
+            [
+              ['Traffic Light Color', 'traffic_color'],
+              ['Traffic Light Arrow', 'traffic_arrow'],
+              ['Heart Rate', 'heart_rate'],
+              ['Systolic Blood Pressure', 'systolic_blood_pressure'],
+              ['Diastolic Blood Pressure', 'diastolic_blood_pressure'],
+            ],
+            (value: string) => {
+              applyHistoricalVitalType(this, value);
+              return value;
+            }
+          ),
+          'FIELD'
+        )
+        .appendField('Reading #')
+        .appendField(new Blockly.FieldNumber(1, 1), 'READING');
+
+      applyHistoricalVitalType(this, 'traffic_color');
     },
   };
 

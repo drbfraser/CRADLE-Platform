@@ -89,6 +89,16 @@ jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
   return [JSON.stringify(result), 0];
 };
 
+jsonLogicGenerator.forBlock['vital_collection'] = function (block) {
+  const field = block.getFieldValue('FIELD');
+  const reading = Number(block.getFieldValue('READING'));
+
+  const variable =
+    reading <= 1 ? `vitals[latest].${field}` : `vitals[-${reading}].${field}`;
+
+  return [JSON.stringify({ var: variable }), 0];
+};
+
 export function workspaceToJsonLogic(
   workspace: Blockly.Workspace
 ): string | null {
@@ -97,6 +107,7 @@ export function workspaceToJsonLogic(
 
   const code = jsonLogicGenerator.blockToCode(rootBlock);
   const codeStr = Array.isArray(code) ? code[0] : code;
+  console.log('workspaceToJsonLogic', codeStr);
   return codeStr || null;
 }
 
