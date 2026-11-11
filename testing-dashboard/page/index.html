@@ -294,7 +294,7 @@ function render(key) {
       ${noTrendAvailable
         ? '<div class="trend">No trend available</div>'
         : `<div class="trend ${trendUp ? 'up' : 'down'}">
-          ${trendUp ? '↗ +' : '↘ '}${d.trend}% from last run</div>`
+          ${trendUp ? '↗ +' : '↘ '}${d.trend}% from previous main commit</div>`
       }
       </div>
     <div class="cov-right">
