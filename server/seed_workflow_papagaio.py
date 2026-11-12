@@ -391,12 +391,14 @@ def create_papagaio_diagnosis_workflow_template_steps(forms):
         (
             "pd_secondary_outcomes_step",
             "Secondary Outcomes",
-            ("Analysis: secondary outcomes.\n\n"
-             "- Gestational age at delivery\n"
-             "- Mode of birth\n"
-             "- Time to diagnosis\n"
-             "- Maternal quality of life\n"
-             "- Healthcare resource use and costs"),
+            (
+                "Analysis: secondary outcomes.\n\n"
+                "- Gestational age at delivery\n"
+                "- Mode of birth\n"
+                "- Time to diagnosis\n"
+                "- Maternal quality of life\n"
+                "- Healthcare resource use and costs"
+            ),
             forms["secondary_outcomes"],
             [],
         ),

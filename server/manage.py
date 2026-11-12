@@ -510,6 +510,7 @@ def seed():
 
     print("Seeding PAPAGAIO Diagnosis Workflow Template...")
     from seed_workflow_papagaio import create_papagaio_diagnosis_workflow_template
+
     create_papagaio_diagnosis_workflow_template()
     print("PAPAGAIO Diagnosis Workflow Template has been seeded")
 
