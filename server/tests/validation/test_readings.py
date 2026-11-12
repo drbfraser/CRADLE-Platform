@@ -1,7 +1,20 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.readings import ReadingModel
+from validation.readings import CreateReadingRequest
+
+
+def test_reading_request_ignores_actor_identity():
+    request = CreateReadingRequest(
+        patientId="patient-contract",
+        systolicBloodPressure=110,
+        diastolicBloodPressure=80,
+        heartRate=70,
+        userId=2,
+    )
+
+    assert "user_id" not in request.model_dump()
+
 
 READING_ID = "asdasd82314278226313803"
 PATIENT_ID = "123456"
@@ -247,7 +260,7 @@ referral_field_date_taken_has_wrong_type_should_throw_exception = {
     "assessment": ASSESSMENT,
 }
 
-referral_field_user_id_has_wrong_type_should_throw_exception = {
+reading_with_unknown_user_id_type_should_return_none = {
     "id": READING_ID,
     "patient_id": PATIENT_ID,
     "systolic_blood_pressure": SOME_INTEGER,
@@ -338,8 +351,8 @@ referral_field_assessment_has_wrong_type_should_throw_exception = {
             ValidationError,
         ),
         (
-            referral_field_user_id_has_wrong_type_should_throw_exception,
-            ValidationError,
+            reading_with_unknown_user_id_type_should_return_none,
+            None,
         ),
         (
             referral_field_assessment_has_wrong_type_should_throw_exception,
@@ -350,9 +363,9 @@ referral_field_assessment_has_wrong_type_should_throw_exception = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            ReadingModel(**json)
+            CreateReadingRequest(**json)
     else:
         try:
-            ReadingModel(**json)
+            CreateReadingRequest(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error: {e}") from e

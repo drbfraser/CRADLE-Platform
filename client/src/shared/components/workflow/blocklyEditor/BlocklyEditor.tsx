@@ -159,6 +159,7 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
 
       if (
         event.type !== Blockly.Events.BLOCK_CHANGE &&
+        event.type !== Blockly.Events.BLOCK_FIELD_INTERMEDIATE_CHANGE &&
         event.type !== Blockly.Events.BLOCK_MOVE &&
         event.type !== Blockly.Events.BLOCK_CREATE &&
         event.type !== Blockly.Events.BLOCK_DELETE
@@ -271,8 +272,8 @@ export const BlocklyEditor: React.FC<BlocklyEditorProps> = ({
                 Drag blocks here to build your condition
               </Typography>
               <Typography variant="caption" color="text.disabled">
-                Use Comparisons and Logic to define rules, and Variables or
-                Values to provide inputs
+                Use Comparisons and Logic to define rules, then drop Variables
+                or Values into its slots
               </Typography>
             </Box>
           </Box>

@@ -10,6 +10,7 @@ export interface WorkflowVariable {
   fieldPath?: string[];
   isComputed: boolean;
   isDynamic: boolean;
+  allowedValues?: string[];
 }
 
 export const getWorkflowVariables = async (params?: {

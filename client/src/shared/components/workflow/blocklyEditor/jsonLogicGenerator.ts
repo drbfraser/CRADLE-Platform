@@ -20,15 +20,15 @@ function variableBlockGenerator(block: Blockly.Block): [string, number] {
   return [JSON.stringify({ var: varName }), 0];
 }
 
+jsonLogicGenerator.forBlock['enum_value'] = function (block) {
+  const value = block.getFieldValue('VALUE');
+  return [JSON.stringify(value), 0];
+};
+
 export function ensureVariableBlockGenerator(blockType: string): void {
   if (!jsonLogicGenerator.forBlock[blockType]) {
     jsonLogicGenerator.forBlock[blockType] = variableBlockGenerator;
   }
-}
-
-// Legacy combined variable blocks (pre–source grouping).
-for (const bType of ['Number', 'String', 'Boolean', 'Date']) {
-  ensureVariableBlockGenerator(`app_variable_${bType}`);
 }
 
 jsonLogicGenerator.forBlock['number_value'] = function (block) {
@@ -51,16 +51,9 @@ jsonLogicGenerator.forBlock['date_value'] = function (block) {
   return [JSON.stringify({ date: date }), 0];
 };
 
-for (const blockType of [
-  'number_comparison',
-  'date_comparison',
-  'string_comparison',
-  'boolean_comparison',
-]) {
-  jsonLogicGenerator.forBlock[blockType] = function (block) {
-    return generateComparison(block, 'LEFT', 'RIGHT');
-  };
-}
+jsonLogicGenerator.forBlock['generic_comparison'] = function (block) {
+  return generateComparison(block, 'LEFT', 'RIGHT');
+};
 
 jsonLogicGenerator.forBlock['string_op'] = function (block) {
   const op = block.getFieldValue('OP');

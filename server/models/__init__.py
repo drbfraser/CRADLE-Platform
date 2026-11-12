@@ -18,6 +18,8 @@ from .formsV2 import (
     LangVersionOrmV2,
 )
 from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
+from .patients import DeletedPatientOrm as DeletedPatientOrm
+from .patients import DeletedPatientUserOrm as DeletedPatientUserOrm
 from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
 from .schemas import (
     AssessmentSchema,

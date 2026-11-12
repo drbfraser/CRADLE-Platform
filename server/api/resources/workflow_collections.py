@@ -10,7 +10,10 @@ from data import orm_serializer
 from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel
-from validation.workflow_api_models import WorkflowCollectionUploadModel
+from validation.workflow_api_models import (
+    WorkflowCollectionUpdateModel,
+    WorkflowCollectionUploadModel,
+)
 from validation.workflow_models import (
     WorkflowClassificationModel,
     WorkflowCollectionModel,
@@ -156,7 +159,7 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
     "/<string:workflow_collection_id>", responses={200: WorkflowCollectionModel}
 )
 def update_workflow_collection(
-    path: WorkflowCollectionIdPath, body: WorkflowCollectionModel
+    path: WorkflowCollectionIdPath, body: WorkflowCollectionUpdateModel
 ):
     """Update a workflow collection."""
     workflow_collection_changes = body.model_dump()

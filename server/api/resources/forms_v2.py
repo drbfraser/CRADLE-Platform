@@ -203,6 +203,7 @@ def _read_form_for_update(submission_id: str):
     return form
 
 
+# /api/forms/v2/submissions/<string:form_submission_id> [PUT]
 @api_form_submissions_v2.put(
     "/<string:form_submission_id>", responses={200: FormSubmission}
 )

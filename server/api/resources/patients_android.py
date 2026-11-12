@@ -22,7 +22,7 @@ from models import (
 )
 from service import serialize, view
 from validation import CradleBaseModel
-from validation.assessments import AssessmentModel
+from validation.assessments import AssessmentResponse
 from validation.forms import FormModel
 from validation.patients import PatientWithRecordsResponseList
 from validation.readings import ReadingWithUrineTestList
@@ -38,6 +38,7 @@ def to_global_search_patient(patient):
     global_search_patient = {
         "name": patient["name"],
         "id": patient["id"],
+        "patient_number": patient["patient_number"],
         "village_number": patient["village_number"],
         "readings": patient["readings"],
         "state": patient["state"],
@@ -81,7 +82,9 @@ def get_global_search_patients(current_user, search):
         return patient_dict
 
     user = crud.read(UserOrm, id=current_user["id"])
-    pairs = filter_helper.annotated_global_patient_list(user, search)
+    pairs = filter_helper.annotated_global_patient_list(
+        user, search, current_user, scope_query=scope_patient_query
+    )
     patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
     return [to_global_search_patient(p) for p in patients_query]
 
@@ -101,6 +104,7 @@ class MobileGlobalSearchReading(CradleBaseModel):
 
 class MobileGlobalSearchPatient(CradleBaseModel):
     id: str
+    patient_number: Optional[str] = None
     name: str
     state: str
     village_number: str
@@ -120,10 +124,11 @@ class MobileGlobalSearchPatientsList(RootModel):
 def search_patient_list_mobile(path: SearchPath):
     """
     Search Patient List (Mobile)
-    Get a list of ALL patients and their basic information
-    (information necessary for the patient page) that match the search criteria.
+    Get a list of the patients that the current user can access and their basic
+    information (information necessary for the patient page) that match the search
+    criteria.
     For now search criteria could be:
-        - A portion/full match of the patient's ID.
+        - A portion/full match of the patient's ID or patient number.
         - A portion/full match of the patient's initials.
 
     Returns info for Patient and their Readings.
@@ -195,7 +200,7 @@ def get_referrals_mobile():
 @api_patients_mobile.get(
     "/assessments",
     tags=[mobile_patient_tag],
-    responses={200: AssessmentModel},
+    responses={200: AssessmentResponse},
 )
 def get_assessments_mobile():
     """Get Assessments (Mobile)"""

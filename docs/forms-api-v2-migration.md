@@ -148,7 +148,7 @@ Replace all answers. Omitted optional answers are deleted; required answers cann
 
 Each answer: `question_id` (required), `answer` (required). Duplicate questions and client-supplied answer IDs are rejected.
 
-Run migration `36_9be1fdea7def` first. Use `revision` from GET; successful PATCH/PUT increments it. After 409 or a lost response, GET and review differences before retrying.
+Run migrations through head `41_c97928523839` first; it merges `36_9be1fdea7def` with the patient-number migration. Use `revision` from GET; successful PATCH/PUT increments it. After 409 or a lost response, GET and review differences before retrying.
 
 Returns: 200 with FormSubmission, 404 if not found, 409 if revision differs or submission is archived, 422 if answers are invalid.
 

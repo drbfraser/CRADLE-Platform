@@ -21,10 +21,10 @@ const SECTIONS = [
   {
     title: 'Getting started',
     body: [
-      'Drag conditions blocks (numbers, dates, true/false, text) from Comparisons and Logic into the workspace — you can drop several at once.',
-      'Drag AND/OR/NOT blocks to combine conditions blocks to build one combined condition.',
-      'Drag variables or values to every empty slot before saving or copying.',
-      'Blocks are color-coded and shaped by type, so you can spot the right one at a glance.',
+      'Drag a COMPARE block from Comparisons and Logic into the workspace, then drop a Variable or Value into each side to form a condition.',
+      'To build more than one condition, combine them with AND/OR/NOT blocks.',
+      'Conditions blocks have pointed edges and Values/Variables blocks have rounded edges, blocks are also color-coded, so you can see where each block fits.',
+      'Fill every empty slot before saving or copying.',
       'Give the condition a name so it appears on the flow diagram.',
     ],
   },
@@ -33,10 +33,8 @@ const SECTIONS = [
     body: [
       'AND / OR — combine multiple conditions (e.g. age > 18 AND is pregnant).',
       'NOT — flip a condition\u2019s result.',
-      'Compare numbers blocks: is equal to, is greater than, etc. (e.g. age is greater than 18).',
-      'Compare dates blocks: is before, is after, etc. (e.g. date of birth is before a given day).',
-      'Check true/false blocks: is equal to (e.g. is pregnant).',
-      'Check text blocks: is equal to, contains, starts with, ends with, or length (e.g. name length is greater than 5).',
+      'COMPARE — compares two values. Numbers and dates can use =, ≠, <, >, ≤, ≥ (for dates: before, after, etc.). Text and true/false can only use = or ≠.',
+      'CHECK TEXT — checks whether text contains, starts with or ends with something, with or without matching upper/lower case, or length (e.g. name length is greater than 5).',
     ],
   },
   {
@@ -48,8 +46,10 @@ const SECTIONS = [
   {
     title: 'Variables',
     body: [
-      'Patient — profile fields from the patient record (age, sex, DOB, etc.) when available.',
-      'Form Questions — questions from the form on the step you are branching from.',
+      'For Variable blocks (e.g. Patient info): Pick any variable from its dropdown.',
+      'The block changes colour and type to match the variable you pick. If it no longer fits where it is connected, it pops out.',
+      'Patient info — fields from the patient record (age, sex, DOB, etc.) when available.',
+      'Form Questions info — questions from the form on the step you are branching from.',
     ],
   },
 ];

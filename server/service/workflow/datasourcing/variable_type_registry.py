@@ -55,6 +55,8 @@ _VITAL_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "date_taken": T.INTEGER,
     "last_edited": T.INTEGER,
     "is_flagged_for_follow_up": T.BOOLEAN,
+    "traffic_color": T.STRING,
+    "traffic_arrow": T.STRING,
 }
 
 _URINE_FIELDS: dict[str, WorkflowVariableTypeEnum] = {

@@ -11,6 +11,7 @@ from common import form_utils
 from enums import QuestionTypeEnum
 from models import FormAnswerOrmV2, FormSubmissionOrmV2
 from validation.formsV2_models import (
+    CreateFormSubmissionRequest,
     FormIdPath,
     ReplaceFormRequestBody,
     UpdateFormRequestBody,
@@ -191,25 +192,65 @@ def test_patch_invalidates_an_earlier_revision_even_in_the_same_second(form_cont
     session.commit.assert_called_once()
 
 
-def test_unchanged_expired_date_does_not_block_other_edits(form_context):
+@pytest.mark.parametrize("date", ["1", "legacy-date"])
+@pytest.mark.parametrize(
+    "question_type", [QuestionTypeEnum.DATE, QuestionTypeEnum.DATETIME]
+)
+def test_unchanged_historical_date_does_not_block_other_edits(
+    form_context, date, question_type
+):
     form, template, _ = form_context
     template.questions[1] = SimpleNamespace(
         id="optional",
         required=False,
-        question_type=QuestionTypeEnum.DATE,
+        question_type=question_type,
         allow_past_dates=False,
         allow_future_dates=None,
     )
-    form.answers[1].answer = json.dumps({"date": "1"})
+    form.answers[1].answer = json.dumps({"date": date})
     body = replacement(
         [
             {"question_id": "required", "answer": {"text": "Updated"}},
-            {"question_id": "optional", "answer": {"date": "1"}},
+            {"question_id": "optional", "answer": {"date": date}},
         ]
     )
     assert form_utils.validate_replacement_answers(form, body.answers).ok
     body.answers[1].answer.date = "2"
     assert not form_utils.validate_replacement_answers(form, body.answers).ok
+    body.answers[1].answer.date = "new-invalid-date"
+    result = form_utils.validate_replacement_answers(form, body.answers)
+    assert not result.ok
+    assert result.msg == "Date must be Unix seconds."
+
+
+@pytest.mark.parametrize("method", ["POST", "PATCH"])
+def test_create_and_patch_reject_wrong_answer_type(form_context, monkeypatch, method):
+    form, _, session = form_context
+    create = Mock()
+    monkeypatch.setattr(forms_v2.crud, "create", create)
+    monkeypatch.setattr(forms_v2, "require_patient_access", Mock())
+    with pytest.raises(HTTPException) as error:
+        if method == "POST":
+            forms_v2.submit_form(
+                CreateFormSubmissionRequest(
+                    patient_id="patient",
+                    form_template_id="template",
+                    lang="English",
+                    answers=[{"question_id": "required", "answer": {"number": 1}}],
+                )
+            )
+        else:
+            forms_v2.update_form(
+                FormIdPath(form_submission_id=form.id),
+                UpdateFormRequestBody(
+                    answers=[{"id": "required-answer", "answer": {"number": 1}}]
+                ),
+            )
+    assert error.value.code == 422
+    assert json.loads(form.answers[0].answer)["text"] == "Original"
+    assert form.revision == 1
+    create.assert_not_called()
+    session.commit.assert_not_called()
 
 
 @pytest.mark.parametrize(

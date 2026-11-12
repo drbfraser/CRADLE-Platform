@@ -5,12 +5,18 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import (
+    load_authorized_patient_resource,
+    require_patient_access,
+    require_referral_action,
+)
 from common import user_utils
 from common.api_utils import ReadingIdPath
 from data import orm_serializer
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
-from validation.readings import ReadingModel
+from service.patient_authorization import ReferralAction
+from validation.readings import CreateReadingRequest, ReadingResponse
 
 # /api/readings
 api_readings = APIBlueprint(
@@ -23,17 +29,25 @@ api_readings = APIBlueprint(
 
 
 # /api/readings [POST]
-@api_readings.post("", responses={201: ReadingModel})
-def create_new_reading(body: ReadingModel):
+@api_readings.post("", responses={201: ReadingResponse})
+def create_new_reading(body: CreateReadingRequest):
     """Create New Reading"""
+    if body.referral is None:
+        require_patient_access(body.patient_id)
+    else:
+        require_referral_action(body.patient_id, ReferralAction.CREATE)
+        if body.referral.patient_id != body.patient_id:
+            return abort(
+                400, description="Referral patient must match the reading patient."
+            )
+
     if crud.read(PatientOrm, id=body.patient_id) is None:
         return abort(404, description=f"No Patient found with ID: {body.patient_id}")
 
     current_user = user_utils.get_current_user_from_jwt()
     user_id = current_user["id"]
-    body.user_id = user_id
-
     new_reading_dict = body.model_dump()
+    new_reading_dict["user_id"] = user_id
     if body.referral is not None:
         health_facility = crud.read(
             HealthFacilityOrm,
@@ -71,10 +85,8 @@ def create_new_reading(body: ReadingModel):
 
 
 # /api/readings/<string:reading_id> [GET]
-@api_readings.get("/<string:reading_id>", responses={200: ReadingModel})
+@api_readings.get("/<string:reading_id>", responses={200: ReadingResponse})
 def get_reading(path: ReadingIdPath):
     """Get Reading"""
-    reading = crud.read(ReadingOrm, id=path.reading_id)
-    if reading is None:
-        return abort(404, description=f"No reading with ID: {path.reading_id}")
+    reading = load_authorized_patient_resource(ReadingOrm, path.reading_id)
     return orm_serializer.marshal(reading)

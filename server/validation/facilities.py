@@ -35,16 +35,12 @@ class HealthFacilityExamples:
     with_new_referrals_02["new_referrals"] = new_referrals
 
 
-# Define a Pydantic model for incoming requests
-class HealthFacilityModel(CradleBaseModel):
+class HealthFacilityBase(CradleBaseModel):
     name: str
     phone_number: Optional[PhoneNumberE164] = None
     location: str
     about: str = ""
     type: FacilityTypeEnum
-    new_referrals: Optional[int] = Field(
-        None, description="Timestamp of most recent referral to this facility."
-    )
 
     model_config = dict(
         openapi_extra={
@@ -54,7 +50,17 @@ class HealthFacilityModel(CradleBaseModel):
     )
 
 
-class HealthFacilityList(RootModel[list[HealthFacilityModel]]):
+class CreateHealthFacilityRequest(HealthFacilityBase):
+    pass
+
+
+class HealthFacilityResponse(HealthFacilityBase):
+    new_referrals: Optional[int] = Field(
+        None, description="Timestamp of most recent referral to this facility."
+    )
+
+
+class HealthFacilityList(RootModel[list[HealthFacilityResponse]]):
     model_config = dict(
         openapi_extra={
             "description": "An array of HealthFacility objects.",

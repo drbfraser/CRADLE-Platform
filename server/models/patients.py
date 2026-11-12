@@ -16,6 +16,7 @@ class PatientOrm(db.Model):
 
     __tablename__ = "patient"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    patient_number = db.Column(db.String(50), index=True)
     name = db.Column(db.String(50))
     sex = db.Column(db.Enum(SexEnum), nullable=False)
     is_pregnant = db.Column(db.Boolean)
@@ -79,6 +80,46 @@ class PatientAssociationsOrm(db.Model):
     user = db.relationship(
         "UserOrm",
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
+    )
+
+
+class DeletedPatientOrm(db.Model):
+    """
+    Record of permanently deleted patients.
+
+    Lets sync tell mobile devices which patients to remove, and stops a device
+    from re-creating a deleted patient by uploading it again.
+    """
+
+    __tablename__ = "deleted_patient"
+    # Not a foreign key as this record no longer exists
+    patient_id = db.Column(db.String(50), primary_key=True)
+
+    deleted_at = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time, index=True
+    )
+
+    deleted_by = db.Column(
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+
+
+class DeletedPatientUserOrm(db.Model):
+    """
+    Users who were associated with a patient when it was deleted.
+
+    Associations are deleted along with the patient, so this keeps who had access,
+    letting sync tell each user only about deleted patients they could see.
+    """
+
+    __tablename__ = "deleted_patient_user"
+    patient_id = db.Column(
+        db.String(50),
+        db.ForeignKey("deleted_patient.patient_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
     )
 
 

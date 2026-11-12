@@ -2,11 +2,15 @@ from flask import abort, g
 from sqlalchemy.orm import Query
 
 import data.db_operations as crud
-from common import user_utils
+from common import user_utils, workflow_utils
 from enums import RoleEnum
+from models import ReferralOrm, WorkflowInstanceOrm
 from service.patient_authorization import (
+    ReferralAction,
     can_access_patient,
     can_assign_existing_patient,
+    can_perform_referral_action,
+    scope_query_to_accessible_deleted_patients,
     scope_query_to_accessible_patients,
 )
 
@@ -49,12 +53,44 @@ def load_authorized_patient_resource(resource_model, resource_id):
     return resource
 
 
+def require_referral_action(patient_id: str, action: ReferralAction) -> None:
+    current_user = user_utils.get_current_user_from_jwt()
+    if not can_access_patient(current_user, patient_id):
+        abort(403, description="Not authorized to access this patient.")
+    if not can_perform_referral_action(current_user, action):
+        abort(403, description="Not authorized to perform this referral action.")
+    mark_authorization_checked()
+
+
+def load_authorized_referral(referral_id: str, action: ReferralAction) -> ReferralOrm:
+    referral = crud.read(ReferralOrm, id=referral_id)
+    if referral is None:
+        abort(404, description="Referral not found.")
+    require_referral_action(referral.patient_id, action)
+    return referral
+
+
+def load_authorized_workflow_step(workflow_instance_step_id: str):
+    step = workflow_utils.fetch_workflow_instance_step_or_404(workflow_instance_step_id)
+    workflow_instance = crud.read(WorkflowInstanceOrm, id=step.workflow_instance_id)
+    require_patient_access(workflow_instance.patient_id)
+    return step
+
+
 def require_existing_patient_assignment() -> dict:
     current_user = user_utils.get_current_user_from_jwt()
     if not can_assign_existing_patient(current_user):
         abort(403, description="Not authorized to assign an existing patient.")
     mark_authorization_checked()
     return current_user
+
+
+def scope_deleted_patient_query(
+    query: Query, patient_id_column, user: user_utils.UserDict
+) -> Query:
+    query = scope_query_to_accessible_deleted_patients(query, patient_id_column, user)
+    mark_authorization_checked()
+    return query
 
 
 def scope_patient_query(

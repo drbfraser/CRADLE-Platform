@@ -24,12 +24,25 @@ export class AdminPatientsPageModel extends PageObjectModel {
     return this.page.getByRole('gridcell', { name });
   }
 
-  // can also be used to unarchive patient
   async archivePatientByName(name: string) {
-    const archiveButton = this.page
+    await this.clickRowActionAndConfirm(name, 'Archive Patient');
+  }
+
+  async unarchivePatientByName(name: string) {
+    await this.clickRowActionAndConfirm(name, 'Unarchive Patient');
+  }
+
+  async deletePatientByName(name: string) {
+    await this.clickRowActionAndConfirm(name, 'Delete Patient');
+  }
+
+  // Each row has several action buttons, so pick the one by its tooltip label.
+  private async clickRowActionAndConfirm(name: string, action: string) {
+    const actionButton = this.page
       .getByRole('row', { name, exact: false })
+      .getByLabel(action)
       .getByRole('button');
-    await archiveButton.click();
+    await actionButton.click();
 
     const confirmButton = this.page.getByRole('button', { name: 'Yes' });
     await expect(confirmButton).toBeVisible();

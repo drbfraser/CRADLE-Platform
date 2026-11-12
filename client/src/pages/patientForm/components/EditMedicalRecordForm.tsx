@@ -43,7 +43,7 @@ const EditMedicalRecordForm = ({ isDrugHistory }: Props) => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const updateRecord = useUpdateMedicalRecordMutation(patientId, isDrugHistory);
+  const updateRecord = useUpdateMedicalRecordMutation(recordId, isDrugHistory);
   const deleteRecord = useDeleteMedicalRecordMutation(recordId);
 
   const medicalRecordQuery = useQuery({

@@ -7,8 +7,8 @@ export const DATE_OUTPUT_SHAPE = 2;
 
 let registered = false;
 /**
- * Zelos renderer that maps workflow value types to distinct connection shapes:
- * Number → rounded, String → squared, Boolean → hexagonal, Date → rounded (blue).
+ * Zelos renderer that gives conditions a hexagonal connection shape and every
+ * plain value (Number, String, Boolean, Date) a rounded one.
  */
 class TypedConstantProvider extends Blockly.zelos.ConstantProvider {
   override shapeFor(connection: Blockly.RenderedConnection) {
@@ -31,19 +31,9 @@ class TypedConstantProvider extends Blockly.zelos.ConstantProvider {
 
     const checkList = checks ? (Array.isArray(checks) ? checks : [checks]) : [];
 
-    if (checkList.includes('Boolean')) {
+    if (checkList.includes('Condition')) {
       return this.HEXAGONAL!;
     }
-    if (checkList.includes('Number')) {
-      return this.ROUNDED!;
-    }
-    if (checkList.includes('String')) {
-      return this.SQUARED!;
-    }
-    if (checkList.includes('Date')) {
-      return this.ROUNDED!;
-    }
-
     return this.ROUNDED!;
   }
 }

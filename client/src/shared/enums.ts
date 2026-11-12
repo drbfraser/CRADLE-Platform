@@ -73,7 +73,6 @@ export enum EndpointEnum {
   FORM_CLASSIFICATIONS = '/forms/classifications',
   FORM_CLASSIFICATIONS_V2 = '/forms/v2/classifications',
   READINGS = '/readings',
-  READING_ASSESSMENT = '/patients/reading-assessment', //Create a new reading and assessment
   RELAY_SERVER_PHONE = '/relay/server/phone',
   STATISTICS = '/stats',
   STATS_ALL = '/stats/all',

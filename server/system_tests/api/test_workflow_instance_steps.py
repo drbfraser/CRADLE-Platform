@@ -6,8 +6,10 @@ from humps import decamelize
 import data.db_operations as crud
 from common.api_utils import WorkflowInstanceStepIdPath
 from common.print_utils import pretty_print
+from enums import WorkflowStepStatusEnum
 from models import (
     FormSubmissionOrmV2,
+    WorkflowInstanceOrm,
 )
 from service.workflow.workflow_service import WorkflowService
 from validation.workflow_api_models import (
@@ -317,6 +319,94 @@ def test_archive_workflow_instance_step_form(
 
     form_orm = crud.read(FormSubmissionOrmV2, id=form["id"])
     assert form_orm.archived == True
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+@pytest.mark.parametrize("operation", ["list", "get", "evaluate", "create", "patch"])
+def test_unassociated_vht_cannot_access_workflow_instance_step(
+    sequential_workflow_view_with_db,
+    vht_user_id,
+    api_get,
+    api_post,
+    api_patch,
+    operation,
+):
+    workflow_view = sequential_workflow_view_with_db
+    instance_id = workflow_view.instance.id
+    if operation == "create":
+        workflow_view.instance.steps[0].status = WorkflowStepStatusEnum.COMPLETED
+        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    requests_by_operation = {
+        "list": (
+            api_get,
+            "/api/workflow/instance/steps",
+            {"workflow_instance_id": instance_id},
+        ),
+        "get": (api_get, "/api/workflow/instance/steps/si-1", None),
+        "evaluate": (api_get, "/api/workflow/instance/steps/si-1/evaluate", None),
+        "create": (
+            api_post,
+            "/api/workflow/instance/steps/si-1",
+            {"workflow_instance_id": instance_id},
+        ),
+        "patch": (
+            api_patch,
+            "/api/workflow/instance/steps/si-1",
+            {"assigned_to": vht_user_id},
+        ),
+    }
+    original_instance = WorkflowService.get_workflow_instance(instance_id).model_dump()
+
+    send_request, endpoint, body = requests_by_operation[operation]
+    response = send_request(endpoint=endpoint, json=body)
+
+    assert response.status_code == 403
+    crud.db_session.rollback()
+    saved_instance = WorkflowService.get_workflow_instance(instance_id)
+    assert saved_instance.model_dump() == original_instance
+
+
+def test_create_workflow_instance_step_rejects_step_from_other_instance(
+    sequential_workflow_view_with_db, api_post
+):
+    workflow_view = sequential_workflow_view_with_db
+    workflow_view.instance.steps[0].status = WorkflowStepStatusEnum.COMPLETED
+    WorkflowService.upsert_workflow_instance(workflow_view.instance)
+    other_instance = WorkflowService.generate_workflow_instance(workflow_view.template)
+    other_instance.patient_id = workflow_view.instance.patient_id
+    WorkflowService.upsert_workflow_instance(other_instance)
+    instance_id = workflow_view.instance.id
+    original_instance = WorkflowService.get_workflow_instance(instance_id).model_dump()
+
+    try:
+        response = api_post(
+            endpoint=f"/api/workflow/instance/steps/{other_instance.steps[0].id}",
+            json={"workflow_instance_id": instance_id},
+        )
+
+        assert response.status_code == 400
+        crud.db_session.rollback()
+        saved_instance = WorkflowService.get_workflow_instance(instance_id)
+        assert saved_instance.model_dump() == original_instance
+    finally:
+        crud.delete_workflow(m=WorkflowInstanceOrm, id=other_instance.id)
+
+
+def test_patch_workflow_instance_step_rejects_form_for_other_patient(
+    sequential_workflow_view_with_db, form_with_db, api_patch
+):
+    crud.update(
+        FormSubmissionOrmV2, {"patient_id": "49300028162"}, id=form_with_db["id"]
+    )
+
+    response = api_patch(
+        endpoint="/api/workflow/instance/steps/si-1",
+        json={"form_id": form_with_db["id"]},
+    )
+
+    assert response.status_code == 400
+    crud.db_session.rollback()
+    assert WorkflowService.get_workflow_instance_step("si-1").form_id is None
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])

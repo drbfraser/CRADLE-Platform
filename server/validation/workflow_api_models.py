@@ -9,8 +9,9 @@ from validation import CradleBaseModel
 from validation.shared_models import MultiLangText
 from validation.workflow_models import (
     WorkflowActionModel,
+    WorkflowClassificationBase,
     WorkflowClassificationMultiLangModel,
-    WorkflowCollectionModel,
+    WorkflowCollectionBase,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateMultiLangModel,
@@ -22,13 +23,21 @@ class WorkflowClassificationUploadModel(WorkflowClassificationMultiLangModel):
     id: Optional[str] = None
 
 
-class WorkflowClassificationPatchModel(CradleBaseModel, extra="forbid"):
-    id: Optional[str] = None
+class WorkflowClassificationUpdateModel(WorkflowClassificationBase):
+    name: MultiLangText
+
+
+class WorkflowClassificationPatchModel(CradleBaseModel):
     name: Optional[MultiLangText] = None
+    collection_id: Optional[str] = None
 
 
-class WorkflowCollectionUploadModel(WorkflowCollectionModel):
+class WorkflowCollectionUploadModel(WorkflowCollectionBase):
     id: Optional[str] = None
+
+
+class WorkflowCollectionUpdateModel(WorkflowCollectionBase):
+    pass
 
 
 class WorkflowTemplateUploadModel(WorkflowTemplateMultiLangModel):
@@ -77,7 +86,7 @@ class GetWorkflowTemplateQuery(CradleBaseModel):
     )
 
 
-class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
+class WorkflowInstancePatchModel(CradleBaseModel):
     """
     Patch model for updating a workflow instance.
 
@@ -88,7 +97,6 @@ class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
 
     name: Optional[str] = None
     description: Optional[str] = None
-    patient_id: Optional[str] = None
     status: Optional[str] = None
 
 
@@ -185,6 +193,7 @@ class WorkflowVariableCatalogueItemModel(CradleBaseModel, extra="forbid"):
     field_path: Optional[list[str]] = None
     is_computed: bool = False
     is_dynamic: bool = False
+    allowed_values: Optional[list[str]] = None
 
 
 class GetWorkflowVariablesResponse(CradleBaseModel, extra="forbid"):

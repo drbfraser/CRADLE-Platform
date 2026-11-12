@@ -1,8 +1,11 @@
 import * as Blockly from 'blockly';
 import { WorkflowVariable } from 'src/shared/api';
-import { blocklyTypeFromVariableType } from './blocks';
+import {
+  blocklyTypeFromVariableType,
+  syncGenericCompareTypes,
+  setEnumOptions,
+} from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
-import { comparisonBlockType, inferBlocklyType } from './ruleTypeInference';
 import { resolveVariableBlockType } from './variableGrouping';
 
 const COMPARISON_OPS = ['<', '>', '==', '<=', '>=', '!='];
@@ -64,9 +67,6 @@ export function appendJsonLogicToWorkspace(
   return true;
 }
 
-// Re-export for tests.
-export { inferBlocklyType, comparisonBlockType };
-
 function connectValueBlock(
   parent: Blockly.BlockSvg,
   inputName: string,
@@ -81,13 +81,9 @@ function createComparisonBlock(
   op: string,
   args: unknown[],
   tagToType: Map<string, string | null>,
-  variables: WorkflowVariable[],
-  blockType?: string
+  variables: WorkflowVariable[]
 ): Blockly.BlockSvg {
-  const resolvedType =
-    blockType ?? comparisonBlockType(args[0], args[1], tagToType, op);
-  const block = workspace.newBlock(resolvedType);
-  block.setFieldValue(op, 'OP');
+  const block = workspace.newBlock('generic_comparison');
   block.initSvg();
   block.render();
 
@@ -97,14 +93,45 @@ function createComparisonBlock(
     tagToType,
     variables
   );
-  const rightBlock = createBlockFromRule(
-    workspace,
-    args[1],
-    tagToType,
-    variables
-  );
+
+  let rightBlock: Blockly.BlockSvg | null;
+
+  const leftRule = args[0] as Record<string, unknown>;
+
+  const tag =
+    typeof leftRule === 'object' && leftRule !== null && 'var' in leftRule
+      ? extractVarTag(leftRule.var)
+      : null;
+
+  const variable = variables.find((v) => v.tag === tag);
+
+  if (variable?.allowedValues?.length && typeof args[1] === 'string') {
+    const enumBlock = workspace.newBlock('enum_value');
+
+    setEnumOptions(enumBlock, variable.allowedValues);
+
+    const savedValue = String(args[1]);
+
+    const matchedValue = variable.allowedValues.find(
+      (v) => v.toLowerCase() === savedValue.toLowerCase()
+    );
+
+    if (matchedValue) {
+      enumBlock.setFieldValue(matchedValue, 'VALUE');
+    }
+
+    enumBlock.initSvg();
+    enumBlock.render();
+
+    rightBlock = enumBlock;
+  } else {
+    rightBlock = createBlockFromRule(workspace, args[1], tagToType, variables);
+  }
+
   connectValueBlock(block, 'LEFT', leftBlock);
   connectValueBlock(block, 'RIGHT', rightBlock);
+  syncGenericCompareTypes(block);
+  block.setFieldValue(op, 'OP');
   return block;
 }
 
@@ -218,8 +245,7 @@ function createBlockFromRule(
       block.render();
       return block;
     }
-    const bType = tagToType.get(tag) ?? 'String';
-    const blockType = resolveVariableBlockType(tag, variables, bType);
+    const blockType = resolveVariableBlockType(tag, variables);
     const block = workspace.newBlock(blockType);
     block.setFieldValue(tag, 'VAR_NAME');
     block.initSvg();

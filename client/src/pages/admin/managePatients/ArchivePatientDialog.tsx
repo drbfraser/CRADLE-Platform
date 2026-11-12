@@ -36,7 +36,7 @@ const ArchivePatientDialog = ({ open, onClose, patient }: IProps) => {
 
       <ConfirmDialog
         title={`Archive Patient: ${name}`}
-        content={`Are you sure you want to archive ${name}'s account? `}
+        content={`Are you sure you want to archive ${name}'s account? This hides the patient from other users but does not delete them, and can be undone by unarchiving.`}
         open={open}
         onClose={onClose}
         onConfirm={handleArchive}

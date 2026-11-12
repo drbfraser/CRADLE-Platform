@@ -15,12 +15,14 @@ from validation.formsV2_models import (
     MCAnswer,
     NumberAnswer,
     TextAnswer,
+    TimeAnswer,
 )
 
 INTEGER_Q_ID = "q-integer"
 STRING_Q_ID = "q-string"
 MC_Q_ID = "q-mc"
 DATE_Q_ID = "q-date"
+TIME_Q_ID = "q-time"
 UNKNOWN_Q_ID = "q-unknown"
 SECONDS_PER_DAY = 24 * 60 * 60
 FIXED_NOW = 1_700_000_000
@@ -61,6 +63,11 @@ def mock_template_read():
         allow_past_dates=False,
         allow_future_dates=True,
     )
+    time_question = make_question(
+        TIME_Q_ID,
+        QuestionTypeEnum.TIME,
+        required=False,
+    )
     template = make_template(
         [
             integer_question,
@@ -68,6 +75,7 @@ def mock_template_read():
             string_question,
             mc_question,
             date_question,
+            time_question,
         ]
     )
 
@@ -210,11 +218,19 @@ def test_mc_invalid_index(mock_template_read):
     assert "indices 0 to 2" in result.msg
 
 
-def test_mc_valid_indices(mock_template_read):
+@pytest.mark.parametrize(
+    "question_type, indices",
+    [
+        (QuestionTypeEnum.MULTIPLE_CHOICE, [0]),
+        (QuestionTypeEnum.MULTIPLE_SELECT, [0, 2]),
+    ],
+)
+def test_mc_valid_indices(mock_template_read, question_type, indices):
+    mock_template_read.questions[3].question_type = question_type
     answers = [
         FormAnswer(
             question_id=MC_Q_ID,
-            answer=MCAnswer(mc_id_array=[0, 2]),
+            answer=MCAnswer(mc_id_array=indices),
         )
     ]
 
@@ -224,7 +240,7 @@ def test_mc_valid_indices(mock_template_read):
     assert result.code is None
 
 
-def test_mc_empty_selection_skipped(mock_template_read):
+def test_mc_empty_selection_rejected(mock_template_read):
     answers = [
         FormAnswer(
             question_id=MC_Q_ID,
@@ -234,8 +250,34 @@ def test_mc_empty_selection_skipped(mock_template_read):
 
     result = validate_form_answers(answers, TEMPLATE_ID)
 
-    assert result.ok is True
-    assert result.code is None
+    assert result.ok is False
+    assert result.code == 422
+
+
+@pytest.mark.parametrize(
+    "question_id, answer",
+    [
+        (INTEGER_Q_ID, TextAnswer(text="12")),
+        (STRING_Q_ID, NumberAnswer(number=12)),
+        (MC_Q_ID, TextAnswer(text="option")),
+        (DATE_Q_ID, NumberAnswer(number=12)),
+        (INTEGER_Q_ID, NumberAnswer(number=1.5)),
+        (INTEGER_Q_ID, NumberAnswer(number=float("nan"))),
+        (INTEGER_Q_ID, NumberAnswer(number=float("inf"))),
+        (STRING_Q_ID, TextAnswer(text="   ")),
+        (MC_Q_ID, MCAnswer(mc_id_array=[0, 0])),
+        (MC_Q_ID, MCAnswer(mc_id_array=[0, 1])),
+        (DATE_Q_ID, DateAnswer(date="not-a-date")),
+    ],
+)
+def test_invalid_answer_shape_returns_validation_error(
+    mock_template_read, question_id, answer
+):
+    result = validate_form_answers(
+        [FormAnswer(question_id=question_id, answer=answer)], TEMPLATE_ID
+    )
+    assert result.ok is False
+    assert result.code == 422
 
 
 @patch("common.form_utils.commonUtil.get_current_time", return_value=FIXED_NOW)
@@ -279,6 +321,51 @@ def test_date_future_not_allowed(mock_get_current_time, mock_template_read):
     assert result.msg == "Future dates are not allowed"
 
 
+@pytest.mark.parametrize(
+    "time, offset",
+    [
+        ("00:00", 0),
+        ("15:30", -420),
+        ("23:59", 840),
+        ("12:00", -720),
+    ],
+)
+def test_valid_time_answer(mock_template_read, time, offset):
+    answers = [
+        FormAnswer(
+            question_id=TIME_Q_ID,
+            answer=TimeAnswer(time=time, offset=offset),
+        )
+    ]
+
+    result = validate_form_answers(answers, TEMPLATE_ID)
+
+    assert result.ok is True
+    assert result.code is None
+
+
+@pytest.mark.parametrize(
+    "wrong_answer",
+    [
+        TextAnswer(text="15:30"),
+        NumberAnswer(number=15),
+    ],
+)
+def test_time_question_rejects_wrong_answer_type(mock_template_read, wrong_answer):
+    answers = [
+        FormAnswer(
+            question_id=TIME_Q_ID,
+            answer=wrong_answer,
+        )
+    ]
+
+    result = validate_form_answers(answers, TEMPLATE_ID)
+
+    assert result.ok is False
+    assert result.code == 422
+    assert result.msg == "TIME questions require a TIME answer"
+
+
 def test_unknown_question_id(mock_template_read):
     answers = [
         FormAnswer(
@@ -307,26 +394,3 @@ def test_missing_question_id(mock_template_read):
     assert result.ok is False
     assert result.code == 422
     assert result.msg == "Answers must have a question_id"
-
-
-def test_unsupported_question_type():
-    unsupported_question = make_question(
-        "q-time",
-        QuestionTypeEnum.TIME,
-    )
-    template = make_template([unsupported_question])
-
-    with patch("common.form_utils.crud.read", return_value=template):
-        answers = [
-            FormAnswer(
-                question_id="q-time",
-                answer=NumberAnswer(number=1),
-            )
-        ]
-
-        result = validate_form_answers(answers, TEMPLATE_ID)
-
-    assert result.ok is False
-    assert result.code == 422
-    assert "Question type" in result.msg
-    assert "not supported" in result.msg

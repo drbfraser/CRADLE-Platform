@@ -43,8 +43,8 @@ export type PatientPregnancyInfo = {
 
 export type PastPregnancy = {
   id: string;
-  startDate: number;
-  endDate: number;
+  pregnancyStartDate: number;
+  pregnancyEndDate: number;
   outcome: string | null;
 };
 

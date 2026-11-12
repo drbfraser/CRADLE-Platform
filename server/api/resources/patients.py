@@ -15,22 +15,22 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from common.patient_utils import assign_patient_id
+from common.patient_utils import PATIENT_ID_DELETED_MSG, assign_patient_id
 from config import db
 from data import orm_serializer
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
+    DeletedPatientOrm,
+    DeletedPatientUserOrm,
     FormTemplateOrmV2,
     PatientOrm,
     PregnancyOrm,
-    ReadingOrm,
     ReferralOrm,
     UserOrm,
 )
 from service import assoc, invariant, serialize, statsCalculation, view
 from validation import CradleBaseModel
-from validation.assessments import AssessmentPostBody
 from validation.forms import FormList
 from validation.patients import (
     CreatePatientRequest,
@@ -39,7 +39,7 @@ from validation.patients import (
     UpdatePatientRequestBody,
 )
 from validation.pregnancies import PregnancyResponse
-from validation.readings import ReadingList, ReadingModel
+from validation.readings import ReadingList
 from validation.referrals import ReferralList
 from validation.stats import PatientStats
 
@@ -93,13 +93,16 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 def create_patient(body: CreatePatientRequest):
     """Create New Patient"""
     current_user = user_utils.get_current_user_from_jwt()
-    for reading in body.readings:
-        reading.user_id = current_user["id"]
-
     new_patient = body.model_dump()
+    for reading in new_patient["readings"]:
+        reading["user_id"] = current_user["id"]
     for referral in new_patient["referrals"]:
         referral["user_id"] = current_user["id"]
     assign_patient_id(new_patient)
+    # IDs of deleted patients can't be reused, so devices holding the old patient
+    # can't confuse it with a new one.
+    if crud.read(DeletedPatientOrm, patient_id=new_patient["id"]) is not None:
+        return abort(409, description=PATIENT_ID_DELETED_MSG.format(new_patient["id"]))
     patient = orm_serializer.unmarshal(PatientOrm, new_patient)
 
     # Resolve invariants and set the creation timestamp for the patient ensuring
@@ -153,10 +156,10 @@ def get_patient(path: PatientIdPath):
 @api_patients.get("/<string:patient_id>/info", responses={200: PatientModel})
 def get_patient_info(path: PatientIdPath):
     """Get Patient Info"""
-    require_patient_access(path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
+    require_patient_access(path.patient_id)
     return orm_serializer.marshal(patient, shallow=True)
 
 
@@ -402,45 +405,6 @@ def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams)
     return [serialize.serialize_patient_timeline(r) for r in records]
 
 
-class NewReadingAndAssessment(CradleBaseModel):
-    reading: ReadingModel
-    assessment: AssessmentPostBody
-
-
-# /api/patients/reading-assessment [POST]
-@api_patients.post(
-    "/patients/reading-assessment", responses={201: NewReadingAndAssessment}
-)
-def create_reading_with_assessment(body: NewReadingAndAssessment):
-    """Create Reading With Assessment"""
-    reading = body.reading
-    assessment = body.assessment
-
-    current_user = user_utils.get_current_user_from_jwt()
-    user_id = current_user["id"]
-    reading.user_id = user_id
-    assessment.healthcare_worker_id = user_id
-
-    new_reading = orm_serializer.unmarshal(ReadingOrm, reading.model_dump())
-
-    if crud.read(ReadingOrm, id=new_reading.id):
-        return abort(409, description=f"A reading already exists with id: {reading.id}")
-
-    invariant.resolve_reading_invariants(new_reading)
-
-    new_assessment = orm_serializer.unmarshal(AssessmentOrm, assessment.model_dump())
-
-    crud.create(new_reading, refresh=True)
-    crud.create(new_assessment)
-
-    response_body = {
-        "reading": orm_serializer.marshal(reading),
-        "assessment": orm_serializer.marshal(assessment),
-    }
-
-    return response_body, 201
-
-
 class GetAllRecordsForPatientQueryParams(CradleBaseModel):
     assessments: bool = Field(
         True, description="If true, assessments will be included."
@@ -547,5 +511,32 @@ def delete_patient(path: PatientIdPath):
     """Delete Patient"""
     require_role(RoleEnum.ADMIN)
     patient = crud.read(PatientOrm, id=path.patient_id)
+    if patient is None:
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
+
+    # Record the deletion so sync can tell mobile devices to remove this patient.
+    # Not committed on its own: crud.delete() below commits both changes together.
+    current_user = user_utils.get_current_user_from_jwt()
+    crud.merge(
+        DeletedPatientOrm(
+            patient_id=patient.id,
+            deleted_at=get_current_time(),
+            deleted_by=current_user["id"],
+        ),
+        autocommit=False,
+    )
+
+    # Associations are deleted with the patient, so keep who had access for sync.
+    associated_user_ids = {
+        association.user_id
+        for association in patient.associations
+        if association.user_id is not None
+    }
+    for user_id in associated_user_ids:
+        crud.merge(
+            DeletedPatientUserOrm(patient_id=patient.id, user_id=user_id),
+            autocommit=False,
+        )
+
     crud.delete(patient)
     return Response(status=200)

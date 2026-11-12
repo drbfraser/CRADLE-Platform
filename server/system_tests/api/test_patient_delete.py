@@ -1,0 +1,286 @@
+import time
+
+import pytest
+import requests
+from humps import decamelize
+
+import data.db_operations as crud
+from data import orm_serializer
+from enums import SexEnum
+from models import (
+    DeletedPatientOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PatientSchema,
+    ReadingOrm,
+    UserOrm,
+)
+
+
+@pytest.fixture
+def create_patient_with_reading(database, patient_info, reading):
+    """
+    Creates a patient with one reading. Uses crud directly instead of the factories,
+    since the factories would try to delete the rows again after the test, and these
+    tests delete them through the API. The test database is cleaned up after the test.
+    """
+
+    def f():
+        crud.create_model(patient_info, PatientSchema)
+        crud.create(
+            orm_serializer.unmarshal(
+                ReadingOrm, {**reading, "date_taken": 1594514397, "user_id": 1}
+            )
+        )
+
+    yield f
+
+    # Remove whatever the test left behind. CI doesn't empty the database between
+    # tests, and this also ends the session's open transaction.
+    patient = crud.read(PatientOrm, id=patient_info["id"])
+    if patient is not None:
+        database.session.delete(patient)
+    deleted_patient = crud.read(DeletedPatientOrm, patient_id=patient_info["id"])
+    if deleted_patient is not None:
+        database.session.delete(deleted_patient)
+    database.session.commit()
+
+
+def test_admin_can_delete_patient(
+    create_patient_with_reading, patient_id, reading_id, database, api_delete
+):
+    create_patient_with_reading()
+
+    response = api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    assert response.status_code == 200
+    assert crud.read(PatientOrm, id=patient_id) is None
+    # Related data is deleted along with the patient
+    assert crud.read(ReadingOrm, id=reading_id) is None
+    # The deletion is recorded so sync can tell mobile devices
+    deleted_patient = crud.read(DeletedPatientOrm, patient_id=patient_id)
+    assert deleted_patient is not None
+    assert deleted_patient.deleted_by is not None
+
+
+@pytest.mark.parametrize(
+    "credentials",
+    [
+        ("hcw@email.com", "cradle-hcw"),
+        ("cho@email.com", "cradle-cho"),
+        ("vht@email.com", "cradle-vht"),
+    ],
+)
+def test_non_admin_cannot_delete_patient(
+    credentials, create_patient_with_reading, patient_id, database, api_delete
+):
+    create_patient_with_reading()
+
+    response = api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    assert response.status_code == 403
+    assert crud.read(PatientOrm, id=patient_id) is not None
+    assert crud.read(DeletedPatientOrm, patient_id=patient_id) is None
+
+
+def test_delete_unknown_patient_returns_404(api_delete):
+    response = api_delete(endpoint="/api/patients/99999999999")
+
+    assert response.status_code == 404
+
+
+def test_sync_deleted_patients_returns_only_requested_deleted_ids(
+    create_patient_with_reading, patient_id, database, api_delete, api_post
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    # The device holds the deleted patient and one the server never deleted
+    response = api_post(
+        endpoint="/api/sync/deleted_patients",
+        json={"patient_ids": [patient_id, "99999999999"]},
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == [patient_id]
+
+
+def test_sync_deleted_patients_does_not_reveal_other_deletions(
+    create_patient_with_reading, patient_id, database, api_delete, api_post
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    # A device that doesn't hold the deleted patient isn't told about it
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": ["99999999999"]}
+    )
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == []
+
+    response = api_post(endpoint="/api/sync/deleted_patients", json={"patient_ids": []})
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == []
+
+
+def test_create_patient_with_deleted_id_returns_409(
+    create_patient_with_reading,
+    patient_id,
+    patient_info,
+    database,
+    api_delete,
+    api_post,
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/patients",
+        json={
+            "id": patient_id,
+            "name": "New Patient",
+            "sex": SexEnum.FEMALE.value,
+            "date_of_birth": patient_info["date_of_birth"],
+            "is_exact_date_of_birth": False,
+        },
+    )
+    database.session.commit()
+
+    assert response.status_code == 409
+    assert crud.read(PatientOrm, id=patient_id) is None
+
+
+def test_sync_does_not_recreate_deleted_patient(
+    create_patient_with_reading,
+    patient_id,
+    patient_info,
+    database,
+    api_delete,
+    api_post,
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    # A device that still has the patient uploads an offline edit
+    last_sync = int(time.time()) - 1
+    mobile_patient = {
+        "id": patient_id,
+        "name": "Edited Offline",
+        "sex": SexEnum.FEMALE.value,
+        "date_of_birth": patient_info["date_of_birth"],
+        "is_exact_date_of_birth": False,
+        "last_edited": last_sync + 1,
+    }
+    response = api_post(
+        endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient]
+    )
+    database.session.commit()
+
+    # Reported as an error (not silently skipped) and nothing is re-created
+    assert response.status_code == 207
+    errors = decamelize(response.json())["errors"]
+    assert [error["patient_id"] for error in errors] == [patient_id]
+    assert crud.read(PatientOrm, id=patient_id) is None
+    assert crud.read(PatientAssociationsOrm, patient_id=patient_id) is None
+
+
+def test_sync_skips_readings_for_deleted_patient(
+    create_patient_with_reading, patient_id, database, api_delete, api_post
+):
+    create_patient_with_reading()
+    api_delete(endpoint=f"/api/patients/{patient_id}")
+    database.session.commit()
+
+    mobile_reading_id = "c1d2e3f4-0000-4000-8000-000000000001"
+    mobile_reading = {
+        "id": mobile_reading_id,
+        "patient_id": patient_id,
+        "systolic_blood_pressure": 120,
+        "diastolic_blood_pressure": 80,
+        "heart_rate": 70,
+        "symptoms": [],
+    }
+    last_sync = int(time.time()) - 1
+    response = api_post(
+        endpoint=f"/api/sync/readings?since={last_sync}", json=[mobile_reading]
+    )
+    database.session.commit()
+
+    assert response.status_code == 200
+    assert crud.read(ReadingOrm, id=mobile_reading_id) is None
+
+
+def _delete_as_admin(url, patient_id):
+    """Deletes a patient as admin, for tests that run as a different user."""
+    token = decamelize(
+        requests.post(
+            f"{url}/api/user/auth",
+            json={"username": "admin@email.com", "password": "cradle-admin"},
+        ).json()
+    )["access_token"]
+    response = requests.delete(
+        f"{url}/api/patients/{patient_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+
+
+def _link_vht(database, patient_id):
+    vht = crud.read(UserOrm, email="vht@email.com")
+    crud.create(PatientAssociationsOrm(patient_id=patient_id, user_id=vht.id))
+    database.session.commit()
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_vht_gets_back_linked_deleted_patient(
+    credentials, create_patient_with_reading, patient_id, database, url, api_post
+):
+    create_patient_with_reading()
+    _link_vht(database, patient_id)
+    _delete_as_admin(url, patient_id)
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": [patient_id]}
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == [patient_id]
+
+
+@pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
+def test_vht_does_not_get_back_unlinked_deleted_patient(
+    credentials, create_patient_with_reading, patient_id, database, url, api_post
+):
+    create_patient_with_reading()
+    _delete_as_admin(url, patient_id)
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": [patient_id]}
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == []
+
+
+@pytest.mark.parametrize("credentials", [("hcw@email.com", "cradle-hcw")])
+def test_hcw_gets_back_any_deleted_patient(
+    credentials, create_patient_with_reading, patient_id, database, url, api_post
+):
+    create_patient_with_reading()
+    _delete_as_admin(url, patient_id)
+    database.session.commit()
+
+    response = api_post(
+        endpoint="/api/sync/deleted_patients", json={"patient_ids": [patient_id]}
+    )
+
+    assert response.status_code == 200
+    assert decamelize(response.json())["deleted_patient_ids"] == [patient_id]

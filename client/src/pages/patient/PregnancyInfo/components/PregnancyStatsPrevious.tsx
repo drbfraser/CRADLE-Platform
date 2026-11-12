@@ -12,7 +12,7 @@ import {
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { PastPregnancy } from 'src/shared/types/patientTypes';
 import { gestationalAgeUnitFormatters } from 'src/shared/constants';
-import { getYearToDisplay } from 'src/shared/utils';
+import { getDateToDisplay } from 'src/shared/utils';
 import { RedirectButton } from 'src/shared/components/Button';
 import * as Styled from '../styled';
 import {
@@ -55,25 +55,32 @@ const PregnancyStatsPrevious = ({ patientId, pastPregnancies }: Props) => {
         }}>
         <TableBody>
           {pastPregnancies.length > 0 ? (
-            pastPregnancies.map((pastPregnancy: PastPregnancy) => (
-              <TableRow
-                style={{
-                  cursor: 'pointer',
-                  height: 40,
-                }}
-                hover
-                key={pastPregnancy.id}
-                onClick={() => handleClick(pastPregnancy.id)}>
-                <TableCell>{getYearToDisplay(pastPregnancy.endDate)}</TableCell>
-                <TableCell>
-                  Pregnancy carried to{' '}
-                  {gestationalAgeUnitFormatters[
-                    previousPregnancyUnit ?? GestationalAgeUnitEnum.WEEKS
-                  ](pastPregnancy.startDate, pastPregnancy.endDate)}
-                </TableCell>
-                <TableCell>{pastPregnancy.outcome ?? 'N/A'}</TableCell>
-              </TableRow>
-            ))
+            pastPregnancies.map((pastPregnancy: PastPregnancy) => {
+              return (
+                <TableRow
+                  style={{
+                    cursor: 'pointer',
+                    height: 40,
+                  }}
+                  hover
+                  key={pastPregnancy.id}
+                  onClick={() => handleClick(pastPregnancy.id)}>
+                  <TableCell>
+                    {getDateToDisplay(pastPregnancy.pregnancyEndDate)}
+                  </TableCell>
+                  <TableCell>
+                    Pregnancy carried to{' '}
+                    {gestationalAgeUnitFormatters[
+                      previousPregnancyUnit ?? GestationalAgeUnitEnum.WEEKS
+                    ](
+                      pastPregnancy.pregnancyStartDate,
+                      pastPregnancy.pregnancyEndDate
+                    )}
+                  </TableCell>
+                  <TableCell>{pastPregnancy.outcome ?? 'N/A'}</TableCell>
+                </TableRow>
+              );
+            })
           ) : (
             <TableRow>
               <TableCell>No previous pregnancy records</TableCell>

@@ -6,7 +6,10 @@ from pydantic import Field, RootModel, field_validator
 from common.commonUtil import get_current_time
 from enums import SexEnum
 from validation import CradleBaseModel
-from validation.readings import ReadingWithUrineTest
+from validation.readings import (
+    CreateReadingWithUrineTestRequest,
+    ReadingWithUrineTestResponse,
+)
 from validation.referrals import CreateReferralRequest, ReferralResponse
 
 
@@ -15,6 +18,7 @@ class PatientBase(CradleBaseModel):
     sex: SexEnum
     date_of_birth: str
     is_exact_date_of_birth: bool
+    patient_number: Optional[str] = None
     is_pregnant: Optional[bool] = False
     household_number: Optional[str] = None
     zone: Optional[str] = None
@@ -32,7 +36,8 @@ class PatientBase(CradleBaseModel):
 class PatientModel(PatientBase):
     """
     {
-        "id": "123456",
+        "id": "3f2b8c1e-5a7d-4e9b-8c6a-1d2e3f4a5b6c",
+        "patient_number": "123456",
         "name": "Jane Doe",
         "is_pregnant": true,
         "sex": "FEMALE",
@@ -96,7 +101,7 @@ def is_correct_date_format(s: Any) -> bool:
 
 
 class PatientWithRecordsResponse(PatientWithHistory):
-    readings: list[ReadingWithUrineTest] = []
+    readings: list[ReadingWithUrineTestResponse] = []
     referrals: list[ReferralResponse] = []
     medical_history_id: Optional[str] = None
     drug_history_id: Optional[str] = None
@@ -108,7 +113,7 @@ class CreatePatientRequest(PatientBase):
     drug_history: Optional[str] = None
     medical_history: Optional[str] = None
     allergy: Optional[str] = None
-    readings: list[ReadingWithUrineTest] = []
+    readings: list[CreateReadingWithUrineTestRequest] = []
     referrals: list[CreateReferralRequest] = []
 
 

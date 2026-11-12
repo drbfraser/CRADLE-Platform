@@ -1,5 +1,5 @@
 import json
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
@@ -304,12 +304,21 @@ class WorkflowService:
         status: Optional[WorkflowStatusEnum] = None,
         workflow_template_id: Optional[str] = None,
         last_edited: Optional[int] = None,
+        user: Optional[dict] = None,
+        *,
+        scope_query: Optional[Callable] = None,
     ) -> list[WorkflowInstanceModel]:
         """
         Fetch workflow instances with optional filters.
         """
         workflow_instance_orms = crud.read_workflow_instances(
-            user_id, patient_id, status, workflow_template_id, last_edited
+            user_id,
+            patient_id,
+            status,
+            workflow_template_id,
+            last_edited,
+            user,
+            scope_query=scope_query,
         )
 
         workflow_instance_dicts = [
@@ -504,9 +513,6 @@ class WorkflowService:
 
         if patch.description is not None:
             workflow_instance.description = patch.description
-
-        if patch.patient_id is not None:
-            workflow_instance.patient_id = patch.patient_id
 
         if patch.status is not None:
             workflow_instance.status = patch.status

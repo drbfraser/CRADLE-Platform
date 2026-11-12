@@ -1,37 +1,43 @@
-from typing import Any, NamedTuple, Union, cast
+from functools import cache
+from typing import Any, Callable, NamedTuple, Optional, Union, cast
 
-from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import scope_patient_query
+from api.authorization import scope_deleted_patient_query, scope_patient_query
 from common import user_utils
-from common.patient_utils import PATIENT_NOT_FOUND_MSG
+from common.patient_utils import PATIENT_ID_DELETED_MSG, PATIENT_NOT_FOUND_MSG
+from common.user_utils import UserDict
 from data import orm_serializer
 from models import (
+    DeletedPatientOrm,
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
     PregnancyOrm,
     ReadingOrm,
     ReferralOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
 )
 from service import invariant, serialize, view
 from service.patient_authorization import (
+    ReferralAction,
     can_access_patient,
     can_assign_existing_patient,
+    can_perform_referral_action,
 )
 from service.workflow.workflow_service import (
     WorkflowService,
     _resolve_workflow_template_text,
 )
 from validation import CradleBaseModel
-from validation.assessments import AssessmentModel
+from validation.assessments import AssessmentResponse
 from validation.patients import PatientWithHistory, SyncPatientRequest
-from validation.readings import ReadingModel
+from validation.readings import CreateReadingRequest, ReadingResponse
 from validation.referrals import CreateReferralRequest, ReferralResponse
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
@@ -58,7 +64,7 @@ class SyncPatientsBody(RootModel[list[SyncPatientRequest]]):
     model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReadingsBody(RootModel[list[ReadingModel]]):
+class SyncReadingsBody(RootModel[list[CreateReadingRequest]]):
     model_config = dict(openapi_extra={"description": "List of Reading objects."})  # type: ignore[reportAssignmentType]
 
 
@@ -116,6 +122,12 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
         try:
             server_patient = crud.read(PatientOrm, id=patient_id)
             if server_patient is None:
+                if crud.read(DeletedPatientOrm, patient_id=patient_id) is not None:
+                    # Deleted IDs can't be reused. Reported as an error rather than
+                    # skipped, so a new patient created offline with this ID isn't
+                    # silently lost; a stale copy is removed by the device after
+                    # checking /sync/deleted_patients.
+                    raise ValidationError(PATIENT_ID_DELETED_MSG.format(patient_id))
                 """
                 TODO: Why are these functions called `deserialize`?
                 TODO: Why aren't the marshal/unmarshal functions being used??
@@ -270,8 +282,38 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
     return {"patients": patients_json, "errors": errors}, status_code
 
 
+class SyncDeletedPatientsBody(CradleBaseModel):
+    patient_ids: list[str] = Field(
+        ..., description="IDs of the patients currently stored on the device."
+    )
+
+
+class SyncDeletedPatientsResponse(CradleBaseModel):
+    deleted_patient_ids: list[str]
+
+
+# /api/sync/deleted_patients [POST]
+@api_sync.post("/deleted_patients", responses={200: SyncDeletedPatientsResponse})
+def sync_deleted_patients(body: SyncDeletedPatientsBody):
+    """
+    Sync Deleted Patients
+
+    Of the patient IDs the device holds, returns those that have been deleted on the
+    server and that the user could access, so the device can remove them.
+    """
+    current_user = user_utils.get_current_user_from_jwt()
+    query = crud.db_session.query(DeletedPatientOrm.patient_id).filter(
+        DeletedPatientOrm.patient_id.in_(body.patient_ids)
+    )
+    query = scope_deleted_patient_query(
+        query, DeletedPatientOrm.patient_id, cast("dict[Any, Any]", current_user)
+    )
+    deleted_patient_ids = [patient_id for (patient_id,) in query]
+    return {"deleted_patient_ids": deleted_patient_ids}, 200
+
+
 class SyncReadingsResponse(CradleBaseModel):
-    readings: list[ReadingModel]
+    readings: list[ReadingResponse]
 
 
 # /api/sync/readings [POST]
@@ -279,30 +321,24 @@ class SyncReadingsResponse(CradleBaseModel):
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     """Sync Readings"""
     current_user = user_utils.get_current_user_from_jwt()
-    patients_on_server_cache = set()
+    can_sync_patient = _patient_sync_checker(current_user)
     mobile_readings = body.root
     for mobile_reading in mobile_readings:
         mobile_reading_dict = mobile_reading.model_dump()
-        if mobile_reading_dict.get("patient_id") not in patients_on_server_cache:
-            patient_on_server = crud.read(
-                PatientOrm, id=mobile_reading_dict.get("patient_id")
-            )
-            if patient_on_server is None:
-                continue
-            patients_on_server_cache.add(patient_on_server.id)
+        if not can_sync_patient(mobile_reading.patient_id):
+            continue
 
-        if crud.read(ReadingOrm, id=mobile_reading_dict.get("id")):
+        server_reading = crud.read(ReadingOrm, id=mobile_reading.id)
+        if server_reading is not None:
+            if server_reading.patient_id != mobile_reading.patient_id:
+                continue
             crud.update(
                 ReadingOrm,
                 {"date_retest_needed": mobile_reading_dict.get("date_retest_needed")},
-                id=mobile_reading_dict.get("id"),
+                id=mobile_reading.id,
             )
         else:
             mobile_reading_dict["user_id"] = current_user["id"]
-            try:
-                ReadingModel(**mobile_reading_dict)
-            except ValidationError as e:
-                return abort(422, description=str(e))
             reading = orm_serializer.unmarshal(ReadingOrm, mobile_reading_dict)
             invariant.resolve_reading_invariants(reading)
             crud.create(reading, refresh=True)
@@ -327,19 +363,17 @@ class SyncReferralsResponse(CradleBaseModel):
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     """Sync Referrals"""
     current_user = user_utils.get_current_user_from_jwt()
-    patients_on_server_cache = set()
+    can_sync_patient = _patient_sync_checker(current_user)
+    can_create_referral = can_perform_referral_action(
+        current_user, ReferralAction.CREATE
+    )
     mobile_referrals = body.root
     for mobile_referral in mobile_referrals:
         mobile_referral_dict = mobile_referral.model_dump()
-        if mobile_referral_dict.get("patient_id") not in patients_on_server_cache:
-            patient_on_server = crud.read(
-                PatientOrm, id=mobile_referral_dict.get("patient_id")
-            )
-            if patient_on_server is None:
-                continue
-            patients_on_server_cache.add(patient_on_server.id)
+        if not can_create_referral or not can_sync_patient(mobile_referral.patient_id):
+            continue
 
-        if crud.read(ReferralOrm, id=mobile_referral_dict.get("id")):
+        if crud.read(ReferralOrm, id=mobile_referral.id):
             # currently, for referrals that exist in server already we will skip them
             continue
         mobile_referral_dict["user_id"] = current_user["id"]
@@ -361,7 +395,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
 
 
 class SyncAssessmentsResponse(CradleBaseModel):
-    assessments: list[AssessmentModel]
+    assessments: list[AssessmentResponse]
 
 
 # /api/sync/assessments [POST]
@@ -416,15 +450,16 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
     last_sync = query.since
     status_code = 200
     errors: list[dict] = list()
+    current_user = user_utils.get_current_user_from_jwt()
 
     mobile_workflow_instances = body.root
     for mobile_workflow_instance in mobile_workflow_instances:
-        patient_id = mobile_workflow_instance.patient_id
-        if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
+        error = _workflow_instance_sync_error(current_user, mobile_workflow_instance)
+        if error is not None:
             errors.append(
                 {
                     "workflow_instance_id": mobile_workflow_instance.id,
-                    "errors": PATIENT_NOT_FOUND_MSG.format(patient_id),
+                    "errors": error,
                 }
             )
             status_code = 207
@@ -440,7 +475,6 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
             )
             status_code = 207
 
-    current_user = user_utils.get_current_user_from_jwt()
     visible_patients = view.patient_list_view(
         cast("dict[Any, Any]", current_user), scope_query=scope_patient_query
     )
@@ -460,6 +494,48 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
         ],
         "errors": errors,
     }, status_code
+
+
+def _patient_sync_checker(current_user: UserDict) -> Callable[[str], bool]:
+    @cache
+    def can_sync_patient(patient_id: str) -> bool:
+        return crud.read(PatientOrm, id=patient_id) is not None and can_access_patient(
+            current_user, patient_id
+        )
+
+    return can_sync_patient
+
+
+def _workflow_instance_sync_error(
+    current_user: UserDict, mobile_workflow_instance: WorkflowInstanceModel
+) -> Optional[str]:
+    patient_id = mobile_workflow_instance.patient_id
+    if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
+        return PATIENT_NOT_FOUND_MSG.format(patient_id)
+    if not can_access_patient(current_user, patient_id):
+        return "Not authorized to sync this patient."
+
+    server_workflow_instance = crud.read(
+        WorkflowInstanceOrm, id=mobile_workflow_instance.id
+    )
+    if (
+        server_workflow_instance is not None
+        and server_workflow_instance.patient_id != patient_id
+    ):
+        return "Patient ID cannot be changed."
+
+    step_error = "Workflow step does not belong to this workflow instance."
+    for step in mobile_workflow_instance.steps:
+        if step.workflow_instance_id != mobile_workflow_instance.id:
+            return step_error
+        server_step = crud.read(WorkflowInstanceStepOrm, id=step.id)
+        if (
+            server_step is not None
+            and server_step.workflow_instance_id != mobile_workflow_instance.id
+        ):
+            return step_error
+
+    return None
 
 
 ERROR_MESSAGES = {
