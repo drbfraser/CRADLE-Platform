@@ -7,7 +7,11 @@ from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import scope_deleted_patient_query, scope_patient_query
+from api.authorization import (
+    allow_any_authenticated_user,
+    scope_deleted_patient_query,
+    scope_patient_query,
+)
 from common import user_utils
 from common.patient_utils import PATIENT_ID_DELETED_MSG, PATIENT_NOT_FOUND_MSG
 from common.user_utils import UserDict
@@ -424,6 +428,7 @@ class SyncWorkflowTemplatesResponse(CradleBaseModel):
 @api_sync.post("/workflow_templates", responses={200: SyncWorkflowTemplatesResponse})
 def sync_workflow_templates(query: LastSyncQueryParam):
     """Sync Workflow Templates"""
+    allow_any_authenticated_user()
     last_sync = query.since
 
     new_workflow_templates = crud.read_workflow_templates(

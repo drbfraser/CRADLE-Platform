@@ -3,6 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import allow_any_authenticated_user, require_role
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
@@ -18,6 +19,7 @@ from common.workflow_utils import (
     get_english_text,
 )
 from data import orm_serializer
+from enums import RoleEnum
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
@@ -68,6 +70,7 @@ def _resolve_classification_dict(d: dict, lang: str) -> dict:
 @api_workflow_classifications.post("", responses={201: WorkflowClassificationModel})
 def create_workflow_classification(body: WorkflowClassificationUploadModel):
     """Create Workflow Classification"""
+    require_role(RoleEnum.ADMIN)
     workflow_classification_dict = body.model_dump()
 
     # Assign ID
@@ -127,6 +130,7 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
 )
 def get_workflow_classifications():
     """Get All Workflow Classifications"""
+    allow_any_authenticated_user()
     lang = request.args.get("lang", default="English")
 
     workflow_classifications = crud.read_workflow_classifications()
@@ -146,6 +150,7 @@ def get_workflow_classifications():
 )
 def get_workflow_classification(path: WorkflowClassificationIdPath):
     """Get Workflow Classification"""
+    allow_any_authenticated_user()
     lang = request.args.get("lang", default="English")
 
     workflow_classification = crud.read(
@@ -174,6 +179,7 @@ def update_workflow_classification(
     path: WorkflowClassificationIdPath, body: WorkflowClassificationUpdateModel
 ):
     """Update Workflow Classification"""
+    require_role(RoleEnum.ADMIN)
     workflow_classification = crud.read(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
@@ -228,6 +234,7 @@ def patch_workflow_classification(
     path: WorkflowClassificationIdPath, body: WorkflowClassificationPatchModel
 ):
     """Partially (PATCH) Update Workflow Classification"""
+    require_role(RoleEnum.ADMIN)
     workflow_classification = crud.read(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
@@ -294,6 +301,7 @@ def patch_workflow_classification(
 )
 def delete_workflow_classification(path: WorkflowClassificationIdPath):
     """Delete Workflow Classification"""
+    require_role(RoleEnum.ADMIN)
     workflow_classification = crud.read(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
