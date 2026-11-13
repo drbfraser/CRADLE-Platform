@@ -99,6 +99,26 @@ def __query_assessments_collection(patient_id: str) -> list[dict[str, Any]]:
     return [orm_serializer.marshal(a) for a in assessments]
 
 
+def __query_medical_record_collection(
+    patient_id: str, is_drug_record: bool
+) -> list[dict[str, Any]]:
+    """
+    Query a patient's medical (or drug) records, ordered by date_created (newest first).
+    """
+    records: list[MedicalRecordOrm] = (
+        crud.read_all(
+            MedicalRecordOrm, patient_id=patient_id, is_drug_record=is_drug_record
+        )
+        or []
+    )
+    records_sorted = sorted(
+        records,
+        key=lambda r: (r.date_created or 0, r.id or 0),
+        reverse=True,
+    )
+    return [orm_serializer.marshal(r) for r in records_sorted]
+
+
 def __query_forms_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query all form submissions for a patient, ordered newest-first.
@@ -318,6 +338,14 @@ __data_catalogue: dict[str, ObjectCatalogue] = {
     },
     "assessments": {
         "query": __query_assessments_collection,
+        "collection": True,
+    },
+    "medical_records": {
+        "query": partial(__query_medical_record_collection, is_drug_record=False),
+        "collection": True,
+    },
+    "drug_records": {
+        "query": partial(__query_medical_record_collection, is_drug_record=True),
         "collection": True,
     },
     "forms": {
