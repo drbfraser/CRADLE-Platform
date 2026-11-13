@@ -249,12 +249,19 @@ function createBlockFromRule(
       return null;
     }
 
-    const historicalVitalMatch = tag.match(/^vitals\[-(\d+)\]\.(.+)$/);
+    const VitalCollectionMatch = tag.match(/^vitals\[-(\d+)\]\.(.+)$/);
 
-    if (historicalVitalMatch) {
-      console.log('Historical vital matched:', tag);
+    if (VitalCollectionMatch) {
+      const [, reading] = VitalCollectionMatch;
 
-      const [, reading, field] = historicalVitalMatch;
+      const field = Object.entries(VITAL_COLLECTION_TAG_MAP).find(
+        ([, backendTag]) =>
+          backendTag.replace('vitals[latest]', `vitals[-${reading}]`) === tag
+      )?.[0];
+
+      if (!field) {
+        return null;
+      }
 
       const block = workspace.newBlock('vital_collection');
 

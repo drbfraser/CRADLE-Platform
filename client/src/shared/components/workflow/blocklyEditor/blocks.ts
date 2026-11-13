@@ -77,6 +77,11 @@ export const VITAL_COLLECTION_TAG_MAP: Record<string, string> = {
   heart_rate: 'vitals[latest].heart_rate',
   systolic_blood_pressure: 'vitals[latest].systolic_blood_pressure',
   diastolic_blood_pressure: 'vitals[latest].diastolic_blood_pressure',
+  urine_leukocytes: 'vitals[latest].urine_test.leukocytes',
+  urine_nitrites: 'vitals[latest].urine_test.nitrites',
+  urine_glucose: 'vitals[latest].urine_test.glucose',
+  urine_protein: 'vitals[latest].urine_test.protein',
+  urine_blood: 'vitals[latest].urine_test.blood',
 };
 
 function variableDisplayName(v: WorkflowVariable): string {
@@ -597,8 +602,14 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
     heart_rate: 'Number',
     systolic_blood_pressure: 'Number',
     diastolic_blood_pressure: 'Number',
+    urine_leukocytes: 'String',
+    urine_nitrites: 'String',
+    urine_glucose: 'String',
+    urine_protein: 'String',
+    urine_blood: 'String',
   };
-  function applyHistoricalVitalType(block: Blockly.Block, field: string) {
+
+  function applyVitalCollectionType(block: Blockly.Block, field: string) {
     const outputType = VITAL_COLLECTION_TYPES[field] ?? 'String';
     block.setOutput(true, outputType);
     block.setColour(TYPE_COLOURS[outputType]);
@@ -615,9 +626,14 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
               ['Heart Rate', 'heart_rate'],
               ['Systolic Blood Pressure', 'systolic_blood_pressure'],
               ['Diastolic Blood Pressure', 'diastolic_blood_pressure'],
+              ['Urine - Leukocytes', 'urine_leukocytes'],
+              ['Urine - Nitrites', 'urine_nitrites'],
+              ['Urine - Glucose', 'urine_glucose'],
+              ['Urine - Protein', 'urine_protein'],
+              ['Urine - Blood', 'urine_blood'],
             ],
             (value: string) => {
-              applyHistoricalVitalType(this, value);
+              applyVitalCollectionType(this, value);
               return value;
             }
           ),
@@ -626,7 +642,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         .appendField('Reading #')
         .appendField(new Blockly.FieldNumber(1, 1), 'READING');
 
-      applyHistoricalVitalType(this, 'traffic_color');
+      applyVitalCollectionType(this, 'traffic_color');
     },
   };
 
