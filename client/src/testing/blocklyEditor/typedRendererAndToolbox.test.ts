@@ -34,6 +34,7 @@ describe('buildToolboxConfig', () => {
     expect(variables?.map((c) => c.name)).toEqual([
       'Patient info',
       'Form Questions info',
+      'Vitals info',
       'Vitals Collection',
     ]);
     expect(variables?.[0]?.contents?.[0]?.type).toBe('app_variable_patient');
