@@ -477,6 +477,39 @@ def get_new_lang_versions_for_workflow_step(
     return new_lang_versions
 
 
+def replace_workflow_template_step(
+    step: dict,
+    workflow_template_id: str,
+    edited_at: int,
+    existing_step: WorkflowTemplateStepOrm | None,
+) -> WorkflowTemplateStepOrm:
+    step["workflow_template_id"] = workflow_template_id
+    step["last_edited"] = edited_at
+
+    existing_branches = []
+    if existing_step is not None:
+        step["id"] = existing_step.id
+        step["name_string_id"] = existing_step.name_string_id
+        step["description_string_id"] = existing_step.description_string_id
+        existing_branches = list(existing_step.branches)
+
+    validate_workflow_template_step(step)
+    crud.db_session.add_all(
+        get_new_lang_versions_for_workflow_step(
+            step, new_template=existing_step is None
+        )
+    )
+    saved_step = orm_serializer.unmarshal(WorkflowTemplateStepOrm, step)
+    for branch in existing_branches:
+        if branch not in saved_step.branches:
+            crud.db_session.delete(branch)
+    saved_step.expected_completion = step["expected_completion"]
+    saved_step.form_id = step.get("form_id")
+    if saved_step.form_id is None:
+        saved_step.form = None
+    return saved_step
+
+
 def format_workflow_template(template: dict, available_langs: list[str]) -> dict:
     """
     Format a marshalled workflow template dict into its multi-language
@@ -559,7 +592,7 @@ def generate_updated_workflow_template(
             "id"
         )
 
-    copy_workflow_template_dict.pop("steps", None)
+    existing_steps = copy_workflow_template_dict.pop("steps")
     copy_workflow_template_dict["steps"] = []
 
     assign_workflow_template_or_instance_ids(
@@ -579,21 +612,29 @@ def generate_updated_workflow_template(
         key: value for key, value in patch_body.items() if key != "steps"
     }
 
-    if patch_body.get("steps"):
+    steps = patch_body.get("steps")
+    if steps is None:
+        steps = existing_steps
+        for step in steps:
+            step.pop("form", None)
+
+    if steps:
+        if "last_edited" in template_changes:
+            for step in steps:
+                step["last_edited"] = template_changes["last_edited"]
+
         old_to_new_step_id_map = _build_step_id_mapping(
-            patch_body["steps"], new_workflow_template_id, auto_assign_id
+            steps, new_workflow_template_id, auto_assign_id
         )
 
-        updated_steps = _update_step_references(
-            patch_body["steps"], old_to_new_step_id_map
-        )
+        updated_steps = _update_step_references(steps, old_to_new_step_id_map)
 
-        if (
-            patch_body.get("starting_step_id")
-            and patch_body["starting_step_id"] in old_to_new_step_id_map
-        ):
+        starting_step_id = patch_body.get(
+            "starting_step_id", existing_template.starting_step_id
+        )
+        if starting_step_id in old_to_new_step_id_map:
             template_changes["starting_step_id"] = old_to_new_step_id_map[
-                patch_body["starting_step_id"]
+                starting_step_id
             ]
 
         template_changes["steps"] = [
@@ -604,6 +645,38 @@ def generate_updated_workflow_template(
     apply_changes_to_model(new_workflow_template, template_changes)
 
     return new_workflow_template
+
+
+def update_workflow_template_form_links(template: WorkflowTemplateOrm) -> None:
+    template.has_branching_issues = False
+    compatible_steps = []
+    for step in template.steps:
+        if not step.form_id:
+            continue
+        current_form = crud.read(FormTemplateOrmV2, id=step.form_id)
+        if current_form is None or not current_form.form_classification_id:
+            continue
+        latest_form = (
+            crud.db_session.query(FormTemplateOrmV2)
+            .filter_by(
+                form_classification_id=current_form.form_classification_id,
+                archived=False,
+            )
+            .first()
+        )
+        if latest_form is None or latest_form.id == current_form.id:
+            continue
+        compatible, _ = check_form_compatibility_for_workflow(
+            template, current_form, latest_form
+        )
+        if compatible:
+            compatible_steps.append((step, latest_form))
+        else:
+            template.has_branching_issues = True
+
+    for step, latest_form in compatible_steps:
+        step.form_id = latest_form.id
+        step.form = latest_form
 
 
 def fetch_workflow_instance_or_404(workflow_instance_id: str) -> WorkflowInstanceModel:

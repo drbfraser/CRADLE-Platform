@@ -13,10 +13,9 @@ from api.resources.workflow_template_steps import (
 )
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
-from common.form_utils import upsert_multilang_versions
+from common.form_utils import _extend_lang_version
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
-    check_form_compatibility_for_workflow,
     check_workflow_classification_name_conflict,
     format_workflow_template,
     generate_updated_workflow_template,
@@ -24,14 +23,16 @@ from common.workflow_utils import (
     get_new_lang_versions_for_workflow_template,
     get_next_workflow_template_version,
     lock_workflow_classification_for_update,
+    replace_workflow_template_step,
+    update_workflow_template_form_links,
     validate_workflow_template_step,
 )
 from data import orm_serializer
 from enums import RoleEnum
 from models import (
-    FormTemplateOrmV2,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
+    WorkflowTemplateStepOrm,
 )
 from service.workflow.workflow_service import (
     WorkflowService,
@@ -41,6 +42,7 @@ from validation import CradleBaseModel
 from validation.workflow_api_models import (
     WorkflowTemplateLangList,
     WorkflowTemplatePatchBody,
+    WorkflowTemplateUpdateModel,
     WorkflowTemplateUploadModel,
 )
 from validation.workflow_models import (
@@ -66,28 +68,16 @@ api_workflow_templates = APIBlueprint(
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
 
 
-def find_and_archive_previous_workflow_template(
-    workflow_classification_id: str,
+def archive_active_workflow_templates(
+    workflow_classification_id: str, edited_at: int
 ) -> None:
-    """Archive the currently active template for a given workflow classification, if one exists."""
-    previous_template = crud.read(
+    for previous_template in crud.read_all(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,
         archived=False,
-    )
-
-    if previous_template:
-        # Update the existing template
-        changes = {
-            "archived": True,
-            "last_edited": get_current_time(),
-        }
-        crud.update(
-            m=WorkflowTemplateOrm,
-            changes=changes,
-            id=previous_template.id,
-            classification_id=workflow_classification_id,
-        )
+    ):
+        previous_template.archived = True
+        previous_template.last_edited = edited_at
 
 
 def get_workflow_classification_from_dict(
@@ -131,6 +121,13 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     """
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
+    )
+    edited_at = get_current_time()
+    workflow_template_dict.update(
+        date_created=edited_at,
+        last_edited=edited_at,
+        archived=False,
+        has_branching_issues=False,
     )
 
     classification_dict = workflow_template_dict.get("classification")
@@ -178,6 +175,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     # Validate each step in the template
     if workflow_template_dict.get("steps") is not None:
         for workflow_template_step in workflow_template_dict["steps"]:
+            workflow_template_step["last_edited"] = edited_at
             validate_workflow_template_step(
                 workflow_template_step, allow_missing_template=True
             )
@@ -200,15 +198,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
                 workflow_classification_orm.id
             )
 
-            """
-            There should only be one unarchived version of the workflow template, so this
-            checks if a previously unarchived version of the workflow template exists and
-            archives it
-            """
-            # Check if a previously existing version of this template exists, if so, archive it
-            find_and_archive_previous_workflow_template(
-                workflow_classification_orm.id,
-            )
+            archive_active_workflow_templates(workflow_classification_orm.id, edited_at)
 
         else:
             workflow_template_dict["version"] = "V1"
@@ -432,7 +422,9 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
+def update_workflow_template(
+    path: WorkflowTemplateIdPath, body: WorkflowTemplateUpdateModel
+):
     """Update Workflow Template"""
     require_role(RoleEnum.ADMIN)
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
@@ -445,23 +437,59 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
             ),
         )
 
-    workflow_template_changes = body.model_dump()
+    changes = body.model_dump()
+    edited_at = get_current_time()
+    classification_id = (changes["classification"] or {}).get(
+        "id"
+    ) or body.classification_id
+    if "classification_id" not in body.model_fields_set and body.classification is None:
+        classification_id = workflow_template.classification_id
 
-    if workflow_template_changes.get("steps", None):
-        for step in workflow_template_changes["steps"]:
-            validate_workflow_template_step(step)
+    existing_steps = {step.id: step for step in workflow_template.steps}
+    saved_steps = []
+    with crud.db_session.no_autoflush:
+        if (
+            classification_id is not None
+            and crud.read(WorkflowClassificationOrm, id=classification_id) is None
+        ):
+            return abort(404, description="Classification not found.")
 
-    workflow_template_changes["last_edited"] = get_current_time()
+        for step in changes["steps"]:
+            existing_step = existing_steps.pop(step["id"], None)
+            if (
+                existing_step is None
+                and crud.read(WorkflowTemplateStepOrm, id=step["id"]) is not None
+            ):
+                return abort(
+                    409, description="Step belongs to another workflow template."
+                )
+            step["name"] = {"English": step["name"]}
+            step["description"] = {"English": step["description"]}
+            saved_steps.append(
+                replace_workflow_template_step(
+                    step, workflow_template.id, edited_at, existing_step
+                )
+            )
 
-    crud.update(
-        WorkflowTemplateOrm,
-        changes=workflow_template_changes,
-        id=path.workflow_template_id,
-    )
+        for step in existing_steps.values():
+            crud.db_session.delete(step)
 
-    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+        workflow_template.steps = saved_steps
+        workflow_template.starting_step_id = changes["starting_step_id"]
+        workflow_template.classification_id = classification_id
+        workflow_template.last_edited = edited_at
+        crud.db_session.add_all(
+            _extend_lang_version(
+                {"English": changes["description"]},
+                workflow_template.description_string_id,
+                new_template=False,
+            )
+        )
+        update_workflow_template_form_links(workflow_template)
 
-    response_data = orm_serializer.marshal(response_data, shallow=True)
+    crud.db_session.commit()
+    response_data = orm_serializer.marshal(workflow_template, shallow=True)
+    _resolve_workflow_template_text(response_data, "English")
 
     return response_data, 200
 
@@ -530,14 +558,21 @@ def update_workflow_template_patch(
                         f"Workflow classification with name '{english_name}' already exists."
                     ),
                 )
-            upsert_multilang_versions(classification_orm.name_string_id, name_map)
+            crud.db_session.add_all(
+                _extend_lang_version(
+                    name_map, classification_orm.name_string_id, new_template=False
+                )
+            )
 
         # Always keep template bound to its existing classification ID.
         body_dict["classification_id"] = existing_classification_id
         # Avoid passing nested classification dict into template generator
         del body_dict["classification"]
 
-    for step in body_dict.get("steps") or []:
+    if body_dict.get("steps") is None:
+        body_dict.pop("steps", None)
+
+    for step in body_dict.get("steps", []):
         step_name = get_english_text(step.get("name") or {})
         if not step_name:
             return abort(
@@ -556,7 +591,12 @@ def update_workflow_template_patch(
 
     lock_workflow_classification_for_update(classification_id)
 
-    body_dict["version"] = get_next_workflow_template_version(classification_id)
+    edited_at = get_current_time()
+    body_dict.update(
+        version=get_next_workflow_template_version(classification_id),
+        date_created=edited_at,
+        last_edited=edited_at,
+    )
 
     new_workflow_template = generate_updated_workflow_template(
         existing_template=workflow_template, patch_body=body_dict, auto_assign_id=True
@@ -565,38 +605,11 @@ def update_workflow_template_patch(
     for lang_version in new_lang_versions:
         crud.db_session.add(lang_version)
 
-    # For each step, check compatibility against the latest non-archived form for
-    # that step's classification. If compatible, update the step to the latest form.
-    # If any step is incompatible, mark has_branching_issues without updating form_ids.
-    has_issues = False
-    for old_step, new_step in zip(workflow_template.steps, new_workflow_template.steps):
-        if not old_step.form_id:
-            continue
-        current_form = crud.read(FormTemplateOrmV2, id=old_step.form_id)
-        if current_form is None or not current_form.form_classification_id:
-            continue
-        latest_form = (
-            crud.db_session.query(FormTemplateOrmV2)
-            .filter(
-                FormTemplateOrmV2.form_classification_id
-                == current_form.form_classification_id
-            )
-            .filter(FormTemplateOrmV2.archived == False)
-            .first()
-        )
-        if latest_form is None or latest_form.id == old_step.form_id:
-            continue
-        compatible, _ = check_form_compatibility_for_workflow(
-            new_workflow_template, current_form, latest_form
-        )
-        if compatible:
-            new_step.form_id = latest_form.id
-        else:
-            has_issues = True
-
-    new_workflow_template.has_branching_issues = has_issues
+    with crud.db_session.no_autoflush:
+        update_workflow_template_form_links(new_workflow_template)
 
     workflow_template.archived = True
+    workflow_template.last_edited = edited_at
 
     try:
         crud.create(model=new_workflow_template, refresh=True)
