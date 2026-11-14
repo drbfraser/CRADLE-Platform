@@ -16,6 +16,7 @@ class PatientOrm(db.Model):
 
     __tablename__ = "patient"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    patient_number = db.Column(db.String(50), index=True)
     name = db.Column(db.String(50))
     sex = db.Column(db.Enum(SexEnum), nullable=False)
     is_pregnant = db.Column(db.Boolean)

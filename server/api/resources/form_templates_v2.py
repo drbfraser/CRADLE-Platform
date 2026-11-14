@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import ValidationError
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from common import form_utils
 from common.workflow_utils import update_workflow_version_with_new_form
 from data import orm_serializer
@@ -54,6 +54,7 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
 
     Returns all form templates. By default, only returns non-archived templates.
     """
+    allow_any_authenticated_user()
     filters: dict = {}
 
     filters["archived"] = 1 if query.include_archived else 0
@@ -88,6 +89,7 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath):
     Returns all available languages for a given FormTemplateV2,
     based on the classification's name_string_id translations.
     """
+    allow_any_authenticated_user()
     template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if not template or not template.classification:
         return abort(
@@ -117,6 +119,7 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath):
 )
 def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
     """Get Form Template Version as CSV"""
+    allow_any_authenticated_user()
     filters: dict = {
         "id": path.form_template_id,
         "version": path.version,
@@ -144,6 +147,7 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
 @api_form_templates_v2.get("/<string:form_template_id>", responses={200: FormTemplate})
 def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query):
     """Get a single-language or full form template (V2)"""
+    allow_any_authenticated_user()
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if form_template is None:
         abort(
@@ -184,6 +188,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
 )
 def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplateQuery):
     """Archive or unarchive a Form Template"""
+    require_role(RoleEnum.ADMIN)
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
 
     if form_template is None:

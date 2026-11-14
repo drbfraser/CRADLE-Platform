@@ -3,7 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from common import form_utils
 from common.api_utils import (
     FormClassificationIdPath,
@@ -32,6 +32,7 @@ api_form_classifications_v2 = APIBlueprint(
 @api_form_classifications_v2.get("", responses={200: FormClassificationList})
 def get_all_form_classifications():
     """Get All Form Classifications"""
+    allow_any_authenticated_user()
     form_classifications = crud.read_all(FormClassificationOrmV2)
     out = []
 
@@ -75,6 +76,7 @@ def create_form_classification(body: FormClassification):
 )
 def get_form_classification(path: FormClassificationIdPath):
     """Get Form Classification"""
+    allow_any_authenticated_user()
     form_classification: FormClassificationOrmV2 = crud.read(
         FormClassificationOrmV2, id=path.form_classification_id
     )
@@ -140,6 +142,7 @@ def get_form_classification_summary():
     Get Form Classification Summary
     Get a list containing the most recent Form Template version of each Form Classification.
     """
+    allow_any_authenticated_user()
     form_classifications = crud.read_all(FormClassificationOrmV2)
     valid_templates = []
 
@@ -186,6 +189,7 @@ def get_form_classification_templates(path: FormClassificationIdPath):
     """
     Get a list of all Form Template versions of a particular Form Classification.
     """
+    allow_any_authenticated_user()
     form_templates = crud.read_all(
         FormTemplateOrmV2,
         form_classification_id=path.form_classification_id,

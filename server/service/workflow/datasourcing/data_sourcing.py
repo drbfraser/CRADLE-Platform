@@ -10,7 +10,7 @@ from pydantic import BaseModel
 import data.db_operations as crud
 from enums import StrEnum
 from validation.assessments import AssessmentResponse
-from validation.patients import PatientModel
+from validation.patients import PatientWithHistory
 from validation.pregnancies import PregnancyResponse
 from validation.readings import ReadingResponse, UrineTestModel
 
@@ -33,7 +33,7 @@ ResolverContext: TypeAlias = dict[str, str]
 MISSING: Any = object()
 
 DataModel = Union[
-    PatientModel,
+    PatientWithHistory,
     ReadingResponse,
     AssessmentResponse,
     PregnancyResponse,
@@ -44,7 +44,7 @@ DataModel = Union[
 WORKFLOW_VARIABLE_NAMESPACE = "wf"
 
 MODEL_REGISTRY: dict[str, type[BaseModel]] = {
-    "patient": PatientModel,
+    "patient": PatientWithHistory,
     "reading": ReadingResponse,
     "assessment": AssessmentResponse,
     "pregnancy": PregnancyResponse,

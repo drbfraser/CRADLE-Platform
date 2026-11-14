@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from sqlalchemy.exc import IntegrityError
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from api.resources.workflow_template_steps import (
     WorkflowTemplateStepListResponse,
     _resolve_step_dict,
@@ -277,6 +277,7 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
 @api_workflow_templates.get("", responses={200: WorkflowTemplateListResponse})
 def get_workflow_templates():
     """Get All Workflow Templates"""
+    allow_any_authenticated_user()
     # Get query parameters
     workflow_classification_id = request.args.get("classification_id", default=None)
 
@@ -308,6 +309,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     Returns the normal enlgish version unless
     GET .../translations is used for multi-lingual one (for mobile compatibility).
     """
+    allow_any_authenticated_user()
     # Get query parameters
     with_steps = request.args.get("with_steps", default=False)
     with_steps = convert_query_parameter_to_bool(with_steps)
@@ -348,6 +350,7 @@ def get_workflow_template_languages(path: WorkflowTemplateIdPath):
     name, template description, and every step's name/description all
     have a translation in that language).
     """
+    allow_any_authenticated_user()
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
@@ -404,6 +407,7 @@ because that returns a workflow template + steps if desired, whereas this endpoi
 )
 def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template Steps by Template ID"""
+    allow_any_authenticated_user()
     lang = request.args.get("lang", default="English")
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
@@ -622,6 +626,7 @@ def update_workflow_template_patch(
 @api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})
 def delete_workflow_template(path: WorkflowTemplateIdPath):
     """Delete Workflow Template"""
+    require_role(RoleEnum.ADMIN)
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
@@ -650,6 +655,7 @@ def archive_workflow_template(
     path: WorkflowTemplateIdPath, query: ArchiveWorkflowTemplateQuery
 ):
     """Archive / Unarchive Workflow Template"""
+    require_role(RoleEnum.ADMIN)
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:

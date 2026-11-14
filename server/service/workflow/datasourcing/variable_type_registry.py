@@ -28,6 +28,8 @@ COLLECTION_NAMESPACES = frozenset(
         "pregnancies",
         "referrals",
         "assessments",
+        "medical_records",
+        "drug_records",
         "forms",
         "all_wf",
     }

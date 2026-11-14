@@ -3,6 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.authorization import allow_any_authenticated_user, require_role
 from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
@@ -16,6 +17,7 @@ from common.workflow_utils import (
     validate_workflow_template_step,
 )
 from data import orm_serializer
+from enums import RoleEnum
 from models import WorkflowTemplateStepOrm
 from validation.workflow_api_models import WorkflowTemplateStepUploadModel
 from validation.workflow_models import (
@@ -63,6 +65,7 @@ def _resolve_step_dict(d: dict, lang: str) -> dict:
 @api_workflow_template_steps.post("", responses={201: WorkflowTemplateStepModel})
 def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     """Create Workflow Template Step"""
+    require_role(RoleEnum.ADMIN)
     template_step = body.model_dump()
 
     validate_workflow_template_step(template_step)
@@ -88,6 +91,7 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 @api_workflow_template_steps.get("", responses={200: WorkflowTemplateStepListResponse})
 def get_workflow_template_steps():
     """Get All Workflow Template Steps"""
+    allow_any_authenticated_user()
     lang = request.args.get("lang", default="English")
 
     template_steps = crud.read_template_steps()
@@ -106,6 +110,7 @@ def get_workflow_template_steps():
 )
 def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Get Workflow Template Step"""
+    allow_any_authenticated_user()
     with_form = request.args.get("with_form", default=False)
     with_form = convert_query_parameter_to_bool(with_form)
     with_branches = request.args.get("with_branches", default=False)
@@ -131,7 +136,7 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
         del workflow_step["branches"]
 
     if not with_form:
-        del workflow_step["form"]
+        workflow_step.pop("form", None)
 
     return workflow_step, 200
 
@@ -144,6 +149,7 @@ def update_workflow_template_step(
     path: WorkflowTemplateStepIdPath, body: WorkflowTemplateStepMultiLangModel
 ):
     """Update Workflow Template Step"""
+    require_role(RoleEnum.ADMIN)
     template_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
@@ -208,6 +214,7 @@ def update_workflow_template_step(
 )
 def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Delete Workflow Template Step"""
+    require_role(RoleEnum.ADMIN)
     # For now, return success if ID matches
 
     template_step = crud.read(

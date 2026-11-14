@@ -6,7 +6,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from data import orm_serializer
 from enums import RoleEnum
 from models import RelayServerPhoneNumberOrm
@@ -37,6 +37,7 @@ class RelayServerPhoneNumberList(RootModel):
 @api_relay_phone_numbers.get("", responses={200: RelayServerPhoneNumberList})
 def get_all_relay_phone_numbers():
     """Get All SMS Relay Server Phone Numbers"""
+    allow_any_authenticated_user()
     phone_numbers = crud.read_all(RelayServerPhoneNumberOrm)
     return [orm_serializer.marshal(f, shallow=True) for f in phone_numbers]
 

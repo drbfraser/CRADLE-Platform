@@ -30,6 +30,7 @@ export const useUpdatePatientMutation = (patientId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['descriptionVariables'] });
+      queryClient.invalidateQueries({ queryKey: ['personalInfo', patientId] });
     },
   });
 };
@@ -123,14 +124,21 @@ export const useAddMedicalRecordMutation = (
 };
 
 export const useUpdateMedicalRecordMutation = (
-  patientId: string,
+  recordId: string,
   isDrugRecord: boolean
 ) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (submitValues: { patientId: string; information: string }) => {
-      return axiosFetch.post(createPatientMedicalRecordsURL(patientId), {
+      return axiosFetch.put(`${EndpointEnum.MEDICAL_RECORDS}/${recordId}`, {
         ...submitValues,
         isDrugRecord,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['medicalRecord', recordId],
       });
     },
   });
@@ -138,10 +146,16 @@ export const useUpdateMedicalRecordMutation = (
 
 export const useDeleteMedicalRecordMutation = (recordId: string) => {
   const endpoint = API_URL + EndpointEnum.MEDICAL_RECORDS + `/${recordId}`;
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => {
       return axiosFetch.delete(endpoint);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['medicalRecord', recordId],
+      });
     },
   });
 };

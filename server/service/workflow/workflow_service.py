@@ -514,9 +514,6 @@ class WorkflowService:
         if patch.description is not None:
             workflow_instance.description = patch.description
 
-        if patch.patient_id is not None:
-            workflow_instance.patient_id = patch.patient_id
-
         if patch.status is not None:
             workflow_instance.status = patch.status
 

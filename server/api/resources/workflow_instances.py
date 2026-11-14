@@ -144,9 +144,6 @@ def patch_workflow_instance(
     )
     require_patient_access(workflow_instance.patient_id)
 
-    if body.patient_id is not None and body.patient_id != workflow_instance.patient_id:
-        return abort(400, description="Patient ID cannot be changed.")
-
     WorkflowService.apply_workflow_instance_patch(workflow_instance, body)
 
     WorkflowService.upsert_workflow_instance(workflow_instance)

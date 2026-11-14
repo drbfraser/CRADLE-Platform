@@ -28,7 +28,10 @@ import {
   isConditionRootBlock,
 } from 'src/shared/components/workflow/blocklyEditor/blocklyWorkspaceUtils';
 import { evaluateWorkspace } from 'src/shared/components/workflow/blocklyEditor/workspaceValidation';
-import { syncGenericCompareTypes } from 'src/shared/components/workflow/blocklyEditor/blocks';
+import {
+  syncGenericCompareTypes,
+  type LogicOpBlock,
+} from 'src/shared/components/workflow/blocklyEditor/blocks';
 
 describe('Blockly workspace rules', () => {
   let container: HTMLDivElement;
@@ -289,8 +292,8 @@ describe('Blockly workspace rules', () => {
       );
 
       const logic = placeRootBlock(workspace, 'logic_op', { OP: 'and' });
-      connectBlockToInput(logic, 'A', ageCompare);
-      connectBlockToInput(logic, 'B', nameCompare);
+      connectBlockToInput(logic, 'ARG0', ageCompare);
+      connectBlockToInput(logic, 'ARG1', nameCompare);
 
       expect(getConditionRootBlocks(workspace)).toHaveLength(1);
       const result = evaluateWorkspace(workspace);
@@ -422,6 +425,106 @@ describe('Blockly workspace rules', () => {
       const outer = comparisons.find((b) => !b.getParent())!;
       expect(outer.getInputTargetBlock('LEFT')).toBeNull();
       expect(evaluateWorkspace(workspace).jsonLogic).toBeNull();
+    });
+  });
+
+  describe('variable-length AND/OR block', () => {
+    const THREE_CONDITIONS = {
+      and: [
+        { '>': [{ var: 'patient.age' }, 18] },
+        { '<': [{ var: 'patient.age' }, 65] },
+        { '==': [{ var: 'forms[latest].q1' }, 'Yes'] },
+      ],
+    };
+
+    const logicInputNames = (block: Blockly.Block) =>
+      block.inputList
+        .filter((input) => input.name.startsWith('ARG'))
+        .map((input) => input.name);
+
+    it('plus adds a slot and minus removes it, never below two', () => {
+      const logic = placeRootBlock(workspace, 'logic_op', {
+        OP: 'and',
+      }) as Blockly.BlockSvg & LogicOpBlock;
+
+      logic.changeCount_(1);
+      expect(logicInputNames(logic)).toEqual(['ARG0', 'ARG1', 'ARG2']);
+      expect(logic.getField('MINUS')).not.toBeNull();
+
+      logic.changeCount_(-1);
+      expect(logicInputNames(logic)).toEqual(['ARG0', 'ARG1']);
+      expect(logic.getField('MINUS')).toBeNull();
+
+      logic.changeCount_(-1);
+      expect(logicInputNames(logic)).toEqual(['ARG0', 'ARG1']);
+    });
+
+    it('removing a filled slot pops its block out instead of deleting it', () => {
+      const logic = placeRootBlock(workspace, 'logic_op', {
+        OP: 'and',
+      }) as Blockly.BlockSvg & LogicOpBlock;
+      logic.changeCount_(1);
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
+        OP: '==',
+      });
+      connectBlockToInput(logic, 'ARG2', comparison);
+
+      logic.changeCount_(-1);
+
+      expect(comparison.isDisposed()).toBe(false);
+      expect(comparison.getParent()).toBeNull();
+    });
+
+    it('reports an incomplete condition when an added slot is left empty', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify({ and: THREE_CONDITIONS.and.slice(0, 2) }),
+        TEST_VARIABLES
+      );
+      const logic = workspace
+        .getTopBlocks(false)
+        .find((b) => b.type === 'logic_op') as Blockly.BlockSvg & LogicOpBlock;
+      logic.changeCount_(1);
+
+      expect(evaluateWorkspace(workspace).error).toContain(
+        'The condition is incomplete'
+      );
+    });
+
+    it('loads 3+ conditions into one flat block and round-trips them', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify(THREE_CONDITIONS),
+        TEST_VARIABLES
+      );
+
+      const logicBlocks = workspace
+        .getAllBlocks(false)
+        .filter((b) => b.type === 'logic_op');
+      expect(logicBlocks).toHaveLength(1);
+      expect(logicInputNames(logicBlocks[0]!)).toEqual([
+        'ARG0',
+        'ARG1',
+        'ARG2',
+      ]);
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        THREE_CONDITIONS
+      );
+    });
+
+    it('keeps extra slots through JSON serialization', () => {
+      loadJsonLogicToWorkspace(
+        workspace,
+        JSON.stringify(THREE_CONDITIONS),
+        TEST_VARIABLES
+      );
+      const state = Blockly.serialization.workspaces.save(workspace);
+      workspace.clear();
+      Blockly.serialization.workspaces.load(state, workspace);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        THREE_CONDITIONS
+      );
     });
   });
 

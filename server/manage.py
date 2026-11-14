@@ -437,6 +437,7 @@ def seed():
 
         patient = {
             "id": patient_id,
+            "patient_number": patient_id,
             "name": name + " " + last_name,
             "village_number": get_random_village(),
             "sex": sex,
@@ -540,6 +541,7 @@ def create_patient_reading_referral_pregnancy(
     if is_pregnant:
         patient = {
             "id": patient_id,
+            "patient_number": patient_id,
             "name": patient_name,
             "village_number": village_number,
             "sex": sex,
@@ -555,6 +557,7 @@ def create_patient_reading_referral_pregnancy(
     else:
         patient = {
             "id": patient_id,
+            "patient_number": patient_id,
             "name": patient_name,
             "village_number": village_number,
             "sex": sex,

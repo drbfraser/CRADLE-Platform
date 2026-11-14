@@ -75,6 +75,8 @@ class RuleEvaluator:
             "pregnancies",
             "referrals",
             "assessments",
+            "medical_records",
+            "drug_records",
             "forms",
             "all_wf",
         }

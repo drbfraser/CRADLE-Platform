@@ -74,9 +74,12 @@ jsonLogicGenerator.forBlock['string_op'] = function (block) {
 
 jsonLogicGenerator.forBlock['logic_op'] = function (block) {
   const op = block.getFieldValue('OP');
-  const a = jsonLogicGenerator.valueToCode(block, 'A', 0) || 'null';
-  const b = jsonLogicGenerator.valueToCode(block, 'B', 0) || 'null';
-  const result = { [op]: [JSON.parse(a), JSON.parse(b)] };
+  const args = block.inputList
+    .filter((input) => input.name.startsWith('ARG'))
+    .map((input) =>
+      JSON.parse(jsonLogicGenerator.valueToCode(block, input.name, 0) || 'null')
+    );
+  const result = { [op]: args };
   return [JSON.stringify(result), 0];
 };
 

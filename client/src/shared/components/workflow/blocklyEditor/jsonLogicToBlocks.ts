@@ -4,6 +4,7 @@ import {
   blocklyTypeFromVariableType,
   syncGenericCompareTypes,
   setEnumOptions,
+  type LogicOpBlock,
 } from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { resolveVariableBlockType } from './variableGrouping';
@@ -291,27 +292,23 @@ function createBlockFromRule(
     if (op in ruleObj) {
       const args = ruleObj[op] as unknown[];
       if (args.length >= 2) {
-        const block = workspace.newBlock('logic_op');
+        const block = workspace.newBlock('logic_op') as Blockly.BlockSvg &
+          LogicOpBlock;
         block.setFieldValue(op, 'OP');
+        block.itemCount_ = args.length;
+        block.updateShape_();
         block.initSvg();
         block.render();
 
-        const aBlock = createBlockFromRule(
-          workspace,
-          args[0],
-          tagToType,
-          variables
-        );
-        const bRule = args.length === 2 ? args[1] : { [op]: args.slice(1) };
-        const bBlock = createBlockFromRule(
-          workspace,
-          bRule,
-          tagToType,
-          variables
-        );
-
-        connectValueBlock(block, 'A', aBlock);
-        connectValueBlock(block, 'B', bBlock);
+        args.forEach((arg, i) => {
+          const child = createBlockFromRule(
+            workspace,
+            arg,
+            tagToType,
+            variables
+          );
+          connectValueBlock(block, `ARG${i}`, child);
+        });
         return block;
       }
     }

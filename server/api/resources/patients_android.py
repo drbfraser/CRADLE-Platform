@@ -7,7 +7,7 @@ from pydantic import RootModel
 
 import data.db_operations as crud
 import service.FilterHelper as filter_helper
-from api.authorization import scope_patient_query
+from api.authorization import require_patient_access, scope_patient_query
 from api.resources.patients import api_patients
 from common import user_utils
 from data import orm_serializer
@@ -38,6 +38,7 @@ def to_global_search_patient(patient):
     global_search_patient = {
         "name": patient["name"],
         "id": patient["id"],
+        "patient_number": patient["patient_number"],
         "village_number": patient["village_number"],
         "readings": patient["readings"],
         "state": patient["state"],
@@ -103,6 +104,7 @@ class MobileGlobalSearchReading(CradleBaseModel):
 
 class MobileGlobalSearchPatient(CradleBaseModel):
     id: str
+    patient_number: Optional[str] = None
     name: str
     state: str
     village_number: str
@@ -126,7 +128,7 @@ def search_patient_list_mobile(path: SearchPath):
     information (information necessary for the patient page) that match the search
     criteria.
     For now search criteria could be:
-        - A portion/full match of the patient's ID.
+        - A portion/full match of the patient's ID or patient number.
         - A portion/full match of the patient's initials.
 
     Returns info for Patient and their Readings.
@@ -220,6 +222,7 @@ class GetFormMobilePath(CradleBaseModel):
 )
 def get_form_mobile(path: GetFormMobilePath):
     """Get Form Mobile"""
+    require_patient_access(path.patient_id)
     filters: dict = {
         "patient_id": path.patient_id,
         "form_template_id": path.form_template_id,

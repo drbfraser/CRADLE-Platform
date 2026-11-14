@@ -3,14 +3,17 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from api.authorization import require_role
+from api.authorization import allow_any_authenticated_user, require_role
 from common.api_utils import WorkflowCollectionIdPath, convert_query_parameter_to_bool
 from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import orm_serializer
 from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel
-from validation.workflow_api_models import WorkflowCollectionUploadModel
+from validation.workflow_api_models import (
+    WorkflowCollectionUpdateModel,
+    WorkflowCollectionUploadModel,
+)
 from validation.workflow_models import (
     WorkflowClassificationModel,
     WorkflowCollectionModel,
@@ -119,7 +122,8 @@ def create_workflow_collection(body: WorkflowCollectionUploadModel):
 @api_workflow_collections.get("", responses={200: WorkflowCollectionListResponse})
 def get_workflow_collections():
     """Get all workflow collections"""
-    data = crud.read_all(WorkflowCollectionModel)
+    allow_any_authenticated_user()
+    data = crud.read_all(WorkflowCollectionOrm)
 
     workflow_collections = [orm_serializer.marshal(collection) for collection in data]
 
@@ -139,6 +143,7 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
     specific classification they want via the other API calls, instead of being given every single workflow template
     all at once.
     """
+    allow_any_authenticated_user()
     with_workflows = request.args.get("with_workflows", default=False)
     with_workflows = convert_query_parameter_to_bool(with_workflows)
 
@@ -156,9 +161,10 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
     "/<string:workflow_collection_id>", responses={200: WorkflowCollectionModel}
 )
 def update_workflow_collection(
-    path: WorkflowCollectionIdPath, body: WorkflowCollectionModel
+    path: WorkflowCollectionIdPath, body: WorkflowCollectionUpdateModel
 ):
     """Update a workflow collection."""
+    require_role(RoleEnum.ADMIN)
     workflow_collection_changes = body.model_dump()
 
     check_if_workflow_collection_exists(path.workflow_collection_id)
@@ -181,6 +187,7 @@ def update_workflow_collection(
 )
 def delete_workflow_collection(path: WorkflowCollectionIdPath):
     """Delete a workflow collection"""
+    require_role(RoleEnum.ADMIN)
     check_if_workflow_collection_exists(path.workflow_collection_id)
 
     crud.delete_by(WorkflowCollectionOrm, id=path.workflow_collection_id)

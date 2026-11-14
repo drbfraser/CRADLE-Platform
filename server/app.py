@@ -27,7 +27,7 @@ from logging.config import dictConfig
 from flask import Response, request
 from werkzeug.exceptions import HTTPException
 from humps import camelize
-from api.authorization_check import log_missing_authorization
+from api.authorization_check import enforce_authorization_check
 from api.resources import api
 from authentication import is_public_endpoint
 
@@ -84,7 +84,7 @@ def convert_response_body_to_camel_case(response: Response):
 
 
 app.after_request(
-    partial(log_missing_authorization, is_public_endpoint=is_public_endpoint)
+    partial(enforce_authorization_check, is_public_endpoint=is_public_endpoint)
 )
 
 

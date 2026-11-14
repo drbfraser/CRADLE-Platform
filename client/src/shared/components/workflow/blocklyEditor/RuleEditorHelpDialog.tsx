@@ -22,7 +22,7 @@ const SECTIONS = [
     title: 'Getting started',
     body: [
       'Drag a COMPARE block from Comparisons and Logic into the workspace, then drop a Variable or Value into each side to form a condition.',
-      'To build more than one condition, combine them with AND/OR/NOT blocks.',
+      'To build more than one condition, combine them with AND/OR/NOT blocks. Click the + on an AND/OR block to add more condition slots, or - to remove the last one.',
       'Conditions blocks have pointed edges and Values/Variables blocks have rounded edges, blocks are also color-coded, so you can see where each block fits.',
       'Fill every empty slot before saving or copying.',
       'Give the condition a name so it appears on the flow diagram.',

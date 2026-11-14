@@ -367,12 +367,16 @@ def test_patch_workflow_instance_cannot_change_patient(
 
     response = api_patch(
         endpoint=f"/api/workflow/instances/{workflow_view.instance.id}",
-        json={"patient_id": "49300028162"},
+        json={"patientId": "49300028162", "name": "Updated workflow"},
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 200
+    response_body = decamelize(response.json())
+    assert response_body["name"] == "Updated workflow"
+    assert response_body["patient_id"] == original_patient_id
     crud.db_session.rollback()
     saved_instance = WorkflowService.get_workflow_instance(workflow_view.instance.id)
+    assert saved_instance.name == "Updated workflow"
     assert saved_instance.patient_id == original_patient_id
 
 
