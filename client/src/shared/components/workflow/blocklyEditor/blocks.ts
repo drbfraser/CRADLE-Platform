@@ -264,6 +264,24 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
       rightBlock = block.getInputTargetBlock('RIGHT');
     }
 
+    if (rightBlock && rightBlock.type === 'string_value') {
+      const existingValue = rightBlock.getFieldValue('TEXT');
+
+      rightBlock.dispose();
+
+      createEnumBlock(block, allowedValues);
+
+      rightBlock = block.getInputTargetBlock('RIGHT');
+
+      if (
+        rightBlock?.type === 'enum_value' &&
+        existingValue &&
+        allowedValues.includes(existingValue)
+      ) {
+        rightBlock.setFieldValue(existingValue, 'VALUE');
+      }
+    }
+
     if (rightBlock?.type === 'enum_value') {
       const existingOptions = rightBlock.data;
 
@@ -640,7 +658,7 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
           'FIELD'
         )
         .appendField('Reading #')
-        .appendField(new Blockly.FieldNumber(1, 1), 'READING');
+        .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'READING');
 
       applyVitalCollectionType(this, 'traffic_color');
     },
