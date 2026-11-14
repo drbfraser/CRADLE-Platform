@@ -5,6 +5,7 @@ import {
   syncGenericCompareTypes,
   setEnumOptions,
   type LogicOpBlock,
+  VITAL_COLLECTION_TAG_MAP,
 } from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { resolveVariableBlockType } from './variableGrouping';
@@ -104,7 +105,17 @@ function createComparisonBlock(
       ? extractVarTag(leftRule.var)
       : null;
 
-  const variable = variables.find((v) => v.tag === tag);
+  let variable = variables.find((v) => v.tag === tag);
+
+  if (!variable && tag?.match(/^vitals\[-\d+\]\.(.+)$/)) {
+    const field = tag.match(/^vitals\[-\d+\]\.(.+)$/)?.[1];
+
+    const metadataTag = field ? VITAL_COLLECTION_TAG_MAP[field] : undefined;
+
+    variable = metadataTag
+      ? variables.find((v) => v.tag === metadataTag)
+      : undefined;
+  }
 
   if (variable?.allowedValues?.length && typeof args[1] === 'string') {
     const enumBlock = workspace.newBlock('enum_value');
@@ -237,6 +248,32 @@ function createBlockFromRule(
       // Malformed var reference — leave the input empty
       return null;
     }
+
+    const VitalCollectionMatch = tag.match(/^vitals\[-(\d+)\]\.(.+)$/);
+
+    if (VitalCollectionMatch) {
+      const [, reading] = VitalCollectionMatch;
+
+      const field = Object.entries(VITAL_COLLECTION_TAG_MAP).find(
+        ([, backendTag]) =>
+          backendTag.replace('vitals[latest]', `vitals[-${reading}]`) === tag
+      )?.[0];
+
+      if (!field) {
+        return null;
+      }
+
+      const block = workspace.newBlock('vital_collection');
+
+      block.initSvg();
+      block.render();
+
+      block.setFieldValue(field, 'FIELD');
+      block.setFieldValue(reading, 'READING');
+
+      return block;
+    }
+
     if (!tagToType.has(tag)) {
       // Variable was removed from the form so show it in a red placeholder so the
       // user knows to delete or replace it before saving.
