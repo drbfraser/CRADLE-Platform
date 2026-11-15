@@ -25,6 +25,7 @@ from models import (
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
@@ -187,6 +188,23 @@ def check_branch_conditions(template_step: dict) -> None:
                 return abort(
                     code=404,
                     description=f"Branch condition with ID: ({branch.get('condition_id')}) not found.",
+                )
+
+
+def check_workflow_template_branch_ownership(steps: list[dict]) -> None:
+    step_ids_by_branch = {}
+    for step in steps:
+        step_id = step.get("id")
+        for branch in step["branches"]:
+            branch_id = branch.get("id")
+            if branch_id is None:
+                continue
+
+            existing_branch = crud.read(WorkflowTemplateStepBranchOrm, id=branch_id)
+            owner_id = existing_branch.step_id if existing_branch else step_id
+            if step_ids_by_branch.setdefault(branch_id, owner_id) != step_id:
+                abort(
+                    409, description="Branch belongs to another workflow template step."
                 )
 
 

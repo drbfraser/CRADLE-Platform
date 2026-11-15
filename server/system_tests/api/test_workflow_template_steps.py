@@ -82,6 +82,57 @@ def test_uploading_valid_workflow_template_steps(
         )
 
 
+def test_updating_workflow_step_preserves_branch_ownership(
+    database,
+    example_workflow_template,
+    valid_workflow_template_step1,
+    valid_workflow_template_step2,
+    api_post,
+    api_put,
+    api_get,
+):
+    receiving_step = valid_workflow_template_step1
+    owning_step = valid_workflow_template_step2
+    steps_endpoint = "/api/workflow/template/steps"
+
+    try:
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
+        assert response.status_code == 201
+        for step in (receiving_step, owning_step):
+            assert api_post(endpoint=steps_endpoint, json=step).status_code == 201
+
+        owning_step_endpoint = f"{steps_endpoint}/{owning_step['id']}"
+        owning_step_view = f"{owning_step_endpoint}?with_branches=true&with_form=true"
+        owning_step["description"] = {"English": "Updated branch owner"}
+        response = api_put(endpoint=owning_step_endpoint, json=owning_step)
+        assert response.status_code == 200
+        original_owner = decamelize(api_get(owning_step_view).json())
+        assert original_owner["description"] == "Updated branch owner"
+        assert original_owner["branches"][0]["id"] == owning_step["branches"][0]["id"]
+
+        receiving_step_endpoint = f"{steps_endpoint}/{receiving_step['id']}"
+        receiving_step_view = (
+            f"{receiving_step_endpoint}?with_branches=true&with_form=true"
+        )
+        original_receiver = api_get(receiving_step_view).json()
+        response = api_put(
+            endpoint=receiving_step_endpoint,
+            json={**receiving_step, "branches": owning_step["branches"]},
+        )
+        assert response.status_code == 409
+        assert api_get(receiving_step_view).json() == original_receiver
+        assert decamelize(api_get(owning_step_view).json()) == original_owner
+    finally:
+        database.session.rollback()
+        crud.delete_workflow(
+            WorkflowTemplateOrm,
+            delete_classification=True,
+            id=example_workflow_template["id"],
+        )
+
+
 def test_uploading_invalid_workflow_template_steps(
     database,
     invalid_workflow_template_step1,

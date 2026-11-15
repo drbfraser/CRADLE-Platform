@@ -17,6 +17,7 @@ from common.form_utils import _extend_lang_version
 from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
     check_workflow_classification_name_conflict,
+    check_workflow_template_branch_ownership,
     format_workflow_template,
     generate_updated_workflow_template,
     get_english_text,
@@ -122,6 +123,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
     )
+    check_workflow_template_branch_ownership(workflow_template_dict["steps"])
     edited_at = get_current_time()
     workflow_template_dict.update(
         date_created=edited_at,
@@ -438,6 +440,7 @@ def update_workflow_template(
         )
 
     changes = body.model_dump()
+    check_workflow_template_branch_ownership(changes["steps"])
     edited_at = get_current_time()
     classification_id = (changes["classification"] or {}).get(
         "id"

@@ -11,6 +11,7 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from common.form_utils import resolve_string_text
 from common.workflow_utils import (
+    check_workflow_template_branch_ownership,
     get_new_lang_versions_for_workflow_step,
     replace_workflow_template_step,
     validate_workflow_template_step,
@@ -65,6 +66,7 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     """Create Workflow Template Step"""
     template_step = body.model_dump()
 
+    check_workflow_template_branch_ownership([template_step])
     validate_workflow_template_step(template_step)
 
     new_lang_versions = get_new_lang_versions_for_workflow_step(
@@ -156,9 +158,13 @@ def update_workflow_template_step(
             ),
         )
 
+    changes = body.model_dump()
+    changes["id"] = template_step.id
+    check_workflow_template_branch_ownership([changes])
+
     with crud.db_session.no_autoflush:
         updated_template_step = replace_workflow_template_step(
-            body.model_dump(),
+            changes,
             template_step.workflow_template_id,
             get_current_time(),
             template_step,
