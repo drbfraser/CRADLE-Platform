@@ -126,21 +126,25 @@ jobs:
          --cov-report=term-missing 
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Upload Test Results HTML
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v3
         with:
           name: backend-unit-test-html
-          path: /isolated-build/repo/server/unit_report.html 
+          path: /isolated-build/repo/server/unit-test-report.html 
       - name: Upload Test Results XML 
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v3
         with:
           name: backend-unit-test-xml 
-          path: /isolated-build/repo/server/unit_report.xml
+          path: /isolated-build/repo/server/report.xml
       - name: Upload Coverage Report HTML
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v3
         with:
           name: backend-coverage-report-html
-          path: /isolated-build/repo/server/coverage_report.html
+          path: /isolated-build/repo/server/coverage_report/
       - name: Upload Coverage Report XML
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v3
         with:
           name: backend-coverage-report-xml
