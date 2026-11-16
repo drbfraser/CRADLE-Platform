@@ -1,9 +1,13 @@
+import time
+
 import pytest
+from humps import camelize
 
 import data.db_operations as crud
 from data import orm_serializer
 from models import (
     AssessmentOrm,
+    FormSubmissionOrmV2,
     HealthFacilityOrm,
     PatientAssociationsOrm,
     PregnancyOrm,
@@ -418,14 +422,27 @@ def _foreign_step_upload(instance):
     return {**instance.model_dump(), "id": NEW_WORKFLOW_INSTANCE_ID, "steps": [step]}
 
 
+def _foreign_current_step_upload(instance):
+    return {
+        **_new_workflow_instance_upload(instance),
+        "current_step_id": instance.steps[0].id,
+    }
+
+
 @pytest.mark.parametrize(
     "credentials, make_upload",
     [
         (("vht@email.com", "cradle-vht"), _new_workflow_instance_upload),
         (("admin@email.com", "cradle-admin"), _patient_change_upload),
         (("admin@email.com", "cradle-admin"), _foreign_step_upload),
+        (("admin@email.com", "cradle-admin"), _foreign_current_step_upload),
     ],
-    ids=["unassociated-vht", "patient-change", "step-from-other-instance"],
+    ids=[
+        "unassociated-vht",
+        "patient-change",
+        "step-from-other-instance",
+        "current-step-from-other-instance",
+    ],
 )
 def test_workflow_instance_sync_rejects_unauthorized_upload(
     clinical_records, sequential_workflow_view_with_db, api_post, make_upload
@@ -449,6 +466,104 @@ def test_workflow_instance_sync_rejects_unauthorized_upload(
         assert _saved_record(WorkflowInstanceStepOrm, step_id) == original_step
     finally:
         crud.delete_workflow(m=WorkflowInstanceOrm, id=NEW_WORKFLOW_INSTANCE_ID)
+
+
+def test_sync_workflow_progress_preserves_saved_fields(
+    clinical_records, sequential_workflow_view_with_db, form_v2_resources, api_post
+):
+    instance = sequential_workflow_view_with_db.instance
+    step = instance.steps[0]
+    template = form_v2_resources.create_template()
+    form = form_v2_resources.create_submission(template, patient_id=instance.patient_id)
+    start_date = int(time.time()) - 60
+    completion_date = start_date + 30
+    saved = crud.read(WorkflowInstanceOrm, id=instance.id)
+    saved.start_date = start_date
+    saved.status = "Active"
+    saved.current_step_id = step.id
+    saved.last_edited = start_date
+    saved.steps[0].start_date = start_date
+    saved.steps[0].status = "Active"
+    saved.steps[0].form_id = form["id"]
+    crud.db_session.commit()
+    upload = camelize(
+        instance.model_dump(exclude={"steps", "last_edited", "pregnancy_id", "lang"})
+    )
+    upload.update(
+        status="Completed",
+        startDate=start_date - 1,
+        completionDate=completion_date,
+        currentStepId=step.id,
+        steps=[
+            {
+                "id": step.id,
+                "workflowInstanceId": instance.id,
+                "workflowTemplateStepId": step.workflow_template_step_id,
+                "name": step.name,
+                "description": step.description,
+                "status": "Completed",
+                "startDate": start_date - 1,
+                "completionDate": completion_date,
+            }
+        ],
+    )
+
+    endpoint = f"/api/sync/workflow_instances?since={start_date}"
+    response = api_post(
+        endpoint=endpoint, json=[{**upload, "status": "Active", "completionDate": None}]
+    )
+    assert response.status_code == 200
+    synced = next(
+        (
+            workflow
+            for workflow in response.json()["workflowInstances"]
+            if workflow["id"] == instance.id
+        ),
+        None,
+    )
+    assert synced is not None
+    assert synced["steps"][0]["completionDate"] == completion_date
+
+    response = api_post(endpoint=endpoint, json=[upload])
+    assert response.status_code == 200
+    crud.db_session.rollback()
+    assert saved.start_date == saved.steps[0].start_date == start_date
+    assert saved.completion_date == saved.steps[0].completion_date == completion_date
+    assert saved.steps[0].form_id == form["id"]
+
+    response = api_post(
+        endpoint=endpoint, json=[{**upload, "status": "Active"}, upload]
+    )
+    assert response.status_code == 207
+    assert len(response.json()["errors"]) == 1
+    crud.db_session.rollback()
+    assert saved.status == "Completed"
+
+
+@pytest.mark.parametrize("form_field", ["form", "form_id"])
+def test_workflow_sync_rejects_form_writes(
+    clinical_records,
+    sequential_workflow_view_with_db,
+    form_v2_resources,
+    api_post,
+    form_field,
+):
+    instance = sequential_workflow_view_with_db.instance
+    template = form_v2_resources.create_template()
+    form = form_v2_resources.create_submission(template, patient_id=instance.patient_id)
+    step_id = instance.steps[0].id
+    original_step = _saved_record(WorkflowInstanceStepOrm, step_id)
+    original_form = _saved_record(FormSubmissionOrmV2, form["id"])
+    upload = instance.model_dump()
+    upload["steps"][0][form_field] = (
+        form["id"] if form_field == "form_id" else {**original_form, "lang": "French"}
+    )
+
+    response = api_post(endpoint="/api/sync/workflow_instances?since=0", json=[upload])
+
+    assert response.status_code == 207
+    assert _saved_record(WorkflowInstanceStepOrm, step_id) == original_step
+    assert _saved_record(FormSubmissionOrmV2, form["id"]) == original_form
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
