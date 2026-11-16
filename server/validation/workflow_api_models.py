@@ -1,9 +1,7 @@
 from typing import Any, Optional
 
-from pydantic import Field, model_validator
-from typing_extensions import Self
+from pydantic import Field
 
-from common.commonUtil import get_current_time
 from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowStatusEnum
 from validation import CradleBaseModel
 from validation.shared_models import MultiLangText
@@ -14,8 +12,8 @@ from validation.workflow_models import (
     WorkflowCollectionBase,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
-    WorkflowTemplateMultiLangModel,
-    WorkflowTemplateStepMultiLangModel,
+    WorkflowTemplateStepBase,
+    WorkflowTemplateStepBranchBase,
 )
 
 
@@ -40,33 +38,56 @@ class WorkflowCollectionUpdateModel(WorkflowCollectionBase):
     pass
 
 
-class WorkflowTemplateUploadModel(WorkflowTemplateMultiLangModel):
-    id: Optional[str] = None
-    version: Optional[str] = None
+class WorkflowTemplateStepRequestBase(WorkflowTemplateStepBase):
+    branches: list[WorkflowTemplateStepBranchBase]
 
 
-class WorkflowTemplatePatchBody(CradleBaseModel):
+class WorkflowTemplateStepUpdateModel(WorkflowTemplateStepRequestBase):
+    name: MultiLangText
+    description: MultiLangText
+
+
+class WorkflowTemplateNestedStepModel(WorkflowTemplateStepUpdateModel):
+    id: str
+
+
+class WorkflowTemplateStepUploadModel(WorkflowTemplateStepUpdateModel):
     id: Optional[str] = None
-    description: Optional[MultiLangText] = None
-    archived: Optional[bool] = None
+    workflow_template_id: str
+
+
+class WorkflowTemplateReplacementStepModel(WorkflowTemplateStepRequestBase):
+    id: str
+    name: str
+    description: str
+
+
+class WorkflowTemplateSaveModel(CradleBaseModel):
     starting_step_id: Optional[str] = None
-    date_created: int = Field(default_factory=get_current_time)
-    last_edited: Optional[int] = Field(default_factory=get_current_time)
-    version: Optional[str] = None
     classification_id: Optional[str] = None
-    classification: Optional[WorkflowClassificationMultiLangModel] = None
-    steps: Optional[list[WorkflowTemplateStepMultiLangModel]] = None
-
-    @model_validator(mode="after")
-    def validate_dates(self) -> Self:
-        """Raise if last_edited is before date_created."""
-        if self.last_edited is not None and self.last_edited < self.date_created:
-            raise ValueError("last_edited cannot be before date_created")
-        return self
 
 
-class WorkflowTemplateStepUploadModel(WorkflowTemplateStepMultiLangModel):
+class WorkflowTemplateUploadModel(WorkflowTemplateSaveModel):
     id: Optional[str] = None
+    description: MultiLangText
+    classification: Optional[WorkflowClassificationUploadModel] = None
+    steps: list[WorkflowTemplateNestedStepModel]
+
+
+class WorkflowTemplateClassificationReference(CradleBaseModel):
+    id: Optional[str] = None
+
+
+class WorkflowTemplateUpdateModel(WorkflowTemplateSaveModel):
+    description: str
+    classification: Optional[WorkflowTemplateClassificationReference] = None
+    steps: list[WorkflowTemplateReplacementStepModel]
+
+
+class WorkflowTemplatePatchBody(WorkflowTemplateSaveModel):
+    description: Optional[MultiLangText] = None
+    classification: Optional[WorkflowClassificationUploadModel] = None
+    steps: Optional[list[WorkflowTemplateNestedStepModel]] = None
 
 
 class WorkflowTemplateLangList(CradleBaseModel):

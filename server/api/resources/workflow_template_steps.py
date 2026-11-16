@@ -12,18 +12,19 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from common.form_utils import resolve_string_text
 from common.workflow_utils import (
-    check_branch_conditions,
+    check_workflow_template_branch_ownership,
     get_new_lang_versions_for_workflow_step,
+    replace_workflow_template_step,
     validate_workflow_template_step,
 )
 from data import orm_serializer
 from enums import RoleEnum
 from models import WorkflowTemplateStepOrm
-from validation.workflow_api_models import WorkflowTemplateStepUploadModel
-from validation.workflow_models import (
-    WorkflowTemplateStepModel,
-    WorkflowTemplateStepMultiLangModel,
+from validation.workflow_api_models import (
+    WorkflowTemplateStepUpdateModel,
+    WorkflowTemplateStepUploadModel,
 )
+from validation.workflow_models import WorkflowTemplateStepModel
 
 workflow_template_step_not_found_msg = "Workflow template step with ID: ({}) not found."
 
@@ -68,6 +69,7 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     require_role(RoleEnum.ADMIN)
     template_step = body.model_dump()
 
+    check_workflow_template_branch_ownership([template_step])
     validate_workflow_template_step(template_step)
 
     new_lang_versions = get_new_lang_versions_for_workflow_step(
@@ -146,7 +148,7 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     "/<string:workflow_template_step_id>", responses={200: WorkflowTemplateStepModel}
 )
 def update_workflow_template_step(
-    path: WorkflowTemplateStepIdPath, body: WorkflowTemplateStepMultiLangModel
+    path: WorkflowTemplateStepIdPath, body: WorkflowTemplateStepUpdateModel
 ):
     """Update Workflow Template Step"""
     require_role(RoleEnum.ADMIN)
@@ -162,35 +164,18 @@ def update_workflow_template_step(
             ),
         )
 
-    workflow_template_step_changes = body.model_dump()
-    workflow_template_step_changes["last_edited"] = get_current_time()
+    changes = body.model_dump()
+    changes["id"] = template_step.id
+    check_workflow_template_branch_ownership([changes])
 
-    check_branch_conditions(
-        workflow_template_step_changes
-    )  # If new branches are being added to the step
-
-    workflow_template_step_changes["name_string_id"] = template_step.name_string_id
-    workflow_template_step_changes["description_string_id"] = (
-        template_step.description_string_id
-    )
-
-    new_lang_versions = get_new_lang_versions_for_workflow_step(
-        workflow_template_step_changes, new_template=False
-    )
-
-    crud.update(
-        WorkflowTemplateStepOrm,
-        changes=workflow_template_step_changes,
-        id=path.workflow_template_step_id,
-    )
-
-    for lang_version in new_lang_versions:
-        crud.db_session.add(lang_version)
-    crud.db_session.commit()
-
-    updated_template_step = crud.read(
-        WorkflowTemplateStepOrm, id=path.workflow_template_step_id
-    )
+    with crud.db_session.no_autoflush:
+        updated_template_step = replace_workflow_template_step(
+            changes,
+            template_step.workflow_template_id,
+            get_current_time(),
+            template_step,
+        )
+    crud.create(updated_template_step, refresh=True)
 
     updated_template_step = orm_serializer.marshal(updated_template_step, shallow=True)
     _resolve_step_dict(updated_template_step, "English")
