@@ -88,7 +88,7 @@ jobs:
             --name mobile-jacoco-report \
             --dir "$REPORT_WORK/current/coverage"
 
-      - name: Download backend artifacts
+      - name: Download Platform artifacts
         env: 
           GH_HOST: github.sfu.ca
           GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
@@ -140,6 +140,13 @@ jobs:
             --name backend-coverage-report-html \
             --dir "$REPORT_WORK/backend/html/coverage"
 
+          mkdir -p "$REPORT_WORK/frontend"
+
+          gh run download "$PLATFORM_RUN_ID" \
+            --repo "$PLATFORM_REPO" \
+            --name frontend-test-reports \
+            --dir "$REPORT_WORK/frontend"
+
 
       - name: Download previous artifacts
         env:
@@ -176,7 +183,8 @@ jobs:
         run: |
           python testing-dashboard/report-generator.py \
             --mobile-artifacts "$REPORT_WORK/current" \
-            --platform-artifacts "$REPORT_WORK/backend" \
+            --backend-artifacts "$REPORT_WORK/backend" \
+            --frontend-artifacts "$REPORT_WORK/frontend" \
             --previous "$REPORT_WORK/previous/report-data.json"
 
           cp testing-dashboard/page/report-data.json "$REPORT_WORK/site/"
@@ -208,6 +216,20 @@ jobs:
 
           cp "$unit_report" "$REPORT_WORK/site/reports/backend/unit-tests/index.html"
           cp -a "$coverage_report/." "$REPORT_WORK/site/reports/backend/coverage/"
+
+      - name: Package frontend HTML reports
+        run: |
+          set -eu
+          unit_report="$REPORT_WORK/frontend/unit-tests"
+          coverage_report="$REPORT_WORK/frontend/coverage"
+
+          test -f "$unit_report/index.html"
+          test -f "$coverage_report/index.html"
+
+          mkdir -p "$REPORT_WORK/site/reports/frontend"
+
+          cp -a "$unit_report" "$REPORT_WORK/site/reports/frontend/unit-tests"
+          cp -a "$coverage_report" "$REPORT_WORK/site/reports/frontend/coverage"
 
       - name: Upload dashboard
         uses: actions/upload-artifact@v3

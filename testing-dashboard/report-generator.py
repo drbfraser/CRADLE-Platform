@@ -15,9 +15,15 @@ MOBILE_TOOLS = [
 ]
 
 BACKEND_TOOLS = [
-    ["🐍", "pytest", "Unit tests", "v8.4.1"],
-    ["📊", "pytest-cov", "Code coverage", "v7.1.0"],
-    ["📄", "pytest-html", "Generating test reports", "v4.2.0"],
+    ["logos/pytest.svg", "pytest", "Unit tests", "v8.4.1"],
+    ["logos/pytest.svg", "pytest-cov", "Code coverage", "v7.1.0"],
+    ["logos/pytest.svg", "pytest-html", "Generating test reports", "v4.2.0"],
+]
+
+FRONTEND_TOOLS = [
+    ["logos/vitest.svg", "Vitest", "Unit tests", "v2.1.9"],
+    ["logos/vitest.svg", "V8", "Code coverage", "via Vitest"],
+    ["logos/vitest.svg", "Vitest HTML", "Generating test reports", "v2.1.9"],
 ]
 
 """
@@ -30,13 +36,15 @@ COVERAGE_LABELS = {
     "method": "Methods",
     "class": "Classes",
     "complexity": "Complexity",
+    "statement": "Statements",
+    "function": "Functions",
 }
 
 
 """
 Usage: python3 ./report-generator.py [flag] [path]
-The flags are --mobile-artifacts, --platform-artifacts, and --previous
-At least one artifact path must be provided, previous must be provided. 
+The flags are --mobile-artifacts, --backend-artifacts, --frontend-artifacts, and --previous.
+All parameters must be passed on. Previous can be a blank string.
 Previous is a path containing the previously generated report-data.json, if none is found, trend
 will not be available.
 """
@@ -46,12 +54,18 @@ def main():
     # Add arguments and parse
     parser = argparse.ArgumentParser()
     parser.add_argument("--mobile-artifacts", type=Path)
-    parser.add_argument("--platform-artifacts", type=Path)
+    parser.add_argument("--backend-artifacts", type=Path)
+    parser.add_argument("--frontend-artifacts", type=Path)
     parser.add_argument("--previous", type=Path, required=True)
     args = parser.parse_args()
-    if args.mobile_artifacts is None and args.platform_artifacts is None:
+    if (
+        args.mobile_artifacts is None
+        and args.backend_artifacts is None
+        and args.frontend_artifacts is None
+    ):
         parser.error(
-            "Provide either --mobile-artifacts or --platform-artifacts, or both."
+            "Provide --mobile-artifacts, --backend-artifacts, "
+            "--frontend-artifacts, or a combination."
         )
 
     # Get previous data, if available
@@ -78,17 +92,38 @@ def main():
         )
 
     # Extract backend test data
-    if args.platform_artifacts is not None:
-        coverage_files = list(args.platform_artifacts.rglob("coverage_report.xml"))
+    if args.backend_artifacts is not None:
+        coverage_files = list(args.backend_artifacts.rglob("coverage_report.xml"))
         if len(coverage_files) != 1:
             raise ValueError(f"Expected a backend coverage report, found {len(coverage_files)}")
-        unit_test_files = list(args.platform_artifacts.rglob("report.xml"))
+        unit_test_files = list(args.backend_artifacts.rglob("report.xml"))
         if len(unit_test_files) != 1:
             raise ValueError(f"Expected a backend unit test report, found {len(unit_test_files)}")
         backend_coverage = get_backend_coverage(coverage_files[0])
-        backend_unit_tests = get_backend_unit_tests(unit_test_files)
+        backend_unit_tests = get_unit_tests(unit_test_files)
         data["backend"] = get_report_data(
             backend_coverage, backend_unit_tests, prev_data, "backend", BACKEND_TOOLS
+        )
+
+    # Extract frontend test data
+    if args.frontend_artifacts is not None:
+        coverage_files = list(
+            args.frontend_artifacts.rglob("coverage-summary.json")
+        )
+        if len(coverage_files) != 1:
+            raise ValueError(
+                f"Expected a frontend coverage report, found {len(coverage_files)}"
+            )
+        unit_test_files = list(args.frontend_artifacts.rglob("report.xml"))
+        if len(unit_test_files) != 1:
+            raise ValueError(
+                f"Expected a frontend unit test report, found {len(unit_test_files)}"
+            )
+        frontend_coverage = get_frontend_coverage(coverage_files[0])
+        frontend_unit_tests = get_unit_tests(unit_test_files)
+        data["frontend"] = get_report_data(
+            frontend_coverage, frontend_unit_tests, prev_data,
+            "frontend", FRONTEND_TOOLS
         )
 
     # Write data in a JSON file, later used in index.html
@@ -144,7 +179,7 @@ def get_backend_coverage(coverage_file):
 
 
 # Get unit test pass score
-def get_backend_unit_tests(unit_test_files):
+def get_unit_tests(unit_test_files):
     test_suite_roots = []
     for xml in unit_test_files:
         root = ET.parse(xml).getroot()
@@ -154,7 +189,7 @@ def get_backend_unit_tests(unit_test_files):
             test_suite_roots.extend(root.findall(".//testsuite"))
 
     if not test_suite_roots:
-        raise ValueError("Backend unit test report contains no test suites")
+        raise ValueError("Unit test report contains no test suites")
 
     test_stats = {"ran": 0, "passed": 0, "errors": 0, "skipped": 0, "failures": 0}
     for test_suite in test_suite_roots:
@@ -168,6 +203,24 @@ def get_backend_unit_tests(unit_test_files):
         test_stats["failures"] += failures + errors
         test_stats["skipped"] += skipped
     return test_stats
+
+# Get code coverage from Vitest's report
+def get_frontend_coverage(coverage_file):
+    with coverage_file.open("r", encoding="utf-8") as coverage_json:
+        totals = json.load(coverage_json)["total"]
+
+    coverage = {}
+    for kind, key in (
+        ("line", "lines"),
+        ("branch", "branches"),
+        ("statement", "statements"),
+        ("function", "functions"),
+    ):
+        coverage[kind] = (
+            int(totals[key]["covered"]),
+            int(totals[key]["total"]),
+        )
+    return coverage
 
 def get_report_data(coverage, unit_tests, prev_data, section, tools):
     total_covered = 0

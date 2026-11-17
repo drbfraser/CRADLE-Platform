@@ -230,8 +230,16 @@ jobs:
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Run Unit Tests
-        run: npm run test --args a
+        run: npm run test -- run --coverage
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+
+      - name: Upload Frontend Test Reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-test-reports
+          path: ${{ env.CUSTOM_WORKSPACE }}/client/test-reports/
+          if-no-files-found: error
 
   end-to-end-tests:
     name: "End-to-End Playwright Tests"

@@ -188,10 +188,10 @@
 
   <!-- Tabs -->
   <nav class="tabs">
-    <button class="tab" role="tab" data-tab="frontend" aria-selected="false" disabled>
+    <button class="tab active" role="tab" data-tab="frontend" aria-selected="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>Frontend
     </button>
-    <button class="tab active" role="tab" data-tab="backend" aria-selected="true" >
+    <button class="tab" role="tab" data-tab="backend" aria-selected="false" >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/></svg>Backend
     </button>
     <button class="tab" role="tab" data-tab="mobile" aria-selected="false">
@@ -306,7 +306,9 @@ function render(key) {
     </div>`;
 
   $('unit-report-link').href = `reports/${key}/unit-tests/index.html`;
-  $('coverage-report-link').href = key === 'mobile' ? 'reports/mobile/jacoco/index.html' : 'reports/backend/coverage/index.html';
+  $('coverage-report-link').href = key === 'mobile'
+  ? 'reports/mobile/jacoco/index.html'
+  : `reports/${key}/coverage/index.html`;
 
   document.querySelectorAll('.grid, .plan').forEach(el => {
     el.classList.remove('fade'); void el.offsetWidth; el.classList.add('fade');
@@ -320,7 +322,7 @@ tabs.forEach(tab => tab.addEventListener('click', () => {
 }));
 
 
-render('backend')
+render('frontend')
 </script>
 </body>
 </html>
