@@ -129,10 +129,18 @@ def get_mobile_unit_tests(unit_test_files):
 
 # Get code coverage from pytest-cov's report
 def get_backend_coverage(coverage_file):
-    code_cov_root = ET.parse(coverage_file).getroot()
-    covered = int(code_cov_root.attrib["lines-covered"])
-    total = int(code_cov_root.attrib["lines-valid"])
-    return {"line": (covered, total)}
+    root = ET.parse(coverage_file).getroot()
+
+    return {
+        "line": (
+            int(root.attrib["lines-covered"]),
+            int(root.attrib["lines-valid"]),
+        ),
+        "branch": (
+            int(root.attrib["branches-covered"]),
+            int(root.attrib["branches-valid"]),
+        ),
+    } 
 
 
 # Get unit test pass score
