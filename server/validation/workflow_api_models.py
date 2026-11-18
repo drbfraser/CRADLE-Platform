@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from pydantic import Field
 
-from enums import WorkflowInstanceDataFieldTypeEnum
+from enums import WorkflowInstanceDataFieldTypeEnum, WorkflowStatusEnum
 from validation import CradleBaseModel
 from validation.shared_models import MultiLangText
 from validation.workflow_models import (
@@ -105,6 +105,33 @@ class GetWorkflowTemplateQuery(CradleBaseModel):
             "shape - never returns raw string_ids from this endpoint."
         ),
     )
+
+
+class WorkflowSyncProgress(CradleBaseModel):
+    id: str
+    name: str
+    description: str
+    status: WorkflowStatusEnum
+    start_date: Optional[int] = None
+    completion_date: Optional[int] = None
+
+
+class SyncWorkflowStepRequest(WorkflowSyncProgress):
+    workflow_instance_id: str
+    workflow_template_step_id: Optional[str] = None
+    form_id: Optional[str] = Field(
+        default=None, exclude=True, description="May only echo the saved form ID."
+    )
+    form: Any = Field(
+        default=None, exclude=True, description="Embedded form writes are rejected."
+    )
+
+
+class SyncWorkflowInstanceRequest(WorkflowSyncProgress):
+    patient_id: Optional[str] = None
+    workflow_template_id: Optional[str] = None
+    current_step_id: Optional[str] = None
+    steps: list[SyncWorkflowStepRequest]
 
 
 class WorkflowInstancePatchModel(CradleBaseModel):
