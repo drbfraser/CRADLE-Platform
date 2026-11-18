@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from typing import TYPE_CHECKING, Literal, NamedTuple, Optional
 
@@ -19,11 +20,16 @@ from models import (
 )
 from validation.formsV2_models import (
     AnswerWithQuestion,
+    DateAnswer,
     FormAnswer,
     FormAnswerBase,
     FormClassification,
     FormTemplateUploadQuestion,
     FormTemplateUploadRequest,
+    MCAnswer,
+    NumberAnswer,
+    ReplacementFormAnswer,
+    TextAnswer,
     TimeAnswer,
 )
 
@@ -550,6 +556,54 @@ class ValidationResult(NamedTuple):
     code: error_codes
 
 
+def validate_answer_type(question, answer) -> ValidationResult:
+    """Check the answer shape before accessing question-specific values."""
+    expected_types = {
+        QuestionTypeEnum.INTEGER: NumberAnswer,
+        QuestionTypeEnum.DECIMAL: NumberAnswer,
+        QuestionTypeEnum.STRING: TextAnswer,
+        QuestionTypeEnum.MULTIPLE_CHOICE: MCAnswer,
+        QuestionTypeEnum.MULTIPLE_SELECT: MCAnswer,
+        QuestionTypeEnum.DATE: DateAnswer,
+        QuestionTypeEnum.DATETIME: DateAnswer,
+        QuestionTypeEnum.TIME: TimeAnswer,
+    }
+    expected_type = expected_types.get(question.question_type)
+    if expected_type is None:
+        return ValidationResult(
+            False, f"Question type '{question.question_type}' not supported", code=422
+        )
+    if not isinstance(answer, expected_type):
+        if question.question_type == QuestionTypeEnum.TIME:
+            return ValidationResult(
+                False, "TIME questions require a TIME answer", code=422
+            )
+        return ValidationResult(False, "Answer type does not match question.", code=422)
+    if isinstance(answer, NumberAnswer):
+        if not math.isfinite(answer.number) or (
+            question.question_type == QuestionTypeEnum.INTEGER
+            and not answer.number.is_integer()
+        ):
+            return ValidationResult(False, "Invalid numeric answer.", code=422)
+    if isinstance(answer, TextAnswer) and not answer.text.strip():
+        return ValidationResult(False, "Omit unanswered optional questions.", code=422)
+    if isinstance(answer, MCAnswer) and (
+        not answer.mc_id_array
+        or len(answer.mc_id_array) != len(set(answer.mc_id_array))
+        or (
+            question.question_type == QuestionTypeEnum.MULTIPLE_CHOICE
+            and len(answer.mc_id_array) != 1
+        )
+    ):
+        return ValidationResult(False, "Invalid choice answer.", code=422)
+    if isinstance(answer, DateAnswer):
+        try:
+            int(answer.date)
+        except ValueError:
+            return ValidationResult(False, "Date must be Unix seconds.", code=422)
+    return ValidationResult(True, "Answer type is valid", code=None)
+
+
 def validate_form_answers(
     answers: list[FormAnswerBase], form_template_id: str
 ) -> ValidationResult:
@@ -585,6 +639,10 @@ def validate_form_answers(
         if answer.answer is None:
             continue
 
+        validation = validate_answer_type(question, answer.answer)
+        if not validation.ok:
+            return validation
+
         ques_type = question.question_type
         match ques_type:
             case QuestionTypeEnum.INTEGER | QuestionTypeEnum.DECIMAL:
@@ -619,9 +677,6 @@ def validate_form_answers(
 
             case QuestionTypeEnum.MULTIPLE_CHOICE | QuestionTypeEnum.MULTIPLE_SELECT:
                 selected_indices = answer.answer.mc_id_array
-
-                if not selected_indices:
-                    continue  # nothing to validate
 
                 question_mc_options = json.loads(
                     question.mc_options
@@ -663,11 +718,6 @@ def validate_form_answers(
                     )
 
             case QuestionTypeEnum.TIME:
-                if not isinstance(answer.answer, TimeAnswer):
-                    return ValidationResult(
-                        False, "TIME questions require a TIME answer", code=422
-                    )
-
                 if (
                     re.fullmatch(r"([01][0-9]|2[0-3]):[0-5][0-9]", answer.answer.time)
                     is None
@@ -687,6 +737,46 @@ def validate_form_answers(
                 )
 
     return ValidationResult(True, "Answers are all valid", code=None)
+
+
+def validate_replacement_answers(
+    form: FormSubmissionOrmV2, answers: list[ReplacementFormAnswer]
+) -> ValidationResult:
+    """Validate a complete set before changing any persisted answers."""
+    template = crud.read(FormTemplateOrmV2, id=form.form_template_id)
+    questions = {question.id: question for question in template.questions}
+    submitted_ids = {answer.question_id for answer in answers}
+    existing_answers_by_question_id = {
+        answer.question_id: json.loads(answer.answer) for answer in form.answers
+    }
+    for question in template.questions:
+        if question.required and question.id not in submitted_ids:
+            return ValidationResult(
+                False, "Missing answer for required question.", code=422
+            )
+
+    changed_answers = []
+    for form_answer in answers:
+        question = questions.get(form_answer.question_id)
+        if question is None:
+            return ValidationResult(
+                False, "Question does not belong to this template.", code=422
+            )
+        answer = form_answer.answer
+        if question.question_type in (
+            QuestionTypeEnum.DATE,
+            QuestionTypeEnum.DATETIME,
+        ) and isinstance(answer, DateAnswer):
+            # An unchanged historical date must not block edits to another question.
+            existing_answer = existing_answers_by_question_id.get(
+                form_answer.question_id, {}
+            )
+            if existing_answer.get("date") == answer.date:
+                continue
+        changed_answers.append(
+            FormAnswerBase(question_id=form_answer.question_id, answer=answer)
+        )
+    return validate_form_answers(changed_answers, form.form_template_id)
 
 
 def check_name_conflict(
