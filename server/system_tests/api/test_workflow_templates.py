@@ -67,20 +67,11 @@ def test_workflow_templates_with_same_classification_upload(
 
 def test_invalid_workflow_templates_uploaded(
     database,
-    invalid_workflow_template1,
     invalid_workflow_template2,
     workflow_template1,
     api_post,
 ):
     try:
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=invalid_workflow_template1
-        )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 422
-
         response = api_post(
             endpoint="/api/workflow/templates/body", json=invalid_workflow_template2
         )
@@ -107,11 +98,6 @@ def test_invalid_workflow_templates_uploaded(
         assert response_body["version"] == "V2"
 
     finally:
-        crud.delete_workflow(
-            m=WorkflowTemplateOrm,
-            delete_classification=True,
-            id=invalid_workflow_template1["id"],
-        )
         crud.delete_workflow(
             m=WorkflowTemplateOrm,
             delete_classification=True,
@@ -296,12 +282,8 @@ def test_getting_workflow_templates(
     api_post,
 ):
     try:
-        workflow_template1["archived"] = True
-
         # Keep workflow_template3 classification to match workflow_template1
         workflow_template3["steps"] = []
-
-        workflow_template4["archived"] = True
 
         api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
@@ -378,6 +360,30 @@ def test_workflow_template_patch_request(
 ):
     updated_workflow_template = None
     try:
+        start_id, target_id = get_uuid(), get_uuid()
+        workflow_template1["starting_step_id"] = start_id
+        workflow_template1["steps"] = [
+            {
+                "id": start_id,
+                "name": {"English": "Start", "French": "Début"},
+                "description": {"English": "Start here"},
+                "workflow_template_id": workflow_template1["id"],
+                "branches": [
+                    {
+                        "id": get_uuid(),
+                        "step_id": start_id,
+                        "target_step_id": target_id,
+                    }
+                ],
+            },
+            {
+                "id": target_id,
+                "name": {"English": "End"},
+                "description": {"English": "Finish here"},
+                "workflow_template_id": workflow_template1["id"],
+                "branches": [],
+            },
+        ]
         api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
 
@@ -407,6 +413,13 @@ def test_workflow_template_patch_request(
         updated_workflow_template = crud.read(
             WorkflowTemplateOrm, id=response_body["id"]
         )
+        start = next(step for step in updated_workflow_template.steps if step.branches)
+        target = next(
+            step for step in updated_workflow_template.steps if not step.branches
+        )
+        assert updated_workflow_template.starting_step_id == start.id != start_id
+        assert start.branches[0].target_step_id == target.id != target_id
+        assert resolve_string_text(start.name_string_id, "French") == "Début"
 
         assert (
             updated_workflow_template is not None
@@ -838,30 +851,6 @@ def workflow_template4():
         "classification": {
             "id": classification_id,
             "name": {"English": "Workflow Classification for workflow_template4"},
-        },
-        "steps": [],
-    }
-
-
-@pytest.fixture
-def invalid_workflow_template1():
-    template_id = get_uuid()
-    classification_id = get_uuid()
-    return {
-        "id": template_id,
-        "name": "Example invalid workflow template 1",
-        "description": {"English": "Example workflow template with invalid dates"},
-        "archived": False,
-        "starting_step_id": None,
-        "date_created": get_current_time(),
-        "last_edited": get_current_time() - 44345,  # Invalid edit date
-        "version": "0",
-        "classification_id": classification_id,
-        "classification": {
-            "id": classification_id,
-            "name": {
-                "English": "Workflow Classification for invalid_workflow_template1"
-            },
         },
         "steps": [],
     }

@@ -1,5 +1,6 @@
 import * as Blockly from 'blockly';
 import { getPrimaryConditionBlock } from './blocklyWorkspaceUtils';
+import { VITAL_COLLECTION_TAG_MAP } from './blocks';
 
 export const jsonLogicGenerator = new Blockly.Generator('JSON_LOGIC');
 
@@ -89,6 +90,23 @@ jsonLogicGenerator.forBlock['logic_negate'] = function (block) {
   return [JSON.stringify(result), 0];
 };
 
+jsonLogicGenerator.forBlock['vital_collection'] = function (block) {
+  const field = block.getFieldValue('FIELD');
+  const reading = Number(block.getFieldValue('READING'));
+
+  const baseTag = VITAL_COLLECTION_TAG_MAP[field];
+
+  if (!baseTag) {
+    return ['null', 0];
+  }
+
+  const readingPrefix = reading <= 1 ? 'vitals[latest]' : `vitals[-${reading}]`;
+
+  const variable = baseTag.replace('vitals[latest]', readingPrefix);
+
+  return [JSON.stringify({ var: variable }), 0];
+};
+
 export function workspaceToJsonLogic(
   workspace: Blockly.Workspace
 ): string | null {
@@ -97,6 +115,7 @@ export function workspaceToJsonLogic(
 
   const code = jsonLogicGenerator.blockToCode(rootBlock);
   const codeStr = Array.isArray(code) ? code[0] : code;
+  console.log('workspaceToJsonLogic', codeStr);
   return codeStr || null;
 }
 

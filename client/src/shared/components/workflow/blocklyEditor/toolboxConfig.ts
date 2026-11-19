@@ -40,7 +40,20 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
         kind: 'category',
         name: 'Variables',
         colour: '265',
-        contents: [...variableCategories],
+        contents: [
+          ...variableCategories,
+          {
+            kind: 'category',
+            name: 'Vitals Collection',
+            colour: '20',
+            contents: [
+              {
+                kind: 'block',
+                type: 'vital_collection',
+              },
+            ],
+          },
+        ],
       },
       {
         kind: 'category',

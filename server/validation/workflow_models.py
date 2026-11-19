@@ -48,23 +48,21 @@ class WorkflowCollectionModel(WorkflowCollectionBase, extra="forbid"):
         return self
 
 
-class WorkflowTemplateStepBranchModel(CradleBaseModel, extra="forbid"):
+class WorkflowTemplateStepBranchBase(CradleBaseModel):
     id: Optional[str] = None
     target_step_id: Optional[str] = None
-    step_id: str
     condition_id: Optional[str] = None
     condition: Optional[RuleGroupModel] = None
 
 
-class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
-    id: str
-    name: str
-    description: str
+class WorkflowTemplateStepBranchModel(WorkflowTemplateStepBranchBase, extra="forbid"):
+    step_id: str
+
+
+class WorkflowTemplateStepBase(CradleBaseModel):
     # TODO: Should this be a relative time? e.g. 2 days?
     expected_completion: Optional[int] = Field(default_factory=get_current_time)
-    last_edited: Optional[int] = Field(default_factory=get_current_time)
     form_id: Optional[str] = None
-    workflow_template_id: str
     # TODO: Account for different types of form template validators?
     # NOTE:
     # The form data produced by marshal() for workflow templates currently mixes
@@ -74,6 +72,14 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     # failures when creating workflow templates/instances.
     # This is not intended long-term and should be revisited once Forms V2 is integrated.
     form: Optional[dict] = None
+
+
+class WorkflowTemplateStepModel(WorkflowTemplateStepBase, extra="forbid"):
+    id: str
+    name: str
+    description: str
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    workflow_template_id: str
     branches: list[WorkflowTemplateStepBranchModel]
 
 
