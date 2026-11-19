@@ -81,35 +81,65 @@ export default function NextStepSelector({
       return null;
     }
 
-    const match = variable.match(/^vitals\[-(\d+)\]\./);
+    const vitalMatch = variable.match(/^vitals\[-(\d+)\]\./);
 
-    if (!match) {
-      return null;
+    // if (vitalMatch) {
+    //   return null;
+    // }
+    if (vitalMatch) {
+      const readingNumber = Number(vitalMatch[1]);
+
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Readings Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {readingNumber} readings, but the requested
+            reading is not available for this patient.
+          </Typography>
+        </>
+      );
     }
 
-    const readingNumber = Number(match[1]);
+    const pregnancyMatch = variable.match(/^pregnancies\[-(\d+)\]\./);
 
-    return (
-      <>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'warning.main',
-            fontWeight: 700,
-          }}>
-          ⚠ Additional Readings Required
-        </Typography>
+    if (pregnancyMatch) {
+      const pregnancyNumber = Number(pregnancyMatch[1]);
 
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'warning.main',
-          }}>
-          This condition requires {readingNumber} readings, but the requested
-          reading is not available for this patient.
-        </Typography>
-      </>
-    );
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Pregnancy Records Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {pregnancyNumber} pregnancy records, but the
+            requested pregnancy record is not available for this patient.
+          </Typography>
+        </>
+      );
+    }
+    return null;
   };
 
   return (

@@ -84,6 +84,17 @@ export const VITAL_COLLECTION_TAG_MAP: Record<string, string> = {
   urine_blood: 'vitals[latest].urine_test.blood',
 };
 
+export const PREGNANCY_COLLECTION_TAG_MAP: Record<string, string> = {
+  start_date: 'pregnancies[latest].start_date',
+  end_date: 'pregnancies[latest].end_date',
+  outcome: 'pregnancies[latest].outcome',
+};
+
+const COLLECTION_TAG_MAPS: Record<string, Record<string, string>> = {
+  vital_collection: VITAL_COLLECTION_TAG_MAP,
+  pregnancy_collection: PREGNANCY_COLLECTION_TAG_MAP,
+};
+
 function variableDisplayName(v: WorkflowVariable): string {
   return v.description ?? v.tag;
 }
@@ -211,10 +222,14 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
 
   let allowedValues: string[] | undefined;
 
-  if (leftBlock?.type === 'vital_collection') {
+  const collectionMap = leftBlock?.type
+    ? COLLECTION_TAG_MAPS[leftBlock.type]
+    : undefined;
+
+  if (leftBlock && collectionMap) {
     const field = leftBlock.getFieldValue('FIELD');
 
-    const metadataTag = VITAL_COLLECTION_TAG_MAP[field];
+    const metadataTag = collectionMap[field];
 
     allowedValues = metadataTag
       ? variableMetadata.get(metadataTag)?.allowedValues
@@ -661,6 +676,44 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'READING');
 
       applyVitalCollectionType(this, 'traffic_color');
+    },
+  };
+
+  const PREGNANCY_COLLECTION_TYPES: Record<string, string> = {
+    start_date: 'Date',
+    end_date: 'Date',
+    outcome: 'String',
+  };
+
+  function applyPregnancyCollectionType(block: Blockly.Block, field: string) {
+    const outputType = PREGNANCY_COLLECTION_TYPES[field] ?? 'String';
+
+    block.setOutput(true, outputType);
+    block.setOutputShape(outputType === 'Date' ? DATE_OUTPUT_SHAPE : null);
+    block.setColour(TYPE_COLOURS[outputType]);
+  }
+
+  Blockly.Blocks['pregnancy_collection'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput()
+        .appendField('Pregnancy')
+        .appendField(
+          new Blockly.FieldDropdown(
+            [
+              ['Start Date', 'start_date'],
+              ['End Date', 'end_date'],
+              ['Outcome', 'outcome'],
+            ],
+            (value: string) => {
+              applyPregnancyCollectionType(this, value);
+              return value;
+            }
+          ),
+          'FIELD'
+        )
+        .appendField('Pregnancy #')
+        .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'PREGNANCY');
+      applyPregnancyCollectionType(this, 'outcome');
     },
   };
 

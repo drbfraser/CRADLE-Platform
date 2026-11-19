@@ -53,6 +53,17 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
               },
             ],
           },
+          {
+            kind: 'category',
+            name: 'Pregnancy Collection',
+            colour: '20',
+            contents: [
+              {
+                kind: 'block',
+                type: 'pregnancy_collection',
+              },
+            ],
+          },
         ],
       },
       {
