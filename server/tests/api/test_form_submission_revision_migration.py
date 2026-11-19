@@ -14,21 +14,21 @@ def test_migrations_have_one_head():
 
 
 @pytest.mark.parametrize(
-    "current, missing",
+    "target, current, missing",
     [
-        ("36_9be1fdea7def", "40_add_patient_number"),
-        ("40_add_patient_number", "36_9be1fdea7def"),
+        ("41_c97928523839", "36_9be1fdea7def", "40_add_patient_number"),
+        ("41_c97928523839", "40_add_patient_number", "36_9be1fdea7def"),
+        ("42_d23a53b9b7bf", "41_c97928523839", "41_seed_additional_wf_vars"),
+        ("42_d23a53b9b7bf", "41_seed_additional_wf_vars", "41_c97928523839"),
     ],
 )
-def test_merge_migration_connects_both_upgrade_paths(current, missing):
+def test_merge_migration_connects_both_upgrade_paths(target, current, missing):
     scripts = ScriptDirectory(str(Path(__file__).resolve().parents[2] / "migrations"))
     pending = [
         migration.revision
-        for migration in scripts.iterate_revisions(
-            "41_c97928523839", current, implicit_base=True
-        )
+        for migration in scripts.iterate_revisions(target, current, implicit_base=True)
     ]
-    assert "41_c97928523839" in pending
+    assert target in pending
     assert missing in pending
     assert current not in pending
 
