@@ -53,20 +53,11 @@ will not be available.
 def main():
     # Add arguments and parse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mobile-artifacts", type=Path)
-    parser.add_argument("--backend-artifacts", type=Path)
-    parser.add_argument("--frontend-artifacts", type=Path)
+    parser.add_argument("--mobile-artifacts", type=Path, required=True)
+    parser.add_argument("--backend-artifacts", type=Path, required=True)
+    parser.add_argument("--frontend-artifacts", type=Path, required=True)
     parser.add_argument("--previous", type=Path, required=True)
     args = parser.parse_args()
-    if (
-        args.mobile_artifacts is None
-        and args.backend_artifacts is None
-        and args.frontend_artifacts is None
-    ):
-        parser.error(
-            "Provide --mobile-artifacts, --backend-artifacts, "
-            "--frontend-artifacts, or a combination."
-        )
 
     # Get previous data, if available
     prev_data = None
