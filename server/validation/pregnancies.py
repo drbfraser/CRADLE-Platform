@@ -7,7 +7,6 @@ from validation import CradleBaseModel
 
 
 class PregnancyBase(CradleBaseModel):
-    patient_id: str
     start_date: int
     end_date: Optional[int] = None
     outcome: Optional[str] = None
@@ -23,7 +22,6 @@ class PregnancyBase(CradleBaseModel):
 class PregnancyRequest(PregnancyBase):
     """
     {
-        "patient_id": 120000,
         "start_date": 1620000002,
         "end_date": 1620000002,
         "outcome": "Mode of delivery: assisted birth",
@@ -33,6 +31,7 @@ class PregnancyRequest(PregnancyBase):
 
 class PregnancyResponse(PregnancyBase):
     id: Optional[int] = None
+    patient_id: str
     last_edited: Optional[int] = None
 
 

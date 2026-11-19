@@ -1,6 +1,5 @@
 import logging
 
-from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
@@ -72,13 +71,9 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 def create_medical_record(path: PatientIdPath, body: MedicalRecordRequest):
     """Create Medical Record"""
     require_patient_access(path.patient_id)
-    if body.patient_id is not None:
-        if body.patient_id != path.patient_id:
-            return abort(400, description="Patient IDs must match.")
-    else:
-        body.patient_id = path.patient_id
-    new_medical_record = body.model_dump()
-    new_record = orm_serializer.unmarshal(MedicalRecordOrm, new_medical_record)
+    new_record = orm_serializer.unmarshal(
+        MedicalRecordOrm, {**body.model_dump(), "patient_id": path.patient_id}
+    )
 
     crud.create(new_record, refresh=True)
 
@@ -126,13 +121,8 @@ def get_medical_record(path: RecordIdPath):
 @api_medical_records.put("/<string:record_id>", responses={200: MedicalRecordResponse})
 def update_medical_record(path: RecordIdPath, body: MedicalRecordRequest):
     """Update Medical Record"""
-    old_record = load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
-    update_medical_record = body.model_dump()
-
-    if body.patient_id != old_record.patient_id:
-        return abort(400, description="Patient ID cannot be changed.")
-
-    crud.update(MedicalRecordOrm, update_medical_record, id=path.record_id)
+    load_authorized_patient_resource(MedicalRecordOrm, path.record_id)
+    crud.update(MedicalRecordOrm, body.model_dump(), id=path.record_id)
 
     new_record = crud.read(MedicalRecordOrm, id=path.record_id)
     record_dict = orm_serializer.marshal(new_record)
