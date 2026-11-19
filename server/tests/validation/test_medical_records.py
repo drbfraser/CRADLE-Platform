@@ -29,14 +29,6 @@ medical_record_missing_optional_field_id_should_return_none = {
     "last_edited": DATE_EDITED,
 }
 
-medical_record_missing_field_patient_id_should_throw = {
-    "id": ID,
-    "information": MEDICAL_INFO,
-    "is_drug_record": False,
-    "date_created": DATE_CREATED,
-    "last_edited": DATE_EDITED,
-}
-
 medical_record_missing_optional_field_date_created_should_return_none = {
     "id": ID,
     "patient_id": PATIENT_ID,
@@ -64,10 +56,6 @@ medical_record_missing_optional_field_last_edited_should_return_none = {
         (
             medical_record_missing_optional_field_id_should_return_none,
             None,
-        ),
-        (
-            medical_record_missing_field_patient_id_should_throw,
-            ValidationError,
         ),
         (
             medical_record_missing_optional_field_date_created_should_return_none,

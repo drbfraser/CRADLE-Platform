@@ -32,7 +32,6 @@ class MedicalRecordExamples:
 
 # TODO: Separate DrugRecord and MedicalRecord into two different models.
 class MedicalRecordBase(CradleBaseModel):
-    patient_id: str
     information: str
     is_drug_record: bool
 
@@ -43,6 +42,7 @@ class MedicalRecordRequest(MedicalRecordBase):
 
 class MedicalRecordResponse(MedicalRecordBase):
     id: Optional[int] = None
+    patient_id: str
     date_created: Optional[int] = None
     last_edited: Optional[int] = None
 

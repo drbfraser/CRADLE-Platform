@@ -64,8 +64,7 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
         json={
-            "id": drug_record["id"],
-            "patient_id": drug_record["patient_id"],
+            "patient_id": "0",
             "information": info,
             "is_drug_record": True,
         },
@@ -78,6 +77,7 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
     assert new_record is not None
     assert new_record.information == info
     assert new_record.is_drug_record
+    assert new_record.patient_id == drug_record["patient_id"]
 
 
 def test_post_and_delete_record(
@@ -91,7 +91,6 @@ def test_post_and_delete_record(
     create_patient()
 
     record = {
-        "patient_id": medical_record["patient_id"],
         "information": medical_record["information"],
         "is_drug_record": False,
     }
@@ -137,54 +136,3 @@ def test_get_record_lists(
     assert response.status_code == 200
     assert len(response_body["medical"]) >= 1
     assert len(response_body["drug"]) >= 1
-
-
-def test_invalid_record_not_updated(
-    create_patient,
-    medical_record_factory,
-    drug_record,
-    api_put,
-):
-    create_patient()
-    medical_record_factory.create(**drug_record)
-
-    record_id = drug_record["id"]
-    response = api_put(
-        endpoint=f"/api/medical_records/{record_id}",
-        json={
-            "patient_id": "0",
-            "information": drug_record["information"],
-            "is_drug_record": True,
-        },
-    )
-
-    response_body = decamelize(response.json())
-    pretty_print(response_body)
-    record = crud.read(MedicalRecordOrm, id=record_id)
-    assert record is not None
-    assert response.status_code == 400
-    assert record.patient_id == drug_record["patient_id"]
-
-
-def test_invalid_record_not_created(
-    create_patient,
-    medical_record_factory,
-    patient_id,
-    drug_record,
-    api_post,
-):
-    create_patient()
-    medical_record_factory.create(**drug_record)
-
-    # Missing `patient_id` field.
-    response = api_post(
-        endpoint=f"/api/patients/{patient_id}/medical_records",
-        json={
-            "information": "Aspirin 75mg",
-            "is_drug_record": True,
-        },
-    )
-
-    response_body = decamelize(response.json())
-    pretty_print(response_body)
-    assert response.status_code == 422

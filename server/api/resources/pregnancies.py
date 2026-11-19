@@ -30,15 +30,16 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
 @api_patients.post(
-    "/<string:patient_id>/pregnancies", responses={200: PregnancyResponse}
+    "/<string:patient_id>/pregnancies", responses={201: PregnancyResponse}
 )
 def create_new_pregnancy(path: PatientIdPath, body: PregnancyRequest):
     """Create New Pregnancy"""
     require_patient_access(path.patient_id)
     _check_conflicts(body.start_date, body.end_date, path.patient_id)
 
-    body.patient_id = path.patient_id
-    new_pregnancy = orm_serializer.unmarshal(PregnancyOrm, body.model_dump())
+    new_pregnancy = orm_serializer.unmarshal(
+        PregnancyOrm, {**body.model_dump(), "patient_id": path.patient_id}
+    )
     crud.create(new_pregnancy, refresh=True)
 
     return orm_serializer.marshal(new_pregnancy), 201
@@ -66,9 +67,6 @@ def get_pregnancy(path: PregnancyIdPath):
 def update_pregnancy(path: PregnancyIdPath, body: PregnancyRequest):
     """Update Pregnancy"""
     pregnancy = load_authorized_patient_resource(PregnancyOrm, path.pregnancy_id)
-    if body.patient_id != pregnancy.patient_id:
-        return abort(400, description="Patient ID cannot be changed.")
-
     _check_conflicts(
         body.start_date, body.end_date, pregnancy.patient_id, path.pregnancy_id
     )
