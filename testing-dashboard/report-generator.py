@@ -14,6 +14,18 @@ MOBILE_TOOLS = [
     ["logos/gradle.svg", "Gradle", "Running tests and generating reports", "v8.2"],
 ]
 
+BACKEND_TOOLS = [
+    ["logos/pytest.svg", "pytest", "Unit tests", "v8.4.1"],
+    ["logos/pytest.svg", "pytest-cov", "Code coverage", "v7.1.0"],
+    ["logos/pytest.svg", "pytest-html", "Generating test reports", "v4.2.0"],
+]
+
+FRONTEND_TOOLS = [
+    ["logos/vitest.svg", "Vitest", "Unit tests", "v2.1.9"],
+    ["logos/vitest.svg", "V8", "Code coverage", "via Vitest"],
+    ["logos/vitest.svg", "Vitest HTML", "Generating test reports", "v2.1.9"],
+]
+
 """
 Comment whichever category wants to be skipped out
 """
@@ -24,13 +36,15 @@ COVERAGE_LABELS = {
     "method": "Methods",
     "class": "Classes",
     "complexity": "Complexity",
+    "statement": "Statements",
+    "function": "Functions",
 }
 
 
 """
 Usage: python3 ./report-generator.py [flag] [path]
-The flags are --mobile-artifacts, --platform-artifacts, and --previous
-At least one artifact path must be provided, previous must be provided. 
+The flags are --mobile-artifacts, --backend-artifacts, --frontend-artifacts, and --previous.
+All parameters must be passed on. Previous can be a blank string.
 Previous is a path containing the previously generated report-data.json, if none is found, trend
 will not be available.
 """
@@ -39,14 +53,11 @@ will not be available.
 def main():
     # Add arguments and parse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mobile-artifacts", type=Path)
-    parser.add_argument("--platform-artifacts", type=Path)
+    parser.add_argument("--mobile-artifacts", type=Path, required=True)
+    parser.add_argument("--backend-artifacts", type=Path, required=True)
+    parser.add_argument("--frontend-artifacts", type=Path, required=True)
     parser.add_argument("--previous", type=Path, required=True)
     args = parser.parse_args()
-    if args.mobile_artifacts is None and args.platform_artifacts is None:
-        parser.error(
-            "Provide either --mobile-artifacts or --platform-artifacts, or both."
-        )
 
     # Get previous data, if available
     prev_data = None
@@ -54,6 +65,7 @@ def main():
         with args.previous.open("r", encoding="utf-8") as prev_json:
             prev_data = json.load(prev_json)
 
+    data = {}
     # Extract mobile test data
     if args.mobile_artifacts is not None:
         coverage_files = list(args.mobile_artifacts.rglob("jacocoCombinedReport.xml"))
@@ -66,15 +78,47 @@ def main():
             raise FileNotFoundError("Unit test xml's not found")
         mobile_coverage = get_mobile_coverage(coverage_files[0])
         mobile_unit_tests = get_mobile_unit_tests(unit_test_files)
+        data["mobile"] = get_report_data(
+            mobile_coverage, mobile_unit_tests, prev_data, "mobile", MOBILE_TOOLS
+        )
 
-    # TODO: add one for platform
-    if args.platform_artifacts is not None:
-        print("Not yet implemented.")
-        exit(0)
+    # Extract backend test data
+    if args.backend_artifacts is not None:
+        coverage_files = list(args.backend_artifacts.rglob("coverage_report.xml"))
+        if len(coverage_files) != 1:
+            raise ValueError(f"Expected a backend coverage report, found {len(coverage_files)}")
+        unit_test_files = list(args.backend_artifacts.rglob("report.xml"))
+        if len(unit_test_files) != 1:
+            raise ValueError(f"Expected a backend unit test report, found {len(unit_test_files)}")
+        backend_coverage = get_backend_coverage(coverage_files[0])
+        backend_unit_tests = get_unit_tests(unit_test_files)
+        data["backend"] = get_report_data(
+            backend_coverage, backend_unit_tests, prev_data, "backend", BACKEND_TOOLS
+        )
 
-    # Write data in a JavaScript file, later used in index.html
-    write_mobile_data(mobile_coverage, mobile_unit_tests, prev_data)
+    # Extract frontend test data
+    if args.frontend_artifacts is not None:
+        coverage_files = list(
+            args.frontend_artifacts.rglob("coverage-summary.json")
+        )
+        if len(coverage_files) != 1:
+            raise ValueError(
+                f"Expected a frontend coverage report, found {len(coverage_files)}"
+            )
+        unit_test_files = list(args.frontend_artifacts.rglob("report.xml"))
+        if len(unit_test_files) != 1:
+            raise ValueError(
+                f"Expected a frontend unit test report, found {len(unit_test_files)}"
+            )
+        frontend_coverage = get_frontend_coverage(coverage_files[0])
+        frontend_unit_tests = get_unit_tests(unit_test_files)
+        data["frontend"] = get_report_data(
+            frontend_coverage, frontend_unit_tests, prev_data,
+            "frontend", FRONTEND_TOOLS
+        )
 
+    # Write data in a JSON file, later used in index.html
+    write_data(data)
 
 # Get code coverage from jacoco's report
 def get_mobile_coverage(coverage_files):
@@ -109,11 +153,67 @@ def get_mobile_unit_tests(unit_test_files):
         test_stats["skipped"] += skipped
     return test_stats
 
+# Get code coverage from pytest-cov's report
+def get_backend_coverage(coverage_file):
+    root = ET.parse(coverage_file).getroot()
 
-def write_mobile_data(coverage, unit_tests, prev_data):
-    time = datetime.now()
-    last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
+    return {
+        "line": (
+            int(root.attrib["lines-covered"]),
+            int(root.attrib["lines-valid"]),
+        ),
+        "branch": (
+            int(root.attrib["branches-covered"]),
+            int(root.attrib["branches-valid"]),
+        ),
+    } 
 
+
+# Get unit test pass score
+def get_unit_tests(unit_test_files):
+    test_suite_roots = []
+    for xml in unit_test_files:
+        root = ET.parse(xml).getroot()
+        if root.tag == "testsuite":
+            test_suite_roots.append(root)
+        else:
+            test_suite_roots.extend(root.findall(".//testsuite"))
+
+    if not test_suite_roots:
+        raise ValueError("Unit test report contains no test suites")
+
+    test_stats = {"ran": 0, "passed": 0, "errors": 0, "skipped": 0, "failures": 0}
+    for test_suite in test_suite_roots:
+        ran = int(test_suite.attrib["tests"])
+        failures = int(test_suite.attrib["failures"])
+        errors = int(test_suite.attrib["errors"])
+        skipped = int(test_suite.attrib["skipped"])
+        test_stats["ran"] += ran
+        test_stats["passed"] += ran - failures - skipped - errors
+        test_stats["errors"] += errors
+        test_stats["failures"] += failures + errors
+        test_stats["skipped"] += skipped
+    return test_stats
+
+# Get code coverage from Vitest's report
+def get_frontend_coverage(coverage_file):
+    with coverage_file.open("r", encoding="utf-8") as coverage_json:
+        totals = json.load(coverage_json)["total"]
+
+    coverage = {}
+    for kind, key in (
+        ("line", "lines"),
+        ("branch", "branches"),
+        ("statement", "statements"),
+        ("function", "functions"),
+    ):
+        coverage[kind] = (
+            int(totals[key]["covered"]),
+            int(totals[key]["total"]),
+        )
+    return coverage
+
+def get_report_data(coverage, unit_tests, prev_data, section, tools):
     total_covered = 0
     total_tests = 0
     for covered, total in coverage.values():
@@ -126,30 +226,34 @@ def write_mobile_data(coverage, unit_tests, prev_data):
     )
 
     trend = None
-    if prev_data is not None and overall_coverage is not None:
-        trend = round(overall_coverage - prev_data["mobile"]["overall"], 1)
+    previous_overall = None
+    if prev_data is not None:
+        previous_overall = prev_data.get(section, {}).get("overall")
+    if previous_overall is not None and overall_coverage is not None:
+        trend = round(overall_coverage - previous_overall, 1)
 
-    data = {
-        "mobile": {
-            "total": unit_tests["ran"],
-            "passed": unit_tests["passed"],
-            "failed": unit_tests["failures"],
-            "skipped": unit_tests["skipped"],
-            "tools": MOBILE_TOOLS,
-            "coverage": [
-                [label, coverage[kind][0], coverage[kind][1]]
-                for kind, label in COVERAGE_LABELS.items()
-                if kind in coverage
-            ],
-            "overall": overall_coverage,
-            "trend": trend if trend is not None else "N/A",
-        },
-        "lastUpdated": last_updated,
+    return {
+        "total": unit_tests["ran"],
+        "passed": unit_tests["passed"],
+        "failed": unit_tests["failures"],
+        "skipped": unit_tests["skipped"],
+        "tools": tools,
+        "coverage": [
+            [label, coverage[kind][0], coverage[kind][1]]
+            for kind, label in COVERAGE_LABELS.items()
+            if kind in coverage
+        ],
+        "overall": overall_coverage,
+        "trend": trend if trend is not None else "N/A",
     }
+
+
+def write_data(data):
+    time = datetime.now()
+    data["lastUpdated"] = time.strftime("%Y-%m-%d %H:%M:%S")
 
     output_path = Path(__file__).resolve().parent / "page" / "report-data.json"
     output_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-
 
 if __name__ == "__main__":
     sys.exit(main())
