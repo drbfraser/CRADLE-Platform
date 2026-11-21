@@ -27,7 +27,7 @@ import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
 } from 'src/shared/constants';
-import { getPrettyDate } from 'src/shared/utils';
+import { getDateToDisplay } from 'src/shared/utils';
 import {
   TableAction,
   TableActionButtons,
@@ -160,9 +160,9 @@ export const PregnancyHistory = () => {
     () =>
       pregnancyData?.map((pregnancy) => ({
         id: pregnancy.id,
-        startDate: getPrettyDate(pregnancy.startDate),
+        startDate: getDateToDisplay(pregnancy.startDate),
         endDate: pregnancy.endDate
-          ? getPrettyDate(pregnancy.endDate)
+          ? getDateToDisplay(pregnancy.endDate)
           : 'Ongoing',
         gestation: gestationalAgeUnitFormatters[
           unit ?? GestationalAgeUnitEnum.WEEKS
