@@ -24,7 +24,7 @@ import HistoryIcon from '@mui/icons-material/History';
 
 import { TimelineRecord } from 'src/shared/types/types';
 import { getPatientTimelineAsync } from 'src/shared/api';
-import { getPrettyDate } from 'src/shared/utils';
+import { getDateToDisplay } from 'src/shared/utils';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 type RouteParams = {
@@ -119,7 +119,7 @@ export const HistoryTimeline = () => {
                     <TimelineOppositeContent
                       style={{ flex: isTransformed ? 0.1 : 0.2 }}>
                       <Typography variant="body2" color="textSecondary">
-                        {getPrettyDate(record.date)}
+                        {getDateToDisplay(record.date)}
                       </Typography>
                     </TimelineOppositeContent>
 
