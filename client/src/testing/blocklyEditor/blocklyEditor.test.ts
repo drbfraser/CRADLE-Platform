@@ -499,6 +499,48 @@ describe('Blockly workspace rules', () => {
         JSON.parse(rule)
       );
     });
+
+    it('loads and re-exports pregnancy collection date rules', () => {
+      const rule = JSON.stringify({
+        '>': [{ var: 'pregnancies[-2].start_date' }, { date: '2020-10-10' }],
+      });
+
+      loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+
+      expect(root.type).toBe('generic_comparison');
+      expect(root.getFieldValue('OP')).toBe('>');
+
+      const left = root.getInputTargetBlock('LEFT');
+
+      expect(left?.type).toBe('pregnancy_collection');
+      expect(left?.getFieldValue('FIELD')).toBe('start_date');
+      expect(left?.getFieldValue('PREGNANCY')).toBe(2);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        JSON.parse(rule)
+      );
+    });
+
+    it('loads and re-exports pregnancy collection outcome rules', () => {
+      const rule = JSON.stringify({
+        '==': [{ var: 'pregnancies[-3].outcome' }, 'Live Birth'],
+      });
+
+      loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+      const left = root.getInputTargetBlock('LEFT');
+
+      expect(left?.type).toBe('pregnancy_collection');
+      expect(left?.getFieldValue('FIELD')).toBe('outcome');
+      expect(left?.getFieldValue('PREGNANCY')).toBe(3);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        JSON.parse(rule)
+      );
+    });
   });
 
   describe('variable-length AND/OR block', () => {

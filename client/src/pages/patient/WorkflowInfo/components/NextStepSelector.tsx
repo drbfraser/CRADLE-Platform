@@ -81,35 +81,86 @@ export default function NextStepSelector({
       return null;
     }
 
-    const match = variable.match(/^vitals\[-(\d+)\]\./);
+    const vitalMatch = variable.match(/^vitals\[-(\d+)\]\./);
 
-    if (!match) {
-      return null;
+    if (vitalMatch) {
+      const readingNumber = Number(vitalMatch[1]);
+
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Readings Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {readingNumber} readings, but the requested
+            reading is not available for this patient.
+          </Typography>
+        </>
+      );
     }
 
-    const readingNumber = Number(match[1]);
+    if (variable.startsWith('pregnancies[latest].')) {
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ No Pregnancy Records Found
+          </Typography>
 
-    return (
-      <>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'warning.main',
-            fontWeight: 700,
-          }}>
-          ⚠ Additional Readings Required
-        </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires at least one pregnancy record, but no
+            pregnancy records are available for this patient.
+          </Typography>
+        </>
+      );
+    }
 
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'warning.main',
-          }}>
-          This condition requires {readingNumber} readings, but the requested
-          reading is not available for this patient.
-        </Typography>
-      </>
-    );
+    const pregnancyMatch = variable.match(/^pregnancies\[-(\d+)\]\./);
+
+    if (pregnancyMatch) {
+      const pregnancyNumber = Number(pregnancyMatch[1]);
+
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Pregnancy Records Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {pregnancyNumber} pregnancy records, but the
+            requested pregnancy record is not available for this patient.
+          </Typography>
+        </>
+      );
+    }
+    return null;
   };
 
   return (

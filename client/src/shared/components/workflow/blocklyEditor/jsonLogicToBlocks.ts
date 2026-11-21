@@ -6,6 +6,7 @@ import {
   setEnumOptions,
   type LogicOpBlock,
   VITAL_COLLECTION_TAG_MAP,
+  PREGNANCY_COLLECTION_TAG_MAP,
 } from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { resolveVariableBlockType } from './variableGrouping';
@@ -270,6 +271,34 @@ function createBlockFromRule(
 
       block.setFieldValue(field, 'FIELD');
       block.setFieldValue(reading, 'READING');
+
+      return block;
+    }
+
+    const PregnancyCollectionMatch = tag.match(/^pregnancies\[-(\d+)\]\.(.+)$/);
+
+    if (PregnancyCollectionMatch) {
+      const [, pregnancy] = PregnancyCollectionMatch;
+
+      const field = Object.entries(PREGNANCY_COLLECTION_TAG_MAP).find(
+        ([, backendTag]) =>
+          backendTag.replace(
+            'pregnancies[latest]',
+            `pregnancies[-${pregnancy}]`
+          ) === tag
+      )?.[0];
+
+      if (!field) {
+        return null;
+      }
+
+      const block = workspace.newBlock('pregnancy_collection');
+
+      block.initSvg();
+      block.render();
+
+      block.setFieldValue(field, 'FIELD');
+      block.setFieldValue(pregnancy, 'PREGNANCY');
 
       return block;
     }
