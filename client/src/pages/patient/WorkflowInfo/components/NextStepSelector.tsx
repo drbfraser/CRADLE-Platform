@@ -83,9 +83,6 @@ export default function NextStepSelector({
 
     const vitalMatch = variable.match(/^vitals\[-(\d+)\]\./);
 
-    // if (vitalMatch) {
-    //   return null;
-    // }
     if (vitalMatch) {
       const readingNumber = Number(vitalMatch[1]);
 
@@ -107,6 +104,30 @@ export default function NextStepSelector({
             }}>
             This condition requires {readingNumber} readings, but the requested
             reading is not available for this patient.
+          </Typography>
+        </>
+      );
+    }
+
+    if (variable.startsWith('pregnancies[latest].')) {
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ No Pregnancy Records Found
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires at least one pregnancy record, but no
+            pregnancy records are available for this patient.
           </Typography>
         </>
       );
