@@ -285,9 +285,9 @@ def create_papagaio_diagnosis_workflow_template_steps(forms):
             (
                 "Check inclusion and exclusion criteria.\n\n"
                 "**Inclusion Criteria**\n"
-                "- Pregnant: 24–36 weeks' gestation\n"
+                "- Pregnant: 24-36 weeks' gestation\n"
                 "- Suspected PE\n"
-                "- Aged ≥ 16 years\n"
+                "- Aged >= 16 years\n"
                 "- Able to provide informed consent\n\n"
                 "**Exclusion Criteria**\n"
                 "- Multifetal pregnancy\n"
