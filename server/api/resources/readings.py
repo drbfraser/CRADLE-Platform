@@ -16,7 +16,7 @@ from data import orm_serializer
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from service.patient_authorization import ReferralAction
-from validation.readings import CreateReadingRequest, ReadingResponse
+from validation.readings import CreateReadingWithUrineTestRequest, ReadingResponse
 
 # /api/readings
 api_readings = APIBlueprint(
@@ -30,7 +30,7 @@ api_readings = APIBlueprint(
 
 # /api/readings [POST]
 @api_readings.post("", responses={201: ReadingResponse})
-def create_new_reading(body: CreateReadingRequest):
+def create_new_reading(body: CreateReadingWithUrineTestRequest):
     """Create New Reading"""
     if body.referral is None:
         require_patient_access(body.patient_id)

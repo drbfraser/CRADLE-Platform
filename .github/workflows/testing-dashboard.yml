@@ -88,6 +88,66 @@ jobs:
             --name mobile-jacoco-report \
             --dir "$REPORT_WORK/current/coverage"
 
+      - name: Download Platform artifacts
+        env: 
+          GH_HOST: github.sfu.ca
+          GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
+          PLATFORM_REPOSITORY: ${{ github.repository }}
+          REPORT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: | # unlike mobile, the backend artifacts will be downloaded from whatever branch this workflow is ran from.
+          set -eu
+          PLATFORM_BRANCH="$REPORT_BRANCH"
+          PLATFORM_WORKFLOW="main-cicd.yml"
+          PLATFORM_REPO="github.sfu.ca/$PLATFORM_REPOSITORY"
+
+          PLATFORM_RUN_ID=$(gh run list \
+            --repo "$PLATFORM_REPO" \
+            --workflow "$PLATFORM_WORKFLOW" \
+            --branch "$PLATFORM_BRANCH" \
+            --limit 100 \
+            --json databaseId,status \
+            --jq '[.[] | select(.status == "completed")][0].databaseId // empty')
+
+          if [ -z "$PLATFORM_RUN_ID" ]; then
+            echo "Error: No completed Platform workflow run found."
+            exit 1
+          fi
+
+          echo "Using Platform run ID: $PLATFORM_RUN_ID"
+
+          mkdir -p "$REPORT_WORK/backend/tests"
+          mkdir -p "$REPORT_WORK/backend/coverage"
+          mkdir -p "$REPORT_WORK/backend/html/unit-tests"
+          mkdir -p "$REPORT_WORK/backend/html/coverage"
+
+          gh run download "$PLATFORM_RUN_ID" \
+            --repo "$PLATFORM_REPO" \
+            --name backend-unit-test-xml \
+            --dir "$REPORT_WORK/backend/tests"
+
+          gh run download "$PLATFORM_RUN_ID" \
+            --repo "$PLATFORM_REPO" \
+            --name backend-coverage-report-xml \
+            --dir "$REPORT_WORK/backend/coverage"
+
+          gh run download "$PLATFORM_RUN_ID" \
+            --repo "$PLATFORM_REPO" \
+            --name backend-unit-test-html \
+            --dir "$REPORT_WORK/backend/html/unit-tests"
+
+          gh run download "$PLATFORM_RUN_ID" \
+            --repo "$PLATFORM_REPO" \
+            --name backend-coverage-report-html \
+            --dir "$REPORT_WORK/backend/html/coverage"
+
+          mkdir -p "$REPORT_WORK/frontend"
+
+          gh run download "$PLATFORM_RUN_ID" \
+            --repo "$PLATFORM_REPO" \
+            --name frontend-test-reports \
+            --dir "$REPORT_WORK/frontend"
+
+
       - name: Download previous artifacts
         env:
           GH_HOST: github.sfu.ca
@@ -122,13 +182,15 @@ jobs:
       - name: Generate dashboard data
         run: |
           python testing-dashboard/report-generator.py \
-          --mobile-artifacts "$REPORT_WORK/current" \
-          --previous "$REPORT_WORK/previous/report-data.json"
+            --mobile-artifacts "$REPORT_WORK/current" \
+            --backend-artifacts "$REPORT_WORK/backend" \
+            --frontend-artifacts "$REPORT_WORK/frontend" \
+            --previous "$REPORT_WORK/previous/report-data.json"
 
           cp testing-dashboard/page/report-data.json "$REPORT_WORK/site/"
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
 
-      - name: Package detailed HTML reports
+      - name: Package mobile HTML reports
         run: |
           unit_report="$REPORT_WORK/current/tests/reports/tests/testDebugUnitTest"
           coverage_report="$REPORT_WORK/current/coverage/coverage/combined"
@@ -139,6 +201,35 @@ jobs:
           mkdir -p "$REPORT_WORK/site/reports/mobile"
           cp -a "$unit_report" "$REPORT_WORK/site/reports/mobile/unit-tests"
           cp -a "$coverage_report" "$REPORT_WORK/site/reports/mobile/jacoco"
+
+      - name: Package backend HTML reports
+        run: |
+          set -eu
+          unit_report="$REPORT_WORK/backend/html/unit-tests/unit-test-report.html"
+          coverage_report="$REPORT_WORK/backend/html/coverage"
+
+          test -f "$unit_report"
+          test -f "$coverage_report/index.html"
+
+          mkdir -p "$REPORT_WORK/site/reports/backend/unit-tests"
+          mkdir -p "$REPORT_WORK/site/reports/backend/coverage"
+
+          cp "$unit_report" "$REPORT_WORK/site/reports/backend/unit-tests/index.html"
+          cp -a "$coverage_report/." "$REPORT_WORK/site/reports/backend/coverage/"
+
+      - name: Package frontend HTML reports
+        run: |
+          set -eu
+          unit_report="$REPORT_WORK/frontend/unit-tests"
+          coverage_report="$REPORT_WORK/frontend/coverage"
+
+          test -f "$unit_report/index.html"
+          test -f "$coverage_report/index.html"
+
+          mkdir -p "$REPORT_WORK/site/reports/frontend"
+
+          cp -a "$unit_report" "$REPORT_WORK/site/reports/frontend/unit-tests"
+          cp -a "$coverage_report" "$REPORT_WORK/site/reports/frontend/coverage"
 
       - name: Upload dashboard
         uses: actions/upload-artifact@v3

@@ -328,6 +328,59 @@ describe('Blockly workspace rules', () => {
         'Some blocks are not connected to your condition'
       );
     });
+
+    it('generates JSON Logic for nested urine test variables', () => {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
+        OP: '==',
+      });
+
+      const urineBlood = workspace.newBlock('vital_collection');
+      urineBlood.setFieldValue('urine_blood', 'FIELD');
+      urineBlood.setFieldValue('2', 'READING');
+      urineBlood.initSvg();
+      urineBlood.render();
+
+      connectBlockToInput(comparison, 'LEFT', urineBlood);
+
+      syncGenericCompareTypes(comparison);
+
+      const value = comparison.getInputTargetBlock('RIGHT');
+      expect(value?.type).toBe('enum_value');
+
+      value?.setFieldValue('++', 'VALUE');
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual({
+        '==': [{ var: 'vitals[-2].urine_test.blood' }, '++'],
+      });
+    });
+
+    it('generates JSON Logic when comparing two vital readings', () => {
+      const comparison = placeRootBlock(workspace, 'generic_comparison', {
+        OP: '>',
+      });
+
+      const reading1 = workspace.newBlock('vital_collection');
+      reading1.setFieldValue('heart_rate', 'FIELD');
+      reading1.setFieldValue('1', 'READING');
+      reading1.initSvg();
+      reading1.render();
+
+      const reading2 = workspace.newBlock('vital_collection');
+      reading2.setFieldValue('heart_rate', 'FIELD');
+      reading2.setFieldValue('2', 'READING');
+      reading2.initSvg();
+      reading2.render();
+
+      connectBlockToInput(comparison, 'LEFT', reading1);
+      connectBlockToInput(comparison, 'RIGHT', reading2);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual({
+        '>': [
+          { var: 'vitals[latest].heart_rate' },
+          { var: 'vitals[-2].heart_rate' },
+        ],
+      });
+    });
   });
 
   describe('round-trip loading', () => {
@@ -425,6 +478,68 @@ describe('Blockly workspace rules', () => {
       const outer = comparisons.find((b) => !b.getParent())!;
       expect(outer.getInputTargetBlock('LEFT')).toBeNull();
       expect(evaluateWorkspace(workspace).jsonLogic).toBeNull();
+    });
+
+    it('loads and re-exports nested urine test variable rules', () => {
+      const rule = JSON.stringify({
+        '==': [{ var: 'vitals[-2].urine_test.blood' }, '++'],
+      });
+
+      loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+
+      const left = root.getInputTargetBlock('LEFT');
+
+      expect(left?.type).toBe('vital_collection');
+      expect(left?.getFieldValue('FIELD')).toBe('urine_blood');
+      expect(left?.getFieldValue('READING')).toBe(2);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        JSON.parse(rule)
+      );
+    });
+
+    it('loads and re-exports pregnancy collection date rules', () => {
+      const rule = JSON.stringify({
+        '>': [{ var: 'pregnancies[-2].start_date' }, { date: '2020-10-10' }],
+      });
+
+      loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+
+      expect(root.type).toBe('generic_comparison');
+      expect(root.getFieldValue('OP')).toBe('>');
+
+      const left = root.getInputTargetBlock('LEFT');
+
+      expect(left?.type).toBe('pregnancy_collection');
+      expect(left?.getFieldValue('FIELD')).toBe('start_date');
+      expect(left?.getFieldValue('PREGNANCY')).toBe(2);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        JSON.parse(rule)
+      );
+    });
+
+    it('loads and re-exports pregnancy collection outcome rules', () => {
+      const rule = JSON.stringify({
+        '==': [{ var: 'pregnancies[-3].outcome' }, 'Live Birth'],
+      });
+
+      loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+      const root = getConditionRootBlocks(workspace)[0]!;
+      const left = root.getInputTargetBlock('LEFT');
+
+      expect(left?.type).toBe('pregnancy_collection');
+      expect(left?.getFieldValue('FIELD')).toBe('outcome');
+      expect(left?.getFieldValue('PREGNANCY')).toBe(3);
+
+      expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+        JSON.parse(rule)
+      );
     });
   });
 

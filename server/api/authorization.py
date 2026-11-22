@@ -19,6 +19,12 @@ def mark_authorization_checked() -> None:
     g.authorization_checked = True
 
 
+def allow_any_authenticated_user() -> None:
+    if not getattr(g, "request_authenticated", False):
+        abort(401, description="Authentication is required.")
+    mark_authorization_checked()
+
+
 def require_role(*accepted_roles: RoleEnum) -> dict:
     current_user = user_utils.get_current_user_from_jwt()
     accepted_role_values = {role.value for role in accepted_roles}

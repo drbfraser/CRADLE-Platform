@@ -29,6 +29,9 @@ export default function NextStepSelector({
   options,
 }: IProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [technicalDetailsId, setTechnicalDetailsId] = useState<string | null>(
+    null
+  );
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -70,6 +73,96 @@ export default function NextStepSelector({
     }
   };
 
+  const getFriendlyResolutionMessage = (
+    variable: string,
+    status: string
+  ): JSX.Element | null => {
+    if (status !== 'OBJECT_NOT_FOUND') {
+      return null;
+    }
+
+    const vitalMatch = variable.match(/^vitals\[-(\d+)\]\./);
+
+    if (vitalMatch) {
+      const readingNumber = Number(vitalMatch[1]);
+
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Readings Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {readingNumber} readings, but the requested
+            reading is not available for this patient.
+          </Typography>
+        </>
+      );
+    }
+
+    if (variable.startsWith('pregnancies[latest].')) {
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ No Pregnancy Records Found
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires at least one pregnancy record, but no
+            pregnancy records are available for this patient.
+          </Typography>
+        </>
+      );
+    }
+
+    const pregnancyMatch = variable.match(/^pregnancies\[-(\d+)\]\./);
+
+    if (pregnancyMatch) {
+      const pregnancyNumber = Number(pregnancyMatch[1]);
+
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Pregnancy Records Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {pregnancyNumber} pregnancy records, but the
+            requested pregnancy record is not available for this patient.
+          </Typography>
+        </>
+      );
+    }
+    return null;
+  };
+
   return (
     <Box sx={{ width: '35vw' }}>
       <RadioGroup
@@ -77,6 +170,8 @@ export default function NextStepSelector({
         onChange={(e) => setSelectedId(e.target.value)}>
         {options.map((opt) => {
           const isExpanded = expandedId === opt.templateStepId;
+          const isNotEnoughData =
+            opt.ruleStatus === WorkflowBranchEvaluationStatus.NOT_ENOUGH_DATA; // Variable resolution failed due to missing data
           return (
             <Box
               key={opt.templateStepId}
@@ -101,6 +196,16 @@ export default function NextStepSelector({
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography>{opt.title}</Typography>
+
+                      {isNotEnoughData && (
+                        <WarningAmber
+                          fontSize="small"
+                          sx={{
+                            color: 'warning.main',
+                            ml: 1,
+                          }}
+                        />
+                      )}
 
                       {opt.isRecommended && (
                         <Typography
@@ -135,30 +240,36 @@ export default function NextStepSelector({
                     pb: 2,
                     borderTop: '1px solid #eee',
                   }}>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 'bold', mt: 0.5 }}>
-                    Rule Evaluation:
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                    {getEvaluationIcon(opt.ruleStatus)}
+                  {!isNotEnoughData && (
+                    <>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 'bold', mt: 0.5 }}>
+                        Rule Evaluation:
+                      </Typography>
 
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                       <Box
-                        component="span"
-                        sx={{ color: getEvaluationColor(opt.ruleStatus) }}>
-                        {opt.ruleStatus}
+                        sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                        {getEvaluationIcon(opt.ruleStatus)}
+
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          <Box
+                            component="span"
+                            sx={{ color: getEvaluationColor(opt.ruleStatus) }}>
+                            {opt.ruleStatus}
+                          </Box>
+                        </Typography>
                       </Box>
-                    </Typography>
-                  </Box>
 
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 'bold', mt: 0.5 }}>
-                    Rule:
-                  </Typography>
-                  <Typography variant="body2">{opt.rule}</Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 'bold', mt: 0.5 }}>
+                        Rule:
+                      </Typography>
 
+                      <Typography variant="body2">{opt.rule}</Typography>
+                    </>
+                  )}
                   <Typography
                     variant="body2"
                     sx={{ fontWeight: 'bold', mt: 0.5 }}>
@@ -168,11 +279,79 @@ export default function NextStepSelector({
                     <Typography variant="body2">No data found</Typography>
                   ) : (
                     <>
-                      {opt.varResolutions.map((res, i) => (
-                        <Typography key={i} variant="body2" sx={{ ml: 2 }}>
-                          • {res.var} = {res.value ?? 'N/A'} ({res.status})
+                      {opt.varResolutions.map((res, i) => {
+                        const friendlyMessage = getFriendlyResolutionMessage(
+                          res.var,
+                          res.status
+                        );
+
+                        return (
+                          <Typography key={i} variant="body2" sx={{}}>
+                            {friendlyMessage ??
+                              `${res.var} = ${res.value ?? 'N/A'} (${res.status})`}
+                          </Typography>
+                        );
+                      })}
+                    </>
+                  )}
+                  {isNotEnoughData && (
+                    <>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          mt: 1,
+                          color: 'primary.main',
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                        }}
+                        onClick={() =>
+                          setTechnicalDetailsId(
+                            technicalDetailsId === opt.templateStepId
+                              ? null
+                              : opt.templateStepId
+                          )
+                        }>
+                        {technicalDetailsId === opt.templateStepId
+                          ? 'Hide technical details'
+                          : 'Show technical details'}
+                      </Typography>
+
+                      <Collapse in={technicalDetailsId === opt.templateStepId}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'bold', mt: 1 }}>
+                          Rule Evaluation:
                         </Typography>
-                      ))}
+
+                        <Typography variant="body2">
+                          {opt.ruleStatus}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'bold', mt: 1 }}>
+                          Rule:
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            wordBreak: 'break-all',
+                          }}>
+                          {opt.rule}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'bold', mt: 1 }}>
+                          Resolution:
+                        </Typography>
+
+                        {opt.varResolutions.map((res, i) => (
+                          <Typography key={i} variant="body2" sx={{}}>
+                            {res.var} = {res.value ?? 'N/A'} ({res.status})
+                          </Typography>
+                        ))}
+                      </Collapse>
                     </>
                   )}
                 </Box>

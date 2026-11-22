@@ -28,6 +28,8 @@ COLLECTION_NAMESPACES = frozenset(
         "pregnancies",
         "referrals",
         "assessments",
+        "medical_records",
+        "drug_records",
         "forms",
         "all_wf",
     }
@@ -69,8 +71,8 @@ _URINE_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
 
 _PREGNANCY_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "id": T.INTEGER,
-    "start_date": T.INTEGER,
-    "end_date": T.INTEGER,
+    "start_date": T.DATE,
+    "end_date": T.DATE,
     "outcome": T.STRING,
     "last_edited": T.INTEGER,
     "patient_id": T.STRING,

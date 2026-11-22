@@ -7,7 +7,7 @@ from pydantic import RootModel
 
 import data.db_operations as crud
 import service.FilterHelper as filter_helper
-from api.authorization import scope_patient_query
+from api.authorization import require_patient_access, scope_patient_query
 from api.resources.patients import api_patients
 from common import user_utils
 from data import orm_serializer
@@ -222,6 +222,7 @@ class GetFormMobilePath(CradleBaseModel):
 )
 def get_form_mobile(path: GetFormMobilePath):
     """Get Form Mobile"""
+    require_patient_access(path.patient_id)
     filters: dict = {
         "patient_id": path.patient_id,
         "form_template_id": path.form_template_id,

@@ -106,6 +106,7 @@ def test_put_pregnancy(
 
     pregnancy["end_date"] = pregnancy_later["start_date"] + approx_8_months
     pregnancy["outcome"] = "Baby born at 8 months."
+    pregnancy["patient_id"] = "0"
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
         json=pregnancy,
@@ -120,6 +121,7 @@ def test_put_pregnancy(
     assert new_pregnancy is not None
     assert new_pregnancy.end_date == pregnancy["end_date"]
     assert new_pregnancy.outcome == pregnancy["outcome"]
+    assert new_pregnancy.patient_id == pregnancy_later["patient_id"]
 
 
 def test_post_and_delete_pregnancy(
@@ -132,10 +134,7 @@ def test_post_and_delete_pregnancy(
 ):
     create_patient()
 
-    pregnancy = {
-        "patient_id": patient_id,
-        "start_date": pregnancy_later["start_date"],
-    }
+    pregnancy = {"start_date": pregnancy_later["start_date"]}
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/pregnancies",
         json=pregnancy,
@@ -189,28 +188,6 @@ def test_invalid_pregnancy_not_updated(
 ):
     create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
-    pregnancy_id = pregnancy_earlier["id"]
-
-    response = api_get(endpoint=f"/api/pregnancies/{pregnancy_id}")
-    pregnancy = decamelize(response.json())
-
-    # Trying to change patient_id should fail with a 400 status code.
-    pregnancy["patient_id"] = "0"
-
-    response = api_put(
-        endpoint=f"/api/pregnancies/{pregnancy_id}",
-        json=pregnancy,
-    )
-
-    response_body = decamelize(response.json())
-    print(response_body)
-
-    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
-
-    assert response.status_code == 400
-    assert pregnancy is not None
-    assert pregnancy.patient_id == pregnancy_earlier["patient_id"]
-
     pregnancy_factory.create(**pregnancy_later)
     pregnancy_id = pregnancy_later["id"]
     response = api_get(endpoint=f"/api/pregnancies/{pregnancy_id}")

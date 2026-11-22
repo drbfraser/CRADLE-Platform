@@ -7,7 +7,11 @@ from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
 import data.db_operations as crud
-from api.authorization import scope_deleted_patient_query, scope_patient_query
+from api.authorization import (
+    allow_any_authenticated_user,
+    scope_deleted_patient_query,
+    scope_patient_query,
+)
 from common import user_utils
 from common.patient_utils import PATIENT_ID_DELETED_MSG, PATIENT_NOT_FOUND_MSG
 from common.user_utils import UserDict
@@ -20,8 +24,6 @@ from models import (
     PregnancyOrm,
     ReadingOrm,
     ReferralOrm,
-    WorkflowInstanceOrm,
-    WorkflowInstanceStepOrm,
 )
 from service import invariant, serialize, view
 from service.patient_authorization import (
@@ -34,11 +36,13 @@ from service.workflow.workflow_service import (
     WorkflowService,
     _resolve_workflow_template_text,
 )
+from service.workflow.workflow_sync import save_workflow_sync
 from validation import CradleBaseModel
 from validation.assessments import AssessmentResponse
 from validation.patients import PatientWithHistory, SyncPatientRequest
 from validation.readings import CreateReadingRequest, ReadingResponse
 from validation.referrals import CreateReferralRequest, ReferralResponse
+from validation.workflow_api_models import SyncWorkflowInstanceRequest
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 # /api/sync
@@ -72,7 +76,7 @@ class SyncReferralsBody(RootModel[list[CreateReferralRequest]]):
     model_config = dict(openapi_extra={"description": "List of Referral objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncWorkflowInstancesBody(RootModel[list[WorkflowInstanceModel]]):
+class SyncWorkflowInstancesBody(RootModel[list[SyncWorkflowInstanceRequest]]):
     model_config = dict(
         openapi_extra={"description": "List of Workflow Instance objects."}
     )  # type: ignore[reportAssignmentType]
@@ -424,6 +428,7 @@ class SyncWorkflowTemplatesResponse(CradleBaseModel):
 @api_sync.post("/workflow_templates", responses={200: SyncWorkflowTemplatesResponse})
 def sync_workflow_templates(query: LastSyncQueryParam):
     """Sync Workflow Templates"""
+    allow_any_authenticated_user()
     last_sync = query.since
 
     new_workflow_templates = crud.read_workflow_templates(
@@ -454,23 +459,12 @@ def sync_workflow_instances(query: LastSyncQueryParam, body: SyncWorkflowInstanc
 
     mobile_workflow_instances = body.root
     for mobile_workflow_instance in mobile_workflow_instances:
-        error = _workflow_instance_sync_error(current_user, mobile_workflow_instance)
+        error = _sync_workflow_instance(current_user, mobile_workflow_instance)
         if error is not None:
             errors.append(
                 {
                     "workflow_instance_id": mobile_workflow_instance.id,
                     "errors": error,
-                }
-            )
-            status_code = 207
-            continue
-        try:
-            WorkflowService.upsert_workflow_instance(mobile_workflow_instance)
-        except Exception as err:
-            errors.append(
-                {
-                    "workflow_instance_id": mobile_workflow_instance.id,
-                    "errors": str(err),
                 }
             )
             status_code = 207
@@ -506,35 +500,19 @@ def _patient_sync_checker(current_user: UserDict) -> Callable[[str], bool]:
     return can_sync_patient
 
 
-def _workflow_instance_sync_error(
-    current_user: UserDict, mobile_workflow_instance: WorkflowInstanceModel
+def _sync_workflow_instance(
+    current_user: UserDict, mobile_workflow_instance: SyncWorkflowInstanceRequest
 ) -> Optional[str]:
     patient_id = mobile_workflow_instance.patient_id
     if patient_id is None or crud.read(PatientOrm, id=patient_id) is None:
         return PATIENT_NOT_FOUND_MSG.format(patient_id)
     if not can_access_patient(current_user, patient_id):
         return "Not authorized to sync this patient."
-
-    server_workflow_instance = crud.read(
-        WorkflowInstanceOrm, id=mobile_workflow_instance.id
-    )
-    if (
-        server_workflow_instance is not None
-        and server_workflow_instance.patient_id != patient_id
-    ):
-        return "Patient ID cannot be changed."
-
-    step_error = "Workflow step does not belong to this workflow instance."
-    for step in mobile_workflow_instance.steps:
-        if step.workflow_instance_id != mobile_workflow_instance.id:
-            return step_error
-        server_step = crud.read(WorkflowInstanceStepOrm, id=step.id)
-        if (
-            server_step is not None
-            and server_step.workflow_instance_id != mobile_workflow_instance.id
-        ):
-            return step_error
-
+    try:
+        save_workflow_sync(mobile_workflow_instance, patient_id)
+    except Exception as err:
+        crud.db_session.rollback()
+        return str(err)
     return None
 
 

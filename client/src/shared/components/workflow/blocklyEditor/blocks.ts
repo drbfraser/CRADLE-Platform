@@ -71,6 +71,30 @@ const CASE_OPTIONS: [string, string][] = [
 
 const variableMetadata = new Map<string, WorkflowVariable>();
 
+export const VITAL_COLLECTION_TAG_MAP: Record<string, string> = {
+  traffic_color: 'vitals[latest].traffic_color',
+  traffic_arrow: 'vitals[latest].traffic_arrow',
+  heart_rate: 'vitals[latest].heart_rate',
+  systolic_blood_pressure: 'vitals[latest].systolic_blood_pressure',
+  diastolic_blood_pressure: 'vitals[latest].diastolic_blood_pressure',
+  urine_leukocytes: 'vitals[latest].urine_test.leukocytes',
+  urine_nitrites: 'vitals[latest].urine_test.nitrites',
+  urine_glucose: 'vitals[latest].urine_test.glucose',
+  urine_protein: 'vitals[latest].urine_test.protein',
+  urine_blood: 'vitals[latest].urine_test.blood',
+};
+
+export const PREGNANCY_COLLECTION_TAG_MAP: Record<string, string> = {
+  start_date: 'pregnancies[latest].start_date',
+  end_date: 'pregnancies[latest].end_date',
+  outcome: 'pregnancies[latest].outcome',
+};
+
+const COLLECTION_TAG_MAPS: Record<string, Record<string, string>> = {
+  vital_collection: VITAL_COLLECTION_TAG_MAP,
+  pregnancy_collection: PREGNANCY_COLLECTION_TAG_MAP,
+};
+
 function variableDisplayName(v: WorkflowVariable): string {
   return v.description ?? v.tag;
 }
@@ -196,11 +220,25 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
 
   const leftBlock = block.getInputTargetBlock('LEFT');
 
-  const tag = leftBlock?.getFieldValue?.('VAR_NAME');
+  let allowedValues: string[] | undefined;
 
-  const allowedValues = tag
-    ? variableMetadata.get(tag)?.allowedValues
+  const collectionMap = leftBlock?.type
+    ? COLLECTION_TAG_MAPS[leftBlock.type]
     : undefined;
+
+  if (leftBlock && collectionMap) {
+    const field = leftBlock.getFieldValue('FIELD');
+
+    const metadataTag = collectionMap[field];
+
+    allowedValues = metadataTag
+      ? variableMetadata.get(metadataTag)?.allowedValues
+      : undefined;
+  } else {
+    const tag = leftBlock?.getFieldValue?.('VAR_NAME');
+
+    allowedValues = tag ? variableMetadata.get(tag)?.allowedValues : undefined;
+  }
 
   if (!allowedValues?.length) {
     const rightBlock = block.getInputTargetBlock('RIGHT');
@@ -239,6 +277,24 @@ export function syncGenericCompareTypes(block: Blockly.Block): void {
       createEnumBlock(block, allowedValues);
 
       rightBlock = block.getInputTargetBlock('RIGHT');
+    }
+
+    if (rightBlock && rightBlock.type === 'string_value') {
+      const existingValue = rightBlock.getFieldValue('TEXT');
+
+      rightBlock.dispose();
+
+      createEnumBlock(block, allowedValues);
+
+      rightBlock = block.getInputTargetBlock('RIGHT');
+
+      if (
+        rightBlock?.type === 'enum_value' &&
+        existingValue &&
+        allowedValues.includes(existingValue)
+      ) {
+        rightBlock.setFieldValue(existingValue, 'VALUE');
+      }
     }
 
     if (rightBlock?.type === 'enum_value') {
@@ -570,6 +626,94 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         );
       this.setOutput(true, 'Boolean');
       this.setColour(TYPE_COLOURS['Boolean']);
+    },
+  };
+
+  const VITAL_COLLECTION_TYPES: Record<string, string> = {
+    traffic_color: 'String',
+    traffic_arrow: 'String',
+    heart_rate: 'Number',
+    systolic_blood_pressure: 'Number',
+    diastolic_blood_pressure: 'Number',
+    urine_leukocytes: 'String',
+    urine_nitrites: 'String',
+    urine_glucose: 'String',
+    urine_protein: 'String',
+    urine_blood: 'String',
+  };
+
+  function applyVitalCollectionType(block: Blockly.Block, field: string) {
+    const outputType = VITAL_COLLECTION_TYPES[field] ?? 'String';
+    block.setOutput(true, outputType);
+    block.setColour(TYPE_COLOURS[outputType]);
+  }
+  Blockly.Blocks['vital_collection'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput()
+        .appendField('Vital Sign')
+        .appendField(
+          new Blockly.FieldDropdown(
+            [
+              ['Traffic Light Color', 'traffic_color'],
+              ['Traffic Light Arrow', 'traffic_arrow'],
+              ['Heart Rate', 'heart_rate'],
+              ['Systolic Blood Pressure', 'systolic_blood_pressure'],
+              ['Diastolic Blood Pressure', 'diastolic_blood_pressure'],
+              ['Urine - Leukocytes', 'urine_leukocytes'],
+              ['Urine - Nitrites', 'urine_nitrites'],
+              ['Urine - Glucose', 'urine_glucose'],
+              ['Urine - Protein', 'urine_protein'],
+              ['Urine - Blood', 'urine_blood'],
+            ],
+            (value: string) => {
+              applyVitalCollectionType(this, value);
+              return value;
+            }
+          ),
+          'FIELD'
+        )
+        .appendField('Reading #')
+        .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'READING');
+
+      applyVitalCollectionType(this, 'traffic_color');
+    },
+  };
+
+  const PREGNANCY_COLLECTION_TYPES: Record<string, string> = {
+    start_date: 'Date',
+    end_date: 'Date',
+    outcome: 'String',
+  };
+
+  function applyPregnancyCollectionType(block: Blockly.Block, field: string) {
+    const outputType = PREGNANCY_COLLECTION_TYPES[field] ?? 'String';
+
+    block.setOutput(true, outputType);
+    block.setOutputShape(outputType === 'Date' ? DATE_OUTPUT_SHAPE : null);
+    block.setColour(TYPE_COLOURS[outputType]);
+  }
+
+  Blockly.Blocks['pregnancy_collection'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput()
+        .appendField('Pregnancy')
+        .appendField(
+          new Blockly.FieldDropdown(
+            [
+              ['Start Date', 'start_date'],
+              ['End Date', 'end_date'],
+              ['Outcome', 'outcome'],
+            ],
+            (value: string) => {
+              applyPregnancyCollectionType(this, value);
+              return value;
+            }
+          ),
+          'FIELD'
+        )
+        .appendField('Pregnancy #')
+        .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'PREGNANCY');
+      applyPregnancyCollectionType(this, 'outcome');
     },
   };
 

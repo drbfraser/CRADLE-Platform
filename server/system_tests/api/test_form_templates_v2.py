@@ -238,11 +238,17 @@ def test_form_template_graceful_failure(form_template_v2_payload, api_post):
     assert crud.read(FormClassificationOrmV2, id=classification_id) is None
 
 
-def test_archive_form_template_v2(database, api_put, form_v2_resources):
+def test_archive_form_template_v2(database, api, api_put, form_v2_resources):
     created = form_v2_resources.create_template()
     body = created["body"]
+    endpoint = f"/api/forms/v2/templates/{body['id']}"
 
-    response = api_put(f"/api/forms/v2/templates/{body['id']}", json={"archived": True})
+    denied = api.put(endpoint, {"archived": True}, "vht@email.com", "cradle-vht")
+    assert denied.status_code == 403
+    database.session.commit()
+    assert crud.read(FormTemplateOrmV2, id=body["id"]).archived is False
+
+    response = api_put(endpoint, json={"archived": True})
     assert response.status_code == 201
     database.session.commit()
 

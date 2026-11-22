@@ -218,11 +218,19 @@ def test_mc_invalid_index(mock_template_read):
     assert "indices 0 to 2" in result.msg
 
 
-def test_mc_valid_indices(mock_template_read):
+@pytest.mark.parametrize(
+    "question_type, indices",
+    [
+        (QuestionTypeEnum.MULTIPLE_CHOICE, [0]),
+        (QuestionTypeEnum.MULTIPLE_SELECT, [0, 2]),
+    ],
+)
+def test_mc_valid_indices(mock_template_read, question_type, indices):
+    mock_template_read.questions[3].question_type = question_type
     answers = [
         FormAnswer(
             question_id=MC_Q_ID,
-            answer=MCAnswer(mc_id_array=[0, 2]),
+            answer=MCAnswer(mc_id_array=indices),
         )
     ]
 
@@ -232,7 +240,7 @@ def test_mc_valid_indices(mock_template_read):
     assert result.code is None
 
 
-def test_mc_empty_selection_skipped(mock_template_read):
+def test_mc_empty_selection_rejected(mock_template_read):
     answers = [
         FormAnswer(
             question_id=MC_Q_ID,
@@ -242,8 +250,34 @@ def test_mc_empty_selection_skipped(mock_template_read):
 
     result = validate_form_answers(answers, TEMPLATE_ID)
 
-    assert result.ok is True
-    assert result.code is None
+    assert result.ok is False
+    assert result.code == 422
+
+
+@pytest.mark.parametrize(
+    "question_id, answer",
+    [
+        (INTEGER_Q_ID, TextAnswer(text="12")),
+        (STRING_Q_ID, NumberAnswer(number=12)),
+        (MC_Q_ID, TextAnswer(text="option")),
+        (DATE_Q_ID, NumberAnswer(number=12)),
+        (INTEGER_Q_ID, NumberAnswer(number=1.5)),
+        (INTEGER_Q_ID, NumberAnswer(number=float("nan"))),
+        (INTEGER_Q_ID, NumberAnswer(number=float("inf"))),
+        (STRING_Q_ID, TextAnswer(text="   ")),
+        (MC_Q_ID, MCAnswer(mc_id_array=[0, 0])),
+        (MC_Q_ID, MCAnswer(mc_id_array=[0, 1])),
+        (DATE_Q_ID, DateAnswer(date="not-a-date")),
+    ],
+)
+def test_invalid_answer_shape_returns_validation_error(
+    mock_template_read, question_id, answer
+):
+    result = validate_form_answers(
+        [FormAnswer(question_id=question_id, answer=answer)], TEMPLATE_ID
+    )
+    assert result.ok is False
+    assert result.code == 422
 
 
 @patch("common.form_utils.commonUtil.get_current_time", return_value=FIXED_NOW)

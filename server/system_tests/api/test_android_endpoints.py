@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from humps import decamelize
+from humps import camelize, decamelize
 
 import data.db_operations as crud
 from enums import SexEnum, TrafficLightEnum
@@ -583,9 +583,12 @@ def test_get_patient_form(
     # assert response.status_code == 200
 
 
-def test_sync_workflow_instances_keeps_mobile_ids(
+def test_sync_workflow_instances_saves_offline_creation(
     create_patient,
     patient_id,
+    pregnancy_factory,
+    pregnancy_earlier,
+    pregnancy_later,
     database,
     api_post,
 ):
@@ -594,6 +597,9 @@ def test_sync_workflow_instances_keeps_mobile_ids(
     workflow_instance_step_id = "b5a4f3e2-d1c0-4b9a-8877-66554433221100"
 
     create_patient()
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    start_date = pregnancy_later["start_date"] - 1
 
     mobile_workflow_instance = {
         "id": workflow_instance_id,
@@ -602,8 +608,8 @@ def test_sync_workflow_instances_keeps_mobile_ids(
         "status": "Active",
         "patient_id": patient_id,
         "current_step_id": workflow_instance_step_id,
-        "start_date": last_sync,
-        "last_edited": last_sync,
+        "start_date": start_date,
+        "last_edited": start_date,
         "steps": [
             {
                 "id": workflow_instance_step_id,
@@ -611,7 +617,8 @@ def test_sync_workflow_instances_keeps_mobile_ids(
                 "name": "First Step",
                 "description": "",
                 "status": "Active",
-                "start_date": last_sync,
+                "start_date": start_date,
+                "last_edited": start_date,
             }
         ],
     }
@@ -619,7 +626,7 @@ def test_sync_workflow_instances_keeps_mobile_ids(
     try:
         response = api_post(
             endpoint=f"/api/sync/workflow_instances?since={last_sync}",
-            json=[mobile_workflow_instance],
+            json=[camelize(mobile_workflow_instance)],
         )
         database.session.commit()
 
@@ -640,7 +647,11 @@ def test_sync_workflow_instances_keeps_mobile_ids(
         assert len(synced_workflow_instance["steps"]) == 1
         assert synced_workflow_instance["steps"][0]["id"] == workflow_instance_step_id
 
-        assert crud.read(WorkflowInstanceOrm, id=workflow_instance_id) is not None
+        saved = crud.read(WorkflowInstanceOrm, id=workflow_instance_id)
+        assert saved.start_date == saved.steps[0].start_date == start_date
+        assert saved.last_edited >= last_sync
+        assert saved.steps[0].last_edited >= last_sync
+        assert saved.pregnancy_id == pregnancy_earlier["id"]
     finally:
         crud.delete_by(WorkflowInstanceOrm, id=workflow_instance_id)
         crud.delete_all(PatientAssociationsOrm, patient_id=patient_id)
