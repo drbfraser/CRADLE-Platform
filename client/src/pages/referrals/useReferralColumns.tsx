@@ -6,6 +6,7 @@ import { GridColDef } from '@mui/x-data-grid';
 import moment from 'moment';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
+import { formatPatientNumber } from 'src/shared/utils/format';
 
 export const useReferralColumns = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -13,7 +14,7 @@ export const useReferralColumns = () => {
   return useMemo<GridColDef[]>(() => {
     const columns: GridColDef[] = [
       { field: 'patientName', headerName: 'Name', flex: 1 },
-      { field: 'patientId', headerName: 'Patient ID', flex: 1 },
+      { field: 'patientNumber', headerName: 'Patient ID', flex: 1 },
       { field: 'villageNumber', headerName: 'Village Number', flex: 1 },
       {
         field: 'vitalSign',
@@ -60,6 +61,7 @@ export const formatReferralRows = (referrals: Array<Record<string, unknown>>) =>
   referrals.map((r) => ({
     ...r,
     id: r.referralId,
+    patientNumber: formatPatientNumber(r.patientNumber as string | null),
     referralDate: r.dateReferred
       ? moment(Number(r.dateReferred) * 1000).format('YYYY-MM-DD')
       : 'No date',

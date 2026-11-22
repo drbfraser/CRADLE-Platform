@@ -22,7 +22,7 @@ export interface IExportStatRow {
   parsed_date: string;
   parsed_time: string;
   parsed_pregnant: string;
-  patientId: string;
+  patientNumber: string | null;
   name: string;
   sex: string;
   age: number;

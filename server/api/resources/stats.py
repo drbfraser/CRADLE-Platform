@@ -201,6 +201,7 @@ def get_stats_export(path: UserIdPath, query: Timeframe):
             {
                 "referral_date": entry.get("date_referred"),
                 "patient_id": entry.get("patient_id"),
+                "patient_number": entry.get("patient_number"),
                 "name": entry.get("patient_name"),
                 "sex": entry.get("sex").name,
                 "age": age,

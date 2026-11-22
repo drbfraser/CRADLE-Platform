@@ -58,6 +58,7 @@ describe('getWorkflowStepHistory', () => {
       studyTitle: 'Test',
       patientName: 'Alice',
       patientId: 'p1',
+      patientNumber: null,
       status: InstanceStatus.ACTIVE,
       description: '',
       collection: 'PAPAGO',

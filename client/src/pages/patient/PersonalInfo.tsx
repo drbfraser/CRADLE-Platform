@@ -5,6 +5,7 @@ import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { SecondaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';
 import { getAgeToDisplay } from 'src/shared/utils';
+import { formatPatientNumber } from 'src/shared/utils/format';
 import { useNavigate } from 'react-router-dom';
 
 interface IProps {
@@ -29,7 +30,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
             <Grid container spacing={2}>
               <Grid size={6}>
                 <b>ID: </b>
-                {patient.id}
+                {formatPatientNumber(patient.patientNumber)}
               </Grid>
               <Grid size={6}>
                 <b>Sex: </b>

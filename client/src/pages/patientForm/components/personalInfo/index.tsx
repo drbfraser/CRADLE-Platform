@@ -38,6 +38,17 @@ export const PersonalInfoForm = () => {
             required
             inputProps={{ maxLength: 50 }}
             variant="outlined"
+            label="Patient ID"
+            name={PatientField.patientNumber}
+          />
+        </Grid>
+        <Grid size={{ sm: 12, md: 4 }}>
+          <Field
+            component={FormikTextField}
+            fullWidth
+            required
+            inputProps={{ maxLength: 50 }}
+            variant="outlined"
             label="Patient Name"
             name={PatientField.patientName}
           />

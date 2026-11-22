@@ -88,6 +88,7 @@ export function buildInstanceDetails(
     status: instance.status,
     patientName: patient.name,
     patientId: instance.patientId,
+    patientNumber: patient.patientNumber,
     description: instance.description,
     lang: instance.lang,
     collection: 'PAPAGO', // TODO - To do when collections set up

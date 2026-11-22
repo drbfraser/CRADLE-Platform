@@ -21,7 +21,11 @@ Object.defineProperty(window, 'localStorage', {
   writable: true,
 });
 
-const patient = { id: '49300028162', name: 'Test Patient' } as Patient;
+const patient = {
+  id: '3f2b8c1e-5a7d-4e9b-8c6a-1d2e3f4a5b6c',
+  patientNumber: '49300028162',
+  name: 'Test Patient',
+} as Patient;
 const deleteUrl = API_URL + EndpointEnum.PATIENTS + '/' + patient.id;
 
 const renderDialog = (onClose = vi.fn()) => {
@@ -34,13 +38,15 @@ const renderDialog = (onClose = vi.fn()) => {
 };
 
 describe('DeletePatientDialog', () => {
-  test('shows the patient name and ID in the warning', () => {
+  test('shows the patient name and patient number in the warning', () => {
     renderDialog();
 
     expect(
       screen.getByText(`Delete Patient: ${patient.name}`)
     ).toBeInTheDocument();
-    expect(screen.getByTestId('warningAlert')).toHaveTextContent(patient.id);
+    const warning = screen.getByTestId('warningAlert');
+    expect(warning).toHaveTextContent('49300028162');
+    expect(warning).not.toHaveTextContent(patient.id);
   });
 
   test('deletes the patient and closes when confirmed', async () => {

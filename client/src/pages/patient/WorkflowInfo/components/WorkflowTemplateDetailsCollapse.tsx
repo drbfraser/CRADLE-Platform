@@ -4,6 +4,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { InstanceDetails } from 'src/shared/types/workflow/workflowUiTypes';
+import { formatPatientNumber } from 'src/shared/utils/format';
 
 type WorkflowTemplateDetailsCollapseProps = {
   instanceDetails: InstanceDetails;
@@ -39,7 +40,7 @@ export default function WorkflowTemplateDetailsCollapse({
 
         <Typography variant="h6" color="text.secondary">
           Patient: {instanceDetails.patientName} (ID:{' '}
-          {instanceDetails.patientId})
+          {formatPatientNumber(instanceDetails.patientNumber)})
         </Typography>
       </Box>
 

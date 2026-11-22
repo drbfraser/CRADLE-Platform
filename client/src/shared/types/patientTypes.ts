@@ -12,6 +12,7 @@ export type Patient = {
   needsAssessment: boolean;
   patientAge: OrNull<number>;
   id: string;
+  patientNumber: OrNull<string>;
   name: string;
   sex: SexEnum;
   villageNumber: string;
