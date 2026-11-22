@@ -173,11 +173,16 @@ class TestMultiObjectResolution:
     """System tests for resolving multiple object types together"""
 
     def test_resolve_patient_and_reading_together(
-        self, user_factory, patient_factory, reading_factory
+        self, user_factory, patient_factory, reading_factory, pregnancy_factory
     ):
         user_factory.create(id=170, username="test_user")
         patient_factory.create(
             id="patient_007", name="Multi Test", sex="FEMALE", is_pregnant=True
+        )
+        pregnancy_factory.create(
+            id=2,
+            patient_id="patient_007",
+            start_date=1609459200, 
         )
         reading_factory.create(
             id="reading_002",
