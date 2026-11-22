@@ -190,7 +190,7 @@ def test_sync_does_not_recreate_deleted_patient(
     assert crud.read(PatientAssociationsOrm, patient_id=patient_id) is None
 
 
-def test_sync_skips_readings_for_deleted_patient(
+def test_sync_reports_readings_for_deleted_patient(
     create_patient_with_reading, patient_id, database, api_delete, api_post
 ):
     create_patient_with_reading()
@@ -212,7 +212,9 @@ def test_sync_skips_readings_for_deleted_patient(
     )
     database.session.commit()
 
-    assert response.status_code == 200
+    assert response.status_code == 207
+    errors = response.json()["errors"]
+    assert [error["readingId"] for error in errors] == [mobile_reading_id]
     assert crud.read(ReadingOrm, id=mobile_reading_id) is None
 
 

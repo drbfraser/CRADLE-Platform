@@ -338,6 +338,7 @@ def test_assessment_update_cannot_change_patient(clinical_records, api_put):
 
 
 SYNCED_RECORD_ID = "sec09-synced-record"
+MISSING_PATIENT_RECORD_ID = "sec09-missing-patient-record"
 NEW_WORKFLOW_INSTANCE_ID = "sec09-workflow-instance"
 
 
@@ -361,39 +362,59 @@ def _sync_referral(record_id, patient_id):
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
 @pytest.mark.parametrize(
-    "resource, model, make_record",
+    "resource, model, make_record, error_id_key",
     [
-        ("readings", ReadingOrm, _sync_reading),
-        ("referrals", ReferralOrm, _sync_referral),
+        ("readings", ReadingOrm, _sync_reading, "readingId"),
+        ("referrals", ReferralOrm, _sync_referral, "referralId"),
     ],
     ids=["readings", "referrals"],
 )
-def test_vht_sync_skips_unassociated_patient_records(
-    clinical_records, api_post, resource, model, make_record
+def test_sync_reports_rejected_patient_uploads(
+    clinical_records, api_post, resource, model, make_record, error_id_key
 ):
+    endpoint = f"/api/sync/{resource}?since=0"
+    accepted_record = make_record(SYNCED_RECORD_ID, ASSOCIATED_PATIENT_ID)
     try:
         response = api_post(
-            endpoint=f"/api/sync/{resource}?since=0",
+            endpoint=endpoint,
             json=[
                 make_record(NEW_RECORD_ID, clinical_records.id),
-                make_record(SYNCED_RECORD_ID, ASSOCIATED_PATIENT_ID),
+                make_record(MISSING_PATIENT_RECORD_ID, "00000000000"),
+                accepted_record,
             ],
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 207
+        result = response.json()
+        assert result["errors"] == [
+            {
+                error_id_key: record_id,
+                "errors": "Patient is missing or you do not have access.",
+            }
+            for record_id in (NEW_RECORD_ID, MISSING_PATIENT_RECORD_ID)
+        ]
+        assert SYNCED_RECORD_ID in {record["id"] for record in result[resource]}
         assert _saved_record(model, NEW_RECORD_ID) is None
+        assert _saved_record(model, MISSING_PATIENT_RECORD_ID) is None
         assert _saved_record(model, SYNCED_RECORD_ID) is not None
+
+        response = api_post(endpoint=endpoint, json=[accepted_record])
+
+        assert response.status_code == 200
+        assert response.json().keys() == {resource}
     finally:
         crud.delete_by(model, id=NEW_RECORD_ID)
+        crud.delete_by(model, id=MISSING_PATIENT_RECORD_ID)
         crud.delete_by(model, id=SYNCED_RECORD_ID)
 
 
 @pytest.mark.parametrize("credentials", [("vht@email.com", "cradle-vht")])
 def test_reading_sync_cannot_update_another_patient_reading(clinical_records, api_post):
     original_reading = _saved_record(ReadingOrm, READING_ID)
+    since = int(time.time()) + 60
 
     response = api_post(
-        endpoint="/api/sync/readings?since=0",
+        endpoint=f"/api/sync/readings?since={since}",
         json=[
             {
                 **_sync_reading(READING_ID, ASSOCIATED_PATIENT_ID),
@@ -402,7 +423,15 @@ def test_reading_sync_cannot_update_another_patient_reading(clinical_records, ap
         ],
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 207
+    result = response.json()
+    assert result["errors"] == [
+        {
+            "readingId": READING_ID,
+            "errors": "This reading cannot be synced for this patient.",
+        }
+    ]
+    assert result["readings"] == []
     assert _saved_record(ReadingOrm, READING_ID) == original_reading
 
 

@@ -316,25 +316,49 @@ def sync_deleted_patients(body: SyncDeletedPatientsBody):
     return {"deleted_patient_ids": deleted_patient_ids}, 200
 
 
+PATIENT_UNAVAILABLE_FOR_SYNC = "Patient is missing or you do not have access."
+
+
+class ReadingSyncError(CradleBaseModel):
+    reading_id: str
+    errors: str
+
+
 class SyncReadingsResponse(CradleBaseModel):
     readings: list[ReadingResponse]
+    errors: list[ReadingSyncError] = Field(default_factory=list)
 
 
 # /api/sync/readings [POST]
-@api_sync.post("/readings", responses={200: SyncReadingsResponse})
+@api_sync.post(
+    "/readings", responses={200: SyncReadingsResponse, 207: SyncReadingsResponse}
+)
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     """Sync Readings"""
     current_user = user_utils.get_current_user_from_jwt()
     can_sync_patient = _patient_sync_checker(current_user)
+    errors: list[dict[str, str]] = []
     mobile_readings = body.root
     for mobile_reading in mobile_readings:
-        mobile_reading_dict = mobile_reading.model_dump()
         if not can_sync_patient(mobile_reading.patient_id):
+            errors.append(
+                {
+                    "reading_id": mobile_reading.id,
+                    "errors": PATIENT_UNAVAILABLE_FOR_SYNC,
+                }
+            )
             continue
 
+        mobile_reading_dict = mobile_reading.model_dump()
         server_reading = crud.read(ReadingOrm, id=mobile_reading.id)
         if server_reading is not None:
             if server_reading.patient_id != mobile_reading.patient_id:
+                errors.append(
+                    {
+                        "reading_id": mobile_reading.id,
+                        "errors": "This reading cannot be synced for this patient.",
+                    }
+                )
                 continue
             crud.update(
                 ReadingOrm,
@@ -353,17 +377,28 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
         cast("dict[Any, Any]", current_user), last_sync, scope_query=scope_patient_query
     )
 
-    return {
+    response = {
         "readings": [serialize.serialize_reading(r) for r in new_readings],
     }
+    if errors:
+        return {**response, "errors": errors}, 207
+    return response, 200
+
+
+class ReferralSyncError(CradleBaseModel):
+    referral_id: str
+    errors: str
 
 
 class SyncReferralsResponse(CradleBaseModel):
     referrals: list[ReferralResponse]
+    errors: list[ReferralSyncError] = Field(default_factory=list)
 
 
 # /api/sync/referrals [POST]
-@api_sync.post("/referrals", responses={200: SyncReferralsResponse})
+@api_sync.post(
+    "/referrals", responses={200: SyncReferralsResponse, 207: SyncReferralsResponse}
+)
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     """Sync Referrals"""
     current_user = user_utils.get_current_user_from_jwt()
@@ -371,15 +406,30 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     can_create_referral = can_perform_referral_action(
         current_user, ReferralAction.CREATE
     )
+    errors: list[dict[str, str]] = []
     mobile_referrals = body.root
     for mobile_referral in mobile_referrals:
-        mobile_referral_dict = mobile_referral.model_dump()
-        if not can_create_referral or not can_sync_patient(mobile_referral.patient_id):
+        if not can_create_referral:
+            errors.append(
+                {
+                    "referral_id": mobile_referral.id,
+                    "errors": "You do not have permission to sync referrals.",
+                }
+            )
+            continue
+        if not can_sync_patient(mobile_referral.patient_id):
+            errors.append(
+                {
+                    "referral_id": mobile_referral.id,
+                    "errors": PATIENT_UNAVAILABLE_FOR_SYNC,
+                }
+            )
             continue
 
         if crud.read(ReferralOrm, id=mobile_referral.id):
             # currently, for referrals that exist in server already we will skip them
             continue
+        mobile_referral_dict = mobile_referral.model_dump()
         mobile_referral_dict["user_id"] = current_user["id"]
 
         referral = orm_serializer.unmarshal(ReferralOrm, mobile_referral_dict)
@@ -391,11 +441,14 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
         cast("dict[Any, Any]", current_user), last_sync, scope_query=scope_patient_query
     )
 
-    return {
+    response = {
         "referrals": [
             serialize.serialize_referral_or_assessment(r) for r in new_referrals
         ],
     }
+    if errors:
+        return {**response, "errors": errors}, 207
+    return response, 200
 
 
 class SyncAssessmentsResponse(CradleBaseModel):
