@@ -275,7 +275,7 @@ def __query_object(
 def __query_patient(id: str) -> Optional[dict[str, Any]]:
     """
     Query a patient by id, same as ``__query_object`` for ``PatientOrm``,
-    except ``is_pregnant`` is derived from the patient's pregnancy records, 
+    except ``is_pregnant`` is derived from the patient's pregnancy records,
     because the stored ``patient.is_pregnant`` column in PatientOrm is not kept up to date
     """
     patient = __query_object(PatientOrm, lambda _id: PatientOrm.id == _id, id)
