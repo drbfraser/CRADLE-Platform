@@ -1,6 +1,10 @@
 name: Testing Dashboard
 
 on:
+  schedule:
+    # 3 AM Vancouver time (UTC-7)
+    - cron: "0 10 * * *"
+
   workflow_dispatch:
     inputs:
       mobile_run_id:
@@ -19,6 +23,10 @@ permissions:
 env:
   CUSTOM_WORKSPACE: /isolated-build/repo
   REPORT_WORK: /isolated-build/dashboard-${{ github.run_id }}-${{ github.run_attempt }}
+
+concurrency:
+  group: testing-dashboard-pages
+  cancel-in-progress: false
 
 jobs:
   generate-dashboard:
@@ -93,10 +101,9 @@ jobs:
           GH_HOST: github.sfu.ca
           GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
           PLATFORM_REPOSITORY: ${{ github.repository }}
-          REPORT_BRANCH: ${{ github.head_ref || github.ref_name }}
-        run: | # unlike mobile, the backend artifacts will be downloaded from whatever branch this workflow is ran from.
+        run: | # reports on the main branch
           set -eu
-          PLATFORM_BRANCH="$REPORT_BRANCH"
+          PLATFORM_BRANCH="main"
           PLATFORM_WORKFLOW="main-cicd.yml"
           PLATFORM_REPO="github.sfu.ca/$PLATFORM_REPOSITORY"
 
@@ -237,3 +244,27 @@ jobs:
           name: testing-dashboard
           path: ${{ env.REPORT_WORK }}/site/
           if-no-files-found: error
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ${{ env.REPORT_WORK }}/site/
+
+  deploy-pages:
+    needs: generate-dashboard
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, docker]
+    container:
+      image: node:20
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy dashboard to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
