@@ -182,7 +182,7 @@ class TestMultiObjectResolution:
         pregnancy_factory.create(
             id=2,
             patient_id="patient_007",
-            start_date=1609459200, 
+            start_date=1609459200,
         )
         reading_factory.create(
             id="reading_002",
