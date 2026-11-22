@@ -76,6 +76,7 @@ _PREGNANCY_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "outcome": T.STRING,
     "last_edited": T.INTEGER,
     "patient_id": T.STRING,
+    "gestational_age_weeks": T.INTEGER,
 }
 
 # all_wf: marshaled workflow_instance (shallow).

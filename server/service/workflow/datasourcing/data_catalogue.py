@@ -1,6 +1,6 @@
 import json
 from functools import partial
-from typing import Any, Callable, TypeAlias, TypeVar
+from typing import Any, Callable, Optional, TypeAlias, TypeVar
 
 import data.db_operations as crud
 from data import orm_serializer
@@ -67,6 +67,8 @@ def __query_vitals_collection(patient_id: str) -> list[dict[str, Any]]:
 def __query_pregnancies_collection(patient_id: str) -> list[dict[str, Any]]:
     """
     Query all pregnancies for a patient, ordered by start_date (newest first).
+
+    Each item is enriched with a computed ``gestational_age_weeks``, otherwise None.
     """
     pregnancies = crud.read_all(PregnancyOrm, patient_id=patient_id) or []
     pregnancies_sorted = sorted(
@@ -74,7 +76,16 @@ def __query_pregnancies_collection(patient_id: str) -> list[dict[str, Any]]:
         key=lambda p: getattr(p, "start_date", 0) or 0,
         reverse=True,
     )
-    return [orm_serializer.marshal(p) for p in pregnancies_sorted]
+
+    result: list[dict[str, Any]] = []
+    for pregnancy in pregnancies_sorted:
+        pregnancy_dict = orm_serializer.marshal(pregnancy)
+        pregnancy_dict["gestational_age_weeks"] = cl.pregnancy_gestational_age_weeks(
+            pregnancy_dict
+        )
+        result.append(pregnancy_dict)
+
+    return result
 
 
 def __query_referrals_collection(patient_id: str) -> list[dict[str, Any]]:
@@ -261,6 +272,23 @@ def __query_object(
     return orm_serializer.marshal(data)
 
 
+def __query_patient(id: str) -> Optional[dict[str, Any]]:
+    """
+    Query a patient by id, same as ``__query_object`` for ``PatientOrm``,
+    except ``is_pregnant`` is derived from the patient's pregnancy records, 
+    because the stored ``patient.is_pregnant`` column in PatientOrm is not kept up to date
+    """
+    patient = __query_object(PatientOrm, lambda _id: PatientOrm.id == _id, id)
+    if patient is None:
+        return None
+
+    pregnancies = crud.read_medical_records(PregnancyOrm, id, direction="DESC")
+    patient["is_pregnant"] = orm_serializer.marshal_patient_pregnancy_summary(
+        pregnancies
+    )["is_pregnant"]
+    return patient
+
+
 def get_catalogue() -> dict[str, ObjectCatalogue]:
     """
     The data catalogue of supported datasource objects
@@ -301,7 +329,7 @@ __data_catalogue: dict[str, ObjectCatalogue] = {
         "custom": {},
     },
     "patient": {
-        "query": partial(__query_object, PatientOrm, lambda _id: PatientOrm.id == _id),
+        "query": __query_patient,
         "custom": {"age": partial(cl.patient_age)},
     },
     "pregnancy": {

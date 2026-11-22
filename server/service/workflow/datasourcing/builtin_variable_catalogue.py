@@ -95,6 +95,7 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         VariableType.BOOLEAN,
         "patient",
         '["is_pregnant"]',
+        computed=True,
     ),
     catalogue_variable(
         "var-patient-household-number",
@@ -369,6 +370,16 @@ WORKFLOW_VARIABLE_CATALOGUE = [
         "pregnancies",
         '["outcome"]',
         "pregnancies",
+    ),
+    catalogue_variable(
+        "var-preg-latest-gestational-age-weeks",
+        "pregnancies[latest].gestational_age_weeks",
+        "Gestational age in completed weeks of the latest ongoing pregnancy",
+        VariableType.INTEGER,
+        "pregnancies",
+        '["gestational_age_weeks"]',
+        "pregnancies",
+        computed=True,
     ),
     # Referrals
     catalogue_variable(
