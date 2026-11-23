@@ -180,7 +180,6 @@ class TestMultiObjectResolution:
             id="patient_007", name="Multi Test", sex="FEMALE", is_pregnant=True
         )
         pregnancy_factory.create(
-            id=2,
             patient_id="patient_007",
             start_date=1609459200,
         )
