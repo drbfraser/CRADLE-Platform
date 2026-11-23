@@ -2,10 +2,6 @@ import json
 
 import data.db_operations as crud
 from common.commonUtil import get_current_time
-from manage import (
-    create_lang_text,
-    create_workflow_template_step_with_form_and_branches,
-)
 from models import (
     FormClassificationOrmV2,
     FormQuestionTemplateOrmV2,
@@ -15,6 +11,10 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
     db,
+)
+from seed.helpers import (
+    create_lang_text,
+    create_workflow_template_step_with_form_and_branches,
 )
 
 PAPAGAIO_DIAGNOSIS_TEMPLATE_ID = "papagaio_diagnosis_workflow_template"
@@ -112,34 +112,20 @@ def create_papagaio_diagnosis_forms_v2():
             "PAPAGAIO Diagnosis Eligibility Form",
             [
                 {
-                    "user_question_id": "gestational_weeks",
-                    "text": "Gestational age (completed weeks)",
-                    "question_type": "INTEGER",
-                    "num_min": 0,
-                    "num_max": 45,
-                    "units": "weeks",
-                },
-                {
-                    "user_question_id": "suspected_pe",
-                    "text": "Is pre-eclampsia suspected?",
+                    "user_question_id": "pe_diagnosis",
+                    "text": "Does the patient have a suspected or confirmed diagnosis of pre-eclampsia?",
                     "question_type": "MULTIPLE_CHOICE",
-                    "options": YES_NO,
+                    "options": ["Suspected", "Confirmed"],
                 },
                 {
                     "user_question_id": "informed_consent",
-                    "text": "Is the patient able to provide, and has she given, informed consent?",
+                    "text": "Is the patient able to provide informed consent?",
                     "question_type": "MULTIPLE_CHOICE",
                     "options": YES_NO,
                 },
                 {
                     "user_question_id": "multifetal_pregnancy",
-                    "text": "Is this a multifetal pregnancy?",
-                    "question_type": "MULTIPLE_CHOICE",
-                    "options": YES_NO,
-                },
-                {
-                    "user_question_id": "confirmed_pe",
-                    "text": "Does the patient already have a confirmed diagnosis of pre-eclampsia?",
+                    "text": "Is this a multifetal pregnancy (e.g. twins or triplets)?",
                     "question_type": "MULTIPLE_CHOICE",
                     "options": YES_NO,
                 },
@@ -150,35 +136,11 @@ def create_papagaio_diagnosis_forms_v2():
             "PAPAGAIO Diagnosis Randomisation Form",
             [
                 {
-                    "user_question_id": "allocation",
-                    "text": "Which testing strategy was the patient randomised to?",
-                    "question_type": "MULTIPLE_CHOICE",
-                    "options": ["Revealed", "Concealed"],
-                },
-            ],
-        ),
-        "plgf": create_papagaio_diagnosis_form_v2(
-            "plgf",
-            "PAPAGAIO Diagnosis PlGF Testing Form",
-            [
-                {
-                    "user_question_id": "plgf_result",
-                    "text": "PlGF result",
-                    "question_type": "DECIMAL",
+                    "user_question_id": "randomisation_number",
+                    "text": "Generate a randomisation number (0-679)",
+                    "question_type": "INTEGER",
                     "num_min": 0,
-                    "units": "pg/mL",
-                },
-            ],
-        ),
-        "antenatal_care": create_papagaio_diagnosis_form_v2(
-            "antenatal_care",
-            "PAPAGAIO Diagnosis Antenatal Care Form",
-            [
-                {
-                    "user_question_id": "antenatal_care_provided",
-                    "text": "Has usual antenatal care (including best practice guidance) been provided?",
-                    "question_type": "MULTIPLE_CHOICE",
-                    "options": YES_NO,
+                    "num_max": 679,
                 },
             ],
         ),
@@ -260,38 +222,78 @@ def create_papagaio_diagnosis_branch(branch_id, step_id, target_step_id, rule=No
 
 # 4 WORKFLOW STEPS
 def create_papagaio_diagnosis_workflow_template_steps(forms):
+    currently_pregnant_rule = {
+        "and": [
+            {"==": [{"var": "patient.sex"}, "FEMALE"]},
+            {"==": [{"var": "patient.is_pregnant"}, True]},
+        ]
+    }
+    not_female_or_not_currently_pregnant_rule = {
+        "or": [
+            {"==": [{"var": "patient.sex"}, "MALE"]},
+            {"==": [{"var": "patient.is_pregnant"}, False]},
+        ]
+    }
+
     eligible_rule = {
         "and": [
-            {">=": [{"var": "forms[latest].gestational_weeks"}, 24]},
-            {"<=": [{"var": "forms[latest].gestational_weeks"}, 36]},
-            {"==": [{"var": "forms[latest].suspected_pe"}, "Yes"]},
+            {">=": [{"var": "pregnancies[latest].gestational_age_weeks"}, 24]},
+            {"<=": [{"var": "pregnancies[latest].gestational_age_weeks"}, 36]},
             {">=": [{"var": "patient.age"}, 16]},
+            {"==": [{"var": "forms[latest].pe_diagnosis"}, "Suspected"]},
             {"==": [{"var": "forms[latest].informed_consent"}, "Yes"]},
             {"==": [{"var": "forms[latest].multifetal_pregnancy"}, "No"]},
-            {"==": [{"var": "forms[latest].confirmed_pe"}, "No"]},
         ]
     }
     ineligible_rule = {
-        "and": [
+        "or": [
+            {"<": [{"var": "pregnancies[latest].gestational_age_weeks"}, 24]},
+            {">": [{"var": "pregnancies[latest].gestational_age_weeks"}, 36]},
+            {"<": [{"var": "patient.age"}, 16]},
+            {"==": [{"var": "forms[latest].pe_diagnosis"}, "Confirmed"]},
+            {"==": [{"var": "forms[latest].informed_consent"}, "No"]},
             {"==": [{"var": "forms[latest].multifetal_pregnancy"}, "Yes"]},
-            {"==": [{"var": "forms[latest].confirmed_pe"}, "Yes"]},
         ]
     }
 
     steps = [
+        (
+            "pd_pregnancy_check_step",
+            "Pregnancy Check",
+            (
+                "Checks the patient's record: the patient must be female and "
+                "currently pregnant to continue to the enrollment criteria."
+            ),
+            None,
+            [
+                create_papagaio_diagnosis_branch(
+                    "pd_pregnancy_check_to_eligibility",
+                    "pd_pregnancy_check_step",
+                    "pd_eligibility_step",
+                    currently_pregnant_rule,
+                ),
+                create_papagaio_diagnosis_branch(
+                    "pd_pregnancy_check_to_not_eligible",
+                    "pd_pregnancy_check_step",
+                    "pd_not_eligible_step",
+                    not_female_or_not_currently_pregnant_rule,
+                ),
+            ],
+        ),
         (
             "pd_eligibility_step",
             "Enrollment Criteria",
             (
                 "Check inclusion and exclusion criteria.\n\n"
                 "**Inclusion Criteria**\n"
-                "- Pregnant: 24-36 weeks' gestation\n"
+                "- 24-36 weeks' gestation\n"
                 "- Suspected PE\n"
                 "- Aged >= 16 years\n"
                 "- Able to provide informed consent\n\n"
                 "**Exclusion Criteria**\n"
                 "- Multifetal pregnancy\n"
-                "- Confirmed diagnosis of PE"
+                "- Confirmed diagnosis of PE\n\n"
+                "Failing any criterion makes the patient not eligible."
             ),
             forms["eligibility"],
             [
@@ -312,20 +314,24 @@ def create_papagaio_diagnosis_workflow_template_steps(forms):
         (
             "pd_randomisation_step",
             "Randomisation",
-            "Allocation: randomise to testing strategy (1:1), n = 680.",
+            (
+                "Allocation: randomise to testing strategy (1:1), n = 680.\n\n"
+                "Press **Generate** button in the form. Numbers below 340 go to the "
+                "Revealed group; 340 and above go to the Concealed group."
+            ),
             forms["randomisation"],
             [
                 create_papagaio_diagnosis_branch(
                     "pd_randomisation_to_revealed",
                     "pd_randomisation_step",
                     "pd_revealed_plgf_step",
-                    {"==": [{"var": "forms[latest].allocation"}, "Revealed"]},
+                    {"<": [{"var": "forms[latest].randomisation_number"}, 340]},
                 ),
                 create_papagaio_diagnosis_branch(
                     "pd_randomisation_to_concealed",
                     "pd_randomisation_step",
                     "pd_concealed_plgf_step",
-                    {"==": [{"var": "forms[latest].allocation"}, "Concealed"]},
+                    {">=": [{"var": "forms[latest].randomisation_number"}, 340]},
                 ),
             ],
         ),
@@ -333,7 +339,7 @@ def create_papagaio_diagnosis_workflow_template_steps(forms):
             "pd_revealed_plgf_step",
             "Revealed PlGF Testing",
             "PlGF result is revealed.",
-            forms["plgf"],
+            None,
             [
                 create_papagaio_diagnosis_branch(
                     "pd_revealed_to_antenatal",
@@ -346,7 +352,7 @@ def create_papagaio_diagnosis_workflow_template_steps(forms):
             "pd_concealed_plgf_step",
             "Concealed PlGF Testing",
             "PlGF result is concealed.",
-            forms["plgf"],
+            None,
             [
                 create_papagaio_diagnosis_branch(
                     "pd_concealed_to_antenatal",
@@ -362,7 +368,7 @@ def create_papagaio_diagnosis_workflow_template_steps(forms):
                 "Follow-up: usual antenatal care, including guidance and support on "
                 "best practice management."
             ),
-            forms["antenatal_care"],
+            None,
             [
                 create_papagaio_diagnosis_branch(
                     "pd_antenatal_to_primary",
@@ -443,7 +449,7 @@ def create_papagaio_diagnosis_workflow_template():
             "mortality and morbidity from pre-eclampsia, across low- and middle-income countries"
         ),
         "archived": False,
-        "starting_step_id": "pd_eligibility_step",
+        "starting_step_id": "pd_pregnancy_check_step",
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
