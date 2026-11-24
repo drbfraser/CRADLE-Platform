@@ -101,9 +101,10 @@ jobs:
           GH_HOST: github.sfu.ca
           GH_ENTERPRISE_TOKEN: ${{ secrets.REPORT_ARTIFACT_TOKEN }}
           PLATFORM_REPOSITORY: ${{ github.repository }}
-        run: | # reports on the main branch
+          REPORT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: | #  unlike mobile, the backend artifacts will be downloaded from whatever branch this workflow is ran from.
           set -eu
-          PLATFORM_BRANCH="main"
+          PLATFORM_BRANCH="$REPORT_BRANCH"
           PLATFORM_WORKFLOW="main-cicd.yml"
           PLATFORM_REPO="github.sfu.ca/$PLATFORM_REPOSITORY"
 
