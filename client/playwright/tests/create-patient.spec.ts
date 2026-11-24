@@ -49,6 +49,12 @@ test.describe('Create Patient', () => {
   });
 
   test.describe('Unsuccessful', () => {
+    test('Missing Patient ID', async ({ newPatientFormPage, patientName }) => {
+      await newPatientFormPage.enterPatientId('');
+      await newPatientFormPage.enterPatientName(patientName);
+      await newPatientFormPage.enterExactDateOfBirth();
+      await newPatientFormPage.selectSex();
+    });
     test('Missing Name', async ({ newPatientFormPage }) => {
       await newPatientFormPage.enterExactDateOfBirth();
       await newPatientFormPage.selectSex();
