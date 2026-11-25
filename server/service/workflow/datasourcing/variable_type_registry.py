@@ -37,9 +37,9 @@ COLLECTION_NAMESPACES = frozenset(
 
 # wf.info.* metadata (workflow_instance marshaled fields).
 _WF_INFO_FIELD_TYPES: dict[str, WorkflowVariableTypeEnum] = {
-    "start_date": T.INTEGER,
-    "completion_date": T.INTEGER,
-    "last_edited": T.INTEGER,
+    "start_date": T.DATE,
+    "completion_date": T.DATE,
+    "last_edited": T.DATE,
     "current_step_id": T.STRING,
     "status": T.STRING,
     "name": T.STRING,
@@ -54,8 +54,8 @@ _VITAL_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "systolic_blood_pressure": T.INTEGER,
     "diastolic_blood_pressure": T.INTEGER,
     "heart_rate": T.INTEGER,
-    "date_taken": T.INTEGER,
-    "last_edited": T.INTEGER,
+    "date_taken": T.DATE,
+    "last_edited": T.DATE,
     "is_flagged_for_follow_up": T.BOOLEAN,
     "traffic_color": T.STRING,
     "traffic_arrow": T.STRING,
@@ -74,15 +74,15 @@ _PREGNANCY_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "start_date": T.DATE,
     "end_date": T.DATE,
     "outcome": T.STRING,
-    "last_edited": T.INTEGER,
+    "last_edited": T.DATE,
     "patient_id": T.STRING,
 }
 
 # all_wf: marshaled workflow_instance (shallow).
 _ALL_WF_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
-    "start_date": T.INTEGER,
-    "completion_date": T.INTEGER,
-    "last_edited": T.INTEGER,
+    "start_date": T.DATE,
+    "completion_date": T.DATE,
+    "last_edited": T.DATE,
     "status": T.STRING,
     "name": T.STRING,
     "description": T.STRING,
