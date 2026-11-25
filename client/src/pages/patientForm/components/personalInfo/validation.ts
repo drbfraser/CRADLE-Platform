@@ -8,6 +8,11 @@ const ageIsValid = (age: number): boolean => {
 };
 
 export const personalInfoValidationSchema = Yup.object().shape({
+  [PatientField.patientNumber]: Yup.string()
+    .label('Patient ID')
+    .trim()
+    .max(50)
+    .required(),
   // For writing + testing Regex, see: regex101.com
   [PatientField.patientName]: Yup.string()
     .label('Name')

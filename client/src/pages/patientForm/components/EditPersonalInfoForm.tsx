@@ -16,6 +16,7 @@ import { Patient } from 'src/shared/types/patientTypes';
 import { getAgeBasedOnDOB, getDOBForEstimatedAge } from 'src/shared/utils';
 
 export type PatientData = {
+  patientNumber: string;
   name: string;
   householdNumber: string;
   isExactDateOfBirth: boolean;
@@ -29,6 +30,7 @@ export type PatientData = {
 };
 
 export const getPatientData = (values: PatientState): PatientData => ({
+  patientNumber: values[PatientField.patientNumber].trim(),
   name: values[PatientField.patientName],
   householdNumber: values[PatientField.householdNumber],
   isExactDateOfBirth: Boolean(values[PatientField.isExactDateOfBirth]),
@@ -44,6 +46,7 @@ export const getPatientData = (values: PatientState): PatientData => ({
 const parsePatientQueryData = (data: Patient) => {
   return {
     ...data,
+    [PatientField.patientNumber]: data.patientNumber ?? '',
     [PatientField.householdNumber]: data.householdNumber ?? '',
     [PatientField.dateOfBirth]:
       data.isExactDateOfBirth && data.dateOfBirth !== null

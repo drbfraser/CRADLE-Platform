@@ -44,6 +44,7 @@ export type InstanceDetails = {
   studyTitle: string;
   patientName: string;
   patientId: string;
+  patientNumber: Nullable<string>;
 
   status: InstanceStatus;
 

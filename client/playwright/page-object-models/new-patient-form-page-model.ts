@@ -2,6 +2,7 @@ import { type Page, type Locator, expect } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
 export class NewPatientFormPageModel extends PageObjectModel {
+  private readonly patientIdField: Locator;
   private readonly patientNameField: Locator;
   private readonly householdNumberField: Locator;
   private readonly villageNumberField: Locator;
@@ -17,6 +18,7 @@ export class NewPatientFormPageModel extends PageObjectModel {
 
   constructor(page: Page) {
     super(page, '/patients/new');
+    this.patientIdField = page.getByRole('textbox', { name: 'Patient ID' });
     this.patientNameField = page.getByRole('textbox', { name: 'Patient Name' });
     this.householdNumberField = page.getByRole('textbox', {
       name: 'Household Number',
@@ -43,11 +45,16 @@ export class NewPatientFormPageModel extends PageObjectModel {
     this.createButton = page.getByRole('button', { name: 'Create' });
   }
 
+  async enterPatientId(patientId: string) {
+    await this.patientIdField.fill(patientId);
+  }
+
   async enterPatientName(name: string) {
     await this.patientNameField.fill(name);
   }
 
   async enterBasicFields() {
+    await this.enterPatientId('e2e-test');
     await this.householdNumberField.fill('1');
     await this.villageNumberField.fill('1');
     await this.zoneIdField.fill('1');

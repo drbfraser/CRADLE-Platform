@@ -242,6 +242,7 @@ def get_export_data(user_id, filter):
             db_session.query(
                 ReferralOrm.date_referred,
                 ReferralOrm.patient_id,
+                PatientOrm.patient_number,
                 PatientOrm.name,
                 PatientOrm.sex,
                 PatientOrm.date_of_birth,

@@ -67,6 +67,7 @@ class PatientTableEntry(CradleBaseModel):
     """
 
     id: str
+    patient_number: Optional[str] = None
     name: str
     village_number: str
     traffic_light_status: TrafficLightEnum
@@ -465,6 +466,7 @@ def get_all_records_for_patient(
 
 class AdminPatientListItem(CradleBaseModel):
     id: str
+    patient_number: Optional[str] = None
     is_archived: bool
     name: str
 

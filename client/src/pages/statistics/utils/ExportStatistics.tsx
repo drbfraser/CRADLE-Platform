@@ -78,7 +78,7 @@ const DownloadCSV = ({ getData }: IProps) => {
   const headers = [
     { label: 'Referral Date', key: 'parsed_date' },
     { label: 'Referral Time', key: 'parsed_time' },
-    { label: 'Patient ID', key: 'patientId' },
+    { label: 'Patient ID', key: 'patientNumber' },
     { label: 'Name', key: 'name' },
     { label: 'Gender', key: 'sex' },
     { label: 'Pregnant', key: 'parsed_pregnant' },

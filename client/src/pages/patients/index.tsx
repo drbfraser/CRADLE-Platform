@@ -12,6 +12,7 @@ import { GridColDef } from '@mui/x-data-grid';
 import { getPatientsAsync } from 'src/shared/api';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
+import { formatPatientNumber } from 'src/shared/utils/format';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,6 +40,7 @@ export const PatientsPage = () => {
           ...p,
           id: patientId,
           patientId,
+          patientNumber: formatPatientNumber(p.patientNumber),
           lastReadingDate: p.dateTaken
             ? moment(Number(p.dateTaken) * 1000).format('YYYY-MM-DD')
             : 'No reading',
@@ -50,7 +52,7 @@ export const PatientsPage = () => {
   const columns = useMemo<GridColDef[]>(
     () => [
       { field: 'name', headerName: 'Name', flex: 1 },
-      { field: 'patientId', headerName: 'Patient ID', flex: 1 },
+      { field: 'patientNumber', headerName: 'Patient ID', flex: 1 },
       { field: 'villageNumber', headerName: 'Village Number', flex: 1 },
       {
         field: 'trafficLightStatus',

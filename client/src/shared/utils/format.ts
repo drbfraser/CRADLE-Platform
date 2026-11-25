@@ -11,6 +11,10 @@ export const formatBytes = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+/** Patients created before patient numbers were added may not have one. */
+export const formatPatientNumber = (patientNumber?: string | null) =>
+  patientNumber || '—';
+
 export const getLanguages = (): (string | undefined)[] => {
   return ISO6391.getAllNames();
 };

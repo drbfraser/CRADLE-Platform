@@ -7,6 +7,7 @@ import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { Patient } from 'src/shared/types/patientTypes';
 import { getPatientsAdminAsync } from 'src/shared/api';
+import { formatPatientNumber } from 'src/shared/utils/format';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -70,7 +71,7 @@ export const ManagePatients = () => {
 
   const tableColumns: GridColDef[] = [
     { flex: 1, field: 'patientName', headerName: 'Patient Name' },
-    { flex: 1, field: 'patientId', headerName: 'Patient ID' },
+    { flex: 1, field: 'patientNumber', headerName: 'Patient ID' },
     { flex: 1, field: 'isArchived', headerName: 'Archived?' },
     {
       flex: 1,
@@ -91,7 +92,7 @@ export const ManagePatients = () => {
   const tableRows = patients.map((patient) => ({
     id: patient.id,
     patientName: patient.name,
-    patientId: patient.id,
+    patientNumber: formatPatientNumber(patient.patientNumber),
     isArchived: patient.isArchived,
     takeAction: patient,
   }));
