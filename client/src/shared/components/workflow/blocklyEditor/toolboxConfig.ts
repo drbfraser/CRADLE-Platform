@@ -64,6 +64,17 @@ export function buildToolboxConfig(variables: WorkflowVariable[]) {
               },
             ],
           },
+          {
+            kind: 'category',
+            name: 'Referral Collection',
+            colour: '20',
+            contents: [
+              {
+                kind: 'block',
+                type: 'referral_collection',
+              },
+            ],
+          },
         ],
       },
       {

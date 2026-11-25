@@ -90,9 +90,19 @@ export const PREGNANCY_COLLECTION_TAG_MAP: Record<string, string> = {
   outcome: 'pregnancies[latest].outcome',
 };
 
+export const REFERRAL_COLLECTION_TAG_MAP: Record<string, string> = {
+  date_referred: 'referrals[latest].date_referred',
+  is_assessed: 'referrals[latest].is_assessed',
+  is_cancelled: 'referrals[latest].is_cancelled',
+  not_attended: 'referrals[latest].not_attended',
+  health_facility_name: 'referrals[latest].health_facility_name',
+  comment: 'referrals[latest].comment',
+};
+
 const COLLECTION_TAG_MAPS: Record<string, Record<string, string>> = {
   vital_collection: VITAL_COLLECTION_TAG_MAP,
   pregnancy_collection: PREGNANCY_COLLECTION_TAG_MAP,
+  referral_collection: REFERRAL_COLLECTION_TAG_MAP,
 };
 
 function variableDisplayName(v: WorkflowVariable): string {
@@ -714,6 +724,50 @@ export function registerBlocks(variables: WorkflowVariable[]): void {
         .appendField('Pregnancy #')
         .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'PREGNANCY');
       applyPregnancyCollectionType(this, 'outcome');
+    },
+  };
+
+  const REFERRAL_COLLECTION_TYPES: Record<string, string> = {
+    date_referred: 'Date',
+    is_assessed: 'Boolean',
+    is_cancelled: 'Boolean',
+    not_attended: 'Boolean',
+    health_facility_name: 'String',
+    comment: 'String',
+  };
+
+  function applyReferralCollectionType(block: Blockly.Block, field: string) {
+    const outputType = REFERRAL_COLLECTION_TYPES[field] ?? 'String';
+
+    block.setOutput(true, outputType);
+    block.setOutputShape(outputType === 'Date' ? DATE_OUTPUT_SHAPE : null);
+    block.setColour(TYPE_COLOURS[outputType]);
+  }
+
+  Blockly.Blocks['referral_collection'] = {
+    init: function (this: Blockly.Block) {
+      this.appendDummyInput()
+        .appendField('Referral')
+        .appendField(
+          new Blockly.FieldDropdown(
+            [
+              ['Date Referred', 'date_referred'],
+              ['Is Assessed', 'is_assessed'],
+              ['Is Cancelled', 'is_cancelled'],
+              ['Did Not Attend', 'not_attended'],
+              ['Health Facility', 'health_facility_name'],
+              ['Comment', 'comment'],
+            ],
+            (value: string) => {
+              applyReferralCollectionType(this, value);
+              return value;
+            }
+          ),
+          'FIELD'
+        )
+        .appendField('Referral #')
+        .appendField(new Blockly.FieldNumber(1, 1, null, 1), 'REFERRAL');
+      applyReferralCollectionType(this, 'date_referred');
     },
   };
 

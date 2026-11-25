@@ -160,6 +160,57 @@ export default function NextStepSelector({
         </>
       );
     }
+    if (variable.startsWith('referrals[latest].')) {
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ No Referral Records Found
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires at least one referral record, but no
+            referral records are available for this patient.
+          </Typography>
+        </>
+      );
+    }
+
+    const referralMatch = variable.match(/^referrals\[-(\d+)\]\./);
+
+    if (referralMatch) {
+      const referralNumber = Number(referralMatch[1]);
+
+      return (
+        <>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+              fontWeight: 700,
+            }}>
+            ⚠ Additional Referral Records Required
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'warning.main',
+            }}>
+            This condition requires {referralNumber} referral records, but the
+            requested referral record is not available for this patient.
+          </Typography>
+        </>
+      );
+    }
     return null;
   };
 

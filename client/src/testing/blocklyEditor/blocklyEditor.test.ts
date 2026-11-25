@@ -543,6 +543,49 @@ describe('Blockly workspace rules', () => {
     });
   });
 
+  it('loads and re-exports referral collection date rules', () => {
+    const rule = JSON.stringify({
+      '>': [{ var: 'referrals[-2].date_referred' }, { date: '2020-10-10' }],
+    });
+
+    loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+    const root = getConditionRootBlocks(workspace)[0]!;
+
+    expect(root.type).toBe('generic_comparison');
+    expect(root.getFieldValue('OP')).toBe('>');
+
+    const left = root.getInputTargetBlock('LEFT');
+
+    expect(left?.type).toBe('referral_collection');
+    expect(left?.getFieldValue('FIELD')).toBe('date_referred');
+    expect(left?.getFieldValue('REFERRAL')).toBe(2);
+
+    expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+      JSON.parse(rule)
+    );
+  });
+
+  it('loads and re-exports referral collection boolean rules', () => {
+    const rule = JSON.stringify({
+      '==': [{ var: 'referrals[-3].is_assessed' }, true],
+    });
+
+    loadJsonLogicToWorkspace(workspace, rule, TEST_VARIABLES);
+
+    const root = getConditionRootBlocks(workspace)[0]!;
+
+    const left = root.getInputTargetBlock('LEFT');
+
+    expect(left?.type).toBe('referral_collection');
+    expect(left?.getFieldValue('FIELD')).toBe('is_assessed');
+    expect(left?.getFieldValue('REFERRAL')).toBe(3);
+
+    expect(JSON.parse(workspaceToJsonLogic(workspace)!)).toEqual(
+      JSON.parse(rule)
+    );
+  });
+
   describe('variable-length AND/OR block', () => {
     const THREE_CONDITIONS = {
       and: [

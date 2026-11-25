@@ -3,6 +3,7 @@ import { getPrimaryConditionBlock } from './blocklyWorkspaceUtils';
 import {
   VITAL_COLLECTION_TAG_MAP,
   PREGNANCY_COLLECTION_TAG_MAP,
+  REFERRAL_COLLECTION_TAG_MAP,
 } from './blocks';
 
 export const jsonLogicGenerator = new Blockly.Generator('JSON_LOGIC');
@@ -139,6 +140,24 @@ export function workspaceToJsonLogic(
   console.log('workspaceToJsonLogic', codeStr);
   return codeStr || null;
 }
+
+jsonLogicGenerator.forBlock['referral_collection'] = function (block) {
+  const field = block.getFieldValue('FIELD');
+  const referral = Number(block.getFieldValue('REFERRAL'));
+
+  const baseTag = REFERRAL_COLLECTION_TAG_MAP[field];
+
+  if (!baseTag) {
+    return ['null', 0];
+  }
+
+  const referralPrefix =
+    referral <= 1 ? 'referrals[latest]' : `referrals[-${referral}]`;
+
+  const variable = baseTag.replace('referrals[latest]', referralPrefix);
+
+  return [JSON.stringify({ var: variable }), 0];
+};
 
 const METADATA_KEYS = new Set([
   'name',

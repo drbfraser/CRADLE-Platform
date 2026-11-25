@@ -37,6 +37,7 @@ describe('buildToolboxConfig', () => {
       'Vitals info',
       'Vitals Collection',
       'Pregnancy Collection',
+      'Referral Collection',
     ]);
     expect(variables?.[0]?.contents?.[0]?.type).toBe('app_variable_patient');
     expect(variables?.[1]?.contents?.[0]?.type).toBe('app_variable_forms');
