@@ -245,10 +245,23 @@ jobs:
           name: testing-dashboard
           path: ${{ env.REPORT_WORK }}/site/
           if-no-files-found: error
+
+      - name: Package GitHub Pages artifact
+        run: |
+          set -eu
+          chmod -c -R +rX "$REPORT_WORK/site"
+          tar --dereference --hard-dereference \
+              --directory "$REPORT_WORK/site" \
+              -cvf "$REPORT_WORK/artifact.tar" \
+              --exclude=.git --exclude=.github .
+
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          path: ${{ env.REPORT_WORK }}/site/
+          name: github-pages
+          path: ${{ env.REPORT_WORK }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
   deploy-pages:
     needs: generate-dashboard

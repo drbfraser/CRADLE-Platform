@@ -60,6 +60,12 @@ jobs:
         echo "COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}" >> .env.cognito_secrets
         echo "COGNITO_APP_CLIENT_ID=${{ secrets.COGNITO_APP_CLIENT_ID }}" >> .env.cognito_secrets
         echo "COGNITO_CLIENT_SECRET=${{ secrets.COGNITO_CLIENT_SECRET }}" >> .env.cognito_secrets
+    - name: Free disk space before pulling
+      run:  |
+        df -h /
+        docker image prune -af
+        docker builder prune -af
+        df -h /
     - name: Pull docker images from Docker Hub
       run:  |
         docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
@@ -67,8 +73,10 @@ jobs:
       run:  |
         docker compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
     - name: Cleanup unused docker images
+      if: always()
       run:  |
-        docker image prune -f
+        docker image prune -af
+        df -h /
     - name: Apply migrations (once server is up)
       run:  |
         bash -c 'sleep 15'
