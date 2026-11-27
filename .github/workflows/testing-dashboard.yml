@@ -267,8 +267,6 @@ jobs:
     needs: generate-dashboard
     if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, docker]
-    container:
-      image: node:20
     timeout-minutes: 10
     permissions:
       contents: read
