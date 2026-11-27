@@ -78,6 +78,15 @@ _PREGNANCY_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "patient_id": T.STRING,
 }
 
+_REFERRAL_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
+    "date_referred": T.DATE,
+    "is_assessed": T.BOOLEAN,
+    "is_cancelled": T.BOOLEAN,
+    "not_attended": T.BOOLEAN,
+    "health_facility_name": T.STRING,
+    "comment": T.STRING,
+}
+
 # all_wf: marshaled workflow_instance (shallow).
 _ALL_WF_FIELDS: dict[str, WorkflowVariableTypeEnum] = {
     "start_date": T.DATE,
@@ -124,10 +133,13 @@ def _infer_from_field_path(
     if namespace == "pregnancy":
         return _PREGNANCY_FIELDS.get(field_path[-1])
 
+    if namespace == "referrals":
+        return _REFERRAL_FIELDS.get(field_path[-1])
+
     if namespace == "all_wf":
         return _ALL_WF_FIELDS.get(field_path[-1])
 
-    if namespace in ("referrals", "assessments", "forms"):
+    if namespace in ("assessments", "forms"):
         # Phase 4 placeholders; extend when resolvers return stable shapes.
         return None
 

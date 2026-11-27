@@ -7,6 +7,7 @@ import {
   type LogicOpBlock,
   VITAL_COLLECTION_TAG_MAP,
   PREGNANCY_COLLECTION_TAG_MAP,
+  REFERRAL_COLLECTION_TAG_MAP,
 } from './blocks';
 import { getNextTopBlockPosition } from './blocklyWorkspaceUtils';
 import { resolveVariableBlockType } from './variableGrouping';
@@ -299,6 +300,32 @@ function createBlockFromRule(
 
       block.setFieldValue(field, 'FIELD');
       block.setFieldValue(pregnancy, 'PREGNANCY');
+
+      return block;
+    }
+
+    const ReferralCollectionMatch = tag.match(/^referrals\[-(\d+)\]\.(.+)$/);
+
+    if (ReferralCollectionMatch) {
+      const [, referral] = ReferralCollectionMatch;
+
+      const field = Object.entries(REFERRAL_COLLECTION_TAG_MAP).find(
+        ([, backendTag]) =>
+          backendTag.replace('referrals[latest]', `referrals[-${referral}]`) ===
+          tag
+      )?.[0];
+
+      if (!field) {
+        return null;
+      }
+
+      const block = workspace.newBlock('referral_collection');
+
+      block.initSvg();
+      block.render();
+
+      block.setFieldValue(field, 'FIELD');
+      block.setFieldValue(referral, 'REFERRAL');
 
       return block;
     }
