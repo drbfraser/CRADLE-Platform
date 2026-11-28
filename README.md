@@ -13,6 +13,7 @@ reduce preventable maternal deaths in Ugandan villages.
 - Issue tracking is managed via Github Enterprise Issues at: https://github.sfu.ca/cradle-project/Cradle-Platform/issues
 - `master` is continuously deployed to: https://cradle-dev.cs.sfu.ca
 - `staging` is continuously deployed to: https://cradle-stg.cs.sfu.ca
+- Unit test report and code coverage for both Platform and Mobile are updated nightly (3 AM) here: https://pages.github.sfu.ca/cradle-project/Cradle-Platform/
 
 ## Development Setup & Information
 
@@ -22,15 +23,23 @@ For CRADLE Mobile set up see [docs/mobile_setup.md](docs/mobile_setup.md).
 
 For CRADLE SMS relay set up see [docs/sms_relay_setup.md](docs/sms_relay_setup.md).
 
-## Downloading the Backend Test Coverage Report
+## Downloading the Platform Test Coverage Report
 
-Every CI run generates an HTML coverage report for the backend test suite. To download it:
+There are two ways to download test reports from this repo: through the main CI/CD workflow, or the Testing Dashboard workflow. The Testing Dashboard includes all the testing artifacts in one zip file, though the download speed is abysmal. If you want to only download a specific report, going through the main CI/CD workflow will be faster.
 
+To download the report through the main CI/CD workflow:
 1. On a commit or pull request, click the status icon (✅/❌) next to the commit to open the checks list.
 2. Click **Details** on any of the listed checks to open the GitHub Actions run.
 3. On the run page, open the **Summary** tab (in the left sidebar).
 4. Scroll down to the **Artifacts** section at the bottom of the page.
-5. Click **coverage_report** — it downloads automatically as a zip file. Extract it and open `index.html` in a browser to view line-by-line coverage.
+5. Download any of your desired reports in the form of HTML. 
+
+To download the whole report through the Testing Dashboard workflow:
+1. On the repo, click on the **Actions** tab at the top bar.
+2. On the left bar, click on **Testing Dashboard** to filter only the Testing Dashboard workflow.
+3. Click on a successful run (has ✅ icon).
+4. Scroll down to the **Artifacts** section at the bottom of the page.
+5. Download the testing-dashboard artifact.
 
 ## Default Usernames & Passwords
 
